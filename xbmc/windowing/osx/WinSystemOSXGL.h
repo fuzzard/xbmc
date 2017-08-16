@@ -1,6 +1,3 @@
-#ifndef WINDOW_SYSTEM_OSX_GL_H
-#define WINDOW_SYSTEM_OSX_GL_H
-
 #pragma once
 
 /*
@@ -33,6 +30,7 @@ public:
   CWinSystemOSXGL();
   virtual ~CWinSystemOSXGL();
   virtual bool ResizeWindow(int newWidth, int newHeight, int newLeft, int newTop) override;
+  virtual void FinishWindowResize(int newWidth, int newHeight) override;
   virtual bool SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool blankOtherDisplays) override;
 
 protected:
@@ -44,4 +42,3 @@ XBMC_GLOBAL_REF(CWinSystemOSXGL,g_Windowing);
 #define g_Windowing XBMC_GLOBAL_USE(CWinSystemOSXGL)
 
 #endif
-#endif // WINDOW_SYSTEM_H

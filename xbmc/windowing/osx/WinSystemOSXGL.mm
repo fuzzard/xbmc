@@ -20,10 +20,12 @@
 
 #if defined(TARGET_DARWIN_OSX)
 
+#include "OSXGLView.h"
 #include "guilib/Texture.h"
 #include "WinSystemOSXGL.h"
 #include "rendering/gl/RenderSystemGL.h"
 
+#import <Cocoa/Cocoa.h>
 
 CWinSystemOSXGL::CWinSystemOSXGL()
 {
@@ -38,11 +40,7 @@ void CWinSystemOSXGL::PresentRenderImpl(bool rendered)
   if (rendered)
     FlushBuffer();
 
-  if (m_delayDispReset && m_dispResetTimer.IsTimePast())
-  {
-    m_delayDispReset = false;
-    AnnounceOnResetDevice();
-  }
+  HandleDelayedDisplayReset();
 }
 
 void CWinSystemOSXGL::SetVSyncImpl(bool enable)
@@ -58,14 +56,29 @@ void CWinSystemOSXGL::SetVSyncImpl(bool enable)
 bool CWinSystemOSXGL::ResizeWindow(int newWidth, int newHeight, int newLeft, int newTop)
 {
   CWinSystemOSX::ResizeWindow(newWidth, newHeight, newLeft, newTop);
+
+  FinishWindowResize(newWidth, newHeight);
+
+  return true;
+}
+
+void CWinSystemOSXGL::FinishWindowResize(int newWidth, int newHeight)
+{
+  NSWindow *window = (NSWindow*)m_appWindow;
+  OSXGLView *view = [window contentView];
+  NSOpenGLContext *context = [view getGLContext];
+
+  [context performSelectorOnMainThread:@selector(update) withObject:nil waitUntilDone:YES];
+
+  m_nWidth = newWidth;
+  m_nHeight = newHeight;
+  
   CRenderSystemGL::ResetRenderSystem(newWidth, newHeight);
 
   if (m_bVSync)
   {
     EnableVSync(m_bVSync);
   }
-
-  return true;
 }
 
 bool CWinSystemOSXGL::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool blankOtherDisplays)

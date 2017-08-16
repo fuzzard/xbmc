@@ -389,6 +389,11 @@ public:
   */
   void UnlockFrameMoveGuard();
 
+  /*!
+   \brief Toggle between fullscreen and window mode
+  */
+  void ToggleFullscreen() const;
+
 protected:
   bool OnSettingsSaving() const override;
 

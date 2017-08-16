@@ -877,6 +877,7 @@ void CSettings::InitializeISettingCallbacks()
   settingSet.clear();
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_SCREEN);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_RESOLUTION);
+  settingSet.insert(CSettings::SETTING_VIDEOSCREEN_BLANKDISPLAYS);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_SCREENMODE);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_MONITOR);
   settingSet.insert(CSettings::SETTING_VIDEOSCREEN_PREFEREDSTEREOSCOPICMODE);

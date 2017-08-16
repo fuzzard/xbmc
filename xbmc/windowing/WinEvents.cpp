@@ -45,11 +45,6 @@
 #elif defined(TARGET_LINUX) && defined(HAVE_MIR)
 #include "mir/WinEventsMir.h"
 #define WinEventsType CWinEventsMir
-
-#elif (defined(TARGET_FREEBSD) || defined(TARGET_LINUX)) && defined(HAS_SDL_WIN_EVENTS)
-#include "osx/WinEventsSDL.h"
-#define WinEventsType CWinEventsSDL
-
 #elif (defined(TARGET_FREEBSD) || defined(TARGET_LINUX)) && defined(HAS_X11_WIN_EVENTS)
 #include "X11/WinEventsX11.h"
 #define WinEventsType CWinEventsX11

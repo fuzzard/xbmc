@@ -329,9 +329,6 @@ bool CApplication::OnEvent(XBMC_Event& newEvent)
     case XBMC_MODECHANGE:
       g_graphicsContext.ApplyModeChange(newEvent.mode.res);
       break;
-    case XBMC_USEREVENT:
-      CApplicationMessenger::GetInstance().PostMsg(static_cast<uint32_t>(newEvent.user.code));
-      break;
     case XBMC_APPCOMMAND:
       return g_application.OnAppCommand(newEvent.appcommand.action);
     case XBMC_SETFOCUS:
@@ -341,6 +338,11 @@ bool CApplication::OnEvent(XBMC_Event& newEvent)
       // Send a mouse motion event with no dx,dy for getting the current guiitem selected
       g_application.OnAction(CAction(ACTION_MOUSE_MOVE, 0, static_cast<float>(newEvent.focus.x), static_cast<float>(newEvent.focus.y), 0, 0));
       break;
+    case XBMC_TOGGLEFULLSCREEN:
+      g_application.ToggleFullscreen();
+      break;
+    case XBMC_MINIMIZE:
+      g_application.Minimize();
     default:
       return CServiceBroker::GetInputManager().OnEvent(newEvent);
   }
@@ -1025,6 +1027,12 @@ void CApplication::CreateUserDirs() const
       CLog::Log(LOGWARNING, "Failed to remove the archive cache at %s", archiveCachePath.c_str());
   CDirectory::Create(archiveCachePath);
 
+}
+
+void CApplication::ToggleFullscreen() const
+{
+  g_graphicsContext.ToggleFullScreen();
+  m_pPlayer->TriggerUpdateResolution();
 }
 
 bool CApplication::Initialize()
@@ -1971,8 +1979,7 @@ bool CApplication::OnAction(const CAction &action)
 
   if (action.GetID() == ACTION_TOGGLE_FULLSCREEN)
   {
-    g_graphicsContext.ToggleFullScreen();
-    m_pPlayer->TriggerUpdateResolution();
+    ToggleFullscreen();
     return true;
   }
 
@@ -2467,25 +2474,12 @@ void CApplication::OnApplicationMessage(ThreadMessage* pMsg)
       SwitchToFullScreen(true);
     break;
 
-  case TMSG_VIDEORESIZE:
-  {
-    XBMC_Event newEvent;
-    memset(&newEvent, 0, sizeof(newEvent));
-    newEvent.type = XBMC_VIDEORESIZE;
-    newEvent.resize.w = pMsg->param1;
-    newEvent.resize.h = pMsg->param2;
-    OnEvent(newEvent);
-    g_windowManager.MarkDirty();
-  }
-    break;
-
   case TMSG_SETVIDEORESOLUTION:
     g_graphicsContext.SetVideoResolution(static_cast<RESOLUTION>(pMsg->param1), pMsg->param2 == 1);
     break;
 
   case TMSG_TOGGLEFULLSCREEN:
-    g_graphicsContext.ToggleFullScreen();
-    m_pPlayer->TriggerUpdateResolution();
+      ToggleFullscreen();
     break;
 
   case TMSG_MINIMIZE:
@@ -4461,16 +4455,6 @@ void CApplication::Process()
 void CApplication::ProcessSlow()
 {
   g_powerManager.ProcessEvents();
-
-#if defined(TARGET_DARWIN_OSX)
-  // There is an issue on OS X that several system services ask the cursor to become visible
-  // during their startup routines.  Given that we can't control this, we hack it in by
-  // forcing the
-  if (g_Windowing.IsFullScreen())
-  { // SDL thinks it's hidden
-    Cocoa_HideMouse();
-  }
-#endif
 
   // Temporarily pause pausable jobs when viewing video/picture
   int currentWindow = g_windowManager.GetActiveWindow();

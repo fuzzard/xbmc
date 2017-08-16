@@ -326,7 +326,7 @@ bool CDisplaySettings::OnSettingChanging(std::shared_ptr<const CSetting> setting
 
     return true;
   }
-#if defined(HAVE_X11)
+#if defined(HAVE_X11) || defined(TARGET_DARWIN_OSX)
   else if (settingId == CSettings::SETTING_VIDEOSCREEN_BLANKDISPLAYS)
   {
     g_Windowing.UpdateResolutions();

@@ -45,7 +45,8 @@ typedef enum {
        XBMC_APPCOMMAND,         /* Media commands, such as WM_APPCOMMAND on Windows for media keys. */
        XBMC_TOUCH,
        XBMC_SETFOCUS,
-       XBMC_USEREVENT,
+       XBMC_TOGGLEFULLSCREEN,   /* Toggle between fullscreen and windowed*/
+       XBMC_MINIMIZE,           /* Minimize the application window */
 
        XBMC_MAXEVENT = 256      /* XBMC_EventType is represented as uchar */
 } XBMC_EventType;
@@ -89,13 +90,6 @@ struct XBMC_ModeChangeEvent
 typedef struct XBMC_QuitEvent {
 } XBMC_QuitEvent;
 
-/* A user-defined event type */
-typedef struct XBMC_UserEvent {
-	int code;	/* User defined event code */
-	void *data1;	/* User defined data pointer */
-	void *data2;	/* User defined data pointer */
-} XBMC_UserEvent;
-
 /* Multimedia keys on keyboards / remotes are mapped to APPCOMMAND events */
 typedef struct XBMC_AppCommandEvent {
   unsigned int action; /* One of ACTION_... */
@@ -127,7 +121,6 @@ typedef struct XBMC_Event {
     XBMC_MoveEvent move;
     XBMC_ModeChangeEvent mode;
     XBMC_QuitEvent quit;
-    XBMC_UserEvent user;
     XBMC_AppCommandEvent appcommand;
     XBMC_TouchEvent touch;
     XBMC_SetFocusEvent focus;

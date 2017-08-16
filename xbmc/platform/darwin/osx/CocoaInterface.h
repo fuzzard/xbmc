@@ -52,7 +52,12 @@ extern "C"
   //
   void Cocoa_HideMouse();
   void Cocoa_ShowMouse();
+  bool Cocoa_IsMouseHidden();
   void Cocoa_HideDock();
+
+  // threading
+  void Cocoa_RunBlockOnMainQueue(void (^block)(void));
+
 
   // Version.
   //
