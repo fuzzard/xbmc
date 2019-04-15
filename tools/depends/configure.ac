@@ -323,15 +323,18 @@ case $host in
 
         # If tvOS
         if test "$use_platform" = "tvos"; then
+          platform_os="tvos"
           # setup which cpu to use
           if test "x$use_cpu" = "xauto"; then
             use_cpu=arm64
+            target_platform=appletvos
+          elif test "x$use_cpu" = "arm64"; then
+            target_platform=appletvos
+          else
+            AC_MSG_ERROR(error in configure of --with-cpu=$use_cpu)
           fi
-
-          target_platform=appletvos
-          platform_os="tvos"
-
-          found_sdk_version=[`$use_xcodebuild -showsdks | grep $target_platform | sort | tail -n 1 | awk '{ print $2}'`]
+          
+          found_sdk_version=[`$use_xcodebuild -showsdks | sed -E -n 's/.*'"$target_platform"'([0-9]+)\.([0-9]+)/\1.\2/p' | sort  -n -t. -k1,1 -k2,2 | tail -n 1`]
           use_sdk="${use_sdk:-$found_sdk_version}"
           platform_cflags+=" -fembed-bitcode"
           platform_cxxflags+=" -fembed-bitcode"
