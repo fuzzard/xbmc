@@ -38,7 +38,7 @@ static std::string getAudioRoute()
   std::string route;
   AVAudioSession *myAudioSession = [AVAudioSession sharedInstance];
   AVAudioSessionRouteDescription *currentRoute = [myAudioSession currentRoute];
-  NSString *output = [[currentRoute.outputs objectAtIndex:0] portType];
+  NSString *output = [[currentRoute.outputs firstObject] portType];
   if (output)
     route = [output UTF8String];
 
