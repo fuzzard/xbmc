@@ -41,7 +41,7 @@ static std::string getAudioRoute()
   std::string route;
   AVAudioSession *myAudioSession = [AVAudioSession sharedInstance];
   AVAudioSessionRouteDescription *currentRoute = [myAudioSession currentRoute];
-  NSString *output = [[currentRoute.outputs objectAtIndex:0] portType];
+  NSString *output = [[currentRoute.outputs firstObject] portType];
   if (output)
     route = [output UTF8String];
 
@@ -51,7 +51,7 @@ static std::string getAudioRoute()
 static void dumpAVAudioSessionProperties()
 {
   std::string route = getAudioRoute();
-  CLog::Log(LOGNOTICE, "%s audio route = %s", __PRETTY_FUNCTION__, route.empty() ? "NONE" : getAudioRoute().c_str());
+  CLog::Log(LOGNOTICE, "%s audio route = %s", __PRETTY_FUNCTION__, route.empty() ? "NONE" : route.c_str());
 
   AVAudioSession *mySession = [AVAudioSession sharedInstance];
 
@@ -68,6 +68,28 @@ static void dumpAVAudioSessionProperties()
   //CDarwinUtils::DumpAudioDescriptions(__PRETTY_FUNCTION__);
 }
 
+static bool deactivateAudioSession(int count)
+{
+  if (--count < 0)
+    return false;
+
+  bool rtn = false;
+  NSError *err = nullptr;
+  // deactvivate the session
+  AVAudioSession *mySession = [AVAudioSession sharedInstance];
+  if (![mySession setActive: NO error: &err])
+  {
+    CLog::Log(LOGWARNING, "AVAudioSession setActive NO failed, count %d", count);
+    usleep(10 * 1000);
+    rtn = deactivateAudioSession(count);
+  }
+  else
+  {
+    rtn = true;
+  }
+  return rtn;
+}
+
 static void setAVAudioSessionProperties(NSTimeInterval bufferseconds, double samplerate, int channels)
 {
   // darwin docs and technotes say,
@@ -75,34 +97,35 @@ static void setAVAudioSessionProperties(NSTimeInterval bufferseconds, double sam
   AVAudioSession *mySession = [AVAudioSession sharedInstance];
 
   // need to fetch maximumOutputNumberOfChannels when active
-  int maxchannels = [mySession maximumOutputNumberOfChannels];
+  NSInteger maxchannels = [mySession maximumOutputNumberOfChannels];
 
-  NSError *err = nullptr;
-  // deavivate the session
-  if (![mySession setActive: NO error: &err])
+  NSError *err = nil;
+  // deactvivate the session
+  if (!deactivateAudioSession(10))
     CLog::Log(LOGWARNING, "AVAudioSession setActive NO failed: %ld", (long)err.code);
 
   // change the number of channels
   if (channels > maxchannels)
-    channels = maxchannels;
-  err = nullptr;
+    channels = (UInt32)maxchannels;
+  err = nil;
   [mySession setPreferredOutputNumberOfChannels: channels error: &err];
-  if (err != nullptr)
+  if (err != nil)
     CLog::Log(LOGWARNING, "%s setPreferredOutputNumberOfChannels failed", __PRETTY_FUNCTION__);
 
   // change the sameple rate
-  err = nullptr;
+  err = nil;
   [mySession setPreferredSampleRate: samplerate error: &err];
-  if (err != nullptr)
+  if (err != nil)
     CLog::Log(LOGWARNING, "%s setPreferredSampleRate failed", __PRETTY_FUNCTION__);
 
   // change the i/o buffer duration
-  err = nullptr;
+  err = nil;
   [mySession setPreferredIOBufferDuration: bufferseconds error: &err];
-  if (err != nullptr)
+  if (err != nil)
     CLog::Log(LOGWARNING, "%s setPreferredIOBufferDuration failed", __PRETTY_FUNCTION__);
 
   // reactivate the session
+  err = nil;
   if (![mySession setActive: YES error: &err])
     CLog::Log(LOGWARNING, "AVAudioSession setActive YES failed: %ld", (long)err.code);
 
@@ -188,17 +211,17 @@ class CAAudioUnitSink
 
     bool                m_setup;
     bool                m_activated;
-    id                  m_observer;
     AudioUnit           m_audioUnit;
     AudioStreamBasicDescription m_outputFormat;
     AERingBuffer       *m_buffer;
 
+    Float32             m_totalLatency;
+    Float32             m_inputLatency;
     Float32             m_outputLatency;
     Float32             m_bufferDuration;
 
     unsigned int        m_sampleRate;
     unsigned int        m_frameSize;
-    unsigned int        m_frames;
 
     std::atomic<bool>   m_started;
 
@@ -288,27 +311,32 @@ void CAAudioUnitSink::updatedelay(AEDelayStatus &status)
   // return the number of audio frames in buffer, in seconds
   // use internal framesize, once written,
   // bytes in buffer are owned by CAAudioUnitSink.
+  unsigned int size;
   CAESpinLock lock(m_render_section);
   do
   {
     status.tick = m_render_timestamp;
-    status.delay = m_buffer->GetReadSize();
+    status.delay = 0;
+    if(m_buffer)
+      size = m_buffer->GetReadSize();
+    else
+      size = 0;
   } while(lock.retry());
 
   // bytes to seconds
-  status.delay /= m_frameSize * m_sampleRate;
-
-  // add in hw delay and latency (in seconds)
-  status.delay += m_bufferDuration + m_outputLatency;
+  status.delay += (double)size / (double)m_frameSize / (double)m_sampleRate;
+  // add in hw delay and total latency (in seconds)
+  status.delay += m_totalLatency;
+  //CLog::Log(LOGDEBUG, "%s size %f sec", __FUNCTION__, status.delay);
 }
 
 double CAAudioUnitSink::buffertime()
 {
   // return the number of audio frames for the total buffer size, in seconds
   // use internal framesize, buffer is owned by CAAudioUnitSink.
-  double buffertime = m_buffer->GetMaxSize();
-  buffertime /= m_frameSize * m_sampleRate;
-
+  double buffertime;
+  buffertime = (double)m_buffer->GetMaxSize() / (double)(m_frameSize * m_sampleRate);
+  //CLog::Log(LOGDEBUG, "%s total %f bytes", __FUNCTION__, buffertime);
   return buffertime;
 }
 
@@ -393,7 +421,7 @@ bool CAAudioUnitSink::setupAudio()
   // that get rendered every time the audio callback is fired.
   double samplerate = m_outputFormat.mSampleRate;
   int channels = m_outputFormat.mChannelsPerFrame;
-  NSTimeInterval bufferseconds = 512 * m_outputFormat.mChannelsPerFrame / m_outputFormat.mSampleRate;
+  NSTimeInterval bufferseconds = 1024 * m_outputFormat.mChannelsPerFrame / m_outputFormat.mSampleRate;
   CLog::Log(LOGNOTICE, "%s setting channels %d", __PRETTY_FUNCTION__, channels);
   CLog::Log(LOGNOTICE, "%s setting samplerate %f", __PRETTY_FUNCTION__, samplerate);
   CLog::Log(LOGNOTICE, "%s setting buffer duration to %f", __PRETTY_FUNCTION__, bufferseconds);
@@ -442,8 +470,12 @@ bool CAAudioUnitSink::setupAudio()
   }
 
   AVAudioSession *mySession = [AVAudioSession sharedInstance];
+  m_inputLatency  = [mySession inputLatency];
   m_outputLatency  = [mySession outputLatency];
   m_bufferDuration = [mySession IOBufferDuration];
+  //m_totalLatency   = (m_inputLatency + m_bufferDuration) + (m_outputLatency + m_bufferDuration);
+  m_totalLatency   = m_outputLatency + m_bufferDuration;
+  CLog::Log(LOGNOTICE, "%s total latency = %f", __PRETTY_FUNCTION__, m_totalLatency);
 
   m_setup = true;
   std::string formatString;
@@ -545,7 +577,7 @@ static void EnumerateDevices(AEDeviceInfoList &list)
   // device.m_dataFormats.push_back(AE_FMT_S32LE);
 
   // add channel info
-  UInt32 maxChannels = [[AVAudioSession sharedInstance] maximumOutputNumberOfChannels];
+  NSInteger maxChannels = [[AVAudioSession sharedInstance] maximumOutputNumberOfChannels];
   if (maxChannels > 6)
     device.m_channels = AE_CH_LAYOUT_7_1;
   else
@@ -673,7 +705,7 @@ bool CAESinkDARWINIOS::Initialize(AEAudioFormat &format, std::string &device)
       audioFormat.mSampleRate = 48000;
       break;
   }
-  
+
   if (passthrough)
   {
     // passthrough is special, PCM encapsulated IEC61937 packets.
@@ -688,13 +720,17 @@ bool CAESinkDARWINIOS::Initialize(AEAudioFormat &format, std::string &device)
   }
   else
   {
+    NSInteger maxChannels = [[AVAudioSession sharedInstance] maximumOutputNumberOfChannels];
     audioFormat.mFramesPerPacket = 1; // must be 1
 #if defined(TARGET_DARWIN_TVOS)
     // tvos supports up to 8 channels
-    audioFormat.mChannelsPerFrame= format.m_channelLayout.Count();
+    audioFormat.mChannelsPerFrame = format.m_channelLayout.Count();
+    // clamp number of channels to what tvOS reports
+    if (maxChannels == 2)
+      audioFormat.mChannelsPerFrame = (UInt32)maxChannels;
 #else
     // ios supports up to 2 channels (unless we are hdmi connected ? )
-    audioFormat.mChannelsPerFrame= 2;
+    audioFormat.mChannelsPerFrame = maxChannels;
 #endif
     audioFormat.mBitsPerChannel  = CAEUtil::DataFormatToBits(format.m_dataFormat);
     audioFormat.mBytesPerFrame   = audioFormat.mChannelsPerFrame * (audioFormat.mBitsPerChannel >> 3);
@@ -704,10 +740,15 @@ bool CAESinkDARWINIOS::Initialize(AEAudioFormat &format, std::string &device)
     CAEChannelInfo channel_info;
     CAChannelIndex channel_index = CAChannel_PCM_6CHAN;
 #if defined(TARGET_DARWIN_TVOS)
-    UInt32 maxChannels = [[AVAudioSession sharedInstance] maximumOutputNumberOfChannels];
     if (maxChannels == 6 && format.m_channelLayout.Count() == 6)
     {
       // if 6, then audio is set to Digial Dolby 5.1, need to use DD mapping
+      channel_index = CAChannel_PCM_DD5_1;
+    }
+    else
+    if (format.m_channelLayout.Count() == 5)
+    {
+      // if 5, then audio is set to Digial Dolby 5.0, need to use DD mapping
       channel_index = CAChannel_PCM_DD5_1;
     }
     else
@@ -717,7 +758,10 @@ bool CAESinkDARWINIOS::Initialize(AEAudioFormat &format, std::string &device)
         channel_index = CAChannel_PCM_8CHAN;
     }
     for (size_t chan = 0; chan < format.m_channelLayout.Count(); ++chan)
+    {
+      if (chan < maxChannels)
       channel_info += CAChannelMap[channel_index][chan];
+    }
     format.m_channelLayout = channel_info;
   }
 
@@ -733,10 +777,14 @@ bool CAESinkDARWINIOS::Initialize(AEAudioFormat &format, std::string &device)
   switch (format.m_streamInfo.m_type)
   {
     case CAEStreamInfo::STREAM_TYPE_AC3:
+      if (!format.m_streamInfo.m_ac3FrameSize)
+        format.m_streamInfo.m_ac3FrameSize = 1536;
       format.m_frames = format.m_streamInfo.m_ac3FrameSize;
       buffer_size = format.m_frames * 8;
     break;
     case CAEStreamInfo::STREAM_TYPE_EAC3:
+      if (!format.m_streamInfo.m_ac3FrameSize)
+        format.m_streamInfo.m_ac3FrameSize = 1536;
       format.m_frames = format.m_streamInfo.m_ac3FrameSize;
       buffer_size = format.m_frames * 8;
     break;
