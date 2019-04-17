@@ -320,20 +320,35 @@ case $host in
         MC_CHECK_NOT_CPU([$use_cpu], "*86")
 
         # setup which sdk to use
+
+        # If tvOS
         if test "$use_platform" = "tvos"; then
           # setup which cpu to use
           if test "x$use_cpu" = "xauto"; then
             use_cpu=arm64
+          else
+            AC_MSG_ERROR(error in configure of --with-cpu=$use_cpu)
           fi
 
           target_platform=appletvos
 
-          found_sdk_version=[`$use_xcodebuild -showsdks | grep $target_platform | sort | tail -n 1 | awk '{ print $2}'`]
+          found_sdk_version=[`$use_xcodebuild -showsdks | sed -E -n 's/.*'"$target_platform"'([0-9]+)\.([0-9]+)/\1.\2/p' | sort  -n -t. -k1,1 -k2,2 | tail -n 1`]
           use_sdk="${use_sdk:-$found_sdk_version}"
           platform_cflags+=" -fembed-bitcode"
           platform_cxxflags+=" -fembed-bitcode"
           sdk_name=$target_platform$use_sdk
-          platform_min_version="$target_platform-version-min=9.0"
+          platform_min_version="$target_platform-version-min=11.0"
+
+          # using a version earlier than 11.0 won't work on Xcode 9
+          case $use_sdk in
+            11.*);;
+            12.*);;
+            *)
+              AC_MSG_ERROR(error in configure of --with-sdk=$use_sdk)
+              ;;
+          esac
+
+        # If not tvOS (= iOS)
         else
           # setup which cpu to use
           if test "x$use_cpu" = "xauto"; then
@@ -346,19 +361,22 @@ case $host in
           use_sdk="${use_sdk:-$found_sdk_version}"
           sdk_name=$target_platform$use_sdk
           platform_min_version="$target_platform-version-min=9.0"
-        fi
-        case $use_sdk in
-          9.*);;
-          10.*);;
-          11.*);;
-          12.*);;
+
+          case $use_sdk in
+            9.*);;
+            10.*);;
+            11.*);;
+            12.*);;
             *)
               AC_MSG_ERROR(error in configure of --with-sdk=$use_sdk)
-            ;;
-        esac
+              ;;
+          esac
+
+        fi
 
         platform_os="ios"
 
+        # Common to tvos and ios?
         if [ ! test "x$use_cpu" = "xarm64" ]; then
           platform_cflags+=" -mcpu=cortex-a8 -mfpu=neon"
           platform_ldflags+=" -Wl,-segalign,4000"
@@ -372,6 +390,7 @@ case $host in
         platform_cxxflags+=" $cpu_flags"
       ;;
     esac
+
     platform_cflags+=" -arch $use_cpu -m$platform_min_version"
     platform_ldflags+=" -arch $use_cpu -m$platform_min_version -isysroot $use_sdk_path -stdlib=libc++"
     platform_cxxflags+=" -arch $use_cpu -m$platform_min_version -stdlib=libc++"
@@ -419,6 +438,11 @@ case $use_platform in
      platform_cxxflags="-fPIC -mcpu=cortex-a53 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mvectorize-with-neon-quad"
      platform_ldflags="-lpthread"
      ;;
+  tvos)
+    if test "$platform_os" != "ios"; then
+      AC_MSG_ERROR([$use_platform is only supported on the ios platform])
+    fi
+    ;;
   auto)
     ;;
   *)
@@ -679,13 +703,12 @@ AC_SUBST(ffmpeg_options)
 AC_OUTPUT
 
 if test "$platform_os" == "ios"; then
-  if test "$use_platform" = "tvos"; then
-    simulator_sdk_path=[`$use_xcodebuild -version -sdk appletvsimulator$use_sdk  | grep ^Path | awk '{ print $2}'`]
-  else
+  if test "$target_platform" == "iphoneos"; then
     simulator_sdk_path=[`$use_xcodebuild -version -sdk iphonesimulator$use_sdk  | grep ^Path | awk '{ print $2}'`]
+    cp -vf $simulator_sdk_path/usr/include/crt_externs.h $prefix/$deps_dir/include
   fi
-  cp -vf $simulator_sdk_path/usr/include/crt_externs.h $prefix/$deps_dir/include
 fi
+
 echo -e "use simulator:\t $use_simulator"
 
 if test "x$has_localeconv" == "xno" && test "$platform_os" == "android"; then
@@ -716,4 +739,3 @@ if test "$platform_os" == "android"; then
   echo -e "ndk-api-level:\t $use_ndk_api"
   echo -e "build-tools:\t $build_tools_path"
 fi
-
