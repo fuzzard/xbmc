@@ -3034,7 +3034,6 @@ void CApplication::OnPlayBackStarted(const CFileItem &file)
 {
   CLog::LogF(LOGDEBUG,"CApplication::OnPlayBackStarted");
 
-  // check if VideoPlayer should set file item stream details from its current streams
   if (file.GetProperty("get_stream_details_from_player").asBoolean())
     m_appPlayer.SetUpdateStreamDetails();
 
