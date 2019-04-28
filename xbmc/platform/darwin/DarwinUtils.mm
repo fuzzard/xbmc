@@ -18,6 +18,9 @@
   #import <UIKit/UIKit.h>
   #import <mach/mach_host.h>
   #import <sys/sysctl.h>
+#ifdef TARGET_DARWIN_TVOS
+  #import "platform/darwin/tvos/MainController.h"
+#endif
 #else
   #import <Cocoa/Cocoa.h>
   #import <CoreFoundation/CoreFoundation.h>
@@ -346,10 +349,17 @@ const char* CDarwinUtils::GetAppRootFolder(void)
   {
     if (IsIosSandboxed())
     {
+#ifdef TARGET_DARWIN_TVOS
+      // writing to Documents is prohibited, more info:
+      // https://developer.apple.com/library/archive/documentation/General/Conceptual/AppleTV_PG/index.html#//apple_ref/doc/uid/TP40015241-CH12-SW5
+      // https://forums.developer.apple.com/thread/89008
+      rootFolder = "Library/Caches";
+#else
       // when we are sandbox make documents our root
       // so that user can access everything he needs
       // via itunes sharing
       rootFolder = "Documents";
+#endif
     }
     else
     {
