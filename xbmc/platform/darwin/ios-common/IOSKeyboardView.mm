@@ -14,8 +14,14 @@
 
 #import "platform/darwin/NSLogDebugHelpers.h"
 #import "platform/darwin/ios-common/IOSKeyboardView.h"
+#if defined(TARGET_DARWIN_IOS)
 #import "platform/darwin/ios/IOSScreenManager.h"
 #import "platform/darwin/ios/XBMCController.h"
+#elif defined(TARGET_DARWIN_TVOS)
+#import "platform/darwin/DarwinUtils.h"
+#import "platform/darwin/tvos/XBMCController.h"
+#endif
+
 
 static CEvent keyboardFinishedEvent;
 
@@ -49,7 +55,9 @@ static CEvent keyboardFinishedEvent;
     return nil;
 
   // @todo if using native keyboard on tvOS, ignore most of the code but textfield
+#if defined(TARGET_DARWIN_IOS)
   _keyboardIsShowing = 0;
+#endif
   _confirmed = NO;
   _canceled = NULL;
   _deactivated = NO;
@@ -85,11 +93,14 @@ static CEvent keyboardFinishedEvent;
 
   self.userInteractionEnabled = YES;
 
+#if defined(TARGET_DARWIN_IOS)
   [self setAlpha:0.9];
+#endif
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(textChanged:)
                                                name:UITextFieldTextDidChangeNotification
                                              object:_textField];
+#if defined(TARGET_DARWIN_IOS)
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(keyboardDidHide:)
                                                name:UIKeyboardDidHideNotification
@@ -106,6 +117,7 @@ static CEvent keyboardFinishedEvent;
                                            selector:@selector(keyboardDidShow:)
                                                name:UIKeyboardDidShowNotification
                                              object:nil];
+#endif
   return self;
 }
 
@@ -114,7 +126,13 @@ static CEvent keyboardFinishedEvent;
   CGFloat headingW = 0;
   if (_heading.text and _heading.text.length > 0)
   {
+#if defined(TARGET_DARWIN_IOS)
     CGSize headingSize = [_heading.text sizeWithAttributes: @{NSFontAttributeName: [UIFont systemFontOfSize:[UIFont systemFontSize]]}];
+#elif defined(TARGET_DARWIN_TVOS)
+    CGSize headingSize;
+    headingSize.width = 25;
+    headingSize.height = 25;
+#endif
     headingW = MIN(self.bounds.size.width/2, headingSize.width+30);
   }
 
@@ -124,6 +142,7 @@ static CEvent keyboardFinishedEvent;
   _textField.frame = CGRectMake(headingW, y, self.bounds.size.width-headingW, INPUT_BOX_HEIGHT);
 }
 
+#if defined(TARGET_DARWIN_IOS)
 -(void)keyboardWillShow:(NSNotification *) notification{
   NSDictionary* info = [notification userInfo];
   CGRect kbRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
@@ -152,6 +171,7 @@ static CEvent keyboardFinishedEvent;
   // keyboard did hide notification.
   return _keyboardIsShowing != 1;
 }
+#endif
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
@@ -160,10 +180,13 @@ static CEvent keyboardFinishedEvent;
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
   _confirmed = YES;
+#if defined(TARGET_DARWIN_IOS)
   [_textField resignFirstResponder];
+#endif
   return YES;
 }
 
+#if defined(TARGET_DARWIN_IOS)
 - (void)keyboardDidChangeFrame:(id)sender
 {
 }
@@ -180,6 +203,7 @@ static CEvent keyboardFinishedEvent;
 
   [self deactivate];
 }
+#endif
 
 - (void) doActivate:(NSDictionary *)dict
 {
@@ -214,13 +238,17 @@ static CEvent keyboardFinishedEvent;
 
 - (void) doDeactivate:(NSDictionary *)dict
 {
+#if defined(TARGET_DARWIN_IOS)
   LOG(@"%s: keyboard IsShowing %d", __PRETTY_FUNCTION__, _keyboardIsShowing);
+#endif
   _deactivated = YES;
 
+#if defined(TARGET_DARWIN_IOS)
   // Do not break keyboard show up process, if so there's a bug of ios4 will not
   // notify us keyboard hide.
   if (_keyboardIsShowing == 1)
     return;
+#endif
 
   // invalidate our callback object
   if(_iosKeyboard)
