@@ -1,0 +1,2 @@
+xbmc/platform/darwin/tvos             platform/tvos
+xbmc/windowing/tvos                   windowing/tvos
