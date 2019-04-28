@@ -80,7 +80,9 @@
 
   self.playbackState = DARWINEMBED_PLAYBACK_PLAYING;
 
+#if defined(TARGET_DARWIN_IOS)
   [g_xbmcController disableNetworkAutoSuspend];
+#endif
 }
 
 - (void)OnSpeedChanged:(NSDictionary*)item
@@ -98,8 +100,10 @@
 {
   self.playbackState = DARWINEMBED_PLAYBACK_PAUSED;
 
+#if defined(TARGET_DARWIN_IOS)
   // schedule set network auto suspend state for save power if idle.
   [g_xbmcController rescheduleNetworkAutoSuspend];
+#endif
 }
 
 - (void)onStop:(NSDictionary*)item
@@ -108,8 +112,10 @@
 
   self.playbackState = DARWINEMBED_PLAYBACK_STOPPED;
 
+#if defined(TARGET_DARWIN_IOS)
   // delay set network auto suspend state in case we are switching playing item.
   [g_xbmcController rescheduleNetworkAutoSuspend];
+#endif
 }
 
 - (void)observeValueForKeyPath:(NSString*)keyPath
