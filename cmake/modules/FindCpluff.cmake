@@ -17,7 +17,7 @@ else()
 
   # iOS: Without specifying -arch, configure tries to use /bin/cpp as C-preprocessor
   # http://stackoverflow.com/questions/38836754/cant-cross-compile-c-library-for-arm-ios
-  if(CORE_SYSTEM_NAME STREQUAL ios)
+  if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
     set(cppflags "-arch ${CPU}")
   endif()
 
