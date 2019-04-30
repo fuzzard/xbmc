@@ -2980,7 +2980,7 @@ void CApplication::PlaybackCleanup()
       //  resets to res_desktop or look&feel resolution (including refreshrate)
       CServiceBroker::GetWinSystem()->GetGfxContext().SetFullScreenVideo(false);
     }
-#ifdef TARGET_DARWIN_IOS
+#ifdef TARGET_DARWIN_EMBEDDED
     CDarwinUtils::SetScheduling(false);
 #endif
   }
@@ -3136,7 +3136,7 @@ void CApplication::OnPlayBackStopped()
 {
   CLog::LogF(LOGDEBUG, "CApplication::OnPlayBackStopped");
 
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   CDarwinUtils::EnableOSScreenSaver(true);
 #endif
 
@@ -3164,7 +3164,7 @@ void CApplication::OnPlayBackPaused()
 #ifdef HAS_PYTHON
   g_pythonParser.OnPlayBackPaused();
 #endif
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   CDarwinUtils::EnableOSScreenSaver(true);
 #endif
 
@@ -3179,7 +3179,7 @@ void CApplication::OnPlayBackResumed()
 #ifdef HAS_PYTHON
   g_pythonParser.OnPlayBackResumed();
 #endif
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   if (m_appPlayer.IsPlayingVideo())
     CDarwinUtils::EnableOSScreenSaver(false);
 #endif
@@ -3326,7 +3326,7 @@ void CApplication::ResetSystemIdleTimer()
 {
   // reset system idle timer
   m_idleTimer.StartZero();
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   CDarwinUtils::ResetSystemIdleTimer();
 #endif
 }
@@ -3741,7 +3741,7 @@ bool CApplication::OnMessage(CGUIMessage& message)
 
   case GUI_MSG_PLAYBACK_STARTED:
     {
-#ifdef TARGET_DARWIN_IOS
+#ifdef TARGET_DARWIN_EMBEDDED
       // @TODO move this away to platform code
       CDarwinUtils::SetScheduling(m_appPlayer.IsPlayingVideo());
 #endif
