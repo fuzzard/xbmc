@@ -13,7 +13,7 @@
 #include "utils/URIUtils.h"
 #include "CompileInfo.h"
 
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   #import <Foundation/Foundation.h>
   #import <UIKit/UIKit.h>
   #import <mach/mach_host.h>
@@ -116,7 +116,7 @@ const char* CDarwinUtils::getIosPlatformString(void)
   static std::string iOSPlatformString;
   if (iOSPlatformString.empty())
   {
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
     // Gets a string with the device model
     size_t size;
     sysctlbyname("hw.machine", NULL, &size, NULL, 0);
@@ -127,7 +127,7 @@ const char* CDarwinUtils::getIosPlatformString(void)
 #endif
       iOSPlatformString = "unknown0,0";
 
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
     delete [] machine;
 #endif
   }
@@ -138,7 +138,7 @@ const char* CDarwinUtils::getIosPlatformString(void)
 enum iosPlatform getIosPlatform()
 {
   static enum iosPlatform eDev = iDeviceUnknown;
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   if (eDev == iDeviceUnknown)
   {
     std::string devStr(CDarwinUtils::getIosPlatformString());
@@ -240,7 +240,7 @@ bool CDarwinUtils::DeviceHasRetina(double &scale)
 {
   static enum iosPlatform platform = iDeviceUnknown;
 
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   if( platform == iDeviceUnknown )
   {
     platform = getIosPlatform();
@@ -285,7 +285,7 @@ const char *CDarwinUtils::GetOSVersionString(void)
 
 const char *CDarwinUtils::GetIOSVersionString(void)
 {
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
   static std::string iOSVersionString;
   if (iOSVersionString.empty())
   {
@@ -571,7 +571,7 @@ const std::string& CDarwinUtils::GetManufacturer(void)
   static std::string manufName;
   if (manufName.empty())
   {
-#ifdef TARGET_DARWIN_IOS
+#ifdef TARGET_DARWIN_EMBEDDED
     // to avoid dlloading of IOIKit, hardcode return value
 	// until other than Apple devices with iOS will be released
     manufName = "Apple Inc.";
