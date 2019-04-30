@@ -8,7 +8,7 @@
 
 #if (defined TARGET_POSIX)
 #include "threads/platform/pthreads/ThreadImpl.cpp"
-#if defined(TARGET_DARWIN_IOS)
+#if defined(TARGET_DARWIN_EMBEDDED)
 #include "threads/platform/darwin/ThreadSchedImpl.cpp"
 #else
 #include "threads/platform/linux/ThreadSchedImpl.cpp"
