@@ -13,7 +13,7 @@ NATIVE= m4-native gettext-native autoconf-native automake-native \
         flatbuffers-native
 
 
-ifeq ($(OS),ios)
+ifeq ($(OS),darwin_embedded)
   NATIVE += dpkg-native xz-native tar-native gen_entitlements-native ldid-native
 endif
 
