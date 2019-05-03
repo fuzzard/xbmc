@@ -13,4 +13,5 @@ then
 else
   UPLOAD_FILENAME="kodi-$(getBuildRevDateStr)-ios.deb"
 fi
-mv *.deb $WORKSPACE/tools/darwin/packaging/darwin_embedded/$UPLOAD_FILENAME
+mkdir $WORKSPACE/tools/darwin/packaging/ios
+mv *.deb $WORKSPACE/tools/darwin/packaging/ios/$UPLOAD_FILENAME
