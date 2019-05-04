@@ -10,7 +10,12 @@
 
 #include "platform/darwin/NSLogDebugHelpers.h"
 #include "platform/darwin/ios-common/IOSKeyboardView.h"
+
+#if defined(TARGET_DARWIN_IOS)
 #include "platform/darwin/ios/XBMCController.h"
+#elif defined(TARGET_DARWIN_TVOS)
+#include "platform/darwin/tvos/XBMCController.h"
+#endif
 
 class CIOSKeyboardImpl
 {
@@ -37,8 +42,12 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
       if (m_impl->g_pIosKeyboard)
         return false;
 
+#if defined(TARGET_DARWIN_IOS)
       // assume we are only drawn on the mainscreen ever!
       auto keyboardFrame = [g_xbmcController fullscreenSubviewFrame];
+#elif defined(TARGET_DARWIN_TVOS)
+      CGRect keyboardFrame = UIScreen.mainScreen.bounds;
+#endif
 
       //create the keyboardview
       m_impl->g_pIosKeyboard = [[KeyboardView alloc] initWithFrame:keyboardFrame];
@@ -55,8 +64,8 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
     // init keyboard stuff
     SetTextToKeyboard(initialString);
     [m_impl->g_pIosKeyboard setHidden:bHiddenInput];
-    [m_impl->g_pIosKeyboard setHeading:[NSString stringWithUTF8String:heading.c_str()]];
-    [m_impl->g_pIosKeyboard registerKeyboard:this]; // for calling back
+    [m_impl->g_pIosKeyboard setHeading:@(heading.c_str())];
+    m_impl->g_pIosKeyboard.iosKeyboard = this; // for calling back
     bool confirmed = false;
     if (!m_bCanceled)
     {
@@ -65,7 +74,7 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
       // user is done - get resulted text and confirmation
       confirmed = m_impl->g_pIosKeyboard.isConfirmed;
       if (confirmed)
-        typedString = [m_impl->g_pIosKeyboard.text UTF8String];
+        typedString = m_impl->g_pIosKeyboard.text.UTF8String;
     }
     @synchronized([KeyboardView class])
     {
@@ -85,8 +94,7 @@ bool CIOSKeyboard::SetTextToKeyboard(const std::string &text, bool closeKeyboard
 {
   if (!m_impl->g_pIosKeyboard)
     return false;
-  [m_impl->g_pIosKeyboard setKeyboardText:[NSString stringWithUTF8String:text.c_str()]
-                            closeKeyboard:closeKeyboard ? YES : NO];
+  [m_impl->g_pIosKeyboard setKeyboardText:@(text.c_str()) closeKeyboard:closeKeyboard ? YES : NO];
   return true;
 }
 
