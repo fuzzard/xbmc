@@ -19,8 +19,13 @@
   BOOL _deactivated;
   UITextField *_textField;
   UITextField *_heading;
+#if defined(TARGET_DARWIN_IOS)
   int _keyboardIsShowing; // 0: not, 1: will show, 2: showing
+#endif
   CGRect _kbRect;
+#if defined(TARGET_DARWIN_TVOS)
+  CGRect _frame;
+#endif
 }
 
 @property(nonatomic, strong) NSMutableString* text;
