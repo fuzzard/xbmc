@@ -94,7 +94,7 @@ static void setAVAudioSessionProperties(NSTimeInterval bufferseconds, double sam
   AVAudioSession *mySession = [AVAudioSession sharedInstance];
 
   // need to fetch maximumOutputNumberOfChannels when active
-  int maxchannels = [mySession maximumOutputNumberOfChannels];
+  NSInteger maxchannels = [mySession maximumOutputNumberOfChannels];
 
   NSError *err = nil;
   // deactvivate the session
@@ -103,7 +103,7 @@ static void setAVAudioSessionProperties(NSTimeInterval bufferseconds, double sam
 
   // change the number of channels
   if (channels > maxchannels)
-    channels = maxchannels;
+    channels = (UInt32)maxchannels;
   err = nil;
   [mySession setPreferredOutputNumberOfChannels: channels error: &err];
   if (err != nil)
@@ -574,7 +574,7 @@ static void EnumerateDevices(AEDeviceInfoList &list)
   // device.m_dataFormats.push_back(AE_FMT_S32LE);
 
   // add channel info
-  UInt32 maxChannels = [[AVAudioSession sharedInstance] maximumOutputNumberOfChannels];
+  NSInteger maxChannels = [[AVAudioSession sharedInstance] maximumOutputNumberOfChannels];
   if (maxChannels > 6)
     device.m_channels = AE_CH_LAYOUT_7_1;
   else
