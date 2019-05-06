@@ -3049,6 +3049,10 @@ void CApplication::OnPlayBackStarted(const CFileItem &file)
 {
   CLog::LogF(LOGDEBUG,"CApplication::OnPlayBackStarted");
 
+#if defined(TARGET_DARWIN_EMBEDDED)
+  CDarwinUtils::EnableOSScreenSaver(false);
+#endif
+
   // Always update file item stream details
   m_appPlayer.SetUpdateStreamDetails();
 
