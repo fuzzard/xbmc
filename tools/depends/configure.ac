@@ -321,14 +321,8 @@ case $host in
 
         # setup which sdk to use
         if test "$use_platform" = "tvos"; then
-          # setup which cpu to use
-          if test "x$use_cpu" = "xauto"; then
-            use_cpu=arm64
-          fi
-
+          use_cpu=arm64
           target_platform=appletvos
-          platform_cflags+=" -fembed-bitcode"
-          platform_cxxflags+=" -fembed-bitcode"
           platform_min_version="$target_platform-version-min=11.0"
         else
           # setup which cpu to use
@@ -375,7 +369,7 @@ case $host in
         platform_cflags+=" -Wno-error=implicit-function-declaration"
         optimize_flags="-O3"
         use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name | grep ^Path | awk '{ print $2}'`]
-        platform_ldflags+=" -L$use_sdk_path/usr/lib/system"
+        platform_ldflags+=" -L$use_sdk_path/usr/lib"
         platform_cxxflags+=" $cpu_flags"
       ;;
     esac
@@ -422,6 +416,8 @@ case $use_platform in
      platform_ldflags="-lpthread"
      ;;
   tvos)
+     platform_cflags+=" -fembed-bitcode"
+     platform_cxxflags+=" -fembed-bitcode"
     if test "$platform_os" != "darwin_embedded"; then
       AC_MSG_ERROR([$use_platform is only supported on the darwin_embedded platform])
     fi
@@ -686,15 +682,12 @@ AC_SUBST(ffmpeg_options)
 AC_OUTPUT
 
 if test "$platform_os" == "darwin_embedded"; then
-  if test "$use_platform" = "tvos"; then
-    simulator_sdk_path=[`$use_xcodebuild -version -sdk appletvsimulator$use_sdk  | grep ^Path | awk '{ print $2}'`]
-  else
+  if test "$use_platform" = "ios"; then
     simulator_sdk_path=[`$use_xcodebuild -version -sdk iphonesimulator$use_sdk  | grep ^Path | awk '{ print $2}'`]
-  fi
-  cp -vf $simulator_sdk_path/usr/include/crt_externs.h $prefix/$deps_dir/include
-fi
 
-echo -e "use simulator:\t $use_simulator"
+    echo -e "use simulator:\t $simulator_sdk_path"
+  fi
+fi
 
 if test "x$has_localeconv" == "xno" && test "$platform_os" == "android"; then
   cp -vf target/android-libc-replacements/locale.h $prefix/$deps_dir/include/
