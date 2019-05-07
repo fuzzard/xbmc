@@ -72,7 +72,7 @@ set(CODE_SIGN_IDENTITY "" CACHE STRING "Code Sign Identity")
 if(CODE_SIGN_IDENTITY)
   set_target_properties(${APP_NAME_LC} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED TRUE
                                                   XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY})
-  if(TOPSHELF_EXTENSION_NAME)
+  if(ENABLE_TOPSHELF)
     set_target_properties(${TOPSHELF_EXTENSION_NAME} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED TRUE
                                                                 XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY})
   endif()
@@ -113,12 +113,14 @@ add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
             ${CMAKE_SOURCE_DIR}/tools/darwin/Support/Codesign.command
 )
 
-if(TOPSHELF_EXTENSION_NAME)
-  # copy extension inside PlugIns dir of the app bundle
-  add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
-                                                      $<TARGET_BUNDLE_DIR:${APP_NAME_LC}>/PlugIns/${TOPSHELF_EXTENSION_NAME}.${TOPSHELF_BUNDLE_EXTENSION}
-                                                      MAIN_DEPENDENCY ${TOPSHELF_EXTENSION_NAME})
+if(ENABLE_TOPSHELF)
+  if(TOPSHELF_EXTENSION_NAME)
+    # copy extension inside PlugIns dir of the app bundle
+    add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
+                                                        $<TARGET_BUNDLE_DIR:${APP_NAME_LC}>/PlugIns/${TOPSHELF_EXTENSION_NAME}.${TOPSHELF_BUNDLE_EXTENSION}
+                                                        MAIN_DEPENDENCY ${TOPSHELF_EXTENSION_NAME})
+  endif()
 endif()
 
 set(DEPENDS_ROOT_FOR_XCODE ${NATIVEPREFIX}/..)
