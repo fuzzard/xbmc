@@ -19,7 +19,7 @@ if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
                                                               MACOSX_BUNDLE_INFO_PLIST ${TOPSHELF_DIR}/Info.plist.in
                                                               XCODE_PRODUCT_TYPE com.apple.product-type.tv-app-extension
                                                               XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${ENTITLEMENTS_OUT_PATH})
-  target_link_libraries(${TOPSHELF_EXTENSION_NAME} "-framework TVServices")
+  target_link_libraries(${TOPSHELF_EXTENSION_NAME} "-framework TVServices" "-framework Foundation")
 
   add_dependencies(${APP_NAME_LC} ${TOPSHELF_EXTENSION_NAME})
 endif()
