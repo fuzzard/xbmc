@@ -64,6 +64,9 @@ endif()
 if(CORE_SYSTEM_NAME STREQUAL linux)
   option(ENABLE_EVENTCLIENTS    "Enable event clients support?" OFF)
 endif()
+if(CORE_PLATFORM_NAME STREQUAL tvos)
+  option(ENABLE_TOPSHELF    "Enable TopShelf support?" OFF)
+endif()
 
 # Build static libraries per directory
 if(NOT CMAKE_GENERATOR MATCHES "Visual Studio" AND NOT CMAKE_GENERATOR STREQUAL Xcode)
