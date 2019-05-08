@@ -31,6 +31,7 @@
 #import "platform/darwin/tvos/MainApplication.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/ios-common/AnnounceReceiver.h"
+#import "platform/darwin/ios-common/IOSKeyboardView.h"
 #include "platform/xbmc.h"
 #include "settings/AdvancedSettings.h"
 #include "utils/log.h"
@@ -593,6 +594,12 @@ MainController* g_xbmcController;
   [view removeFromSuperview];
   m_glView.userInteractionEnabled = YES;
   [self becomeFirstResponder];
+}
+//--------------------------------------------------------------
+- (void) nativeKeyboardActive: (bool)active;
+{
+    //PRINT_SIGNATURE();
+    m_nativeKeyboardActive = active;
 }
 //--------------------------------------------------------------
 - (void)menuPressed:(UITapGestureRecognizer*)sender
