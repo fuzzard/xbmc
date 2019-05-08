@@ -43,6 +43,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
   UIBackgroundTaskIdentifier m_bgTask;
   IOSPlaybackState m_playbackState;
   NSDictionary* m_nowPlayingInfo;
+  bool m_nativeKeyboardActive;
 
   BOOL m_pause;
   BOOL m_appAlive;
@@ -96,6 +97,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (CGSize)getScreenSize;
 - (void)activateKeyboard:(UIView*)view;
 - (void)deactivateKeyboard:(UIView*)view;
+- (void)nativeKeyboardActive:(bool)active;
 
 - (void)enableBackGroundTask;
 - (void)disableBackGroundTask;

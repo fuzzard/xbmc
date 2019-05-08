@@ -610,6 +610,11 @@ XBMCController* g_xbmcController;
   [self becomeFirstResponder];
 }
 //--------------------------------------------------------------
+- (void) nativeKeyboardActive: (bool)active;
+{
+    m_nativeKeyboardActive = active;
+}
+//--------------------------------------------------------------
 - (void)menuPressed:(UITapGestureRecognizer*)sender
 {
   switch (sender.state)
