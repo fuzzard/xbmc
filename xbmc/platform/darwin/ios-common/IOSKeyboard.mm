@@ -8,7 +8,11 @@
 
 #include "platform/darwin/DarwinUtils.h"
 #include "platform/darwin/NSLogDebugHelpers.h"
-#include "platform/darwin/ios/XBMCController.h"
+#if defined(TARGET_DARWIN_IOS)
+  #include "platform/darwin/ios/XBMCController.h"
+#elif defined(TARGET_DARWIN_TVOS)
+  #include "platform/darwin/tvos/MainController.h"
+#endif
 #include "platform/darwin/ios-common/IOSKeyboard.h"
 #include "platform/darwin/ios-common/IOSKeyboardView.h"
 
@@ -42,11 +46,9 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
     if (!g_pIosKeyboard)
       return false;
 
-#if defined(TARGET_DARWIN_IOS)
     // inform the controller that the native keyboard is active
     // basically as long as g_pIosKeyboard exists...
     [g_xbmcController nativeKeyboardActive:true];
-#endif
   }
 
   m_pCharCallback = pCallback;
@@ -70,9 +72,7 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
   @synchronized([KeyboardView class])
   {
     g_pIosKeyboard = nil;
-#if defined(TARGET_DARWIN_IOS)
     [g_xbmcController nativeKeyboardActive:false];
-#endif
   }
   return confirmed;
 }
