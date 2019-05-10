@@ -22,18 +22,16 @@
 }
 
 + (NSURL*)getSharedURL {
-  #define JAILBROKEN_SHARED_FOLDER @"/var/mobile/Library/Caches"
+  NSString* sharedID = [self getSharedID];
   if ([self isJailbroken])
-  {
-    return [[NSURL fileURLWithPath:JAILBROKEN_SHARED_FOLDER] URLByAppendingPathComponent:[self getSharedID]];
-  }
+    return [[NSURL fileURLWithPath:@"/var/mobile/Library/Caches"] URLByAppendingPathComponent:sharedID];
   else
   {
-        NSFileManager* fileManager = [NSFileManager defaultManager];
-        NSURL* sharedUrl = [fileManager containerURLForSecurityApplicationGroupIdentifier:[self getSharedID]];
-        sharedUrl = [sharedUrl URLByAppendingPathComponent:@"Library" isDirectory:TRUE];
-        sharedUrl = [sharedUrl URLByAppendingPathComponent:@"Caches" isDirectory:TRUE];
-        return sharedUrl;
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSURL* sharedUrl = [fileManager containerURLForSecurityApplicationGroupIdentifier:sharedID];
+    sharedUrl = [sharedUrl URLByAppendingPathComponent:@"Library" isDirectory:YES];
+    sharedUrl = [sharedUrl URLByAppendingPathComponent:@"Caches" isDirectory:YES];
+    return sharedUrl;
   }
 }
 
