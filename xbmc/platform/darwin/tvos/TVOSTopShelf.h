@@ -14,14 +14,15 @@
 class CTVOSTopShelf
 {
  public:
-  CTVOSTopShelf();
-  ~CTVOSTopShelf();
   static CTVOSTopShelf &GetInstance();
   void RunTopShelf();
   void SetTopShelfItems(CFileItemList& movies, CFileItemList& tv);
   void HandleTopShelfUrl(const std::string& url, const bool run);
 
  private:
+  CTVOSTopShelf();
+  ~CTVOSTopShelf();
+
   static std::string m_url;
   static bool m_handleUrl;
 };

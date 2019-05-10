@@ -90,10 +90,7 @@ MainController* m_xbmcController;
   NSArray* urlComponents = [[url absoluteString] componentsSeparatedByString:@"/"];
   NSString* action = urlComponents[2];
   if ([action isEqualToString:@"display"] || [action isEqualToString:@"play"])
-  {
-    std::string cleanURL = *new std::string([[url absoluteString] UTF8String]);
-    CTVOSTopShelf::GetInstance().HandleTopShelfUrl(cleanURL,true);
-  }
+    CTVOSTopShelf::GetInstance().HandleTopShelfUrl(std::string{url.absoluteString.UTF8String}, true);
   return YES;
 }
 

@@ -79,7 +79,7 @@
     }
     return [contentItems autorelease];
   };
-  
+
   if ([movieArray count] > 0)
   {
     TVContentItem* itemMovie = [[TVContentItem alloc] initWithContentIdentifier:wrapperIdentifier];
@@ -100,7 +100,7 @@
 
   [wrapperIdentifier release];
   [shared release];
-  
+
   return [topShelfItems autorelease];
 }
 
