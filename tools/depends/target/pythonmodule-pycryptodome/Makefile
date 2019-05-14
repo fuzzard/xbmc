@@ -20,7 +20,11 @@ ifeq ($(OS),darwin_embedded)
 PYTHON_O=$(abs_top_srcdir)/target/python27/$(PLATFORM)/Modules/python.o
 endif
 #ensure that only our target ldflags are passed to the python build
-LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
+ifeq ($(TARGET_PLATFORM),appletvos)
+  LDSHARED:=$(CC) $(LDFLAGS)
+else
+  LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
+endif
 CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python2.7/site-packages/" LDSHARED="$(LDSHARED)"
 endif
 
