@@ -329,6 +329,7 @@ case $host in
           target_platform=appletvos
           platform_cflags+=" -fembed-bitcode"
           platform_cxxflags+=" -fembed-bitcode"
+          platform_ldflags+=" -Wl,-bitcode_bundle"
           platform_min_version="$target_platform-version-min=11.0"
         else
           # setup which cpu to use
