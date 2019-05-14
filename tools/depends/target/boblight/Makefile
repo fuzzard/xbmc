@@ -33,6 +33,9 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(CPU),arm64)
 	cd $(PLATFORM); patch -p0 < ../03-fixtvos.patch
 	cd $(PLATFORM); sed -ie "s|-bind_at_load||" ./libtool
+ifeq ($(TARGET_PLATFORM),appletvos)
+	  cd $(PLATFORM); sed -ie "s|^allow_undefined_flag=.*|allow_undefined_flag=\"\"|" ./libtool
+endif
 	cd $(PLATFORM); sed -ie "s|-bind_at_load||" ./ltmain.sh
 endif
 
