@@ -370,6 +370,7 @@ const std::string CSettings::SETTING_INPUT_APPLESIRI = "input.applesiri";
 const std::string CSettings::SETTING_INPUT_APPLESIRITIMEOUT = "input.applesiritimeout";
 const std::string CSettings::SETTING_INPUT_APPLESIRITIMEOUTENABLED =
     "input.applesiritimeoutenabled";
+const std::string CSettings::SETTING_INPUT_APPLEUSEKODIKEYBOARD = "input.appleusekodikeyboard";
 const std::string CSettings::SETTING_NETWORK_USEHTTPPROXY = "network.usehttpproxy";
 const std::string CSettings::SETTING_NETWORK_HTTPPROXYTYPE = "network.httpproxytype";
 const std::string CSettings::SETTING_NETWORK_HTTPPROXYSERVER = "network.httpproxyserver";
