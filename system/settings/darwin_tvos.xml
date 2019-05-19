@@ -8,63 +8,72 @@
           <default></default>
         </setting>
         <setting id="screensaver.usemusicvisinstead">
-            <default>false</default>
+          <default>false</default>
         </setting>
         <setting id="screensaver.usedimonpause">
-            <default>false</default>
+          <default>false</default>
         </setting>
       </group>
     </category>
     <category id="masterlock">
-        <visible>false</visible>
+      <visible>false</visible>
     </category>
-    <category id="control">
-        <group id="1">
-            <setting id="input.peripherals">
-                <visible>false</visible>
-            </setting>
-        </group>
-        <group id="2">
-            <setting id="input.enablemouse">
-                <default>false</default>
-                <visible>false</visible>
-            </setting>
-            <setting id="input.controllerconfig">
-                <visible>false</visible>
-            </setting>
-            <setting id="input.appleremotemode">
-                <visible>false</visible>
-            </setting>
-            <setting id="input.appleremotesequencetime">
-                <visible>false</visible>
-            </setting>
-            <setting id="input.applesiri" type="boolean" label="24152" help="24153">
-                <level>1</level>
-                <default>false</default>
-                <control type="toggle" />
-            </setting>
-            <setting id="input.applesiritimeoutenabled" type="boolean" label="24160" help="24161">
-                <level>1</level>
-                <default>true</default>
-                <control type="toggle" />
-            </setting>
-            <setting id="input.applesiritimeout" type="integer" label="24154" help="24155">
-                <level>1</level>
-                <default>60</default>
-                <constraints>
-                    <options>
-                        <option label="24156">30</option>
-                        <option label="24157">60</option>
-                        <option label="24158">90</option>
-                        <option label="24159">120</option>
-                    </options>
-                </constraints>
-                <control type="list" format="integer" />
-                <dependencies>
-                    <dependency type="enable" setting="input.applesiritimeoutenabled">true</dependency>
-                </dependencies>
-            </setting>
-        </group>
+  </section>
+  <section id="system">
+    <category id="input">
+      <group id="1">
+        <setting id="input.peripherals">
+          <visible>false</visible>
+        </setting>
+      </group>
+      <group id="2">
+        <setting id="input.enablemouse">
+          <default>false</default>
+          <visible>false</visible>
+        </setting>
+        <setting id="input.controllerconfig">
+          <visible>false</visible>
+        </setting>
+      </group>
+      <group id="3">
+        <setting id="input.appleremotemode">
+          <visible>false</visible>
+        </setting>
+        <setting id="input.appleremotesequencetime">
+          <visible>false</visible>
+        </setting>
+        <setting id="input.applesiri" type="boolean" label="24163" help="24153">
+          <level>1</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="input.applesiritimeoutenabled" type="boolean" label="24160" help="24161">
+          <level>1</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="input.applesiritimeout" type="integer" label="24154" help="24155">
+          <level>1</level>
+          <default>60</default>
+          <constraints>
+            <options>
+              <option label="24156">30</option>
+              <option label="24157">60</option>
+              <option label="24158">90</option>
+              <option label="24159">120</option>
+            </options>
+          </constraints>
+          <control type="list" format="integer" />
+          <dependencies>
+            <dependency type="enable" setting="input.applesiritimeoutenabled">true</dependency>
+          </dependencies>
+        </setting>
+        <setting id="input.appleusekodikeyboard" type="boolean" label="24162">
+          <level>1</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+      </group>
     </category>
   </section>
   <section id="player">
@@ -118,9 +127,9 @@
       </group>
     </category>
     <category id="powermanagement">
-        <group id="1">
-            <visible>false</visible>
-        </group>
+      <group id="1">
+        <visible>false</visible>
+      </group>
     </category>
   </section>
 </settings>
