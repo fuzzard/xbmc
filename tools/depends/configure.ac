@@ -373,10 +373,13 @@ case $host in
         platform_cflags+=" -ftree-vectorize -pipe -Wno-trigraphs -fpascal-strings"
         platform_cflags+=" -Wreturn-type -Wunused-variable -fmessage-length=0 -gdwarf-2"
         platform_cflags+=" -Wno-error=implicit-function-declaration"
+        platform_cflags+=" -fembed-bitcode"
         optimize_flags="-O3"
         use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name | grep ^Path | awk '{ print $2}'`]
         platform_ldflags+=" -L$use_sdk_path/usr/lib/system"
+        platform_ldflags+=" -Wl,-bitcode_bundle"
         platform_cxxflags+=" $cpu_flags"
+        platform_cxxflags+=" -fembed-bitcode"
       ;;
     esac
     platform_cflags+=" -arch $use_cpu -m$platform_min_version"

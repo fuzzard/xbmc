@@ -27,7 +27,7 @@ else
 endif
 
 ifeq ($(OS),ios)
-  EXCLUDED_DEPENDS = libcec libusb
+  EXCLUDED_DEPENDS = libcec libusb pythonmodule-pil pythonmodule-pycryptodome
   ifeq ($(TARGET_PLATFORM),appletvos)
     DEPENDS += boblight
   endif

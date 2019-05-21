@@ -46,6 +46,9 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../autotools41.patch
+ifeq ($(OS), ios)
+	cd $(PLATFORM); sed -ie "s|LDSHFLAGS=\"-dynamiclib -flat_namespace -undefined suppress\"|LDSHFLAGS=\"-dynamiclib\"|" ./source3/configure.in
+endif
 	cd $(PLATFORM); patch -p0 -i ../configureEndian.patch
 	cd $(PLATFORM); chmod +x source3/autogen.sh source3/script/*.sh librpc/build_idl.sh
 	cd $(PLATFORM)/source3; ./autogen.sh
