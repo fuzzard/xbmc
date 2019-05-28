@@ -9,12 +9,13 @@ This guide has been tested with macOS 10.13.4(17E199) High Sierra and 10.14.4(18
 3. **[Get the source code](#3-get-the-source-code)**
 4. **[Configure and build tools and dependencies](#4-configure-and-build-tools-and-dependencies)**
 5. **[Build binary add-ons](#5-build-binary-add-ons)**
-6. **[Build Kodi](#6-build-kodi)**
-  6.1. **[Build with Xcode](#61-build-with-xcode)**
-  6.2. **[Build with xcodebuild](#62-build-with-xcodebuild)**
-  6.3. **[Build with make](#63-build-with-make)**
+6. **[Build Kodi](#6-build-kodi)**  
+  6.1. **[Build with Xcode](#61-build-with-xcode)**  
+  6.2. **[Build with xcodebuild](#62-build-with-xcodebuild)**  
 7. **[Package](#7-package)**
-8. **[Install](#8-install)**
+8. **[Install](#8-install)**  
+  8.1. **[Using Xcode to install](#8.1-Using-Xcode-to-install)**  
+  8.2. **[Using iOS App Signer to install](#8.2-Using-iOS-App-Signer-to-install)**  
 9. **[Gesture Handling](#9-gesture-handling)**
 
 ## 1. Document conventions
@@ -55,7 +56,7 @@ Several different strategies are used to draw your attention to certain pieces o
 * **[Xcode](https://developer.apple.com/xcode/)**. Install it from the AppStore or from the **[Apple Developer Homepage](https://developer.apple.com/)**.
 * Device with **tvOS 11.0 or newer** to install Kodi after build.
 
-Building for tvOS should work with the following constellations of Xcode and macOS versions:
+Building for tvOS should work with the following combinations of Xcode and macOS versions:
   * Xcode 9.x against tvOS SDK 11.x on 10.12.x (Sierra)
   * Xcode 9.x against tvOS SDK 11.x on 10.13.x (High Sierra)(recommended)
   * Xcode 9.x against tvOS SDK 11.x on 10.14.x (Mojave)(recommended)
@@ -83,7 +84,7 @@ Kodi can be built as a 64bit program only for tvOS. The dependencies are built i
 
 **TIP:** Look for comments starting with `Or ...` and only execute the command(s) you need.
 
-Configure build for 64bit:
+Configure build:
 ```
 cd $HOME/kodi/tools/depends
 ./bootstrap
@@ -169,30 +170,27 @@ Change to build directory:
 cd $HOME/kodi-build
 ```
 
-Build Kodi:
+Generate Xcode project for ARM 64bit:
 ```
-/Users/Shared/xbmc-depends/x86_64-darwin18.5.0-native/bin/cmake --build . --config "Debug" -- -verbose -jobs $(getconf _NPROCESSORS_ONLN)
+/Users/Shared/xbmc-depends/x86_64-darwin18.5.0-native/bin/cmake -G Xcode -DCMAKE_TOOLCHAIN_FILE=/Users/Shared/xbmc-depends/appletvos12.2_arm64-target-debug/share/Toolchain.cmake ../kodi
 ```
 
+**WARNING:** The toolchain file location differs depending on your tvOS and SDK version. You have to replace `x86_64-darwin18.5.0-native` and `appletvos12.2_arm64-target-debug` in the paths above with the correct ones on your system.
+
+You can check `Users/Shared/xbmc-depends` directory content with:
+```
+ls -l /Users/Shared/xbmc-depends
+```
+
+Build Kodi:
+```
+/Users/Shared/xbmc-depends/x86_64-darwin18.5.0-native/bin/cmake --build . --config "Debug" -- -verbose -jobs $(getconf _NPROCESSORS_ONLN) -CODE_SIGN_IDENTITY="" -CODE_SIGNING_REQUIRED="NO" -CODE_SIGN_ENTITLEMENTS="" -CODE_SIGNING_ALLOWED="NO" -target deb
+```
+
+**TIP:** This will create a deb package  
 **TIP:** You can specify `Release` instead of `Debug` as `--config` parameter.
 
-### 6.3. Build with make
-CMake is also able to generate makefiles that can be used to build with make.
-
-Change to Kodi's source code directory:
-```
-cd $HOME/kodi
-```
-
-Generate makefiles:
-```
-make -C tools/depends/target/cmakebuildsys
-```
-
-Build Kodi:
-```
-make -j$(getconf _NPROCESSORS_ONLN) -C build
-```
+The generated package will be located at $HOME/kodi-build/tools/darwin/packaging/darwin_embedded.
 
 **[back to top](#table-of-contents)** | **[back to section top](#6-build-kodi)**
 
@@ -204,13 +202,8 @@ cd $HOME/kodi-build
 /Users/Shared/xbmc-depends/x86_64-darwin18.5.0-native/bin/cmake --build . --target "deb" --config "Debug"
 ```
 
-The generated package will be located at $HOME/kodi-build/tools/darwin/packaging/tvos.
+The generated package will be located at $HOME/kodi-build/tools/darwin/packaging/darwin_embedded.
 
-Alternatively, if you built using makefiles issue:
-```
-cd $HOME/kodi/build
-make deb
-```
 
 **[back to top](#table-of-contents)**
 
@@ -240,11 +233,11 @@ The Apple TV 4K cannot be connected to mac via a cable so the connection must be
 
 Xcode sets up the Apple TV for wireless debugging and pairs with the device.
 
-#### Signing using a paid developer accounts
+## 8.1 Using Xcode to install
+
+#### Signing using a developer account
+
 For this to work you need to alter the Xcode project by setting your codesign identity.
-
-#### Signing using a free developer account
-
 Note that using a free developer account the signing will need to be reapplied every 7 days.
 
   1. Open the Xcode project in Xcode as above (requires Xcode 7 or later)
@@ -258,13 +251,29 @@ Note that using a free developer account the signing will need to be reapplied e
 It's also important that you select the signing on all 4 spots in the project settings. After the last buildstep, our support script will do a full sign of all binaries and bundle them with the given identity, including all the `*.viz`, `*.pvr`, `*.so`, etc. files Xcode doesn't know anything about. This should allow you to deploy Kodi to all non-jailbroken devices the same way you deploy normal apps to.
 In that case Kodi will be sandboxed like any other app. All Kodi files are then located in the sandboxed *Documents* folder and can be easily accessed via iTunes file sharing.
 
+## 8.2 Using iOS App Signer to install
+
+#### Signing using iOS App Signer (or alternatives)
+
+  1. Build the deb target via xcodebuild or Xcode as per **[Build Kodi](#6-build-kodi)**
+  2. Open iOS Appsigner
+  3. Browse to $HOME/kodi-build/tools/darwin/packaging/tvos for your input file
+  4. Select your signing certificate
+  5. Select your provisioning profile
+  6. Click start and select save location for the ipa file
+  7. Run Xcode -> Window -> Devices and Simulators
+  8. Select your Apple TV you setup in earlier for Wireless connecting press the +
+  9. Find your ipa file and click open.
+
 ### Installing on AppleTV
 There are two options for deplying to your AppleTV 4/4K. The first is just by using Run in XCode for a debugging sessions.
 
 Note that if you get a App Verification Failed error message when trying to to use `Run` you can delete two files in the created Kodi.app.
 
- * `rm -rf $HOME/kodi-build/build/Debug-appletvos/Kodi.app/_CodeSignature`
- * `rm -f $HOME/kodi-build/build/Debug-appletvos/Kodi.app/embedded.*provision`
+```
+rm -rf $HOME/kodi-build/build/Debug-appletvos/Kodi.app/_CodeSignature
+rm -f $HOME/kodi-build/build/Debug-appletvos/Kodi.app/embedded.*provision
+```
 
 The alternative is to deploy the output of the `deb` target. To do this:
 
