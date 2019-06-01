@@ -6,24 +6,12 @@
  *  See LICENSES/README.md for more information.
  */
 
-#import <Foundation/Foundation.h>
+#import "tvosShared.h"
 
-@interface tvosShared : NSObject
-+ (NSString*)getSharedID;
-+ (NSURL*)getSharedURL;
-+ (BOOL) IsTVOSSandboxed;
-+ (BOOL)isJailbroken;
-@end
-
-@implementation tvosShared : NSObject
+@implementation tvosShared
 
 + (NSString*)getSharedID {
-  NSBundle* mainAppBundle = NSBundle.mainBundle;
-  if ([mainAppBundle.bundleURL.pathExtension isEqualToString:@"appex"]) { // We're in a extension
-    // Peel off two directory levels - Kodi.app/PlugIns/MY_APP_EXTENSION.appex
-    mainAppBundle = [NSBundle bundleWithURL:mainAppBundle.bundleURL.URLByDeletingLastPathComponent.URLByDeletingLastPathComponent];
-  }
-  return [@"group." stringByAppendingString:mainAppBundle.bundleIdentifier];
+  return [@"group." stringByAppendingString:[self mainAppBundle].bundleIdentifier];
 }
 
 + (NSURL*)getSharedURL {
@@ -40,30 +28,29 @@
   }
 }
 
-+ (BOOL) IsTVOSSandboxed
++ (BOOL)IsTVOSSandboxed
 {
-  static int ret = -1;
-  if (ret == -1)
-  {
-    NSBundle* bundle = [NSBundle mainBundle];
-    if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"]) { // We're in a extension
-      // Peel off two directory levels - Kodi.app/PlugIns/MY_APP_EXTENSION.appex
-      bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
-    }
-
-    ret = 1;// default to "sandboxed"
-
+  // @todo merge with CDarwinUtils::IsIosSandboxed
+  static BOOL ret;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
     // we re NOT sandboxed if we are installed in /var/mobile/Applications with greeng0blin jailbreak
-    if ([[bundle executablePath] containsString:@"/var/mobile/Applications/"])
-    {
-      ret = 0;
-    }
-  }
-  return ret == 1;
+    ret = [[self mainAppBundle].executablePath containsString:@"/var/mobile/Applications/"];
+  });
+  return ret;
 }
 
 + (BOOL)isJailbroken {
   return ![self IsTVOSSandboxed];
+}
+
++ (NSBundle*)mainAppBundle {
+  NSBundle* bundle = NSBundle.mainBundle;
+  if ([bundle.bundleURL.pathExtension isEqualToString:@"appex"]) { // We're in a extension
+    // Peel off two directory levels - Kodi.app/PlugIns/MY_APP_EXTENSION.appex
+    bundle = [NSBundle bundleWithURL:bundle.bundleURL.URLByDeletingLastPathComponent.URLByDeletingLastPathComponent];
+  }
+  return bundle;
 }
 
 @end
