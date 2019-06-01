@@ -91,7 +91,6 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (void)enterBackground;
 - (void)enterForeground;
 - (void)becomeInactive;
-- (void)sendKeyDownUp:(XBMCKey)key;
 - (void)setFramebuffer;
 - (bool)presentFramebuffer;
 - (CGSize)getScreenSize;
