@@ -17,17 +17,13 @@
 
 @implementation tvosShared : NSObject
 
-+ (NSString *)getSharedID {
-  NSString *bundleID;
-  NSBundle *bundle = [NSBundle mainBundle];
-  if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"]) { // We're in a extension
++ (NSString*)getSharedID {
+  NSBundle* mainAppBundle = NSBundle.mainBundle;
+  if ([mainAppBundle.bundleURL.pathExtension isEqualToString:@"appex"]) { // We're in a extension
     // Peel off two directory levels - Kodi.app/PlugIns/MY_APP_EXTENSION.appex
-    bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
-    bundleID = bundle.bundleIdentifier;
-  } else {
-    bundleID = [NSBundle mainBundle].bundleIdentifier;
+    mainAppBundle = [NSBundle bundleWithURL:mainAppBundle.bundleURL.URLByDeletingLastPathComponent.URLByDeletingLastPathComponent];
   }
-  return [@"group." stringByAppendingString:bundleID];
+  return [@"group." stringByAppendingString:mainAppBundle.bundleIdentifier];
 }
 
 + (NSURL*)getSharedURL {
