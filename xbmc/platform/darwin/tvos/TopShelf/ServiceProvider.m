@@ -47,7 +47,7 @@
   
   if ([tvosShared isJailbroken])
   {
-    NSURL* sharedDictUrl = [storeUrl URLByAppendingPathComponent:@"shared.dict" isDirectory:FALSE];
+    NSURL* sharedDictUrl = [storeUrl URLByAppendingPathComponent:@"shared.dict" isDirectory:NO];
     sharedDict = [NSDictionary dictionaryWithContentsOfFile:[sharedDictUrl path]];
 
     movieArray = [sharedDict valueForKey:@"movies"];
@@ -59,7 +59,18 @@
     tvArray = [shared valueForKey:@"tv"];
   }
 
-  storeUrl = [storeUrl URLByAppendingPathComponent:@"RA" isDirectory:TRUE];
+  NSBundle* mainAppBundle = [tvosShared mainAppBundle];
+  NSString* kodiUrlScheme = @"kodi"; // fallback value
+  for (NSDictionary* dic in [mainAppBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"])
+  {
+    if ([dic[@"CFBundleURLName"] isEqualToString:mainAppBundle.bundleIdentifier])
+    {
+      kodiUrlScheme = dic[@"CFBundleURLSchemes"][0];
+      break;
+    }
+  }
+
+  storeUrl = [storeUrl URLByAppendingPathComponent:@"RA" isDirectory:YES];
   __auto_type contentItemsFrom = ^NSArray<TVContentItem*>* (NSArray* videosArray){
     NSMutableArray<TVContentItem*>* contentItems = [[NSMutableArray alloc] initWithCapacity:videosArray.count];
     for (NSDictionary* videoDict in videosArray)
@@ -68,12 +79,12 @@
       TVContentItem* contentItem = [[TVContentItem alloc] initWithContentIdentifier:identifier];
       [identifier release];
 
-      [contentItem setImageURL:[storeUrl URLByAppendingPathComponent:[videoDict valueForKey:@"thumb"] isDirectory:FALSE] forTraits:TVContentItemImageTraitScreenScale1x];
+      [contentItem setImageURL:[storeUrl URLByAppendingPathComponent:[videoDict valueForKey:@"thumb"] isDirectory:NO] forTraits:TVContentItemImageTraitScreenScale1x];
       contentItem.imageShape = TVContentItemImageShapePoster;
       contentItem.title = [videoDict valueForKey:@"title"];
       NSString* url = [videoDict valueForKey:@"url"];
-      contentItem.displayURL = [NSURL URLWithString:[NSString stringWithFormat:@"kodi://display/movie/%@", url]];
-      contentItem.playURL = [NSURL URLWithString:[NSString stringWithFormat:@"kodi://play/movie/%@", url]];
+      contentItem.displayURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@://display/movie/%@", kodiUrlScheme, url]];
+      contentItem.playURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@://play/movie/%@", kodiUrlScheme, url]];
       [contentItems addObject:contentItem];
       [contentItem release];
     }
