@@ -126,28 +126,6 @@ MainController* g_xbmcController;
     CLog::Log(LOGDEBUG, "ERROR mapping customcontroller action. CustomController: %s %i", "SiriRemote", buttonId);
   }
 }
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-- (void)sendKeyDownUp:(XBMCKey)key
-{
-  XBMC_Event newEvent = {0};
-  newEvent.key.keysym.sym = key;
-
-  newEvent.type = XBMC_KEYDOWN;
-  CWinSystemTVOS* winSystem(dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem()));
-  winSystem->MessagePush(&newEvent);
-
-  newEvent.type = XBMC_KEYUP;
-  winSystem->MessagePush(&newEvent);
-}
-- (void)sendKeyDown:(XBMCKey)key
-{
-  XBMC_Event newEvent = {0};
-  newEvent.type = XBMC_KEYDOWN;
-  newEvent.key.keysym.sym = key;
-  CWinSystemTVOS* winSystem(dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem()));
-  winSystem->MessagePush(&newEvent);
-}
 
 #pragma mark - remote idle timer
 //--------------------------------------------------------------
@@ -211,7 +189,7 @@ MainController* g_xbmcController;
 
   [self sendButtonPressed:keyId];
 
-  NSNumber* number = [NSNumber numberWithInt:keyId];
+  NSNumber* number = @(keyId);
   NSDate* fireDate = [NSDate dateWithTimeIntervalSinceNow:REPEATED_KEYPRESS_DELAY_S];
 
   // schedule repeated timer which starts after REPEATED_KEYPRESS_DELAY_S
@@ -344,17 +322,10 @@ MainController* g_xbmcController;
   m_shouldRemoteIdle = idle;
   [self startRemoteTimer];
 }
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-#pragma mark - gesture methods
-//--------------------------------------------------------------
-- (BOOL)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer shouldReceiveTouch:(UITouch*)touch
-{
-  //PRINT_SIGNATURE();
-  return YES;
-}
 
 //--------------------------------------------------------------
+#pragma mark - gesture methods
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer*)otherGestureRecognizer
 {
   if ([gestureRecognizer isKindOfClass:[UISwipeGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
@@ -419,44 +390,16 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)createSwipeGestureRecognizers
 {
-  UISwipeGestureRecognizer* swipeLeft = [[UISwipeGestureRecognizer alloc]
-                                         initWithTarget:self action:@selector(handleSwipe:)];
-
-  swipeLeft.delaysTouchesBegan = NO;
-  swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-  swipeLeft.delegate = self;
-  [m_glView addGestureRecognizer:swipeLeft];
-  [swipeLeft release];
-
-  //single finger swipe right
-  UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc]
-                                          initWithTarget:self action:@selector(handleSwipe:)];
-
-  swipeRight.delaysTouchesBegan = NO;
-  swipeRight.direction = UISwipeGestureRecognizerDirectionRight;
-  swipeRight.delegate = self;
-  [m_glView addGestureRecognizer:swipeRight];
-  [swipeRight release];
-
-  //single finger swipe up
-  UISwipeGestureRecognizer *swipeUp = [[UISwipeGestureRecognizer alloc]
-                                       initWithTarget:self action:@selector(handleSwipe:)];
-
-  swipeUp.delaysTouchesBegan = NO;
-  swipeUp.direction = UISwipeGestureRecognizerDirectionUp;
-  swipeUp.delegate = self;
-  [m_glView addGestureRecognizer:swipeUp];
-  [swipeUp release];
-
-  //single finger swipe down
-  UISwipeGestureRecognizer *swipeDown = [[UISwipeGestureRecognizer alloc]
-                                         initWithTarget:self action:@selector(handleSwipe:)];
-
-  swipeDown.delaysTouchesBegan = NO;
-  swipeDown.direction = UISwipeGestureRecognizerDirectionDown;
-  swipeDown.delegate = self;
-  [m_glView addGestureRecognizer:swipeDown];
-  [swipeDown release];
+  for (auto swipeDirection : {UISwipeGestureRecognizerDirectionLeft, UISwipeGestureRecognizerDirectionRight,
+    UISwipeGestureRecognizerDirectionUp, UISwipeGestureRecognizerDirectionDown})
+  {
+    auto swipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
+    swipeRecognizer.delaysTouchesBegan = NO;
+    swipeRecognizer.direction = swipeDirection;
+    swipeRecognizer.delegate = self;
+    [m_glView addGestureRecognizer:swipeRecognizer];
+    [swipeRecognizer release];
+  }
 }
 
 //--------------------------------------------------------------
@@ -473,106 +416,65 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)createTapGesturecognizers
 {
-  //PRINT_SIGNATURE();
   // tap side of siri remote pad
-  auto upRecognizer = [[UITapGestureRecognizer alloc]
-                       initWithTarget: self action: @selector(tapUpArrowPressed:)];
-  upRecognizer.allowedPressTypes  = @[[NSNumber numberWithInteger:UIPressTypeUpArrow]];
-  upRecognizer.delegate = self;
-  [m_glView addGestureRecognizer: upRecognizer];
-  [upRecognizer release];
+  for (auto t : {std::make_tuple(UIPressTypeUpArrow, @selector(tapUpArrowPressed:), @selector(IRRemoteUpArrowPressed:)), std::make_tuple(UIPressTypeDownArrow, @selector(tapDownArrowPressed:), @selector(IRRemoteDownArrowPressed:)),
+    std::make_tuple(UIPressTypeLeftArrow, @selector(tapLeftArrowPressed:), @selector(IRRemoteLeftArrowPressed:)), std::make_tuple(UIPressTypeRightArrow, @selector(tapRightArrowPressed:), @selector(IRRemoteRightArrowPressed:))})
+  {
+    auto allowedPressTypes = @[@(std::get<0>(t))];
 
-  auto downRecognizer = [[UITapGestureRecognizer alloc]
-                         initWithTarget: self action: @selector(tapDownArrowPressed:)];
-  downRecognizer.allowedPressTypes  = @[[NSNumber numberWithInteger:UIPressTypeDownArrow]];
-  downRecognizer.delegate = self;
-  [m_glView addGestureRecognizer: downRecognizer];
-  [downRecognizer release];
+    auto arrowRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:std::get<1>(t)];
+    arrowRecognizer.allowedPressTypes = allowedPressTypes;
+    arrowRecognizer.delegate = self;
+    [m_glView addGestureRecognizer:arrowRecognizer];
+    [arrowRecognizer release];
 
-  auto leftRecognizer = [[UITapGestureRecognizer alloc]
-                         initWithTarget: self action: @selector(tapLeftArrowPressed:)];
-  leftRecognizer.allowedPressTypes  = @[[NSNumber numberWithInteger:UIPressTypeLeftArrow]];
-  leftRecognizer.delegate = self;
-  [m_glView addGestureRecognizer: leftRecognizer];
-  [leftRecognizer release];
-
-  auto rightRecognizer = [[UITapGestureRecognizer alloc]
-                          initWithTarget: self action: @selector(tapRightArrowPressed:)];
-  rightRecognizer.allowedPressTypes  = @[[NSNumber numberWithInteger:UIPressTypeRightArrow]];
-  rightRecognizer.delegate = self;
-  [m_glView addGestureRecognizer: rightRecognizer];
-  [rightRecognizer release];
+    // @todo doesn't seem to work
+    // we need UILongPressGestureRecognizer here because it will give
+    // UIGestureRecognizerStateBegan AND UIGestureRecognizerStateEnded
+    // even if we hold down for a long time. UITapGestureRecognizer
+    // will eat the ending on long holds and we never see it.
+    auto longArrowRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:std::get<2>(t)];
+    longArrowRecognizer.allowedPressTypes = allowedPressTypes;
+    longArrowRecognizer.minimumPressDuration = 0.01;
+    longArrowRecognizer.delegate = self;
+    [m_glView addGestureRecognizer: longArrowRecognizer];
+    [longArrowRecognizer release];
+  }
 }
 //--------------------------------------------------------------
 - (void)createPressGesturecognizers
 {
-  //PRINT_SIGNATURE();
-  // we need UILongPressGestureRecognizer here because it will give
-  // UIGestureRecognizerStateBegan AND UIGestureRecognizerStateEnded
-  // even if we hold down for a long time. UITapGestureRecognizer
-  // will eat the ending on long holds and we never see it.
-  auto upRecognizer = [[UILongPressGestureRecognizer alloc]
-    initWithTarget: self action: @selector(IRRemoteUpArrowPressed:)];
-  upRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeUpArrow]];
-  upRecognizer.minimumPressDuration = 0.01;
-  upRecognizer.delegate = self;
-  [self.view addGestureRecognizer: upRecognizer];
-  [upRecognizer release];
-
-  auto downRecognizer = [[UILongPressGestureRecognizer alloc]
-    initWithTarget: self action: @selector(IRRemoteDownArrowPressed:)];
-  downRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeDownArrow]];
-  downRecognizer.minimumPressDuration = 0.01;
-  downRecognizer.delegate = self;
-  [self.view addGestureRecognizer: downRecognizer];
-  [downRecognizer release];
-
-  auto leftRecognizer = [[UILongPressGestureRecognizer alloc]
-    initWithTarget: self action: @selector(IRRemoteLeftArrowPressed:)];
-  leftRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeLeftArrow]];
-  leftRecognizer.minimumPressDuration = 0.01;
-  leftRecognizer.delegate = self;
-  [self.view addGestureRecognizer: leftRecognizer];
-  [leftRecognizer release];
-
-  auto rightRecognizer = [[UILongPressGestureRecognizer alloc]
-    initWithTarget: self action: @selector(IRRemoteRightArrowPressed:)];
-  rightRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeRightArrow]];
-  rightRecognizer.minimumPressDuration = 0.01;
-  rightRecognizer.delegate = self;
-  [self.view addGestureRecognizer: rightRecognizer];
-  [rightRecognizer release];
-
-  // we always have these under tvos
   auto menuRecognizer = [[UITapGestureRecognizer alloc]
                          initWithTarget: self action: @selector(menuPressed:)];
-  menuRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeMenu]];
+  menuRecognizer.allowedPressTypes = @[@(UIPressTypeMenu)];
   menuRecognizer.delegate  = self;
   [m_glView addGestureRecognizer: menuRecognizer];
   [menuRecognizer release];
 
   auto playPauseRecognizer = [[UITapGestureRecognizer alloc]
                               initWithTarget: self action: @selector(playPausePressed:)];
-  playPauseRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypePlayPause]];
+  playPauseRecognizer.allowedPressTypes = @[@(UIPressTypePlayPause)];
   playPauseRecognizer.delegate  = self;
   [m_glView addGestureRecognizer: playPauseRecognizer];
   [playPauseRecognizer release];
 
   auto longSelectRecognizer = [[UILongPressGestureRecognizer alloc]
                            initWithTarget: self action: @selector(SiriLongSelectHandler:)];
-  longSelectRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeSelect]];
+  longSelectRecognizer.allowedPressTypes = @[@(UIPressTypeSelect)];
   longSelectRecognizer.minimumPressDuration = 0.001;
   longSelectRecognizer.delegate = self;
   [m_glView addGestureRecognizer: longSelectRecognizer];
-  [longSelectRecognizer release];
 
   auto selectRecognizer = [[UITapGestureRecognizer alloc]
                           initWithTarget: self action: @selector(SiriSelectHandler:)];
-  selectRecognizer.allowedPressTypes = @[[NSNumber numberWithInteger:UIPressTypeSelect]];
+  selectRecognizer.allowedPressTypes = @[@(UIPressTypeSelect)];
   selectRecognizer.delegate = self;
-  [self.view addGestureRecognizer: selectRecognizer];
+  [longSelectRecognizer requireGestureRecognizerToFail:selectRecognizer];
+  [m_glView addGestureRecognizer: selectRecognizer];
   [selectRecognizer release];
 
+  
+  [longSelectRecognizer release];
 }
 
 //--------------------------------------------------------------
@@ -621,7 +523,7 @@ MainController* g_xbmcController;
   }
 }
 //--------------------------------------------------------------
-- (void)SiriLongSelectHandler:(UITapGestureRecognizer*)sender
+- (void)SiriLongSelectHandler:(UIGestureRecognizer*)sender
 {
   // if we have clicked select while scrolling up/down we need to reset direction of pan
   m_clickResetPan = true;
@@ -633,12 +535,6 @@ MainController* g_xbmcController;
       self.m_holdTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(buttonHoldSelect) userInfo:nil repeats:YES];
       break;
     case UIGestureRecognizerStateChanged:
-      if (self.m_holdCounter > 1)
-      {
-        [self.m_holdTimer invalidate];
-        //[self sendKeyDownUp:XBMCK_c];
-        [self sendButtonPressed:7];
-      }
       break;
     case UIGestureRecognizerStateEnded:
       [self.m_holdTimer invalidate];
