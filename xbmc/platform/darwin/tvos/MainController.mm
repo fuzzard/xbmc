@@ -451,28 +451,55 @@ MainController* g_xbmcController;
   [m_glView addGestureRecognizer: menuRecognizer];
   [menuRecognizer release];
 
+  auto playPauseTypes = @[@(UIPressTypePlayPause)];
   auto playPauseRecognizer = [[UITapGestureRecognizer alloc]
                               initWithTarget: self action: @selector(playPausePressed:)];
-  playPauseRecognizer.allowedPressTypes = @[@(UIPressTypePlayPause)];
+  playPauseRecognizer.allowedPressTypes = playPauseTypes;
   playPauseRecognizer.delegate  = self;
   [m_glView addGestureRecognizer: playPauseRecognizer];
   [playPauseRecognizer release];
 
+  auto doublePlayPauseRecognizer = [[UITapGestureRecognizer alloc]
+                              initWithTarget: self action: @selector(doublePlayPausePressed:)];
+  doublePlayPauseRecognizer.allowedPressTypes = playPauseTypes;
+  doublePlayPauseRecognizer.numberOfTapsRequired = 2;
+  doublePlayPauseRecognizer.delegate  = self;
+  [m_glView.gestureRecognizers.lastObject requireGestureRecognizerToFail:doublePlayPauseRecognizer];
+  [m_glView addGestureRecognizer: doublePlayPauseRecognizer];
+  [doublePlayPauseRecognizer release];
+
+  auto longPlayPauseRecognizer = [[UILongPressGestureRecognizer alloc]
+                              initWithTarget: self action: @selector(longPlayPausePressed:)];
+  longPlayPauseRecognizer.allowedPressTypes = playPauseTypes;
+  longPlayPauseRecognizer.delegate  = self;
+  [m_glView addGestureRecognizer: longPlayPauseRecognizer];
+  [longPlayPauseRecognizer release];
+
+  auto selectTypes = @[@(UIPressTypeSelect)];
   auto longSelectRecognizer = [[UILongPressGestureRecognizer alloc]
                            initWithTarget: self action: @selector(SiriLongSelectHandler:)];
-  longSelectRecognizer.allowedPressTypes = @[@(UIPressTypeSelect)];
+  longSelectRecognizer.allowedPressTypes = selectTypes;
   longSelectRecognizer.minimumPressDuration = 0.001;
   longSelectRecognizer.delegate = self;
   [m_glView addGestureRecognizer: longSelectRecognizer];
 
   auto selectRecognizer = [[UITapGestureRecognizer alloc]
                           initWithTarget: self action: @selector(SiriSelectHandler:)];
-  selectRecognizer.allowedPressTypes = @[@(UIPressTypeSelect)];
+  selectRecognizer.allowedPressTypes = selectTypes;
   selectRecognizer.delegate = self;
   [longSelectRecognizer requireGestureRecognizerToFail:selectRecognizer];
   [m_glView addGestureRecognizer: selectRecognizer];
   [selectRecognizer release];
 
+  auto doubleSelectRecognizer = [[UITapGestureRecognizer alloc]
+                           initWithTarget: self action: @selector(SiriDoubleSelectHandler:)];
+  doubleSelectRecognizer.allowedPressTypes = selectTypes;
+  doubleSelectRecognizer.numberOfTapsRequired = 2;
+  doubleSelectRecognizer.delegate = self;
+  [longSelectRecognizer requireGestureRecognizerToFail:doubleSelectRecognizer];
+  [m_glView.gestureRecognizers.lastObject requireGestureRecognizerToFail:doubleSelectRecognizer];
+  [m_glView addGestureRecognizer: doubleSelectRecognizer];
+  [doubleSelectRecognizer release];
   
   [longSelectRecognizer release];
 }
@@ -580,6 +607,22 @@ MainController* g_xbmcController;
     default:
       break;
   }
+}
+
+- (void)longPlayPausePressed:(UILongPressGestureRecognizer*)sender
+{
+  NSLog(@"play/pause long press, state: %ld", (long)sender.state);
+}
+
+- (void)doublePlayPausePressed:(UITapGestureRecognizer*)sender
+{
+  // state is only UIGestureRecognizerStateBegan and UIGestureRecognizerStateEnded
+  NSLog(@"play/pause double press");
+}
+
+- (void)SiriDoubleSelectHandler:(UITapGestureRecognizer*)sender
+{
+  NSLog(@"select double press");
 }
 
 //--------------------------------------------------------------
