@@ -58,7 +58,17 @@ if(PROVISIONING_PROFILE_APP)
   set(CODE_SIGN_STYLE_APP Manual)
 endif()
 
+# top shelf provisioning profile
 if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
+  set(CODE_SIGN_STYLE_TOPSHELF Automatic)
+  set(PROVISIONING_PROFILE_TOPSHELF "" CACHE STRING "Provisioning profile name for the Top Shelf")
+  if(PROVISIONING_PROFILE_TOPSHELF)
+    set(CODE_SIGN_STYLE_TOPSHELF Manual)
+  endif()
+  set_target_properties(${TOPSHELF_EXTENSION_NAME} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${CODE_SIGN_IDENTITY}"
+                                                              XCODE_ATTRIBUTE_CODE_SIGN_STYLE ${CODE_SIGN_STYLE_TOPSHELF}
+                                                              XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
+                                                              XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${PROVISIONING_PROFILE_TOPSHELF}")
   # copy extension inside PlugIns dir of the app bundle
   add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
       COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
