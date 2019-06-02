@@ -66,16 +66,33 @@ else()
 
 endif()
 
+# setup code signing
 
-# Options for code signing propagated as env vars to Codesign.command via Xcode
-set(CODE_SIGN_IDENTITY "" CACHE STRING "Code Sign Identity")
-if(CODE_SIGN_IDENTITY)
-  set_target_properties(${APP_NAME_LC} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED TRUE
-                                                  XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY})
-  if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
-    set_target_properties(${TOPSHELF_EXTENSION_NAME} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED TRUE
-                                                                XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY})
+# dev team ID / identity (certificate)
+set(DEVELOPMENT_TEAM "" CACHE STRING "Development Team")
+set(CODE_SIGN_IDENTITY $<IF:$<BOOL:${DEVELOPMENT_TEAM}>,iPhone\ Developer,> CACHE STRING "Code Sign Identity")
+
+# app provisioning profile
+set(CODE_SIGN_STYLE_APP Automatic)
+set(PROVISIONING_PROFILE_APP "" CACHE STRING "Provisioning profile name for the Kodi app")
+if(PROVISIONING_PROFILE_APP)
+  set(CODE_SIGN_STYLE_APP Manual)
+endif()
+set_target_properties(${APP_NAME_LC} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${CODE_SIGN_IDENTITY}"
+                                                XCODE_ATTRIBUTE_CODE_SIGN_STYLE ${CODE_SIGN_STYLE_APP}
+                                                XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
+                                                XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${PROVISIONING_PROFILE_APP}")
+# top shelf provisioning profile
+if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
+  set(CODE_SIGN_STYLE_TOPSHELF Automatic)
+  set(PROVISIONING_PROFILE_TOPSHELF "" CACHE STRING "Provisioning profile name for the Top Shelf")
+  if(PROVISIONING_PROFILE_TOPSHELF)
+    set(CODE_SIGN_STYLE_TOPSHELF Manual)
   endif()
+  set_target_properties(${TOPSHELF_EXTENSION_NAME} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${CODE_SIGN_IDENTITY}"
+                                                              XCODE_ATTRIBUTE_CODE_SIGN_STYLE ${CODE_SIGN_STYLE_TOPSHELF}
+                                                              XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
+                                                              XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${PROVISIONING_PROFILE_TOPSHELF}")
 endif()
 
 add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
