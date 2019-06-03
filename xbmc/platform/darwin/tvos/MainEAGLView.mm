@@ -37,7 +37,6 @@ using namespace KODI::MESSAGING;
 //--------------------------------------------------------------
 - (id)initWithFrame:(CGRect)frame withScreen:(UIScreen*)screen
 {
-  //PRINT_SIGNATURE();
   m_framebufferResizeRequested = FALSE;
   if ((self = [super initWithFrame:frame]))
   {
@@ -119,7 +118,6 @@ using namespace KODI::MESSAGING;
 {
   if (m_context && !m_defaultFramebuffer)
   {
-    //PRINT_SIGNATURE();
     [EAGLContext setCurrentContext:m_context];
 
     // Create default framebuffer object.

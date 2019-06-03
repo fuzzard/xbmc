@@ -168,9 +168,6 @@ bool CWinSystemTVOS::DestroyWindowSystem()
 
 bool CWinSystemTVOS::CreateNewWindow(const std::string& name, bool fullScreen, RESOLUTION_INFO& res)
 {
-  //NSLog(@"%s", __PRETTY_FUNCTION__);
-
-  
   if(!SetFullScreen(fullScreen, res, false))
     return false;
   
@@ -211,8 +208,6 @@ bool CWinSystemTVOS::DestroyWindow()
 
 bool CWinSystemTVOS::ResizeWindow(int newWidth, int newHeight, int newLeft, int newTop)
 {
-  //NSLog(@"%s", __PRETTY_FUNCTION__);
-
   if (m_nWidth != newWidth || m_nHeight != newHeight)
   {
     m_nWidth  = newWidth;
@@ -227,8 +222,6 @@ bool CWinSystemTVOS::ResizeWindow(int newWidth, int newHeight, int newLeft, int 
 
 bool CWinSystemTVOS::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool blankOtherDisplays)
 {
-  //NSLog(@"%s", __PRETTY_FUNCTION__);
-
   m_nWidth      = res.iWidth;
   m_nHeight     = res.iHeight;
   m_bFullScreen = fullScreen;

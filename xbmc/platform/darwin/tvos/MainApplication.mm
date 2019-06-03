@@ -21,24 +21,18 @@ MainController* m_xbmcController;
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
-//  PRINT_SIGNATURE();
-
   [m_xbmcController pauseAnimation];
   [m_xbmcController becomeInactive];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
-  //PRINT_SIGNATURE();
-
   [m_xbmcController resumeAnimation];
   [m_xbmcController enterForeground];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application
 {
-//  PRINT_SIGNATURE();
-
   if (application.applicationState == UIApplicationStateBackground)
   {
     // the app is turn into background, not in by screen lock which has app state inactive.
@@ -48,19 +42,11 @@ MainController* m_xbmcController;
 
 - (void)applicationWillTerminate:(UIApplication*)application
 {
-//  PRINT_SIGNATURE();
-
   [m_xbmcController stopAnimation];
-}
-
-- (void)applicationWillEnterForeground:(UIApplication*)application
-{
-//  PRINT_SIGNATURE();
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication*)application
 {
-  //PRINT_SIGNATURE();
   NSError* err = nullptr;
   if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&err])
   {

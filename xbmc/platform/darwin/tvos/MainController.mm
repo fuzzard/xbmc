@@ -134,7 +134,6 @@ MainController* g_xbmcController;
 {
   m_remoteIdleState = false;
 
-  //PRINT_SIGNATURE();
   if (self.remoteIdleTimer != nil)
     [self stopRemoteTimer];
   if (m_shouldRemoteIdle)
@@ -154,7 +153,6 @@ MainController* g_xbmcController;
 
 - (void)stopRemoteTimer
 {
-  //PRINT_SIGNATURE();
   if (self.remoteIdleTimer != nil)
   {
     [self.remoteIdleTimer invalidate];
@@ -166,7 +164,6 @@ MainController* g_xbmcController;
 
 - (void)setRemoteIdleState
 {
-  //PRINT_SIGNATURE();
   m_remoteIdleState = true;
 }
 
@@ -185,14 +182,11 @@ MainController* g_xbmcController;
   [self startKeyPressTimer:keyId clickTime:REPEATED_KEYPRESS_PAUSE_S];
 }
 
-//- (void)startKeyPressTimer:(XBMCKey)keyId clickTime:(NSTimeInterval)interval
 - (void)startKeyPressTimer:(int)keyId clickTime:(NSTimeInterval)interval
 {
-  //PRINT_SIGNATURE();
   if (self.pressAutoRepeatTimer != nil)
     [self stopKeyPressTimer];
 
-  //[self sendKeyDown:keyId];
   [self sendButtonPressed:keyId];
 
   NSNumber* number = @(keyId);
@@ -213,7 +207,6 @@ MainController* g_xbmcController;
 }
 - (void)stopKeyPressTimer
 {
-  //PRINT_SIGNATURE();
   if (self.pressAutoRepeatTimer != nil)
   {
     [self.pressAutoRepeatTimer invalidate];
@@ -223,15 +216,10 @@ MainController* g_xbmcController;
 }
 - (void)keyPressTimerCallback:(NSTimer*)theTimer
 {
-  //PRINT_SIGNATURE();
   // if queue is empty - skip this timer event before letting it process
   CWinSystemTVOS* winSystem(dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem()));
-  if (winSystem->GetQueueSize())
-    return;
-
-  NSNumber* keyId = [theTimer userInfo];
-  //[self sendKeyDown:(XBMCKey)[keyId intValue]];
-  [self sendButtonPressed:[keyId intValue]];
+  if (!winSystem->GetQueueSize())
+    [self sendButtonPressed:[theTimer.userInfo intValue]];
 }
 
 #pragma mark - remote helpers
@@ -331,7 +319,6 @@ MainController* g_xbmcController;
 
 - (void)setShouldRemoteIdle:(BOOL)idle
 {
-  //PRINT_SIGNATURE();
   m_shouldRemoteIdle = idle;
   [self startRemoteTimer];
 }
@@ -369,7 +356,6 @@ MainController* g_xbmcController;
 // for a new press. return NO to prevent the gesture recognizer from seeing this press
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceivePress:(UIPress *)press
 {
-  //PRINT_SIGNATURE();
   BOOL handled = YES;
   switch (press.type)
   {
@@ -419,7 +405,6 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)createPanGestureRecognizers
 {
-  //PRINT_SIGNATURE();
   // for pan gestures with one finger
   auto pan = [[UIPanGestureRecognizer alloc]
     initWithTarget:self action:@selector(handlePan:)];
@@ -525,20 +510,17 @@ MainController* g_xbmcController;
 {
   self.m_holdCounter++;
   [self.m_holdTimer invalidate];
-  //[self sendKeyDownUp:XBMCK_c];
   [self sendButtonPressed:7];
 }
 //--------------------------------------------------------------
 - (void) activateKeyboard:(UIView*)view
 {
-  //PRINT_SIGNATURE();
   [self.view addSubview:view];
   m_glView.userInteractionEnabled = NO;
 }
 //--------------------------------------------------------------
 - (void) deactivateKeyboard:(UIView*)view
 {
-  //PRINT_SIGNATURE();
   [view removeFromSuperview];
   m_glView.userInteractionEnabled = YES;
   [self becomeFirstResponder];
@@ -546,7 +528,6 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void) nativeKeyboardActive: (bool)active;
 {
-    //PRINT_SIGNATURE();
     m_nativeKeyboardActive = active;
 }
 //--------------------------------------------------------------
@@ -586,7 +567,6 @@ MainController* g_xbmcController;
       [self.m_holdTimer invalidate];
       if (self.m_holdCounter < 1)
       {
-        //[self sendKeyDownUp:XBMCK_RETURN];
         [self sendButtonPressed:5];
       }
 
@@ -620,7 +600,6 @@ MainController* g_xbmcController;
     case UIGestureRecognizerStateChanged:
       break;
     case UIGestureRecognizerStateEnded:
-      //[self sendKeyDownUp:XBMCK_MEDIA_PLAY_PAUSE];
       [self sendButtonPressed:12];
       // start remote timeout
       [self startRemoteTimer];
@@ -741,7 +720,6 @@ MainController* g_xbmcController;
   if (!m_remoteIdleState)
   {
     [self sendButtonPressed:1];
-    //[self sendKeyDownUp:XBMCK_UP];
   }
   [self startRemoteTimer];
 }
@@ -750,7 +728,6 @@ MainController* g_xbmcController;
 {
   if (!m_remoteIdleState)
   {
-    //[self sendKeyDownUp:XBMCK_DOWN];
     [self sendButtonPressed:2];
   }
   [self startRemoteTimer];
@@ -761,7 +738,6 @@ MainController* g_xbmcController;
   if (!m_remoteIdleState)
   {
     [self sendButtonPressed:3];
-    //[self sendKeyDownUp:XBMCK_LEFT];
   }
   [self startRemoteTimer];
 }
@@ -770,7 +746,6 @@ MainController* g_xbmcController;
 {
   if (!m_remoteIdleState)
   {
-    //[self sendKeyDownUp:XBMCK_RIGHT];
     [self sendButtonPressed:4];
   }
   [self startRemoteTimer];
@@ -835,11 +810,9 @@ MainController* g_xbmcController;
                 {
                   if ((ABS(m_lastGesturePoint.y - gesturePoint.y) > speed) || ABS(velocityY) > minVelocity )
                   {
-                    //[self sendKeyDownUp:XBMCK_UP];
                     [self sendButtonPressed:8];
                     if (ABS(velocityY) > minVelocity && [self shouldFastScroll])
                     {
-                      //[self sendKeyDownUp:XBMCK_UP];
                       [self sendButtonPressed:8];
                     }
                     m_lastGesturePoint = gesturePoint;
@@ -850,11 +823,9 @@ MainController* g_xbmcController;
                 {
                   if ((ABS(m_lastGesturePoint.y - gesturePoint.y) > speed) || ABS(velocityY) > minVelocity)
                   {
-                    //[self sendKeyDownUp:XBMCK_DOWN];
                     [self sendButtonPressed:9];
                     if (ABS(velocityY) > minVelocity && [self shouldFastScroll])
                     {
-                      //[self sendKeyDownUp:XBMCK_DOWN];
                       [self sendButtonPressed:9];
                     }
                     m_lastGesturePoint = gesturePoint;
@@ -866,11 +837,9 @@ MainController* g_xbmcController;
                   // add 80 px to slow left/right swipes, it matched up down better
                   if ((ABS(m_lastGesturePoint.x - gesturePoint.x) > speed+80) || ABS(velocityX) > minVelocity)
                   {
-                    //[self sendKeyDownUp:XBMCK_LEFT];
                     [self sendButtonPressed:10];
                     if (ABS(velocityX) > minVelocity && [self shouldFastScroll])
                     {
-                      //[self sendKeyDownUp:XBMCK_LEFT];
                       [self sendButtonPressed:10];
                     }
                     m_lastGesturePoint = gesturePoint;
@@ -882,11 +851,9 @@ MainController* g_xbmcController;
                   // add 80 px to slow left/right swipes, it matched up down better
                   if ((ABS(m_lastGesturePoint.x - gesturePoint.x) > speed+80) || ABS(velocityX) > minVelocity)
                   {
-                    //[self sendKeyDownUp:XBMCK_RIGHT];
                     [self sendButtonPressed:11];
                     if (ABS(velocityX) > minVelocity && [self shouldFastScroll])
                     {
-                      //[self sendKeyDownUp:XBMCK_RIGHT];
                       [self sendButtonPressed:11];
                     }
                     m_lastGesturePoint = gesturePoint;
@@ -1060,19 +1027,15 @@ MainController* g_xbmcController;
       switch ([sender direction])
       {
         case UISwipeGestureRecognizerDirectionRight:
-          //[self sendKeyDownUp:XBMCK_RIGHT];
           [self sendButtonPressed:11];
           break;
         case UISwipeGestureRecognizerDirectionLeft:
-          //[self sendKeyDownUp:XBMCK_LEFT];
           [self sendButtonPressed:10];
           break;
         case UISwipeGestureRecognizerDirectionUp:
-          //[self sendKeyDownUp:XBMCK_UP];
           [self sendButtonPressed:8];
           break;
         case UISwipeGestureRecognizerDirectionDown:
-          //[self sendKeyDownUp:XBMCK_DOWN];
           [self sendButtonPressed:9];
           break;
       }
@@ -1241,15 +1204,6 @@ MainController* g_xbmcController;
   });
   return m_screensize;
 }
-
-//--------------------------------------------------------------
-- (void)didReceiveMemoryWarning
-{
-  PRINT_SIGNATURE();
-  // Releases the view if it doesn't have a superview.
-  [super didReceiveMemoryWarning];
-  // Release any cached data, images, etc. that aren't in use.
-}
 //--------------------------------------------------------------
 - (void)enableBackGroundTask
 {
@@ -1342,7 +1296,6 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)enterBackground
 {
-  PRINT_SIGNATURE();
   // We have 5 seconds before the OS will force kill us for delaying too long.
   XbmcThreads::EndTime timer(4500);
 
@@ -1419,7 +1372,6 @@ MainController* g_xbmcController;
 
 - (void)enterForeground
 {
-  PRINT_SIGNATURE();
   // stop background task (if running)
   [self disableBackGroundTask];
 
@@ -1529,7 +1481,6 @@ MainController* g_xbmcController;
   //--------------------------------------------------------------
   - (void)displayRateReset
   {
-    PRINT_SIGNATURE();
     if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) != ADJUST_REFRESHRATE_OFF)
     {
       if (__builtin_available(tvOS 11.2, *))
@@ -1617,21 +1568,18 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)pauseAnimation
 {
-  //PRINT_SIGNATURE();
   m_pause = TRUE;
   g_application.SetRenderGUI(false);
 }
 //--------------------------------------------------------------
 - (void)resumeAnimation
 {
-  //PRINT_SIGNATURE();
   m_pause = FALSE;
   g_application.SetRenderGUI(true);
 }
 //--------------------------------------------------------------
 - (void)startAnimation
 {
-  //PRINT_SIGNATURE();
   if (m_animating == NO && [m_glView getCurrentEAGLContext])
   {
     // kick off an animation thread
@@ -1645,7 +1593,6 @@ MainController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)stopAnimation
 {
-  //PRINT_SIGNATURE();
   if (m_animating == NO && [m_glView getCurrentEAGLContext])
   {
     m_appAlive = FALSE;
@@ -1818,14 +1765,13 @@ int KODI_Run(bool renderGUI)
 //--------------------------------------------------------------
 - (void)setIOSNowPlayingInfo:(NSDictionary *)info
 {
-  PRINT_SIGNATURE();
   self.m_nowPlayingInfo = info;
   [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:self.m_nowPlayingInfo];
 }
 //--------------------------------------------------------------
 - (void)onPlay:(NSDictionary *)item
 {
-  PRINT_SIGNATURE();
+  // @todo copy-paste from iOS
   NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
   NSString* title = [item objectForKey:@"title"];
@@ -1883,7 +1829,6 @@ int KODI_Run(bool renderGUI)
 //--------------------------------------------------------------
 - (void)OnSpeedChanged:(NSDictionary*)item
 {
-  PRINT_SIGNATURE();
   if (NSClassFromString(@"MPNowPlayingInfoCenter"))
   {
     NSMutableDictionary* info = [self.m_nowPlayingInfo mutableCopy];
