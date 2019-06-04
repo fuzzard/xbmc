@@ -156,7 +156,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  PRINT_SIGNATURE();
   [_textField resignFirstResponder];
 }
 
@@ -171,12 +170,10 @@ static CEvent keyboardFinishedEvent;
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
-  PRINT_SIGNATURE();
   [self deactivate];
 }
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
-  PRINT_SIGNATURE();
   _confirmed = YES;
 #if defined(TARGET_DARWIN_IOS)
   [_textField resignFirstResponder];
@@ -191,8 +188,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void)keyboardDidHide:(id)sender
 {
-  PRINT_SIGNATURE();
-
   _keyboardIsShowing = 0;
 
   if (_textField.editing)
@@ -207,7 +202,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void) doActivate:(NSDictionary *)dict
 {
-  PRINT_SIGNATURE();
   [g_xbmcController activateKeyboard:self];
   [_textField becomeFirstResponder];
   [self setNeedsLayout];
@@ -216,7 +210,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void)activate
 {
-  PRINT_SIGNATURE();
   if([NSThread currentThread] != [NSThread mainThread])
   {
     [self performSelectorOnMainThread:@selector(doActivate:) withObject:nil  waitUntilDone:YES];
@@ -281,7 +274,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void) deactivate
 {
-  PRINT_SIGNATURE();
   if([NSThread currentThread] != [NSThread mainThread])
   {
     [self performSelectorOnMainThread:@selector(doDeactivate:) withObject:nil  waitUntilDone:YES];
@@ -377,7 +369,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void) dealloc
 {
-  PRINT_SIGNATURE();
   [_textField release];
   [_heading release];
   self.text = nil;
