@@ -95,6 +95,14 @@ if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
                                                               XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${PROVISIONING_PROFILE_TOPSHELF}")
 endif()
 
+if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
+  # copy extension inside PlugIns dir of the app bundle
+  add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
+                                                      $<TARGET_BUNDLE_DIR:${APP_NAME_LC}>/PlugIns/${TOPSHELF_EXTENSION_NAME}.${TOPSHELF_BUNDLE_EXTENSION}
+                                                      MAIN_DEPENDENCY ${TOPSHELF_EXTENSION_NAME})
+endif()
+
 add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
     # TODO: Remove in sync with CopyRootFiles-darwin_embedded expecting the ".bin" file
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${APP_NAME_LC}>
@@ -129,14 +137,6 @@ add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
             "CURRENT_ARCH=${ARCH}"
             ${CMAKE_SOURCE_DIR}/tools/darwin/Support/Codesign.command
 )
-
-if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
-  # copy extension inside PlugIns dir of the app bundle
-  add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
-                                                      $<TARGET_BUNDLE_DIR:${APP_NAME_LC}>/PlugIns/${TOPSHELF_EXTENSION_NAME}.${TOPSHELF_BUNDLE_EXTENSION}
-                                                      MAIN_DEPENDENCY ${TOPSHELF_EXTENSION_NAME})
-endif()
 
 set(DEPENDS_ROOT_FOR_XCODE ${NATIVEPREFIX}/..)
 configure_file(${CMAKE_SOURCE_DIR}/tools/darwin/packaging/darwin_embedded/mkdeb-darwin_embedded.sh.in
