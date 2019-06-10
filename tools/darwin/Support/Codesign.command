@@ -3,7 +3,7 @@
 set -x
 
 #this is the list of binaries we have to sign for being able to run un-jailbroken
-LIST_BINARY_EXTENSIONS="dylib so 0 vis pvr framework app"
+LIST_BINARY_EXTENSIONS="dylib so 0 vis pvr app"
 
 GEN_ENTITLEMENTS="$NATIVEPREFIX/bin/gen_entitlements.py"
 IOS11_ENTITLEMENTS="$XBMC_DEPENDS/share/ios11_entitlements.xml"
@@ -77,6 +77,15 @@ if [ "${PLATFORM_NAME}" == "iphoneos" ] || [ "${PLATFORM_NAME}" == "appletvos" ]
       codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${BUNDLEID}" `find ${CODESIGNING_FOLDER_PATH} -name "*.$binext" -type f`
     done
     echo "In case your app crashes with SIG_SIGN check the variable LIST_BINARY_EXTENSIONS in tools/darwin/Support/Codesign.command"
+
+    for FRAMEWORK_PATH in `find ${CODESIGNING_FOLDER_PATH} -name "*.framework" -type d`
+    do
+      DYLIB_BASENAME=$(basename "${FRAMEWORK_PATH%.framework}")
+      echo "Signing Framework: ${DYLIB_BASENAME}.framework"
+      FRAMEWORKBUNDLEID="${BUNDLEID}.framework.${DYLIB_BASENAME}"
+      codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${FRAMEWORKBUNDLEID}" ${FRAMEWORK_PATH}/${DYLIB_BASENAME}
+      codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${FRAMEWORKBUNDLEID}" ${FRAMEWORK_PATH}
+    done
 
     #repackage python eggs
     EGGS=`find ${CODESIGNING_FOLDER_PATH} -name "*.egg" -type f`
