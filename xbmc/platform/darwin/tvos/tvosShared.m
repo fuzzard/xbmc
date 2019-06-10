@@ -35,7 +35,7 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     // we re NOT sandboxed if we are installed in /var/mobile/Applications with greeng0blin jailbreak
-    ret = [[self mainAppBundle].executablePath containsString:@"/var/mobile/Applications/"];
+    ret = ![[self mainAppBundle].bundlePath containsString:@"/var/mobile/Applications/"];
   });
   return ret;
 }
