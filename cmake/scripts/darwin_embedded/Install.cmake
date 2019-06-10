@@ -127,6 +127,7 @@ add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
             "WRAPPER_EXTENSION=app"
             "SRCROOT=${CMAKE_BINARY_DIR}"
             ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-darwin_embedded.command
+    COMMAND ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-dylibs2frameworks.command
     COMMAND "XBMC_DEPENDS=${DEPENDS_PATH}"
             "NATIVEPREFIX=${NATIVEPREFIX}"
             "PLATFORM_NAME=${PLATFORM}"
