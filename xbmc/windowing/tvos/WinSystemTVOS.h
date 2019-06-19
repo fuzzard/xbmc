@@ -77,7 +77,6 @@ public:
   bool IsBackgrounded() const { return m_bIsBackgrounded; }
   CVEAGLContext GetEAGLContextObj();
   void GetConnectedOutputs(std::vector<std::string>* outputs);
-  void MoveToTouchscreen();
 
   // winevents override
   bool MessagePump() override;
@@ -101,6 +100,4 @@ private:
   void FillInVideoModes(int screenIdx);
   bool SwitchToVideoMode(int width, int height, double refreshrate);
   CADisplayLinkWrapper* m_pDisplayLink;
-  int m_internalTouchscreenResolutionWidth = -1;
-  int m_internalTouchscreenResolutionHeight = -1;
 };

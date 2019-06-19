@@ -1426,6 +1426,11 @@ XBMCController* g_xbmcController;
                                                           videoDynamicRange:dynamicRange];
       // setting preferredDisplayCriteria will trigger a display rate switch
       avDisplayManager.preferredDisplayCriteria = displayCriteria;
+      if (displayCriteria)
+      {
+        // setting preferredDisplayCriteria will trigger a display rate switch
+        avDisplayManager.preferredDisplayCriteria = displayCriteria;
+      }
     }
     else
     {
@@ -1457,15 +1462,12 @@ XBMCController* g_xbmcController;
   if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
           CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) != ADJUST_REFRESHRATE_OFF)
   {
-    if (__builtin_available(tvOS 11.2, *))
+    if (@available(tvOS 11.2, *))
     {
-      if ([m_window respondsToSelector:@selector(avDisplayManager)])
-      {
-        // setting preferredDisplayCriteria to nil will
-        // switch back to tvOS defined user settings
-        auto avDisplayManager = m_window.avDisplayManager;
-        avDisplayManager.preferredDisplayCriteria = nil;
-      }
+      // setting preferredDisplayCriteria to nil will
+      // switch back to tvOS defined user settings
+      auto avDisplayManager = m_window.avDisplayManager;
+      avDisplayManager.preferredDisplayCriteria = nil;
     }
   }
 }

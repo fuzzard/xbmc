@@ -44,8 +44,7 @@
 #import <OpenGLES/ES2/glext.h>
 #import <QuartzCore/CADisplayLink.h>
 
-#define CONST_TOUCHSCREEN "Touchscreen"
-#define CONST_EXTERNAL "External"
+#define CONST_HDMI "HDMI"
 
 // if there was a devicelost callback
 // but no device reset for 3 secs
@@ -122,22 +121,8 @@ void CWinSystemTVOS::StopLostDeviceTimer()
 
 int CWinSystemTVOS::GetDisplayIndexFromSettings()
 {
-  std::string currentScreen = CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(
-      CSettings::SETTING_VIDEOSCREEN_MONITOR);
-
+  // ATV only supports 1 screen currently
   int screenIdx = 0;
-  if (currentScreen == CONST_EXTERNAL)
-  {
-    if (UIScreen.screens.count > 1)
-    {
-      screenIdx = 1;
-    }
-    else // screen 1 is setup but not connected
-    {
-      // force internal screen
-      MoveToTouchscreen();
-    }
-  }
 
   return screenIdx;
 }
@@ -234,7 +219,7 @@ bool CWinSystemTVOS::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool b
   m_nHeight = res.iHeight;
   m_bFullScreen = fullScreen;
 
-  CLog::Log(LOGDEBUG, "About to switch to %i x %i", m_nWidth, m_nHeight);
+  CLog::Log(LOGDEBUG, "About to switch to %i x %i @ %.3f", m_nWidth, m_nHeight, res.fRefreshRate);
   SwitchToVideoMode(res.iWidth, res.iHeight, res.fRefreshRate);
   CRenderSystemGLES::ResetRenderSystem(res.iWidth, res.iHeight);
 
@@ -243,59 +228,20 @@ bool CWinSystemTVOS::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool b
 
 bool CWinSystemTVOS::SwitchToVideoMode(int width, int height, double refreshrate)
 {
-  bool ret = false;
-  int screenIdx = GetDisplayIndexFromSettings();
-
-  //get the mode to pass to the controller
-  // availableModes not avaible on tvOS
-  UIScreenMode* newMode = UIScreen.screens[screenIdx].currentMode;
-
-  if (newMode)
-  {
-    ret = [g_xbmcController changeScreen:screenIdx withMode:newMode];
-  }
-  return ret;
+  /*! @todo Currently support SDR dynamic range only. HDR shouldnt be done during a
+   *  modeswitch. Look to create supplemental method to handle sdr/hdr enable
+   */
+  [g_xbmcController displayRateSwitch:refreshrate withDynamicRange:0/*dynamicRange*/];
+  return true;
 }
 
 bool CWinSystemTVOS::GetScreenResolution(int* w, int* h, double* fps, int screenIdx)
 {
-  UIScreen* screen = UIScreen.screens[screenIdx];
-  CGSize screenSize = screen.currentMode.size;
-  *w = screenSize.width;
-  *h = screenSize.height;
-  *fps = 0.0;
+  *w = [g_xbmcController getScreenSize].width;
+  *h = [g_xbmcController getScreenSize].height;
+  *fps = [g_xbmcController getDisplayRate];
 
-  //if current mode is 0x0 (happens with external screens which aren't active)
-  //then use the preferred mode
-  if (*h == 0 || *w == 0)
-  {
-    // preferredMode not avaible on tvOS
-    UIScreenMode* firstMode = screen.currentMode;
-    *w = firstMode.size.width;
-    *h = firstMode.size.height;
-  }
-
-  // for mainscreen use the eagl bounds from xbmcController
-  // because mainscreen is might be 90° rotate dependend on
-  // the device and eagl gives the correct values in all cases.
-  if (screenIdx == 0)
-  {
-    // at very first start up we cache the internal screen resolution
-    // because when using external screens and need to go back
-    // to internal we are not able to determine the eagl bounds
-    // before we really switched back to internal
-    // but display settings ask for the internal resolution before
-    // switching. So we give the cached values back in that case.
-    if (m_internalTouchscreenResolutionWidth == -1 && m_internalTouchscreenResolutionHeight == -1)
-    {
-      m_internalTouchscreenResolutionWidth = [g_xbmcController getScreenSize].width;
-      m_internalTouchscreenResolutionHeight = [g_xbmcController getScreenSize].height;
-    }
-
-    *w = m_internalTouchscreenResolutionWidth;
-    *h = m_internalTouchscreenResolutionHeight;
-  }
-  CLog::Log(LOGDEBUG, "Current resolution Screen: %i with %i x %i", screenIdx, *w, *h);
+  CLog::Log(LOGDEBUG, "Current resolution Screen: %i with %i x %i @  %.3f", screenIdx, *w, *h, *fps);
   return true;
 }
 
@@ -311,7 +257,7 @@ void CWinSystemTVOS::UpdateResolutions()
   //first screen goes into the current desktop mode
   if (GetScreenResolution(&w, &h, &fps, screenIdx))
     UpdateDesktopResolution(CDisplaySettings::GetInstance().GetResolutionInfo(RES_DESKTOP),
-                            screenIdx == 0 ? CONST_TOUCHSCREEN : CONST_EXTERNAL, w, h, fps, 0);
+                            CONST_HDMI, w, h, fps, 0);
 
   CDisplaySettings::GetInstance().ClearCustomResolutions();
 
@@ -322,26 +268,24 @@ void CWinSystemTVOS::UpdateResolutions()
 
 void CWinSystemTVOS::FillInVideoModes(int screenIdx)
 {
-  // Add full screen settings for additional monitors
-  RESOLUTION_INFO res;
-  int w, h;
-  // atm we don't get refreshrate info from iOS
-  // but this may change in the future. In that case
-  // we will adapt this code for filling some
-  // useful info into this local var :)
-  double refreshrate = 0.0;
-  //screen 0 is mainscreen - 1 has to be the external one...
+  // Potential refresh rates
+  std::vector<float> supportedDispRefreshRates = {23.976, 24.000, 25.000, 29.970, 30.000, 50.000, 59.940, 60.000};
+
   UIScreen* aScreen = UIScreen.screens[screenIdx];
   UIScreenMode* mode = aScreen.currentMode;
-  w = mode.size.width;
-  h = mode.size.height;
+  int w = mode.size.width;
+  int h = mode.size.height;
 
-  UpdateDesktopResolution(res, screenIdx == 0 ? CONST_TOUCHSCREEN : CONST_EXTERNAL, w, h,
+  for (float refreshrate : supportedDispRefreshRates)
+  {
+    RESOLUTION_INFO res;
+    UpdateDesktopResolution(res, CONST_HDMI, w, h,
                           refreshrate, 0);
-  CLog::Log(LOGNOTICE, "Found possible resolution for display %d with %d x %d\n", screenIdx, w, h);
+    CLog::Log(LOGNOTICE, "Found possible resolution for display %d with %d x %d RefreshRate:%.3f \n", screenIdx, w, h, refreshrate);
 
-  CServiceBroker::GetWinSystem()->GetGfxContext().ResetOverscan(res);
-  CDisplaySettings::GetInstance().AddResolutionInfo(res);
+    CServiceBroker::GetWinSystem()->GetGfxContext().ResetOverscan(res);
+    CDisplaySettings::GetInstance().AddResolutionInfo(res);
+  }
 }
 
 bool CWinSystemTVOS::IsExtSupported(const char* extension) const
@@ -419,7 +363,6 @@ bool CWinSystemTVOS::InitDisplayLink(CVideoSyncTVos* syncImpl)
   m_pDisplayLink->impl = [currentScreen displayLinkWithTarget:m_pDisplayLink->callbackClass
                                                      selector:@selector(runDisplayLink)];
 
-  //  [m_pDisplayLink->impl setFrameInterval:1];
   [m_pDisplayLink->impl addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
   return m_pDisplayLink->impl != nil;
 }
@@ -445,7 +388,6 @@ void CWinSystemTVOS::PresentRenderImpl(bool rendered)
 
 bool CWinSystemTVOS::HasCursor()
 {
-  // apple touch devices
   return false;
 }
 
@@ -489,16 +431,7 @@ CVEAGLContext CWinSystemTVOS::GetEAGLContextObj()
 void CWinSystemTVOS::GetConnectedOutputs(std::vector<std::string>* outputs)
 {
   outputs->push_back("Default");
-  outputs->push_back(CONST_TOUCHSCREEN);
-  if (UIScreen.screens.count > 1)
-  {
-    outputs->push_back(CONST_EXTERNAL);
-  }
-}
-
-void CWinSystemTVOS::MoveToTouchscreen()
-{
-  CDisplaySettings::GetInstance().SetMonitor(CONST_TOUCHSCREEN);
+  outputs->push_back(CONST_HDMI);
 }
 
 bool CWinSystemTVOS::MessagePump()
