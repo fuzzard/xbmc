@@ -69,9 +69,15 @@ echo "Package $TARGET_NAME"
 echo "Checking $TARGET_NAME for dylib dependencies"
 for a in $(otool -L "$TARGET_BINARY"  | grep "$EXTERNAL_LIBS\|$DYLIB_NAMEPATH" | awk ' { print $1 } ') ; do
   echo "    Packaging $a"
-  cp -f "$EXTERNAL_LIBS/lib/$(basename $a)" "$TARGET_FRAMEWORKS/"
-  chmod u+w "$TARGET_FRAMEWORKS/$(basename $a)"
-  install_name_tool -change "$a" "$DYLIB_NAMEPATH/$(basename $a)" "$TARGET_BINARY"
+  # Soft Frameworks strip dylib from path. Explicitly add dylib
+  if ! [ -f "$EXTERNAL_LIBS/lib/$(basename $a)" ]; then
+    DYLIBNAME="$(basename $a).dylib"
+  else
+    DYLIBNAME="$(basename $a)"
+  fi
+  cp -f "$EXTERNAL_LIBS/lib/$DYLIBNAME" "$TARGET_FRAMEWORKS/"
+  chmod u+w "$TARGET_FRAMEWORKS/$DYLIBNAME"
+  install_name_tool -change "$a" "$DYLIB_NAMEPATH/$DYLIBNAME" "$TARGET_BINARY"
 done
 
 echo "Package $EXTERNAL_LIBS/lib/python2.7"

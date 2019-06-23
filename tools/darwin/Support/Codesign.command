@@ -68,13 +68,25 @@ if [ "${PLATFORM_NAME}" == "iphoneos" ] || [ "${PLATFORM_NAME}" == "appletvos" ]
 
   ${GEN_ENTITLEMENTS} "${BUNDLEID}" "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/${PROJECT_NAME}.xcent";
 
+  # delete existing codesigning
+  if [ -d "${CODESIGNING_FOLDER_PATH}/_CodeSignature" ]; then
+    rm -r ${CODESIGNING_FOLDER_PATH}/_CodeSignature
+  fi
+  if [ -f "${CODESIGNING_FOLDER_PATH}/embedded.mobileprovision" ]; then
+    rm -f ${CODESIGNING_FOLDER_PATH}/embedded.mobileprovision
+  fi
+
   #if user has set a code_sign_identity different from iPhone Developer we do a real codesign (for deployment on non-jailbroken devices)
   if ! [ -z "${CODE_SIGN_IDENTITY}" ] && echo ${CODE_SIGN_IDENTITY} | grep -cim1 "iPhone Developer" &>/dev/null; then
     echo "Doing a full bundle sign using genuine identity ${CODE_SIGN_IDENTITY}"
     for binext in $LIST_BINARY_EXTENSIONS
     do
       echo "Signing binary: $binext"
-      codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${BUNDLEID}" `find ${CODESIGNING_FOLDER_PATH} -name "*.$binext" -type f`
+      # check if at least 1 file with the extension exists to sign, otherwise do nothing
+      FINDOUTPUT=`find ${CODESIGNING_FOLDER_PATH} -name "*.$binext" -type f`
+      if [ `echo $FINDOUTPUT | wc -l` != 0 ]; then
+        codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${BUNDLEID}" "${FINDOUTPUT}"
+      fi
     done
     echo "In case your app crashes with SIG_SIGN check the variable LIST_BINARY_EXTENSIONS in tools/darwin/Support/Codesign.command"
 
@@ -96,7 +108,11 @@ if [ "${PLATFORM_NAME}" == "iphoneos" ] || [ "${PLATFORM_NAME}" == "appletvos" ]
       unzip -q $i -d del
       for binext in $LIST_BINARY_EXTENSIONS
       do
-        codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${BUNDLEID}" `find ./del/ -name "*.$binext" -type f`
+        # check if at least 1 file with the extension exists to sign, otherwise do nothing
+        FINDOUTPUT=`find ./del/ -name "*.$binext" -type f`
+        if [ `echo $FINDOUTPUT | wc -l` != 0 ]; then
+          codesign -s "${CODE_SIGN_IDENTITY_FOR_ITEMS}" -fvvv -i "${BUNDLEID}" "${FINDOUTPUT}"
+        fi
       done
       rm $i
       cd del && zip -qr $i ./* &&  cd ..
