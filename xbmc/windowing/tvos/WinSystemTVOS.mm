@@ -231,22 +231,14 @@ bool CWinSystemTVOS::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool b
   return true;
 }
 
-UIScreenMode* getModeForResolution(int width, int height, unsigned int screenIdx)
-{
-  UIScreen* aScreen = [[UIScreen screens]objectAtIndex:screenIdx];
-  
-  // availableModes not avaible on tvOS
-  UIScreenMode* mode = [aScreen currentMode];
-  return mode;
-}
-
 bool CWinSystemTVOS::SwitchToVideoMode(int width, int height, double refreshrate)
 {
   bool ret = false;
   int screenIdx = GetDisplayIndexFromSettings();
 
   //get the mode to pass to the controller
-  UIScreenMode* newMode = getModeForResolution(width, height, screenIdx);
+  // availableModes not avaible on tvOS
+  UIScreenMode* newMode = [[[UIScreen screens]objectAtIndex:screenIdx] currentMode];
 
   if(newMode)
   {
