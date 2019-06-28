@@ -108,6 +108,9 @@ make -j$(getconf _NPROCESSORS_ONLN)
 **[back to top](#table-of-contents)** | **[back to section top](#4-configure-and-build-tools-and-dependencies)**
 
 ## 5. Build binary add-ons
+
+**NOTE:** The below is not currently possible in Kodi master repo
+
 You can find a complete list of available binary add-ons **[here](https://github.com/xbmc/repo-binary-addons)**.
 
 Change to Kodi's source code directory:
@@ -133,6 +136,9 @@ make -j$(getconf _NPROCESSORS_ONLN) -C tools/depends/target/binary-addons ADDONS
 **[back to top](#table-of-contents)**
 
 ## 6. Build Kodi
+
+**NOTE:** The below is not currently possible in Kodi master repo
+
 Before you can use Xcode to build Kodi, the Xcode project has to be generated with CMake. CMake is built as part of the dependencies and doesn't have to be installed separately. A toolchain file is also generated and is used to configure CMake.
 
 ### 6.1. Build with Xcode
@@ -142,7 +148,7 @@ Change to Kodi's source code directory:
 cd $HOME/kodi
 ```
 
-Generate Xcode project for ARM 64bit (**recommended**):
+Generate Xcode project for TVOS:
 ```
 make -C tools/depends/target/cmakebuildsys
 ```
@@ -175,13 +181,6 @@ Generate Xcode project for ARM:
 ```
 make -C tools/depends/target/cmakebuildsys
 ```
-
-Additional cmake arguments can be supplied via the CMAKE_EXTRA_ARGUMENTS command line variable
-
-An example to set signing settings in xcode project:
-````
-make -C tools/depends/target/cmakebuildsys CMAKE_EXTRA_ARGUMENTS="-DPLATFORM_BUNDLE_IDENTIFIER=\"tv.kodi.kodi\" -DCODE_SIGN_IDENTITY=\"iPhone Developer: *** (**********)\" -DPROVISIONING_PROFILE_APP=\"tv.kodi.kodi\" -DPROVISIONING_PROFILE_TOPSHELF=\"tv.kodi.kodi.Topshelf\""
-````
 
 Build Kodi:
 ```
