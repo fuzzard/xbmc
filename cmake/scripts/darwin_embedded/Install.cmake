@@ -93,9 +93,7 @@ if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
                                                               XCODE_ATTRIBUTE_CODE_SIGN_STYLE ${CODE_SIGN_STYLE_TOPSHELF}
                                                               XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
                                                               XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${PROVISIONING_PROFILE_TOPSHELF}")
-endif()
 
-if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
   # copy extension inside PlugIns dir of the app bundle
   add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
       COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
