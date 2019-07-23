@@ -93,9 +93,7 @@ if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
                                                               XCODE_ATTRIBUTE_CODE_SIGN_STYLE ${CODE_SIGN_STYLE_TOPSHELF}
                                                               XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
                                                               XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "${PROVISIONING_PROFILE_TOPSHELF}")
-endif()
 
-if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
   # copy extension inside PlugIns dir of the app bundle
   add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
       COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory $<TARGET_BUNDLE_DIR:${TOPSHELF_EXTENSION_NAME}>
@@ -111,31 +109,12 @@ add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/DllPaths_generated.h
                                      ${CMAKE_BINARY_DIR}/xbmc/DllPaths_generated.h
     COMMAND "ACTION=build"
-            "TARGET_BUILD_DIR=$<TARGET_FILE_DIR:${APP_NAME_LC}>/.."
-            "TARGET_NAME=${APP_NAME}.app"
-            "APP_NAME=${APP_NAME}"
-            "PRODUCT_NAME=${APP_NAME}"
-            "WRAPPER_EXTENSION=app"
-            "SRCROOT=${CMAKE_BINARY_DIR}"
             ${CMAKE_SOURCE_DIR}/tools/darwin/Support/CopyRootFiles-darwin_embedded.command
     COMMAND "XBMC_DEPENDS=${DEPENDS_PATH}"
-            "TARGET_BUILD_DIR=$<TARGET_FILE_DIR:${APP_NAME_LC}>/.."
-            "TARGET_NAME=${APP_NAME}.app"
-            "APP_NAME=${APP_NAME}"
-            "PRODUCT_NAME=${APP_NAME}"
-            "FULL_PRODUCT_NAME=${APP_NAME}.app"
-            "WRAPPER_EXTENSION=app"
-            "SRCROOT=${CMAKE_BINARY_DIR}"
             ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-darwin_embedded.command
     COMMAND ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-dylibs2frameworks.command
     COMMAND "XBMC_DEPENDS=${DEPENDS_PATH}"
             "NATIVEPREFIX=${NATIVEPREFIX}"
-            "PLATFORM_NAME=${PLATFORM}"
-            "CODESIGNING_FOLDER_PATH=$<TARGET_FILE_DIR:${APP_NAME_LC}>"
-            "BUILT_PRODUCTS_DIR=$<TARGET_FILE_DIR:${APP_NAME_LC}>/.."
-            "WRAPPER_NAME=${APP_NAME}.app"
-            "APP_NAME=${APP_NAME}"
-            "CURRENT_ARCH=${ARCH}"
             ${CMAKE_SOURCE_DIR}/tools/darwin/Support/Codesign.command
 )
 
