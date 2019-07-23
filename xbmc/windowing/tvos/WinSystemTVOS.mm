@@ -8,6 +8,7 @@
 
 #include "WinSystemTVOS.h"
 
+#include "OSScreenSaverTVOS.h"
 #include "WinEventsTVOS.h"
 
 #include "cores/AudioEngine/Sinks/AESinkDARWINIOS.h"
@@ -29,6 +30,8 @@
 #include "guilib/DispResource.h"
 #include "threads/SingleLock.h"
 #include "VideoSyncTVos.h"
+#include "windowing/OSScreenSaver.h"
+#include <memory>
 #include <vector>
 
 #import <Foundation/Foundation.h>
@@ -163,6 +166,11 @@ bool CWinSystemTVOS::InitWindowSystem()
 bool CWinSystemTVOS::DestroyWindowSystem()
 {
   return true;
+}
+
+std::unique_ptr<KODI::WINDOWING::IOSScreenSaver> CWinSystemTVOS::GetOSScreenSaverImpl()
+{
+  return std::unique_ptr<KODI::WINDOWING::IOSScreenSaver> (new COSScreenSaverTVOS);
 }
 
 bool CWinSystemTVOS::CreateNewWindow(const std::string& name, bool fullScreen, RESOLUTION_INFO& res)

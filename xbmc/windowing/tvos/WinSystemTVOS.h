@@ -8,9 +8,11 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "windowing/OSScreenSaver.h"
 #include "windowing/WinSystem.h"
 #include "rendering/gles/RenderSystemGLES.h"
 #include "threads/CriticalSection.h"
@@ -79,6 +81,7 @@ public:
   bool MessagePump() override;
 
 protected:
+  virtual std::unique_ptr<KODI::WINDOWING::IOSScreenSaver> GetOSScreenSaverImpl() override;
   void PresentRenderImpl(bool rendered) override;
   void SetVSyncImpl(bool enable) override {}
 

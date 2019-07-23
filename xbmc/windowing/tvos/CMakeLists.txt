@@ -1,7 +1,9 @@
-set(SOURCES WinEventsTVOS.mm
+set(SOURCES OSScreenSaverTVOS.mm
+            WinEventsTVOS.mm
             WinSystemTVOS.mm
             VideoSyncTVos.cpp)
-set(HEADERS WinEventsTVOS.h
+set(HEADERS OSScreenSaverTVOS.h
+            WinEventsTVOS.h
             WinSystemTVOS.h
             VideoSyncTVos.h)
 
