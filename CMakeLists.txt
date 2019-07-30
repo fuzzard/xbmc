@@ -57,6 +57,10 @@ if(UNIX)
   option(ENABLE_INTERNAL_FSTRCMP "Enable internal fstrcmp?" OFF)
   option(ENABLE_INTERNAL_FLATBUFFERS "Enable internal flatbuffers?" OFF)
 endif()
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+  option(ENABLE_XCODE_ADDONBUILD "Enable Xcode automatic addon building?" ON)
+endif()
+
 # System options
 if(NOT WIN32)
   option(WITH_ARCH              "build with given arch" OFF)
@@ -435,6 +439,27 @@ if(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     COMMAND $(MAKE) -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons VERBOSE=1 V=99
                     PREFIX=${_prefix} INSTALL_PREFIX=${_prefix} ${_cross_args} ${_extra})
   unset(_cross_args)
+  unset(_prefix)
+endif()
+
+# Create xcode target that allows to build binary-addons.
+if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+  if(ADDONS_TO_BUILD)
+    set(_addons "ADDONS=${ADDONS_TO_BUILD}")
+  endif()
+  if(ADDONS_INSTALL_DIR)
+    set(_prefix "${ADDONS_INSTALL_DIR}")
+  else()
+    set(_prefix "${CMAKE_BINARY_DIR}/addons")
+  endif()
+  add_custom_target(binary-addons
+    COMMAND $(MAKE) -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons clean
+    COMMAND $(MAKE) -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons VERBOSE=1 V=99
+          INSTALL_PREFIX="${_prefix}" CROSS_COMPILING=yes ${_addons})
+  if(ENABLE_XCODE_ADDONBUILD)
+    add_dependencies(${APP_NAME_LC} binary-addons)
+  endif()
+  unset(_addons)
   unset(_prefix)
 endif()
 
