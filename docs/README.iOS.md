@@ -8,13 +8,13 @@ This guide has been tested with macOS 10.13.4()17E199 High Sierra and Xcode 9.3(
 2. **[Prerequisites](#2-prerequisites)**
 3. **[Get the source code](#3-get-the-source-code)**
 4. **[Configure and build tools and dependencies](#4-configure-and-build-tools-and-dependencies)**
-5. **[Build binary add-ons](#5-build-binary-add-ons)**
-6. **[Build Kodi](#6-build-kodi)**  
-  6.1. **[Generate Project Files](#61-Generate-Project-Files)**  
-  6.2. **[Build with Xcode](#62-build)**  
-7. **[Package](#7-package)**
-8. **[Install](#8-install)**
-9. **[Gesture Handling](#9-gesture-handling)**
+5. **[Build Kodi](#5-build-kodi)**  
+  5.1. **[Generate Project Files](#51-Generate-Project-Files)**  
+  5.2. **[Build binary add-ons](#52-build-binary-add-ons)**  
+  5.3. **[Build with Xcode](#53-build)**  
+6. **[Package](#6-package)**
+7. **[Install](#7-install)**
+8. **[Gesture Handling](#8-gesture-handling)**
 
 ## 1. Document conventions
 This guide assumes you are using `terminal`, also known as `console`, `command-line` or simply `cli`. Commands need to be run at the terminal, one at a time and in the provided order.
@@ -113,34 +113,9 @@ make -j$(getconf _NPROCESSORS_ONLN)
 
 **[back to top](#table-of-contents)** | **[back to section top](#4-configure-and-build-tools-and-dependencies)**
 
-## 5. Build binary add-ons
-You can find a complete list of available binary add-ons **[here](https://github.com/xbmc/repo-binary-addons)**.
+## 5. Build Kodi
 
-Change to Kodi's source code directory:
-```
-cd $HOME/kodi
-```
-
-Build all add-ons:
-```
-make -C tools/depends/target/binary-addons
-```
-
-Build specific add-ons:
-```
-make -C tools/depends/target/binary-addons ADDONS="audioencoder.flac pvr.vdr.vnsi audiodecoder.snesapu"
-```
-
-Build a specific group of add-ons:
-```
-make -j$(getconf _NPROCESSORS_ONLN) -C tools/depends/target/binary-addons ADDONS="pvr.*"
-```
-
-**[back to top](#table-of-contents)**
-
-## 6. Build Kodi
-
-## 6.1. Generate Project Files
+## 5.1. Generate Project Files
 
 Before you can use Xcode to build Kodi, the Xcode project has to be generated with CMake. CMake is built as part of the dependencies and doesn't have to be installed separately. A toolchain file is also generated and is used to configure CMake.
 
@@ -177,7 +152,38 @@ You can check `Users/Shared/xbmc-depends` directory content with:
 ```
 ls -l /Users/Shared/xbmc-depends
 ```
-## 6.2 Build 
+
+**[back to top](#table-of-contents)** | **[back to section top](#5-build-kodi)**
+
+## 5.2 Build binary add-ons
+You can find a complete list of available binary add-ons **[here](https://github.com/xbmc/repo-binary-addons)**.
+
+Binary addons will be built as a dependency in the Xcode project. You can choose the addons you wish to build during the Xcode project generation step
+
+Generate Xcode project to build specific add-ons:
+```
+make -C tools/depends/target/cmakebuildsys CMAKE_EXTRA_ARGUMENTS="-DADDONS_TO_BUILD=\"audioencoder.flac pvr.vdr.vnsi audiodecoder.snesapu\""
+```
+
+Generate Xcode project to build a specific group of add-ons:
+```
+make -C tools/depends/target/cmakebuildsys CMAKE_EXTRA_ARGUMENTS="-DADDONS_TO_BUILD=\"pvr.*\""
+```
+
+Generate Xcode project to not build any add-ons automatically:
+```
+make -C tools/depends/target/cmakebuildsys CMAKE_EXTRA_ARGUMENTS="-DENABLE_XCODE_ADDONBUILD=OFF"
+```
+
+Binary add-ons added to the generated Xcode project can be built independently of the Kodi app by selecting the target `binary-addons` in the Xcode project.
+You can also build the binary-addons target via xcodebuild
+```
+xcodebuild -config "Debug" -target binary-addons
+```
+
+**[back to top](#table-of-contents)** | **[back to section top](#5-build-kodi)**
+
+## 5.3 Build 
 
 **Start Xcode, open the Kodi project file** (`kodi.xcodeproj`) located in `$HOME/kodi-build` and hit `Build`.
 
@@ -193,9 +199,9 @@ xcodebuild -config "Debug" -jobs $(getconf _NPROCESSORS_ONLN)
 
 **TIP:** You can specify Release instead of Debug as -config parameter.
 
-**[back to top](#table-of-contents)** | **[back to section top](#6-build-kodi)**
+**[back to top](#table-of-contents)** | **[back to section top](#5-build-kodi)**
 
-## 7. Package
+## 6. Package
 CMake generates a target called `deb` which will package Kodi ready for distribution. After Kodi has been built, the target can be triggered by selecting it in Xcode active scheme or manually running
 
 ```
@@ -212,7 +218,7 @@ cd $HOME/kodi-build
 
 **[back to top](#table-of-contents)**
 
-## 8. Install
+## 7. Install
 On jailbroken devices the resulting deb file can be copied to the iOS device via *ssh/scp* and installed manually. You need to SSH into the iOS device and issue:
 ```
 dpkg -i <name of the deb file>
@@ -226,7 +232,7 @@ From Xcode7 on this approach is also available for non paying app developers (Ap
 
 **[back to top](#table-of-contents)**
 
-## 9. Gesture Handling
+## 8. Gesture Handling
 
 | Gesture                                  | Action                     |
 | ---------------------------------------- | -------------------------- |

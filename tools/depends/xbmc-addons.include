@@ -21,8 +21,10 @@ endif
 
 CMAKE_EXTRA =
 ifeq (darwin, $(findstring darwin, $(HOST)))
+  ifeq ($(INSTALL_PREFIX),)
     INSTALL_PREFIX = ../../../../../addons/
-    CMAKE_EXTRA = -DPACKAGE_ZIP=ON
+  endif
+  CMAKE_EXTRA += -DPACKAGE_ZIP=ON
 endif
 
 ifneq ($(PREFIX),)
