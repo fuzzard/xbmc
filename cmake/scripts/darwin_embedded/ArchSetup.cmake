@@ -43,6 +43,11 @@ list(APPEND DEPLIBS "-framework CoreFoundation" "-framework CoreVideo"
 
 set(ENABLE_OPTICAL OFF CACHE BOOL "" FORCE)
 
+# AppleTV already has built-in AirPlay support
+if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
+  set(ENABLE_AIRTUNES OFF CACHE BOOL "" FORCE)
+endif()
+
 if(CORE_PLATFORM_NAME_LC STREQUAL tvos)
   set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3")
 else()
