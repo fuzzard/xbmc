@@ -120,7 +120,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (float)getDisplayRate;
 - (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange;
 - (void)displayRateReset;
-- (void*)getEAGLContextObj;
+- (EAGLContext*)getEAGLContextObj;
 @end
 
 extern XBMCController* g_xbmcController;

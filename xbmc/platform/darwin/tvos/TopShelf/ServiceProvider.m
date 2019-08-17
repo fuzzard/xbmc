@@ -82,7 +82,6 @@
       TVContentIdentifier* identifier =
           [[TVContentIdentifier alloc] initWithIdentifier:@"VOD" container:wrapperIdentifier];
       TVContentItem* contentItem = [[TVContentItem alloc] initWithContentIdentifier:identifier];
-      [identifier release];
 
       [contentItem
           setImageURL:[storeUrl URLByAppendingPathComponent:[videoDict valueForKey:@"thumb"]
@@ -96,9 +95,8 @@
       contentItem.playURL = [NSURL
           URLWithString:[NSString stringWithFormat:@"%@://play/movie/%@", kodiUrlScheme, url]];
       [contentItems addObject:contentItem];
-      [contentItem release];
     }
-    return [contentItems autorelease];
+    return contentItems;
   };
 
   if ([movieArray count] > 0)
@@ -107,7 +105,6 @@
     itemMovie.title = [(sharedDict ?: shared) valueForKey:@"moviesTitle"];
     itemMovie.topShelfItems = contentItemsFrom(movieArray);
     [topShelfItems addObject:itemMovie];
-    [itemMovie release];
   }
 
   if ([tvArray count] > 0)
@@ -116,13 +113,9 @@
     itemTv.title = [(sharedDict ?: shared) valueForKey:@"tvTitle"];
     itemTv.topShelfItems = contentItemsFrom(tvArray);
     [topShelfItems addObject:itemTv];
-    [itemTv release];
   }
 
-  [wrapperIdentifier release];
-  [shared release];
-
-  return [topShelfItems autorelease];
+  return topShelfItems;
 }
 
 @end

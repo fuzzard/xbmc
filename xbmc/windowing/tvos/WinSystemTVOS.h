@@ -14,6 +14,8 @@
 #include "windowing/OSScreenSaver.h"
 #include "windowing/WinSystem.h"
 
+#include <CoreVideo/CVOpenGLESTextureCache.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -73,7 +75,7 @@ public:
   void DeinitDisplayLink(void);
   void OnAppFocusChange(bool focus);
   bool IsBackgrounded() const { return m_bIsBackgrounded; }
-  void* GetEAGLContextObj();
+  CVEAGLContext GetEAGLContextObj();
   void GetConnectedOutputs(std::vector<std::string>* outputs);
   void MoveToTouchscreen();
 

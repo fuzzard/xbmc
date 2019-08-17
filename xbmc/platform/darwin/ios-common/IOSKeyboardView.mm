@@ -39,18 +39,18 @@ static CEvent keyboardFinishedEvent;
   // @todo in fact, it's client's responsibility to init on main thread
   auto frameObj = @(frame);
   if (NSThread.isMainThread)
-    [self initWithFrameInternal:frameObj];
+    self = [self initWithFrameInternal:frameObj];
   else
     [self performSelectorOnMainThread:@selector(initWithFrameInternal:) withObject:frameObj waitUntilDone:YES];
   return self;
 }
 
-- (void)initWithFrameInternal:(NSValue*)frameObj
+- (instancetype)initWithFrameInternal:(NSValue*)frameObj
 {
   CGRect frame = frameObj.CGRectValue;
   self = [super initWithFrame:frame];
   if (!self)
-    return;
+    return nil;
 
   // @todo if using native keyboard on tvOS, ignore most of the code but textfield
 #if defined(TARGET_DARWIN_IOS)
@@ -116,6 +116,7 @@ static CEvent keyboardFinishedEvent;
                                                name:UIKeyboardDidShowNotification
                                              object:nil];
 #endif
+  return self;
 }
 
 - (void)layoutSubviews

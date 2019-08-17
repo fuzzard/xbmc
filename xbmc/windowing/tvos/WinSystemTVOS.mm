@@ -157,7 +157,7 @@ CWinSystemTVOS::CWinSystemTVOS()
 
 CWinSystemTVOS::~CWinSystemTVOS()
 {
-  [m_pDisplayLink->callbackClass release];
+  m_pDisplayLink->callbackClass = nil;
   delete m_pDisplayLink;
 }
 
@@ -408,12 +408,11 @@ void CWinSystemTVOS::OnAppFocusChange(bool focus)
 //--------------------------------------------------------------
 - (void)runDisplayLink
 {
-  NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-  if (_videoSyncImpl != nil)
+  @autoreleasepool
   {
-    _videoSyncImpl->TVosVblankHandler();
+    if (_videoSyncImpl != nullptr)
+      _videoSyncImpl->TVosVblankHandler();
   }
-  [pool release];
 }
 @end
 
@@ -487,7 +486,7 @@ bool CWinSystemTVOS::Show(bool raise)
   return true;
 }
 
-void* CWinSystemTVOS::GetEAGLContextObj()
+CVEAGLContext CWinSystemTVOS::GetEAGLContextObj()
 {
   return [g_xbmcController getEAGLContextObj];
 }

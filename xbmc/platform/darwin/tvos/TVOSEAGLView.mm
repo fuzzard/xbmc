@@ -12,7 +12,6 @@
 #import "settings/AdvancedSettings.h"
 #import "utils/log.h"
 
-#import "platform/darwin/AutoPool.h"
 #import "platform/darwin/DarwinUtils.h"
 #import "platform/darwin/NSLogDebugHelpers.h"
 #import "platform/darwin/tvos/XBMCController.h"
@@ -75,7 +74,6 @@ using namespace KODI::MESSAGING;
       ELOG(@"Failed to set ES context current");
 
     m_context = aContext;
-    [aContext release];
 
     [self createFramebuffer];
     [self setFramebuffer];
@@ -88,9 +86,6 @@ using namespace KODI::MESSAGING;
 - (void)dealloc
 {
   [self deleteFramebuffer];
-  [m_context release];
-
-  [super dealloc];
 }
 
 //--------------------------------------------------------------
@@ -107,8 +102,7 @@ using namespace KODI::MESSAGING;
   {
     [self deleteFramebuffer];
 
-    [m_context release];
-    m_context = [newContext retain];
+    m_context = newContext;
 
     [EAGLContext setCurrentContext:nil];
   }

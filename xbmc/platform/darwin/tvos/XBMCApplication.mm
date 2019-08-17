@@ -85,9 +85,6 @@ XBMCController* m_xbmcController;
 - (void)dealloc
 {
   [m_xbmcController stopAnimation];
-  [m_xbmcController release];
-
-  [super dealloc];
 }
 @end
 
@@ -98,25 +95,25 @@ static void SigPipeHandler(int s)
 
 int main(int argc, char* argv[])
 {
-  NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-  signal(SIGPIPE, SigPipeHandler);
-
-  int retVal = 0;
-  @try
+  @autoreleasepool
   {
-    retVal = UIApplicationMain(argc, argv, nil, NSStringFromClass([XBMCApplicationDelegate class]));
-  }
-  @catch (id theException)
-  {
-    ELOG(@"%@", theException);
-  }
-  @finally
-  {
-    ILOG(@"This always happens.");
-  }
+    signal(SIGPIPE, SigPipeHandler);
 
-  [pool release];
+    int retVal = 0;
+    @try
+    {
+      retVal =
+          UIApplicationMain(argc, argv, nil, NSStringFromClass([XBMCApplicationDelegate class]));
+    }
+    @catch (id theException)
+    {
+      ELOG(@"%@", theException);
+    }
+    @finally
+    {
+      ILOG(@"This always happens.");
+    }
 
-  return retVal;
+    return retVal;
+  }
 }
