@@ -197,6 +197,7 @@
      if (pid == 0) {
          /* Child process */
          /*
+
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
 @@ -593,8 +593,10 @@
@@ -214,7 +215,7 @@
          wchar_t *path = Py_DecodeLocale(execpath, &len);
 --- a/Modules/posixmodule.c
 +++ b/Modules/posixmodule.c
-@@ -197,6 +197,20 @@
+@@ -194,6 +194,20 @@
  #endif  /* _MSC_VER */
  #endif  /* ! __WATCOMC__ || __QNX__ */
  
@@ -231,11 +232,11 @@
 +#  undef HAVE_WAIT
 +#  undef HAVE_WAIT3
 +#  undef HAVE_WAIT4
-+#  undef HAVE_WAITPID
++//#  undef HAVE_WAITPID
  
  /*[clinic input]
  # one of the few times we lie about this name!
-@@ -475,6 +489,10 @@
+@@ -472,6 +486,10 @@
  }
  #endif
  
@@ -246,7 +247,7 @@
  /* Legacy wrapper */
  void
  PyOS_AfterFork(void)
-@@ -5040,6 +5058,8 @@
+@@ -5037,6 +5055,8 @@
  #endif
      _Py_END_SUPPRESS_IPH
  
@@ -255,7 +256,7 @@
      /* If we get here it's definitely an error */
  
      free_string_array(argvlist, argc);
-@@ -5116,6 +5136,12 @@
+@@ -5113,6 +5133,12 @@
  #endif
      _Py_END_SUPPRESS_IPH
  
@@ -268,7 +269,7 @@
      /* If we get here it's definitely an error */
  
      posix_path_error(path);
-@@ -5416,7 +5442,7 @@
+@@ -5413,7 +5439,7 @@
      pid_t pid;
  
      PyOS_BeforeFork();
@@ -277,7 +278,7 @@
      if (pid == 0) {
          /* child: this clobbers and resets the import lock. */
          PyOS_AfterFork_Child();
-@@ -5447,7 +5473,7 @@
+@@ -5444,7 +5470,7 @@
      pid_t pid;
  
      PyOS_BeforeFork();
