@@ -89,7 +89,7 @@ else
 fi
 echo "Priority: Extra"                            >> $DIRNAME/$PACKAGE/DEBIAN/control
 echo "Version: $VERSION-$REVISION"                >> $DIRNAME/$PACKAGE/DEBIAN/control
-echo "Architecture: @PLATFORM@-arm"                 >> $DIRNAME/$PACKAGE/DEBIAN/control
+echo "Architecture: @CMAKE_SYSTEM_NAME@-@CPU@"                 >> $DIRNAME/$PACKAGE/DEBIAN/control
 echo "Installed-Size: $SIZE"                      >> $DIRNAME/$PACKAGE/DEBIAN/control
 echo "Description: @APP_NAME@ Entertainment Center for iOS" >> $DIRNAME/$PACKAGE/DEBIAN/control
 echo "Homepage: @APP_WEBSITE@"                    >> $DIRNAME/$PACKAGE/DEBIAN/control
