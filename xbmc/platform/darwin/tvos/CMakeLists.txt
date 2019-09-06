@@ -1,10 +1,12 @@
-set(SOURCES TVOSEAGLView.mm
+set(SOURCES PreflightHandler.mm
+            TVOSEAGLView.mm
             TVOSSettingsHandler.mm
             tvosShared.m
             TVOSTopShelf.mm
             XBMCController.mm)
 
-set(HEADERS	TVOSEAGLView.h
+set(HEADERS PreflightHandler.h
+            TVOSEAGLView.h
             TVOSSettingsHandler.h
             tvosShared.h
             TVOSTopShelf.h
