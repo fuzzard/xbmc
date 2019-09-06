@@ -9,6 +9,7 @@
 #import "platform/darwin/tvos/XBMCApplication.h"
 
 #import "platform/darwin/NSLogDebugHelpers.h"
+#import "platform/darwin/tvos/PreflightHandler.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/tvos/XBMCController.h"
 
@@ -47,6 +48,15 @@ XBMCController* m_xbmcController;
 
 - (void)applicationDidFinishLaunching:(UIApplication*)application
 {
+  // check if apple removed our Cache folder first
+  // this will trigger the restore if there is a backup available
+  CPreflightHandler::CheckForRemovedCacheFolder();
+
+  // This needs to run before anything does any CLog::Log calls
+  // as they will directly cause guisetting to get accessed/created
+  // via debug log settings.
+  CPreflightHandler::MigrateUserdataXMLToNSUserDefaults();
+
   NSError* err = nullptr;
   if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&err])
   {

@@ -39,7 +39,7 @@ list(APPEND DEPLIBS "-framework CoreFoundation" "-framework CoreVideo"
                     "-framework CFNetwork" "-framework CoreGraphics"
                     "-framework Foundation" "-framework UIKit"
                     "-framework CoreMedia" "-framework AVFoundation"
-                    "-framework VideoToolbox")
+                    "-framework VideoToolbox" "-ObjC")
 
 set(ENABLE_OPTICAL OFF CACHE BOOL "" FORCE)
 
