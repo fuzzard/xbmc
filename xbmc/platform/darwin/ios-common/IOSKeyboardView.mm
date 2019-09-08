@@ -226,10 +226,10 @@ static CEvent keyboardFinishedEvent;
   // we are waiting on the user finishing the keyboard
   while(!keyboardFinishedEvent.WaitMSec(500))
   {
-    if (NULL != _canceled && *_canceled)
+    if (nullptr != _canceled && *_canceled)
     {
       [self deactivate];
-      _canceled = NULL;
+      _canceled = nullptr;
     }
   }
 }
@@ -324,19 +324,19 @@ static CEvent keyboardFinishedEvent;
 
 - (void) setDefault:(NSString *)defaultText
 {
-  [_textField setText:defaultText];
+  _textField.text = defaultText;
   [self textChanged:nil];
 }
 
 - (void) setHiddenInternal:(NSNumber *)hidden
 {
-  BOOL hiddenBool = [hidden boolValue];
-  [_textField setSecureTextEntry:hiddenBool];
+  BOOL hiddenBool = hidden.boolValue;
+  _textField.secureTextEntry = hiddenBool;
 }
 
 - (void) setHidden:(BOOL)hidden
 {
-  NSNumber *passedValue = [NSNumber numberWithBool:hidden];
+  NSNumber *passedValue = @(hidden);
 
   if([NSThread currentThread] != [NSThread mainThread])
   {

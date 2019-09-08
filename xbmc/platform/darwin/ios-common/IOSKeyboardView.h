@@ -24,7 +24,7 @@
 
 @property (nonatomic, strong) NSMutableString* text;
 @property (getter = isConfirmed) BOOL confirmed;
-@property (assign, setter = registerKeyboard:) CIOSKeyboard* iosKeyboard;
+@property (assign) CIOSKeyboard* iosKeyboard;
 
 - (void) setHeading:(NSString *)heading;
 - (void) setHidden:(BOOL)hidden;
