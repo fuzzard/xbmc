@@ -75,7 +75,7 @@ void CTVOSTopShelf::SetTopShelfItems(CFileItemList& movies, CFileItemList& tv)
     auto fileManager = NSFileManager.defaultManager;
     auto filePaths = [NSMutableSet setWithArray:[fileManager contentsOfDirectoryAtPath:storeUrl.path
                                                                                  error:nil]];
-    std::string raPath = [storeUrl.path UTF8String];
+    std::string raPath = storeUrl.path.UTF8String;
     CVideoThumbLoader thumbLoader;
 
     auto fillSharedDicts =
@@ -110,28 +110,27 @@ void CTVOSTopShelf::SetTopShelfItems(CFileItemList& movies, CFileItemList& tv)
               else
               {
                 // remove from array so it doesnt get deleted at the end
-                [filePaths removeObject:[NSString stringWithUTF8String:fileName.c_str()]];
+                [filePaths removeObject:@(fileName.c_str())];
               }
 
               auto title = getTitleForItem(videoItem);
               CLog::Log(LOGDEBUG, "TopShelf: - adding video to '%s' array: %s\n",
                         videosKey.UTF8String, title.c_str());
               [videosArray addObject:@{
-                @"title" : [NSString stringWithUTF8String:title.c_str()],
-                @"thumb" : [NSString stringWithUTF8String:fileName.c_str()],
-                @"url" : [NSString
-                    stringWithUTF8String:Base64::Encode(videoItem->GetVideoInfoTag()->GetPath())
-                                             .c_str()]
+                @"title" : @(title.c_str()),
+                @"thumb" : @(fileName.c_str()),
+                @"url" : @(Base64::Encode(videoItem->GetVideoInfoTag()->GetPath())
+                                             .c_str())
               }];
             }
           }
           [sharedDefaults setObject:videosArray forKey:videosKey];
-          [sharedDictJailbreak setObject:videosArray forKey:videosKey];
+          sharedDictJailbreak[videosKey] = videosArray;
 
           auto tvTitle =
-              [NSString stringWithUTF8String:g_localizeStrings.Get(titleStringCode).c_str()];
+              @(g_localizeStrings.Get(titleStringCode).c_str());
           [sharedDefaults setObject:tvTitle forKey:videosTitleKey];
-          [sharedDictJailbreak setObject:tvTitle forKey:videosTitleKey];
+          sharedDictJailbreak[videosTitleKey] = tvTitle;
         };
 
     fillSharedDicts(

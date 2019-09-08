@@ -10,12 +10,11 @@
 
 #import <UIKit/UIKit.h>
 
-typedef enum
-{
+typedef NS_ENUM(unsigned int, IOSPlaybackState) {
   IOS_PLAYBACK_STOPPED,
   IOS_PLAYBACK_PAUSED,
   IOS_PLAYBACK_PLAYING
-} IOSPlaybackState;
+};
 
 typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
   UIPanGestureRecognizerDirectionUndefined,

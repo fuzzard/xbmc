@@ -57,9 +57,9 @@ constexpr uint32_t LOST_DEVICE_TIMEOUT_MS{3000};
 @interface IOSDisplayLinkCallback : NSObject
 {
 @private
-  CVideoSyncTVos* _videoSyncImpl;
+  CVideoSyncTVos* videoSyncImpl;
 }
-@property(nonatomic, setter=SetVideoSyncImpl:) CVideoSyncTVos* _videoSyncImpl;
+@property(nonatomic, setter=SetVideoSyncImpl:) CVideoSyncTVos* videoSyncImpl;
 - (void)runDisplayLink;
 @end
 
@@ -128,7 +128,7 @@ int CWinSystemTVOS::GetDisplayIndexFromSettings()
   int screenIdx = 0;
   if (currentScreen == CONST_EXTERNAL)
   {
-    if ([[UIScreen screens] count] > 1)
+    if (UIScreen.screens.count > 1)
     {
       screenIdx = 1;
     }
@@ -187,8 +187,8 @@ bool CWinSystemTVOS::CreateNewWindow(const std::string& name, bool fullScreen, R
 
   m_eglext = " ";
 
-  const char* tmpExtensions = (const char*)glGetString(GL_EXTENSIONS);
-  if (tmpExtensions != NULL)
+  const char* tmpExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+  if (tmpExtensions != nullptr)
   {
     m_eglext += tmpExtensions;
   }
@@ -248,7 +248,7 @@ bool CWinSystemTVOS::SwitchToVideoMode(int width, int height, double refreshrate
 
   //get the mode to pass to the controller
   // availableModes not avaible on tvOS
-  UIScreenMode* newMode = [[[UIScreen screens] objectAtIndex:screenIdx] currentMode];
+  UIScreenMode* newMode = UIScreen.screens[screenIdx].currentMode;
 
   if (newMode)
   {
@@ -259,8 +259,8 @@ bool CWinSystemTVOS::SwitchToVideoMode(int width, int height, double refreshrate
 
 bool CWinSystemTVOS::GetScreenResolution(int* w, int* h, double* fps, int screenIdx)
 {
-  UIScreen* screen = [[UIScreen screens] objectAtIndex:screenIdx];
-  CGSize screenSize = [screen currentMode].size;
+  UIScreen* screen = UIScreen.screens[screenIdx];
+  CGSize screenSize = screen.currentMode.size;
   *w = screenSize.width;
   *h = screenSize.height;
   *fps = 0.0;
@@ -270,8 +270,7 @@ bool CWinSystemTVOS::GetScreenResolution(int* w, int* h, double* fps, int screen
   if (*h == 0 || *w == 0)
   {
     // preferredMode not avaible on tvOS
-    UIScreenMode* firstMode = [screen currentMode];
-    //UIScreenMode* firstMode = [screen preferredMode];
+    UIScreenMode* firstMode = screen.currentMode;
     *w = firstMode.size.width;
     *h = firstMode.size.height;
   }
@@ -332,8 +331,8 @@ void CWinSystemTVOS::FillInVideoModes(int screenIdx)
   // useful info into this local var :)
   double refreshrate = 0.0;
   //screen 0 is mainscreen - 1 has to be the external one...
-  UIScreen* aScreen = [[UIScreen screens] objectAtIndex:screenIdx];
-  UIScreenMode* mode = [aScreen currentMode];
+  UIScreen* aScreen = UIScreen.screens[screenIdx];
+  UIScreenMode* mode = aScreen.currentMode;
   w = mode.size.width;
   h = mode.size.height;
 
@@ -350,11 +349,7 @@ bool CWinSystemTVOS::IsExtSupported(const char* extension) const
   if (strncmp(extension, "EGL_", 4) != 0)
     return CRenderSystemGLES::IsExtSupported(extension);
 
-  std::string name;
-
-  name = " ";
-  name += extension;
-  name += " ";
+  std::string name = ' ' + std::string(extension) + ' ';
 
   return m_eglext.find(name) != std::string::npos;
 }
@@ -404,14 +399,14 @@ void CWinSystemTVOS::OnAppFocusChange(bool focus)
 //--------------------------------------------------------------
 //-------------------DisplayLink stuff
 @implementation IOSDisplayLinkCallback
-@synthesize _videoSyncImpl;
+@synthesize videoSyncImpl;
 //--------------------------------------------------------------
 - (void)runDisplayLink
 {
   @autoreleasepool
   {
-    if (_videoSyncImpl != nullptr)
-      _videoSyncImpl->TVosVblankHandler();
+    if (videoSyncImpl != nullptr)
+      videoSyncImpl->TVosVblankHandler();
   }
 }
 @end
@@ -419,8 +414,8 @@ void CWinSystemTVOS::OnAppFocusChange(bool focus)
 bool CWinSystemTVOS::InitDisplayLink(CVideoSyncTVos* syncImpl)
 {
   unsigned int currentScreenIdx = GetDisplayIndexFromSettings();
-  UIScreen* currentScreen = [[UIScreen screens] objectAtIndex:currentScreenIdx];
-  [m_pDisplayLink->callbackClass SetVideoSyncImpl:syncImpl];
+  UIScreen* currentScreen = UIScreen.screens[currentScreenIdx];
+  m_pDisplayLink->callbackClass.videoSyncImpl = syncImpl;
   m_pDisplayLink->impl = [currentScreen displayLinkWithTarget:m_pDisplayLink->callbackClass
                                                      selector:@selector(runDisplayLink)];
 
@@ -495,7 +490,7 @@ void CWinSystemTVOS::GetConnectedOutputs(std::vector<std::string>* outputs)
 {
   outputs->push_back("Default");
   outputs->push_back(CONST_TOUCHSCREEN);
-  if ([[UIScreen screens] count] > 1)
+  if (UIScreen.screens.count > 1)
   {
     outputs->push_back(CONST_EXTERNAL);
   }

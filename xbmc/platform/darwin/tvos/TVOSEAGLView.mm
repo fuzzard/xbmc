@@ -52,14 +52,11 @@ using namespace KODI::MESSAGING;
 
     // Get the layer
     CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
-    [eaglLayer setContentsScale:scaleFactor];
-    [self setContentScaleFactor:scaleFactor];
+    eaglLayer.contentsScale = scaleFactor;
+    self.contentScaleFactor = scaleFactor;
 
     eaglLayer.opaque = NO;
-    eaglLayer.drawableProperties = [NSDictionary
-        dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO],
-                                     kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8,
-                                     kEAGLDrawablePropertyColorFormat, nil];
+    eaglLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking: @NO, kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8};
 
     // Try OpenGL ES 3.0
     EAGLContext* aContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];

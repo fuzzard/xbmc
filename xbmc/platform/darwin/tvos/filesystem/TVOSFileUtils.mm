@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 
-const char* CTVOSFileUtils::GetUserHomeDirectory(void)
+const char* CTVOSFileUtils::GetUserHomeDirectory()
 {
   static std::string appHomeFolder;
   if (appHomeFolder.empty())
@@ -30,9 +30,10 @@ const char* CTVOSFileUtils::GetUserHomeDirectory(void)
 const char* CTVOSFileUtils::GetOSCachesDirectory()
 {
   static std::string cacheFolder;
-  std::once_flag cache_flag;
+  static std::once_flag cache_flag;
 
-  call_once(cache_flag, [] {
+  std::call_once(cache_flag, []
+  {
     NSString* cachePath =
         NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject;
     cacheFolder = cachePath.UTF8String;

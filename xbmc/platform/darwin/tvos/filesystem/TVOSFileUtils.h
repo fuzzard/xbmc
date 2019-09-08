@@ -11,6 +11,6 @@
 class CTVOSFileUtils
 {
 public:
-  static const char* GetUserHomeDirectory(void);
+  static const char* GetUserHomeDirectory();
   static const char* GetOSCachesDirectory();
 };
