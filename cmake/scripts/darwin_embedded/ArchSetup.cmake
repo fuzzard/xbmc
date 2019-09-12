@@ -13,7 +13,7 @@ else()
 endif()
 list(APPEND ARCH_DEFINES -DTARGET_POSIX -DTARGET_DARWIN -DTARGET_DARWIN_EMBEDDED)
 set(SYSTEM_DEFINES -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
-                   -D__STDC_CONSTANT_MACROS -DHAS_LINUX_NETWORK -DHAS_ZEROCONF)
+                   -D__STDC_CONSTANT_MACROS -DHAS_IOS_NETWORK -DHAS_ZEROCONF)
 set(PLATFORM_DIR platform/darwin)
 set(PLATFORMDEFS_DIR platform/posix)
 set(CMAKE_SYSTEM_NAME Darwin)
@@ -39,7 +39,7 @@ list(APPEND DEPLIBS "-framework CoreFoundation" "-framework CoreVideo"
                     "-framework CFNetwork" "-framework CoreGraphics"
                     "-framework Foundation" "-framework UIKit"
                     "-framework CoreMedia" "-framework AVFoundation"
-                    "-framework VideoToolbox" "-ObjC")
+                    "-framework VideoToolbox" "-ObjC" "-lresolv")
 
 set(ENABLE_OPTICAL OFF CACHE BOOL "" FORCE)
 
