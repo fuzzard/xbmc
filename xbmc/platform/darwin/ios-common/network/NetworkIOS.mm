@@ -308,6 +308,7 @@ CNetworkInterface* CNetworkIOS::GetFirstConnectedInterface()
   std::vector<CNetworkInterfaceIOS*>::const_iterator iter = iosifaces.begin();
 
   CNetworkInterfaceIOS* ifWifi = nullptr;
+  CNetworkInterfaceIOS* ifWired = nullptr;
   CNetworkInterfaceIOS* ifCell = nullptr;
   CNetworkInterfaceIOS* ifVPN = nullptr;
 
@@ -318,7 +319,14 @@ CNetworkInterface* CNetworkIOS::GetFirstConnectedInterface()
     {
       // Wifi interface
       if (StringUtils::StartsWith(iface->GetInterfaceName(), "en0"))
+#if defined(TARGET_DARWIN_IOS)
         ifWifi = iface;
+#elif defined(TARGET_DARWIN_TVOS)
+        ifWired = iface;
+      // Wired interface - TVOS
+      else if (StringUtils::StartsWith(iface->GetInterfaceName(), "en1"))
+        ifWifi = iface;
+#endif
       // Cellular interface
       else if (StringUtils::StartsWith(iface->GetInterfaceName(), "pdp_ip"))
         ifCell = iface;
@@ -332,6 +340,8 @@ CNetworkInterface* CNetworkIOS::GetFirstConnectedInterface()
   // Priority = VPN -> Wifi -> Cell
   if (ifVPN != nullptr)
     return static_cast<CNetworkInterface*>(ifVPN);
+  else if (ifWired != nullptr)
+    return static_cast<CNetworkInterface*>(ifWired);
   else if (ifWifi != nullptr)
     return static_cast<CNetworkInterface*>(ifWifi);
   else if (ifCell != nullptr)
