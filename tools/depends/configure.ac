@@ -332,7 +332,7 @@ case $host in
 
         # setup which sdk to use
         target_platform=macosx
-        found_sdk_version=[`$use_xcodebuild -showsdks | grep $target_platform | sort | tail -n 1 | awk '{ print $2}'`]
+        found_sdk_version=[`$use_xcodebuild -showsdks | grep "\-sdk $target_platform" | awk '{ print $2}'`]
         use_sdk="${use_sdk:-$found_sdk_version}"
 
         # now that we know which sdk, error check sdk_name
