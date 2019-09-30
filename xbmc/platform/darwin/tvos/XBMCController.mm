@@ -520,6 +520,7 @@ XBMCController* g_xbmcController;
 {
   self.m_holdCounter++;
   [self.m_holdTimer invalidate];
+  self.m_holdTimer = nil;
   [self sendButtonPressed:7];
 }
 //--------------------------------------------------------------
@@ -579,12 +580,14 @@ XBMCController* g_xbmcController;
     if (self.m_holdCounter > 1)
     {
       [self.m_holdTimer invalidate];
+      self.m_holdTimer = nil;
       //[self sendKeyDownUp:XBMCK_c];
       [self sendButtonPressed:7];
     }
     break;
   case UIGestureRecognizerStateEnded:
     [self.m_holdTimer invalidate];
+    self.m_holdTimer = nil;
     if (self.m_holdCounter < 1)
     {
       [self sendButtonPressed:5];
