@@ -39,7 +39,6 @@
 
 #import "system.h"
 
-#if __TVOS_11_2
 #import <AVFoundation/AVDisplayCriteria.h>
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
@@ -49,23 +48,6 @@
 @property(readonly, nonatomic) float refreshRate;
 - (id)initWithRefreshRate:(float)arg1 videoDynamicRange:(int)arg2;
 @end
-#else
-@interface AVDisplayCriteria : NSObject <NSCopying>
-@property(readonly) int videoDynamicRange;
-@property(readonly, nonatomic) float refreshRate;
-- (id)initWithRefreshRate:(float)arg1 videoDynamicRange:(int)arg2;
-@end
-
-@interface AVDisplayManager : NSObject
-@property(nonatomic, readonly, getter=isDisplayModeSwitchInProgress)
-    BOOL displayModeSwitchInProgress;
-@property(nonatomic, copy) AVDisplayCriteria* preferredDisplayCriteria;
-@end
-
-@interface UIWindow (AVAdditions)
-@property(nonatomic, readonly) AVDisplayManager* avDisplayManager;
-@end
-#endif
 
 using namespace KODI::MESSAGING;
 
@@ -1459,65 +1441,49 @@ XBMCController* g_xbmcController;
 - (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange
 {
   if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
-          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) != ADJUST_REFRESHRATE_OFF)
+          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
+    return;
+  if (@available(tvOS 11.2, *))
   {
-    if (__builtin_available(tvOS 11.2, *))
+    auto avDisplayManager = m_window.avDisplayManager;
+    if (refreshRate > 0.0)
     {
-      // avDisplayManager is only in 11.2 beta4 so we need to also
-      // trap out for older 11.2 betas. This can be changed once
-      // tvOS 11.2 gets released.
-      if ([m_window respondsToSelector:@selector(avDisplayManager)])
-      {
-        auto avDisplayManager = m_window.avDisplayManager;
-        if (refreshRate > 0.0)
-        {
-          // initWithRefreshRate is private in 11.2 beta4 but apple
-          // will move it public at some time.
-          // videoDynamicRange values are based on watching
-          // console log when forcing different values.
-          // search for "Native Mode Requested" and pray :)
-          // searches for "FBSDisplayConfiguration" and "currentMode" will show the actual
-          // for example, currentMode = <FBSDisplayMode: 0x1c4298100; 1920x1080@2x (3840x2160/2) 24Hz p3 HDR10>
-          // SDR == 0, 1
-          // HDR == 2, 3
-          // DoblyVision == 4
-#if __TVOS_11_2
-          auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
-                                                              videoDynamicRange:dynamicRange];
-#else
-          std::string neveryyoumind = "AVDisplayCriteria";
-          Class AVDisplayCriteriaClass =
-              NSClassFromString([NSString stringWithUTF8String:neveryyoumind.c_str()]);
-          AVDisplayCriteria* displayCriteria =
-              [[AVDisplayCriteriaClass alloc] initWithRefreshRate:refreshRate
-                                                videoDynamicRange:dynamicRange];
-#endif
-          // setting preferredDisplayCriteria will trigger a display rate switch
-          avDisplayManager.preferredDisplayCriteria = displayCriteria;
-        }
-        else
-        {
-          // switch back to tvOS defined user settings if we get
-          // zero or less than value for refreshRate. Should never happen :)
-          avDisplayManager.preferredDisplayCriteria = nil;
-        }
-        std::string dynamicRangeString = "Unknown";
-        switch (dynamicRange)
-        {
-        case 0 ... 1:
-          dynamicRangeString = "SDR";
-          break;
-        case 2 ... 3:
-          dynamicRangeString = "HDR10";
-          break;
-        case 4:
-          dynamicRangeString = "DolbyVision";
-          break;
-        }
-        CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = %.2f, dynamicRange = %s",
-                  refreshRate, dynamicRangeString.c_str());
-      }
+      // initWithRefreshRate is private in 11.2 beta4 but apple
+      // will move it public at some time.
+      // videoDynamicRange values are based on watching
+      // console log when forcing different values.
+      // search for "Native Mode Requested" and pray :)
+      // searches for "FBSDisplayConfiguration" and "currentMode" will show the actual
+      // for example, currentMode = <FBSDisplayMode: 0x1c4298100; 1920x1080@2x (3840x2160/2) 24Hz p3 HDR10>
+      // SDR == 0, 1
+      // HDR == 2, 3
+      // DoblyVision == 4
+      auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
+                                                          videoDynamicRange:dynamicRange];
+      // setting preferredDisplayCriteria will trigger a display rate switch
+      avDisplayManager.preferredDisplayCriteria = displayCriteria;
     }
+    else
+    {
+      // switch back to tvOS defined user settings if we get
+      // zero or less than value for refreshRate. Should never happen :)
+      avDisplayManager.preferredDisplayCriteria = nil;
+    }
+    std::string dynamicRangeString = "Unknown";
+    switch (dynamicRange)
+    {
+    case 0 ... 1:
+      dynamicRangeString = "SDR";
+      break;
+    case 2 ... 3:
+      dynamicRangeString = "HDR10";
+      break;
+    case 4:
+      dynamicRangeString = "DolbyVision";
+      break;
+    }
+    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = %.2f, dynamicRange = %s",
+              refreshRate, dynamicRangeString.c_str());
   }
 }
 
