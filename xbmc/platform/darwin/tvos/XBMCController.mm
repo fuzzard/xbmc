@@ -576,6 +576,12 @@ XBMCController* g_xbmcController;
                                                        repeats:YES];
     break;
   case UIGestureRecognizerStateChanged:
+    if (self.m_holdCounter > 1)
+    {
+      [self.m_holdTimer invalidate];
+      //[self sendKeyDownUp:XBMCK_c];
+      [self sendButtonPressed:7];
+    }
     break;
   case UIGestureRecognizerStateEnded:
     [self.m_holdTimer invalidate];
