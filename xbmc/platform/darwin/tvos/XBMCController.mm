@@ -498,14 +498,6 @@ XBMCController* g_xbmcController;
 }
 
 //--------------------------------------------------------------
-- (void)buttonHoldSelect
-{
-  self.m_holdCounter++;
-  [self.m_holdTimer invalidate];
-  self.m_holdTimer = nil;
-  [self sendButtonPressed:7];
-}
-//--------------------------------------------------------------
 - (void)activateKeyboard:(UIView*)view
 {
   [self.view addSubview:view];
@@ -548,38 +540,10 @@ XBMCController* g_xbmcController;
   // if we have clicked select while scrolling up/down we need to reset direction of pan
   m_clickResetPan = true;
 
-  switch (sender.state)
+  if (sender.state == UIGestureRecognizerStateBegan)
   {
-  case UIGestureRecognizerStateBegan:
-    self.m_holdCounter = 0;
-    self.m_holdTimer = [NSTimer scheduledTimerWithTimeInterval:1
-                                                        target:self
-                                                      selector:@selector(buttonHoldSelect)
-                                                      userInfo:nil
-                                                       repeats:YES];
-    break;
-  case UIGestureRecognizerStateChanged:
-    if (self.m_holdCounter > 1)
-    {
-      [self.m_holdTimer invalidate];
-      self.m_holdTimer = nil;
-      //[self sendKeyDownUp:XBMCK_c];
-      [self sendButtonPressed:7];
-    }
-    break;
-  case UIGestureRecognizerStateEnded:
-    [self.m_holdTimer invalidate];
-    self.m_holdTimer = nil;
-    if (self.m_holdCounter < 1)
-    {
-      [self sendButtonPressed:5];
-    }
-
-    // start remote timeout
+    [self sendButtonPressed:7];
     [self startRemoteTimer];
-    break;
-  default:
-    break;
   }
 }
 
