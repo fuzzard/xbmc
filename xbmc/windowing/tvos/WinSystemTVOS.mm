@@ -8,7 +8,7 @@
 
 #include "WinSystemTVOS.h"
 
-#import "cores/AudioEngine/Sinks/AESinkDARWINIOS.h"
+#import "cores/AudioEngine/Sinks/AESinkDARWINTVOS.h"
 #include "cores/RetroPlayer/process/ios/RPProcessInfoIOS.h"
 #include "cores/RetroPlayer/rendering/VideoRenderers/RPRendererOpenGLES.h"
 #include "cores/VideoPlayer/DVDCodecs/DVDFactoryCodec.h"
@@ -134,7 +134,7 @@ CWinSystemTVOS::CWinSystemTVOS() : CWinSystemBase(), m_lostDeviceTimer(this)
 
   m_winEvents.reset(new CWinEventsTVOS());
 
-  CAESinkDARWINIOS::Register();
+  CAESinkDARWINTVOS::Register();
 }
 
 CWinSystemTVOS::~CWinSystemTVOS()
