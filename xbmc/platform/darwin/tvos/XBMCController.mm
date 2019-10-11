@@ -82,8 +82,6 @@ XBMCController* g_xbmcController;
 @synthesize m_touchDirection;
 @synthesize m_touchBeginSignaled;
 
-#define NEW_REMOTE_HANDLING 0
-
 #pragma mark - internal key press methods
 - (void)sendButtonPressed:(int)buttonId
 {
@@ -322,20 +320,6 @@ XBMCController* g_xbmcController;
   {
     return YES;
   }
-  return NO;
-}
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
-    shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer*)otherGestureRecognizer
-{
-#if (NEW_REMOTE_HANDLING)
-  if (!m_mimicAppleSiri && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] &&
-      ([otherGestureRecognizer isKindOfClass:[UISwipeGestureRecognizer class]] ||
-       [otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]))
-  {
-    return YES;
-  }
-#endif
   return NO;
 }
 
@@ -867,80 +851,6 @@ XBMCController* g_xbmcController;
         }
         case UIGestureRecognizerStateChanged:
         {
-#if (NEW_REMOTE_HANDLING)
-          CGPoint gesturePoint = [sender translationInView:m_glView];
-          gesturePoint.x = gesturePoint.x / 1.92;
-          gesturePoint.y = gesturePoint.y / 1.08;
-
-          XBMCKey key = [self getPanDirectionKey:gesturePoint];
-
-          // ignore UP/DOWN swipes while in full screen playback
-          if (CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindowOrDialog() !=
-                  WINDOW_FULLSCREEN_VIDEO ||
-              key == XBMCK_LEFT || key == XBMCK_RIGHT)
-          {
-            int click;
-            int absX = gesturePoint.x;
-            int absY = gesturePoint.y;
-
-            if (absX < 0)
-              absX *= -1;
-
-            if (absY < 0)
-              absY *= -1;
-
-            if (key == XBMCK_RIGHT || key == XBMCK_LEFT)
-            {
-              if (absX > 200)
-                click = 2;
-              else if (absX > 70)
-                click = 1;
-              else
-                click = 0;
-            }
-            else
-            {
-              if (absY > 200)
-                click = 2;
-              else if (absY > 100)
-                click = 1;
-              else
-                click = 0;
-            }
-
-            if (m_clickResetPan || m_currentKey != key || click != m_currentClick)
-            {
-              [self stopKeyPressTimer];
-              //[self sendKeyUp:m_currentKey];
-
-              if (click != m_currentClick)
-              {
-                m_currentClick = click;
-              }
-              if (m_currentKey == XBMCK_UNKNOWN || m_clickResetPan ||
-                  ((m_currentKey == XBMCK_RIGHT && key == XBMCK_LEFT) ||
-                   (m_currentKey == XBMCK_LEFT && key == XBMCK_RIGHT) ||
-                   (m_currentKey == XBMCK_UP && key == XBMCK_DOWN) ||
-                   (m_currentKey == XBMCK_DOWN && key == XBMCK_UP)))
-              {
-                m_clickResetPan = false;
-                m_currentKey = key;
-              }
-
-              if (m_currentClick == 2)
-              {
-                //fast click
-                [self startKeyPressTimer:m_currentKey clickTime:0.20];
-                LOG("fast click");
-              }
-              else if (m_currentClick == 1)
-              {
-                // slow click
-                [self startKeyPressTimer:m_currentKey clickTime:0.80];
-                LOG("slow click");
-              }
-            }
-#else
           int keyId = 0;
           if (!m_touchBeginSignaled && m_touchDirection)
           {
@@ -963,15 +873,11 @@ XBMCController* g_xbmcController;
             }
             m_touchBeginSignaled = true;
             [self startKeyPressTimer:keyId];
-#endif
           }
           break;
         }
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled:
-#if (NEW_REMOTE_HANDLING)
-          [self stopKeyPressTimer];
-#else
           if (m_touchBeginSignaled)
           {
             m_touchBeginSignaled = false;
@@ -979,7 +885,6 @@ XBMCController* g_xbmcController;
             [self stopKeyPressTimer];
             //[self sendKeyUp:key];
           }
-#endif
           // start remote idle timer
           [self startRemoteTimer];
           break;
@@ -996,26 +901,6 @@ XBMCController* g_xbmcController;
 {
   if (!m_remoteIdleState)
   {
-    if (!m_mimicAppleSiri && m_appAlive) //NO GESTURES BEFORE WE ARE UP AND RUNNING
-    {
-#if (NEW_REMOTE_HANDLING)
-      switch ([sender direction])
-      {
-      case UISwipeGestureRecognizerDirectionRight:
-        [self sendButtonPressed:11];
-        break;
-      case UISwipeGestureRecognizerDirectionLeft:
-        [self sendButtonPressed:10];
-        break;
-      case UISwipeGestureRecognizerDirectionUp:
-        [self sendButtonPressed:8];
-        break;
-      case UISwipeGestureRecognizerDirectionDown:
-        [self sendButtonPressed:9];
-        break;
-      }
-#endif
-    }
     m_touchDirection = sender.direction;
   }
   // start remote idle timer
