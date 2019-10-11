@@ -1248,26 +1248,20 @@ XBMCController* g_xbmcController;
 //--------------------------------------------------------------
 - (float)getDisplayRate
 {
-  if (self.displayRate > 0)
+  if (self.displayRate > 0.0f)
     return self.displayRate;
 
-  return 60.0;
+  return 60.0f;
 }
 
 //--------------------------------------------------------------
 - (void)displayLinkTick:(CADisplayLink*)sender
 {
-  if (self.displayLink.duration > 0.0)
+  auto duration = self.displayLink.duration;
+  if (duration > 0.0)
   {
-    static float oldDisplayRate = 0.00;
     // we want fps, not duration in seconds.
-    self.displayRate = 1.0 / self.displayLink.duration;
-    if (self.displayRate != oldDisplayRate)
-    {
-      // track and log changes
-      oldDisplayRate = self.displayRate;
-      //CLog::Log(LOGDEBUG, "%s: displayRate = %f", __PRETTY_FUNCTION__, self.displayRate);
-    }
+    self.displayRate = 1.0 / duration;
   }
 }
 
@@ -1280,7 +1274,7 @@ XBMCController* g_xbmcController;
   if (@available(tvOS 11.2, *))
   {
     auto avDisplayManager = self.avDisplayManager;
-    if (refreshRate > 0.0)
+    if (refreshRate > 0.0f)
     {
       // initWithRefreshRate is private in 11.2 beta4 but apple
       // will move it public at some time.
@@ -1303,7 +1297,7 @@ XBMCController* g_xbmcController;
       // zero or less than value for refreshRate. Should never happen :)
       avDisplayManager.preferredDisplayCriteria = nil;
     }
-    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = %.2f, dynamicRange = %s",
+    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}, dynamicRange = {}",
               refreshRate, [self stringFromDynamicRange:dynamicRange]);
   }
 }
