@@ -14,22 +14,24 @@
 #import "platform/darwin/tvos/XBMCController.h"
 
 #import <AVFoundation/AVFoundation.h>
-#import <UIKit/UIKit.h>
-#import <objc/runtime.h>
 
 @implementation XBMCApplicationDelegate
-XBMCController* m_xbmcController;
+
+- (XBMCController*)xbmcController
+{
+  return static_cast<XBMCController*>(self.window.rootViewController);
+}
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
-  [m_xbmcController pauseAnimation];
-  [m_xbmcController becomeInactive];
+  [self.xbmcController pauseAnimation];
+  [self.xbmcController becomeInactive];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
-  [m_xbmcController resumeAnimation];
-  [m_xbmcController enterForeground];
+  [self.xbmcController resumeAnimation];
+  [self.xbmcController enterForeground];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application
@@ -37,13 +39,13 @@ XBMCController* m_xbmcController;
   if (application.applicationState == UIApplicationStateBackground)
   {
     // the app is turn into background, not in by screen lock which has app state inactive.
-    [m_xbmcController enterBackground];
+    [self.xbmcController enterBackground];
   }
 }
 
 - (void)applicationWillTerminate:(UIApplication*)application
 {
-  [m_xbmcController stopAnimation];
+  [self.xbmcController stopAnimation];
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication*)application
@@ -57,27 +59,25 @@ XBMCController* m_xbmcController;
   // via debug log settings.
   CPreflightHandler::MigrateUserdataXMLToNSUserDefaults();
 
-  NSError* err = nullptr;
-  if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&err])
-  {
-    NSLog(@"AVAudioSession setCategory failed: %ld", static_cast<long>(err.code));
-  }
-  err = nil;
-  if (![[AVAudioSession sharedInstance] setMode:AVAudioSessionModeMoviePlayback error:&err])
-  {
-    NSLog(@"AVAudioSession setMode failed: %ld", static_cast<long>(err.code));
-  }
-  err = nil;
-  if (![[AVAudioSession sharedInstance] setActive:YES error:&err])
-  {
-    NSLog(@"AVAudioSession setActive YES failed: %ld", static_cast<long>(err.code));
-  }
+  // UI setup
+  self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+  self.window.rootViewController = [XBMCController new];
+  [self.window makeKeyAndVisible];
+  [self.xbmcController startAnimation];
 
+  // audio session setup
+  auto audioSession = AVAudioSession.sharedInstance;
+  NSError* err = nil;
+  if (![audioSession setCategory:AVAudioSessionCategoryPlayback error:&err])
+    NSLog(@"audioSession setCategory failed: %@", err);
 
-  UIScreen* currentScreen = [UIScreen mainScreen];
-  m_xbmcController = [[XBMCController alloc] initWithFrame:[currentScreen bounds]
-                                                withScreen:currentScreen];
-  [m_xbmcController startAnimation];
+  err = nil;
+  if (![audioSession setMode:AVAudioSessionModeMoviePlayback error:&err])
+    NSLog(@"audioSession setMode failed: %@", err);
+
+  err = nil;
+  if (![audioSession setActive:YES error:&err])
+    NSLog(@"audioSession setActive failed: %@", err);
 }
 
 - (BOOL)application:(UIApplication*)app
@@ -90,11 +90,6 @@ XBMCController* m_xbmcController;
     CTVOSTopShelf::GetInstance().HandleTopShelfUrl(std::string{url.absoluteString.UTF8String},
                                                    true);
   return YES;
-}
-
-- (void)dealloc
-{
-  [m_xbmcController stopAnimation];
 }
 @end
 

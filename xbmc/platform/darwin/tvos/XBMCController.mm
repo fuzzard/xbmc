@@ -919,9 +919,8 @@ XBMCController* g_xbmcController;
   [view removeFromSuperview];
 }
 
-- (id)initWithFrame:(CGRect)frame withScreen:(UIScreen*)screen
+- (instancetype)init
 {
-  m_screenIdx = 0;
   self = [super init];
   if (!self)
     return nil;
@@ -930,20 +929,12 @@ XBMCController* g_xbmcController;
   m_appAlive = FALSE;
   m_animating = FALSE;
 
+  m_screenIdx = 0;
   m_isPlayingBeforeInactive = NO;
   m_bgTask = UIBackgroundTaskInvalid;
 
-  m_window = [[UIWindow alloc] initWithFrame:frame];
-  m_window.rootViewController = self;
-  m_window.screen = screen;
-  m_window.backgroundColor = [UIColor blackColor];
-  // Turn off autoresizing
-  m_window.autoresizingMask = 0;
-  m_window.autoresizesSubviews = NO;
-
   [self enableScreenSaver];
 
-  [m_window makeKeyAndVisible];
   g_xbmcController = self;
 
   self.displayLink = [CADisplayLink displayLinkWithTarget:self
@@ -963,11 +954,9 @@ XBMCController* g_xbmcController;
   [self stopAnimation];
 }
 //--------------------------------------------------------------
-- (void)loadView
+- (void)viewDidLoad
 {
-  self.view = [[UIView alloc] initWithFrame:m_window.bounds];
-  self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  self.view.autoresizesSubviews = YES;
+  [super viewDidLoad];
 
   m_glView = [[TVOSEAGLView alloc] initWithFrame:self.view.bounds withScreen:[UIScreen mainScreen]];
 

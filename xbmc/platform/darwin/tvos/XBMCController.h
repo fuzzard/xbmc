@@ -112,8 +112,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (NSArray<UIScreenMode*>*)availableScreenModes:(UIScreen*)screen;
 - (UIScreenMode*)preferredScreenMode:(UIScreen*)screen;
 - (bool)changeScreen:(unsigned int)screenIdx withMode:(UIScreenMode*)mode;
-// message from which our instance is obtained
-- (id)initWithFrame:(CGRect)frame withScreen:(UIScreen*)screen;
+
 - (void)insertVideoView:(UIView*)view;
 - (void)removeVideoView:(UIView*)view;
 - (float)getDisplayRate;
