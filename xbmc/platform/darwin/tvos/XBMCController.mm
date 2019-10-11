@@ -43,6 +43,8 @@
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
 
+#define DISPLAY_MODE_SWITCH_IN_PROGRESS NSStringFromSelector(@selector(displayModeSwitchInProgress))
+
 @interface AVDisplayCriteria ()
 @property(readonly) int videoDynamicRange;
 @property(readonly, nonatomic) float refreshRate;
@@ -969,16 +971,13 @@ XBMCController* g_xbmcController;
   [self createPressGesturecognizers];
   [self createTapGesturecognizers];
 
-  if (__builtin_available(tvOS 11.2, *))
+  if (@available(tvOS 11.2, *))
   {
-    if ([m_window respondsToSelector:@selector(avDisplayManager)])
-    {
-      auto avDisplayManager = m_window.avDisplayManager;
-      [avDisplayManager addObserver:self
-                         forKeyPath:@"displayModeSwitchInProgress"
-                            options:NSKeyValueObservingOptionNew
-                            context:nullptr];
-    }
+    auto avDisplayManager = self.avDisplayManager;
+    [avDisplayManager addObserver:self
+                       forKeyPath:DISPLAY_MODE_SWITCH_IN_PROGRESS
+                          options:NSKeyValueObservingOptionNew
+                          context:nullptr];
   }
 }
 //--------------------------------------------------------------
@@ -1000,13 +999,10 @@ XBMCController* g_xbmcController;
 {
   [self pauseAnimation];
   [super viewWillDisappear:animated];
-  if (__builtin_available(tvOS 11.2, *))
+  if (@available(tvOS 11.2, *))
   {
-    if ([m_window respondsToSelector:@selector(avDisplayManager)])
-    {
-      auto avDisplayManager = m_window.avDisplayManager;
-      [avDisplayManager removeObserver:self forKeyPath:@"displayModeSwitchInProgress"];
-    }
+    auto avDisplayManager = self.avDisplayManager;
+    [avDisplayManager removeObserver:self forKeyPath:DISPLAY_MODE_SWITCH_IN_PROGRESS];
   }
 }
 //--------------------------------------------------------------
@@ -1283,7 +1279,7 @@ XBMCController* g_xbmcController;
     return;
   if (@available(tvOS 11.2, *))
   {
-    auto avDisplayManager = m_window.avDisplayManager;
+    auto avDisplayManager = self.avDisplayManager;
     if (refreshRate > 0.0)
     {
       // initWithRefreshRate is private in 11.2 beta4 but apple
@@ -1300,11 +1296,6 @@ XBMCController* g_xbmcController;
                                                           videoDynamicRange:dynamicRange];
       // setting preferredDisplayCriteria will trigger a display rate switch
       avDisplayManager.preferredDisplayCriteria = displayCriteria;
-      if (displayCriteria)
-      {
-        // setting preferredDisplayCriteria will trigger a display rate switch
-        avDisplayManager.preferredDisplayCriteria = displayCriteria;
-      }
     }
     else
     {
@@ -1312,21 +1303,8 @@ XBMCController* g_xbmcController;
       // zero or less than value for refreshRate. Should never happen :)
       avDisplayManager.preferredDisplayCriteria = nil;
     }
-    std::string dynamicRangeString = "Unknown";
-    switch (dynamicRange)
-    {
-    case 0 ... 1:
-      dynamicRangeString = "SDR";
-      break;
-    case 2 ... 3:
-      dynamicRangeString = "HDR10";
-      break;
-    case 4:
-      dynamicRangeString = "DolbyVision";
-      break;
-    }
     CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = %.2f, dynamicRange = %s",
-              refreshRate, dynamicRangeString.c_str());
+              refreshRate, [self stringFromDynamicRange:dynamicRange]);
   }
 }
 
@@ -1334,15 +1312,13 @@ XBMCController* g_xbmcController;
 - (void)displayRateReset
 {
   if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
-          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) != ADJUST_REFRESHRATE_OFF)
+          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
+    return;
+  if (@available(tvOS 11.2, *))
   {
-    if (@available(tvOS 11.2, *))
-    {
-      // setting preferredDisplayCriteria to nil will
-      // switch back to tvOS defined user settings
-      auto avDisplayManager = m_window.avDisplayManager;
-      avDisplayManager.preferredDisplayCriteria = nil;
-    }
+    // setting preferredDisplayCriteria to nil will
+    // switch back to tvOS defined user settings
+    self.avDisplayManager.preferredDisplayCriteria = nil;
   }
 }
 
@@ -1352,71 +1328,73 @@ XBMCController* g_xbmcController;
                         change:(NSDictionary*)change
                        context:(void*)context
 {
-  if ([keyPath isEqualToString:@"displayModeSwitchInProgress"])
+  if (![keyPath isEqualToString:DISPLAY_MODE_SWITCH_IN_PROGRESS])
+    return;
+
+  // tracking displayModeSwitchInProgress via NSKeyValueObservingOptionNew,
+  // any changes in displayModeSwitchInProgress will fire this callback.
+  if (@available(tvOS 11.2, *))
   {
-    // tracking displayModeSwitchInProgress via NSKeyValueObservingOptionNew,
-    // any changes in displayModeSwitchInProgress will fire this callback.
-    if (__builtin_available(tvOS 11.2, *))
+    std::string switchState = "NO";
+    int dynamicRange = 0;
+    float refreshRate;
+    auto avDisplayManager = self.avDisplayManager;
+    auto displayCriteria = avDisplayManager.preferredDisplayCriteria;
+    // preferredDisplayCriteria can be nil, this is NOT an error
+    // and just indicates tvOS defined user settings which we cannot see.
+    if (displayCriteria != nil)
     {
-      std::string switchState = "NO";
-      int dynamicRange = 0;
-      float refreshRate = self.getDisplayRate;
-      if ([m_window respondsToSelector:@selector(avDisplayManager)])
-      {
-        auto avDisplayManager = m_window.avDisplayManager;
-        auto displayCriteria = avDisplayManager.preferredDisplayCriteria;
-        // preferredDisplayCriteria can be nil, this is NOT an error
-        // and just indicates tvOS defined user settings which we cannot see.
-        if (displayCriteria != nil)
-        {
-          refreshRate = displayCriteria.refreshRate;
-          dynamicRange = displayCriteria.videoDynamicRange;
-        }
-        if (avDisplayManager.displayModeSwitchInProgress)
-        {
-          switchState = "YES";
-          CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
-          winSystem->AnnounceOnLostDevice();
-          winSystem->StartLostDeviceTimer();
-        }
-        else
-        {
-          switchState = "DONE";
-          CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
-          winSystem->StopLostDeviceTimer();
-          winSystem->AnnounceOnResetDevice();
-          // displayLinkTick is tracking actual refresh duration.
-          // when isDisplayModeSwitchInProgress == NO, we have switched
-          // and stablized. We might have switched to some other
-          // rate than what we requested. setting preferredDisplayCriteria is
-          // only a request. For example, 30Hz might only be avaliable in HDR
-          // and asking for 30Hz/SDR might result in 60Hz/SDR and
-          // g_graphicsContext.SetFPS needs the actual refresh rate.
-          refreshRate = self.getDisplayRate;
-        }
-      }
-      //! @todo
-      //g_graphicsContext.SetFPS(refreshRate);
-      std::string dynamicRangeString = "Unknown";
-      switch (dynamicRange)
-      {
-      case 0 ... 1:
-        dynamicRangeString = "SDR";
-        break;
-      case 2 ... 3:
-        dynamicRangeString = "HDR10";
-        break;
-      case 4:
-        dynamicRangeString = "DolbyVision";
-        break;
-      }
-      CLog::Log(LOGDEBUG,
-                "displayModeSwitchInProgress == %s, refreshRate = %.2f, dynamicRange = %s",
-                +switchState.c_str(), refreshRate, dynamicRangeString.c_str());
+      refreshRate = displayCriteria.refreshRate;
+      dynamicRange = displayCriteria.videoDynamicRange;
     }
+    if (avDisplayManager.displayModeSwitchInProgress)
+    {
+      switchState = "YES";
+      CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
+      winSystem->AnnounceOnLostDevice();
+      winSystem->StartLostDeviceTimer();
+    }
+    else
+    {
+      switchState = "DONE";
+      CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
+      winSystem->StopLostDeviceTimer();
+      winSystem->AnnounceOnResetDevice();
+      // displayLinkTick is tracking actual refresh duration.
+      // when isDisplayModeSwitchInProgress == NO, we have switched
+      // and stablized. We might have switched to some other
+      // rate than what we requested. setting preferredDisplayCriteria is
+      // only a request. For example, 30Hz might only be avaliable in HDR
+      // and asking for 30Hz/SDR might result in 60Hz/SDR and
+      // g_graphicsContext.SetFPS needs the actual refresh rate.
+      refreshRate = [self getDisplayRate];
+    }
+    //! @todo
+    //g_graphicsContext.SetFPS(refreshRate);
+    CLog::Log(LOGDEBUG, "displayModeSwitchInProgress = {}, refreshRate = {}, dynamicRange = {}",
+              switchState, refreshRate, [self stringFromDynamicRange:dynamicRange]);
   }
 }
 
+- (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)))
+{
+  return self.view.window.avDisplayManager;
+}
+
+- (const char*)stringFromDynamicRange:(int)dynamicRange
+{
+  switch (dynamicRange)
+  {
+  case 0 ... 1:
+    return "SDR";
+  case 2 ... 3:
+    return "HDR10";
+  case 4:
+    return "DolbyVision";
+  default:
+    return "Unknown";
+  }
+}
 
 #pragma mark - runtime routines
 //--------------------------------------------------------------

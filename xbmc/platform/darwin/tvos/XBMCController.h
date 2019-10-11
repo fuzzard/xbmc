@@ -29,7 +29,6 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 @interface XBMCController : UIViewController <UIGestureRecognizerDelegate>
 {
 @private
-  UIWindow* m_window;
   TVOSEAGLView* m_glView;
   // Touch handling
   CGSize m_screensize;
