@@ -48,7 +48,7 @@
   [self.xbmcController stopAnimation];
 }
 
-- (void)applicationDidFinishLaunching:(UIApplication*)application
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
   // check if apple removed our Cache folder first
   // this will trigger the restore if there is a backup available
@@ -78,6 +78,8 @@
   err = nil;
   if (![audioSession setActive:YES error:&err])
     NSLog(@"audioSession setActive failed: %@", err);
+  
+  return YES;
 }
 
 - (BOOL)application:(UIApplication*)app
