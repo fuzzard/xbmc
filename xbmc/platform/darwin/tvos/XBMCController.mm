@@ -42,6 +42,7 @@
 #import <AVFoundation/AVDisplayCriteria.h>
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
+#import <dispatch/dispatch.h>
 
 #define DISPLAY_MODE_SWITCH_IN_PROGRESS NSStringFromSelector(@selector(displayModeSwitchInProgress))
 
@@ -1264,41 +1265,60 @@ XBMCController* g_xbmcController;
     self.displayRate = 1.0 / duration;
   }
 }
-
 //--------------------------------------------------------------
-- (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange
+- (void)displayHDRSwitch:(int)dynamicRange
+{
+  if (@available(tvOS 11.2, *))
+  {
+    float refreshRate = self.displayRate;
+    // initWithRefreshRate is private in 11.2 beta4 but apple
+    // will move it public at some time.
+    // videoDynamicRange values are based on watching
+    // console log when forcing different values. Cheers Davilla
+    // search for "Native Mode Requested" and pray :)
+    // searches for "FBSDisplayConfiguration" and "currentMode" will show the actual
+    // for example, currentMode = <FBSDisplayMode: 0x1c4298100; 1920x1080@2x (3840x2160/2) 24Hz p3 HDR10>
+    // SDR == 0, 1
+    // HDR == 2, 3
+    // DoblyVision == 4
+    auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate 
+                                                      videoDynamicRange:dynamicRange];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      auto avDisplayManager = self.avDisplayManager;
+      // setting preferredDisplayCriteria will trigger a display rate switch
+      avDisplayManager.preferredDisplayCriteria = displayCriteria;
+    });
+
+    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}, dynamicRange = {}",
+              refreshRate, [self stringFromDynamicRange:dynamicRange]);
+  }
+}
+//--------------------------------------------------------------
+- (void)displayRateSwitch:(float)refreshRate
 {
   if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
           CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
     return;
   if (@available(tvOS 11.2, *))
   {
-    auto avDisplayManager = self.avDisplayManager;
-    if (refreshRate > 0.0f)
-    {
-      // initWithRefreshRate is private in 11.2 beta4 but apple
-      // will move it public at some time.
-      // videoDynamicRange values are based on watching
-      // console log when forcing different values.
-      // search for "Native Mode Requested" and pray :)
-      // searches for "FBSDisplayConfiguration" and "currentMode" will show the actual
-      // for example, currentMode = <FBSDisplayMode: 0x1c4298100; 1920x1080@2x (3840x2160/2) 24Hz p3 HDR10>
-      // SDR == 0, 1
-      // HDR == 2, 3
-      // DoblyVision == 4
-      auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
-                                                          videoDynamicRange:dynamicRange];
-      // setting preferredDisplayCriteria will trigger a display rate switch
-      avDisplayManager.preferredDisplayCriteria = displayCriteria;
-    }
-    else
-    {
-      // switch back to tvOS defined user settings if we get
-      // zero or less than value for refreshRate. Should never happen :)
-      avDisplayManager.preferredDisplayCriteria = nil;
-    }
-    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}, dynamicRange = {}",
-              refreshRate, [self stringFromDynamicRange:dynamicRange]);
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      auto avDisplayManager = self.avDisplayManager;
+      if (refreshRate > 0.0)
+      {
+        auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
+                                                        videoDynamicRange:0];
+        // setting preferredDisplayCriteria will trigger a display rate switch
+        avDisplayManager.preferredDisplayCriteria = displayCriteria;
+      }
+      else
+      {
+        // switch back to tvOS defined user settings if we get
+        // zero or less than value for refreshRate. Should never happen :)
+        avDisplayManager.preferredDisplayCriteria = nil;
+      }
+    });
+    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}",
+              refreshRate);
   }
 }
 

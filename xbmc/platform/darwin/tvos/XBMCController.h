@@ -115,7 +115,8 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (void)insertVideoView:(UIView*)view;
 - (void)removeVideoView:(UIView*)view;
 - (float)getDisplayRate;
-- (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange;
+- (void)displayHDRSwitch:(int)dynamicRange;
+- (void)displayRateSwitch:(float)refreshRate;
 - (void)displayRateReset;
 - (EAGLContext*)getEAGLContextObj;
 @end

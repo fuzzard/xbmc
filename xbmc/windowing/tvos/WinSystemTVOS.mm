@@ -6,6 +6,7 @@
  *  See LICENSES/README.md for more information.
  */
 
+
 #include "WinSystemTVOS.h"
 
 #include "OSScreenSaverTVOS.h"
@@ -25,24 +26,28 @@
 #include "guilib/Texture.h"
 #include "messaging/ApplicationMessenger.h"
 #include "settings/DisplaySettings.h"
-#import "settings/Settings.h"
-#import "settings/SettingsComponent.h"
+#include "settings/Settings.h"
+#include "settings/SettingsComponent.h"
 #include "threads/SingleLock.h"
 #include "utils/StringUtils.h"
 #include "utils/log.h"
 #include "windowing/GraphicContext.h"
 #include "windowing/OSScreenSaver.h"
 
-#import "platform/darwin/DarwinUtils.h"
-#import "platform/darwin/tvos/XBMCController.h"
+#include "platform/darwin/DarwinUtils.h"
+#include "platform/darwin/tvos/XBMCController.h"
 
 #include <memory>
 #include <vector>
 
-#import <Foundation/Foundation.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <QuartzCore/CADisplayLink.h>
+#include <Foundation/Foundation.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#include <QuartzCore/CADisplayLink.h>
+
+#define AVMediaType AVMediaType_FFMPEG
+#import <AVFoundation/AVPlayer.h>
+#undef AVMediaType
 
 #define CONST_HDMI "HDMI"
 
@@ -228,10 +233,7 @@ bool CWinSystemTVOS::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool b
 
 bool CWinSystemTVOS::SwitchToVideoMode(int width, int height, double refreshrate)
 {
-  /*! @todo Currently support SDR dynamic range only. HDR shouldnt be done during a
-   *  modeswitch. Look to create supplemental method to handle sdr/hdr enable
-   */
-  [g_xbmcController displayRateSwitch:refreshrate withDynamicRange:0/*dynamicRange*/];
+  [g_xbmcController displayRateSwitch:refreshrate];
   return true;
 }
 
@@ -437,4 +439,44 @@ void CWinSystemTVOS::GetConnectedOutputs(std::vector<std::string>* outputs)
 bool CWinSystemTVOS::MessagePump()
 {
   return m_winEvents->MessagePump();
+}
+
+bool CWinSystemTVOS::SetHDR(const VideoPicture* videoPicture)
+{
+  if (!videoPicture)
+  {
+    [g_xbmcController displayHDRSwitch:0 /* SDR */];
+    return false;
+  }
+
+  if (!IsHDRDisplay())
+    return false;
+
+  //! @todo Detect DolbyVision from media?
+  [g_xbmcController displayHDRSwitch:2 /* HDR */];
+  return true;
+
+}
+
+bool CWinSystemTVOS::IsHDRDisplay()
+{
+  if (@available(tvOS 11.2, *))
+  {
+    AVPlayerHDRMode HDRMode = AVPlayer.availableHDRModes;
+    CLog::Log(LOGDEBUG, "CWinSystemTVOS::IsHDRDisplay: %d", HDRMode);
+
+    // SDR == 0, 1
+    // HDR == 2, 3
+    // DoblyVision == 4    
+    if (static_cast<int>(HDRMode) > 1)
+    {
+      if (static_cast<int>(HDRMode) == 4)
+        CLog::Log(LOGDEBUG, "CWinSystemTVOS::IsHDRDisplay: DolbyVision display detected");
+      else
+        CLog::Log(LOGDEBUG, "CWinSystemTVOS::IsHDRDisplay: HDR display detected");
+
+      return true;
+    }
+  }
+  return false;
 }

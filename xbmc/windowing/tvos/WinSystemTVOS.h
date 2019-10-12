@@ -81,6 +81,9 @@ public:
   // winevents override
   bool MessagePump() override;
 
+  bool SetHDR(const VideoPicture* videoPicture) override;
+  bool IsHDRDisplay() override;
+
 protected:
   virtual std::unique_ptr<KODI::WINDOWING::IOSScreenSaver> GetOSScreenSaverImpl() override;
   void PresentRenderImpl(bool rendered) override;
