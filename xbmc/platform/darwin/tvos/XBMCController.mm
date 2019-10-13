@@ -1254,7 +1254,29 @@ XBMCController* g_xbmcController;
 
   return 60.0f;
 }
+//--------------------------------------------------------------
+- (int)getHDRMode
+{
+  if (@available(tvOS 11.2, *))
+  {
+    __block int dynRange = 0;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      auto avDisplayManager = self.avDisplayManager;
+      AVDisplayCriteria* currentDispCriteria = avDisplayManager.preferredDisplayCriteria;
+      
+      // tvOS can return NIL, this means the ATV has full control, and we cannot 
+      // retrieve info from AVDisplayCriteria.
+      if (currentDispCriteria != nil)
+        dynRange = currentDispCriteria.videoDynamicRange;
 
+      //return 0;
+    });
+    return dynRange;
+  }
+  
+  // return SDR if unable to be detected??
+  return 0;
+}
 //--------------------------------------------------------------
 - (void)displayLinkTick:(CADisplayLink*)sender
 {
@@ -1299,6 +1321,7 @@ XBMCController* g_xbmcController;
   if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
           CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
     return;
+
   if (@available(tvOS 11.2, *))
   {
     dispatch_sync(dispatch_get_main_queue(), ^{
@@ -1330,9 +1353,11 @@ XBMCController* g_xbmcController;
     return;
   if (@available(tvOS 11.2, *))
   {
-    // setting preferredDisplayCriteria to nil will
-    // switch back to tvOS defined user settings
-    self.avDisplayManager.preferredDisplayCriteria = nil;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      // setting preferredDisplayCriteria to nil will
+      // switch back to tvOS defined user settings
+      self.avDisplayManager.preferredDisplayCriteria = nil;
+    });
   }
 }
 

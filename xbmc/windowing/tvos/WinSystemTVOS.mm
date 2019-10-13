@@ -445,16 +445,28 @@ bool CWinSystemTVOS::SetHDR(const VideoPicture* videoPicture)
 {
   if (!videoPicture)
   {
-    [g_xbmcController displayHDRSwitch:0 /* SDR */];
+    // Renderer Uninit provides videoPicture = nullptr. Reset display to tvos default
+    CLog::Log(LOGDEBUG, "CWinSystemTVOS::SetHDR() Reset Display to tvOS default");
+    [g_xbmcController displayRateReset];
     return false;
   }
 
   if (!IsHDRDisplay())
     return false;
 
-  //! @todo Detect DolbyVision from media?
-  [g_xbmcController displayHDRSwitch:2 /* HDR */];
-  return true;
+  // Device/Screen are already displaying HDR
+  if ([g_xbmcController getHDRMode] > 1)
+  {
+    CLog::Log(LOGDEBUG, "CWinSystemTVOS::SetHDR() Already displaying HDR");
+    return true;
+  }
+  else
+  {
+    CLog::Log(LOGDEBUG, "CWinSystemTVOS::SetHDR() Attempting HDR Switch");
+    //! @todo Detect DolbyVision from media?
+    [g_xbmcController displayHDRSwitch:2 /* HDR */];
+    return true;
+  }
 
 }
 
