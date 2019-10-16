@@ -16,7 +16,7 @@
 #include "guilib/GUIWindowManager.h"
 #include "guilib/LocalizeStrings.h"
 #include "messaging/ApplicationMessenger.h"
-#import "tvosShared.h"
+#include "tvosShared.h"
 #include "utils/Base64.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"

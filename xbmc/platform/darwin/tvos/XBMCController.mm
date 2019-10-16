@@ -8,40 +8,38 @@
 
 #import "platform/darwin/tvos/XBMCController.h"
 
-#import "AppParamParser.h"
-#import "Application.h"
-#import "ServiceBroker.h"
-#import "cores/AudioEngine/Interfaces/AE.h"
-#import "guilib/GUIComponent.h"
-#import "guilib/GUIWindowManager.h"
-#import "input/ButtonTranslator.h"
-#import "input/CustomControllerTranslator.h"
-#import "input/InputManager.h"
-#import "input/Key.h"
-#import "interfaces/AnnouncementManager.h"
-#import "messaging/ApplicationMessenger.h"
-#import "network/NetworkServices.h"
-#import "platform/xbmc.h"
-#import "settings/AdvancedSettings.h"
-#import "utils/log.h"
-#import "windowing/tvos/WinEventsTVOS.h"
-#import "windowing/tvos/WinSystemTVOS.h"
+#include "AppParamParser.h"
+#include "Application.h"
+#include "ServiceBroker.h"
+#include "cores/AudioEngine/Interfaces/AE.h"
+#include "guilib/GUIComponent.h"
+#include "guilib/GUIWindowManager.h"
+#include "input/ButtonTranslator.h"
+#include "input/CustomControllerTranslator.h"
+#include "input/InputManager.h"
+#include "input/Key.h"
+#include "interfaces/AnnouncementManager.h"
+#include "messaging/ApplicationMessenger.h"
+#include "network/NetworkServices.h"
+#include "platform/xbmc.h"
+#include "settings/AdvancedSettings.h"
+#include "utils/log.h"
 
-#import "platform/darwin/NSLogDebugHelpers.h"
 #import "platform/darwin/ios-common/AnnounceReceiver.h"
 #import "platform/darwin/ios-common/IOSKeyboardView.h"
 #import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/tvos/XBMCApplication.h"
-
-#import <MediaPlayer/MPMediaItem.h>
-#import <MediaPlayer/MPNowPlayingInfoCenter.h>
+#import "windowing/tvos/WinEventsTVOS.h"
+#import "windowing/tvos/WinSystemTVOS.h"
 
 #import "system.h"
 
 #import <AVFoundation/AVDisplayCriteria.h>
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
+#import <MediaPlayer/MPMediaItem.h>
+#import <MediaPlayer/MPNowPlayingInfoCenter.h>
 
 #define DISPLAY_MODE_SWITCH_IN_PROGRESS NSStringFromSelector(@selector(displayModeSwitchInProgress))
 
@@ -550,18 +548,18 @@ XBMCController* g_xbmcController;
 
 - (void)longPlayPausePressed:(UILongPressGestureRecognizer*)sender
 {
-  NSLog(@"play/pause long press, state: %ld", static_cast<long>(sender.state));
+  CLog::Log(LOGDEBUG, "Input: play/pause long press, state: %ld", static_cast<long>(sender.state));
 }
 
 - (void)doublePlayPausePressed:(UITapGestureRecognizer*)sender
 {
   // state is only UIGestureRecognizerStateBegan and UIGestureRecognizerStateEnded
-  NSLog(@"play/pause double press");
+  CLog::Log(LOGDEBUG, "Input: play/pause double press");
 }
 
 - (void)SiriDoubleSelectHandler:(UITapGestureRecognizer*)sender
 {
-  NSLog(@"select double press");
+  CLog::Log(LOGDEBUG, "Input: select double press");
 }
 
 //--------------------------------------------------------------
@@ -570,15 +568,12 @@ XBMCController* g_xbmcController;
   switch (sender.state)
   {
   case UIGestureRecognizerStateBegan:
-    //[self startKeyPressTimer:XBMCK_UP];
     [self startKeyPressTimer:1];
     break;
   case UIGestureRecognizerStateChanged:
     break;
   case UIGestureRecognizerStateEnded:
     [self stopKeyPressTimer];
-    //[self sendKeyUp:XBMCK_UP];
-
     // start remote timeout
     [self startRemoteTimer];
     break;
@@ -592,15 +587,12 @@ XBMCController* g_xbmcController;
   switch (sender.state)
   {
   case UIGestureRecognizerStateBegan:
-    //[self startKeyPressTimer:XBMCK_DOWN];
     [self startKeyPressTimer:2];
     break;
   case UIGestureRecognizerStateChanged:
     break;
   case UIGestureRecognizerStateEnded:
     [self stopKeyPressTimer];
-    //[self sendKeyUp:XBMCK_DOWN];
-
     // start remote timeout
     [self startRemoteTimer];
     break;
@@ -614,15 +606,12 @@ XBMCController* g_xbmcController;
   switch (sender.state)
   {
   case UIGestureRecognizerStateBegan:
-    //[self startKeyPressTimer:XBMCK_LEFT];
     [self startKeyPressTimer:3];
     break;
   case UIGestureRecognizerStateChanged:
     break;
   case UIGestureRecognizerStateEnded:
     [self stopKeyPressTimer];
-    //[self sendKeyUp:XBMCK_LEFT];
-
     // start remote timeout
     [self startRemoteTimer];
     break;
@@ -636,15 +625,12 @@ XBMCController* g_xbmcController;
   switch (sender.state)
   {
   case UIGestureRecognizerStateBegan:
-    //[self startKeyPressTimer:XBMCK_RIGHT];
     [self startKeyPressTimer:4];
     break;
   case UIGestureRecognizerStateChanged:
     break;
   case UIGestureRecognizerStateEnded:
     [self stopKeyPressTimer];
-    //[self sendKeyUp:XBMCK_RIGHT];
-
     // start remote timeout
     [self startRemoteTimer];
     break;
@@ -657,36 +643,32 @@ XBMCController* g_xbmcController;
 - (IBAction)tapUpArrowPressed:(UIGestureRecognizer*)sender
 {
   if (!m_remoteIdleState)
-  {
     [self sendButtonPressed:1];
-  }
+
   [self startRemoteTimer];
 }
 //--------------------------------------------------------------
 - (IBAction)tapDownArrowPressed:(UIGestureRecognizer*)sender
 {
   if (!m_remoteIdleState)
-  {
     [self sendButtonPressed:2];
-  }
+
   [self startRemoteTimer];
 }
 //--------------------------------------------------------------
 - (IBAction)tapLeftArrowPressed:(UIGestureRecognizer*)sender
 {
   if (!m_remoteIdleState)
-  {
     [self sendButtonPressed:3];
-  }
+
   [self startRemoteTimer];
 }
 //--------------------------------------------------------------
 - (IBAction)tapRightArrowPressed:(UIGestureRecognizer*)sender
 {
   if (!m_remoteIdleState)
-  {
     [self sendButtonPressed:4];
-  }
+
   [self startRemoteTimer];
 }
 
@@ -869,7 +851,6 @@ XBMCController* g_xbmcController;
             m_touchBeginSignaled = false;
             m_touchDirection = NULL;
             [self stopKeyPressTimer];
-            //[self sendKeyUp:key];
           }
           // start remote idle timer
           [self startRemoteTimer];
@@ -886,9 +867,8 @@ XBMCController* g_xbmcController;
 - (IBAction)handleSwipe:(UISwipeGestureRecognizer*)sender
 {
   if (!m_remoteIdleState)
-  {
     m_touchDirection = sender.direction;
-  }
+
   // start remote idle timer
   [self startRemoteTimer];
 }
@@ -1038,7 +1018,6 @@ XBMCController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)didReceiveMemoryWarning
 {
-  PRINT_SIGNATURE();
   // Releases the view if it doesn't have a superview.
   [super didReceiveMemoryWarning];
   // Release any cached data, images, etc. that aren't in use.
@@ -1051,7 +1030,7 @@ XBMCController* g_xbmcController;
     [[UIApplication sharedApplication] endBackgroundTask:m_bgTask];
     m_bgTask = UIBackgroundTaskInvalid;
   }
-  LOG(@"%s: beginBackgroundTask", __PRETTY_FUNCTION__);
+  CLog::Log(LOGDEBUG, "%s: beginBackgroundTask", __PRETTY_FUNCTION__);
   // we have to alloc the background task for keep network working after screen lock and dark.
   m_bgTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:nil];
 }
@@ -1060,7 +1039,7 @@ XBMCController* g_xbmcController;
 {
   if (m_bgTask != UIBackgroundTaskInvalid)
   {
-    LOG(@"%s: endBackgroundTask", __PRETTY_FUNCTION__);
+    CLog::Log(LOGDEBUG, "%s: endBackgroundTask", __PRETTY_FUNCTION__);
     [[UIApplication sharedApplication] endBackgroundTask:m_bgTask];
     m_bgTask = UIBackgroundTaskInvalid;
   }
@@ -1103,6 +1082,7 @@ XBMCController* g_xbmcController;
     inActive = [UIApplication sharedApplication].applicationState == UIApplicationStateInactive;
     if (inActive)
     {
+      //@ ! Todo: change to appname rather than hardcode kodi
       NSURL* url = [NSURL URLWithString:@"kodi://wakeup"];
       [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
     }
@@ -1432,7 +1412,7 @@ int KODI_Run(bool renderGUI)
   CAppParamParser appParamParser; //! @todo : proper params
   if (!g_application.Create(appParamParser))
   {
-    ELOG(@"ERROR: Unable to create application. Exiting");
+    CLog::Log(LOGERROR, "ERROR: Unable to create application. Exiting");
     return status;
   }
 
@@ -1459,12 +1439,12 @@ int KODI_Run(bool renderGUI)
 
   if (renderGUI && !g_application.CreateGUI())
   {
-    ELOG(@"ERROR: Unable to create GUI. Exiting");
+    CLog::Log(LOGERROR, "ERROR: Unable to create GUI. Exiting");
     return status;
   }
   if (!g_application.Initialize())
   {
-    ELOG(@"ERROR: Unable to Initialize. Exiting");
+    CLog::Log(LOGERROR, "ERROR: Unable to Initialize. Exiting");
     return status;
   }
 
@@ -1474,7 +1454,7 @@ int KODI_Run(bool renderGUI)
   }
   catch (...)
   {
-    ELOG(@"ERROR: Exception caught on main loop. Exiting");
+    CLog::Log(LOGERROR, "ERROR: Exception caught on main loop. Exiting");
     status = -1;
   }
 
@@ -1516,7 +1496,7 @@ int KODI_Run(bool renderGUI)
     catch (...)
     {
       m_appAlive = FALSE;
-      ELOG(@"%sException caught on main loop status=%d. Exiting", __PRETTY_FUNCTION__, status);
+      CLog::Log(LOGERROR, "%sException caught on main loop status=%d. Exiting", __PRETTY_FUNCTION__, status);
     }
 
     // signal the thread is dead
@@ -1575,7 +1555,6 @@ int KODI_Run(bool renderGUI)
             static_cast<void*>(new CAction(ACTION_PLAYER_PLAY)));
       break;
     default:
-      //LOG(@"unhandled subtype: %d", (int)receivedEvent.subtype);
       break;
     }
     // start remote timeout
@@ -1645,7 +1624,7 @@ int KODI_Run(bool renderGUI)
 
   [self setIOSNowPlayingInfo:dict];
 
-  m_playbackState = IOS_PLAYBACK_PLAYING;
+  m_playbackState = TVOS_PLAYBACK_PLAYING;
 }
 //--------------------------------------------------------------
 - (void)OnSpeedChanged:(NSDictionary*)item
@@ -1666,14 +1645,14 @@ int KODI_Run(bool renderGUI)
 //--------------------------------------------------------------
 - (void)onPause:(NSDictionary*)item
 {
-  m_playbackState = IOS_PLAYBACK_PAUSED;
+  m_playbackState = TVOS_PLAYBACK_PAUSED;
 }
 //--------------------------------------------------------------
 - (void)onStop:(NSDictionary*)item
 {
   [self setIOSNowPlayingInfo:nil];
 
-  m_playbackState = IOS_PLAYBACK_STOPPED;
+  m_playbackState = TVOS_PLAYBACK_STOPPED;
 }
 
 #pragma mark - private helper methods
