@@ -27,6 +27,7 @@
 
 #import "platform/darwin/ios-common/AnnounceReceiver.h"
 #import "platform/darwin/ios-common/IOSKeyboardView.h"
+#import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
 #import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/tvos/XBMCApplication.h"
@@ -38,8 +39,6 @@
 #import <AVFoundation/AVDisplayCriteria.h>
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
-#import <MediaPlayer/MPMediaItem.h>
-#import <MediaPlayer/MPNowPlayingInfoCenter.h>
 
 #define DISPLAY_MODE_SWITCH_IN_PROGRESS NSStringFromSelector(@selector(displayModeSwitchInProgress))
 
@@ -65,6 +64,7 @@ XBMCController* g_xbmcController;
 #pragma mark - XBMCController implementation
 @implementation XBMCController
 
+@synthesize MPNPInfoManager;
 
 #pragma mark - internal key press methods
 - (void)sendButtonPressed:(int)buttonId
@@ -902,6 +902,7 @@ XBMCController* g_xbmcController;
   [self enableScreenSaver];
 
   g_xbmcController = self;
+  MPNPInfoManager = [DarwinEmbedNowPlayingInfoManager new];
 
   self.displayLink = [CADisplayLink displayLinkWithTarget:self
                                                  selector:@selector(displayLinkTick:)];
@@ -1560,99 +1561,6 @@ int KODI_Run(bool renderGUI)
     // start remote timeout
     [self startRemoteTimer];
   }
-}
-
-#pragma mark - Now Playing routines
-//--------------------------------------------------------------
-- (void)setIOSNowPlayingInfo:(NSDictionary*)info
-{
-  self.m_nowPlayingInfo = info;
-  [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = self.m_nowPlayingInfo;
-}
-//--------------------------------------------------------------
-- (void)onPlay:(NSDictionary*)item
-{
-  // @todo copy-paste from iOS
-  NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-
-  NSString* title = item[@"title"];
-  if (title && title.length > 0)
-    dict[MPMediaItemPropertyTitle] = title;
-  NSString* album = item[@"album"];
-  if (album && album.length > 0)
-    dict[MPMediaItemPropertyAlbumTitle] = album;
-  NSArray* artists = item[@"artist"];
-  if (artists && artists.count > 0)
-    dict[MPMediaItemPropertyArtist] = [artists componentsJoinedByString:@" "];
-  NSNumber* track = item[@"track"];
-  if (track)
-    dict[MPMediaItemPropertyAlbumTrackNumber] = track;
-  NSNumber* duration = item[@"duration"];
-  if (duration)
-    dict[MPMediaItemPropertyPlaybackDuration] = duration;
-  NSArray* genres = item[@"genre"];
-  if (genres && genres.count > 0)
-    dict[MPMediaItemPropertyGenre] = [genres componentsJoinedByString:@" "];
-
-  if (NSClassFromString(@"MPNowPlayingInfoCenter"))
-  {
-    NSNumber* elapsed = item[@"elapsed"];
-    if (elapsed)
-      dict[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed;
-    NSNumber* speed = item[@"speed"];
-    if (speed)
-      dict[MPNowPlayingInfoPropertyPlaybackRate] = speed;
-    NSNumber* current = item[@"current"];
-    if (current)
-      dict[MPNowPlayingInfoPropertyPlaybackQueueIndex] = current;
-    NSNumber* total = item[@"total"];
-    if (total)
-      dict[MPNowPlayingInfoPropertyPlaybackQueueCount] = total;
-  }
-  /*
-   other properities can be set:
-   MPMediaItemPropertyAlbumTrackCount
-   MPMediaItemPropertyComposer
-   MPMediaItemPropertyDiscCount
-   MPMediaItemPropertyDiscNumber
-   MPMediaItemPropertyPersistentID
-
-   Additional metadata properties:
-   MPNowPlayingInfoPropertyChapterNumber;
-   MPNowPlayingInfoPropertyChapterCount;
-   */
-
-  [self setIOSNowPlayingInfo:dict];
-
-  m_playbackState = TVOS_PLAYBACK_PLAYING;
-}
-//--------------------------------------------------------------
-- (void)OnSpeedChanged:(NSDictionary*)item
-{
-  if (NSClassFromString(@"MPNowPlayingInfoCenter"))
-  {
-    NSMutableDictionary* info = [self.m_nowPlayingInfo mutableCopy];
-    NSNumber* elapsed = item[@"elapsed"];
-    if (elapsed)
-      info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed;
-    NSNumber* speed = item[@"speed"];
-    if (speed)
-      info[MPNowPlayingInfoPropertyPlaybackRate] = speed;
-
-    [self setIOSNowPlayingInfo:info];
-  }
-}
-//--------------------------------------------------------------
-- (void)onPause:(NSDictionary*)item
-{
-  m_playbackState = TVOS_PLAYBACK_PAUSED;
-}
-//--------------------------------------------------------------
-- (void)onStop:(NSDictionary*)item
-{
-  [self setIOSNowPlayingInfo:nil];
-
-  m_playbackState = TVOS_PLAYBACK_STOPPED;
 }
 
 #pragma mark - private helper methods
