@@ -8,10 +8,10 @@
 
 #import "TVOSSettingsHandler.h"
 
-#import "ServiceBroker.h"
-#import "settings/Settings.h"
-#import "settings/SettingsComponent.h"
-#import "settings/lib/Setting.h"
+#include "ServiceBroker.h"
+#include "settings/Settings.h"
+#include "settings/SettingsComponent.h"
+#include "settings/lib/Setting.h"
 #include "threads/Atomics.h"
 
 #import "platform/darwin/tvos/XBMCController.h"

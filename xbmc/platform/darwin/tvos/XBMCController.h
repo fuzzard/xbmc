@@ -6,14 +6,14 @@
  *  See LICENSES/README.md for more information.
  */
 
-#import "windowing/XBMC_events.h"
+#include "windowing/XBMC_events.h"
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(unsigned int, IOSPlaybackState) {
-  IOS_PLAYBACK_STOPPED,
-  IOS_PLAYBACK_PAUSED,
-  IOS_PLAYBACK_PLAYING
+typedef NS_ENUM(unsigned int, TVOSPlaybackState) {
+  TVOS_PLAYBACK_STOPPED,
+  TVOS_PLAYBACK_PAUSED,
+  TVOS_PLAYBACK_PLAYING
 };
 
 typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
@@ -39,7 +39,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 
   bool m_isPlayingBeforeInactive;
   UIBackgroundTaskIdentifier m_bgTask;
-  IOSPlaybackState m_playbackState;
+  TVOSPlaybackState m_playbackState;
   NSDictionary* m_nowPlayingInfo;
   bool m_nativeKeyboardActive;
 

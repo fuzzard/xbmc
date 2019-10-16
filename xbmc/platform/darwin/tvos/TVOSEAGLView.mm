@@ -8,12 +8,11 @@
 
 #import "platform/darwin/tvos/TVOSEAGLView.h"
 
-#import "messaging/ApplicationMessenger.h"
-#import "settings/AdvancedSettings.h"
-#import "utils/log.h"
+#include "messaging/ApplicationMessenger.h"
+#include "settings/AdvancedSettings.h"
+#include "utils/log.h"
 
 #import "platform/darwin/DarwinUtils.h"
-#import "platform/darwin/NSLogDebugHelpers.h"
 #import "platform/darwin/tvos/XBMCController.h"
 
 #import <signal.h>
@@ -59,9 +58,9 @@ using namespace KODI::MESSAGING;
       aContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
     if (!aContext)
-      ELOG(@"Failed to create ES context");
+      CLog::Log(LOGERROR, "Failed to create ES context");
     else if (![EAGLContext setCurrentContext:aContext])
-      ELOG(@"Failed to set ES context current");
+      CLog::Log(LOGERROR, "Failed to set ES context current");
 
     m_context = aContext;
 
@@ -126,7 +125,7 @@ using namespace KODI::MESSAGING;
                               m_depthRenderbuffer);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-      ELOG(@"Failed to make complete framebuffer object %x",
+      CLog::Log(LOGERROR, "Failed to make complete framebuffer object {}",
            glCheckFramebufferStatus(GL_FRAMEBUFFER));
   }
 }

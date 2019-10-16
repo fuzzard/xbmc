@@ -20,14 +20,14 @@
 
 #import "PreflightHandler.h"
 
-#import "URL.h"
-#import "filesystem/File.h"
+#include "URL.h"
+#include "filesystem/File.h"
+#include "platform/posix/filesystem/PosixFile.h"
+#include "utils/log.h"
 
-#import "platform/darwin/NSLogDebugHelpers.h"
 #import "platform/darwin/ios-common/DarwinNSUserDefaults.h"
 #import "platform/darwin/tvos/filesystem/TVOSFile.h"
 #import "platform/darwin/tvos/filesystem/TVOSFileUtils.h"
-#import "platform/posix/filesystem/PosixFile.h"
 
 #import <UIKit/UIKit.h>
 
@@ -54,7 +54,7 @@ void CPreflightHandler::NSUserDefaultsPurge(const char* prefix)
     if ([aKey hasPrefix:@(prefix)])
     {
       [defaults removeObjectForKey:aKey];
-      ILOG(@"nsuserdefaults: removing %s", [aKey UTF8String]);
+      CLog::Log(LOGDEBUG, "nsuserdefaults: removing %s", [aKey UTF8String]);
     }
   }
 }
@@ -80,7 +80,7 @@ void CPreflightHandler::CheckForRemovedCacheFolder()
 
 void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
 {
-  ILOG(@"MigrateUserdataXMLToNSUserDefaults: "
+  CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: "
         "NSUserDefaultsSize(%lld)",
        NSUserDefaultsSize());
 
@@ -96,7 +96,7 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
   }
   else
   {
-    ILOG(@"MigrateUserdataXMLToNSUserDefaults: migration starting");
+    CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: migration starting");
 
     NSUserDefaultsPurge("/userdata");
     // now search for all xxx.xml files in the
@@ -123,7 +123,7 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
       if ([file.pathExtension isEqualToString:@"xml"])
       {
         // log what we are doing
-        ILOG(@"MigrateUserdataXMLToNSUserDefaults: "
+        CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: "
               "Found -> %s",
              [fullPath UTF8String]);
 
@@ -148,7 +148,7 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
                 break;
               else if (iread < 0)
               {
-                ELOG(@"MigrateUserdataXMLToNSUserDefaults: "
+                CLog::Log(LOGERROR, "MigrateUserdataXMLToNSUserDefaults: "
                       "Failed read from file %s",
                      srcUrl.Get().c_str());
                 break;
@@ -166,7 +166,7 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
 
               if (iwrite != iread)
               {
-                ELOG(@"MigrateUserdataXMLToNSUserDefaults: "
+                CLog::Log(LOGERROR, "MigrateUserdataXMLToNSUserDefaults: "
                       "Failed write to file %s",
                      dtsUrl.Get().c_str());
                 break;
@@ -184,8 +184,8 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
     [defaults setObject:@"1" forKey:migration_key];
     [defaults synchronize];
 
-    ILOG(@"MigrateUserdataXMLToNSUserDefaults: migration finished");
-    ILOG(@"MigrateUserdataXMLToNSUserDefaults: "
+    CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: migration finished");
+    CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: "
           "NSUserDefaultsSize(%lld)",
          NSUserDefaultsSize());
   }
