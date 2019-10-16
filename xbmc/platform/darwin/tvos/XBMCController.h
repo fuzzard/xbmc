@@ -8,13 +8,9 @@
 
 #include "windowing/XBMC_events.h"
 
-#import <UIKit/UIKit.h>
+#import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
 
-typedef NS_ENUM(unsigned int, TVOSPlaybackState) {
-  TVOS_PLAYBACK_STOPPED,
-  TVOS_PLAYBACK_PAUSED,
-  TVOS_PLAYBACK_PLAYING
-};
+#import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
   UIPanGestureRecognizerDirectionUndefined,
@@ -39,8 +35,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 
   bool m_isPlayingBeforeInactive;
   UIBackgroundTaskIdentifier m_bgTask;
-  TVOSPlaybackState m_playbackState;
-  NSDictionary* m_nowPlayingInfo;
+
   bool m_nativeKeyboardActive;
 
   BOOL m_pause;
@@ -64,6 +59,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 
 @property(strong, nonatomic) NSTimer* pressAutoRepeatTimer;
 @property(strong, nonatomic) NSTimer* remoteIdleTimer;
+@property (nonatomic, strong) DarwinEmbedNowPlayingInfoManager* DarwinEmbedMPNPInfoManager;
 
 - (void)pauseAnimation;
 - (void)resumeAnimation;
@@ -102,6 +98,7 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange;
 - (void)displayRateReset;
 - (EAGLContext*)getEAGLContextObj;
+
 @end
 
 extern XBMCController* g_xbmcController;
