@@ -34,6 +34,7 @@
 #include "windowing/OSScreenSaver.h"
 
 #import "platform/darwin/DarwinUtils.h"
+#import "platform/darwin/tvos/TVOSDisplayManager.h"
 #import "platform/darwin/tvos/XBMCController.h"
 
 #include <memory>
@@ -226,15 +227,15 @@ bool CWinSystemTVOS::SwitchToVideoMode(int width, int height, double refreshrate
   /*! @todo Currently support SDR dynamic range only. HDR shouldnt be done during a
    *  modeswitch. Look to create supplemental method to handle sdr/hdr enable
    */
-  [g_xbmcController displayRateSwitch:refreshrate withDynamicRange:0 /*dynamicRange*/];
+  [g_xbmcController.displayManager displayRateSwitch:refreshrate withDynamicRange:0 /*dynamicRange*/];
   return true;
 }
 
 bool CWinSystemTVOS::GetScreenResolution(int* w, int* h, double* fps, int screenIdx)
 {
-  *w = [g_xbmcController getScreenSize].width;
-  *h = [g_xbmcController getScreenSize].height;
-  *fps = [g_xbmcController getDisplayRate];
+  *w = [g_xbmcController.displayManager getScreenSize].width;
+  *h = [g_xbmcController.displayManager getScreenSize].height;
+  *fps = [g_xbmcController.displayManager getDisplayRate];
 
   CLog::Log(LOGDEBUG, "Current resolution Screen: {} with {} x {} @  {}", screenIdx, *w, *h,
             *fps);

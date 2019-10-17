@@ -9,7 +9,10 @@
 #include "windowing/XBMC_events.h"
 
 #import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
+#import "platform/darwin/tvos/TVOSEAGLView.h"
 
+#import <Foundation/Foundation.h>
+#import <OpenGLES/EAGL.h>
 #import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
@@ -20,16 +23,16 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
   UIPanGestureRecognizerDirectionRight
 };
 
+@class AVDisplayManager;
+@class TVOSDisplayManager;
 @class TVOSEAGLView;
+
 
 @interface XBMCController : UIViewController <UIGestureRecognizerDelegate>
 {
 @private
-  TVOSEAGLView* m_glView;
   // Touch handling
-  CGSize m_screensize;
   CGPoint m_lastGesturePoint;
-  CGFloat m_screenScale;
   int m_screenIdx;
   int m_currentClick;
 
@@ -60,6 +63,8 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 @property(strong, nonatomic) NSTimer* pressAutoRepeatTimer;
 @property(strong, nonatomic) NSTimer* remoteIdleTimer;
 @property (nonatomic, strong) DarwinEmbedNowPlayingInfoManager* MPNPInfoManager;
+@property (nonatomic, strong) TVOSDisplayManager* displayManager;
+@property (nonatomic, strong) TVOSEAGLView* glView;
 
 - (void)pauseAnimation;
 - (void)resumeAnimation;
@@ -71,7 +76,6 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (void)becomeInactive;
 - (void)setFramebuffer;
 - (bool)presentFramebuffer;
-- (CGSize)getScreenSize;
 - (void)activateKeyboard:(UIView*)view;
 - (void)deactivateKeyboard:(UIView*)view;
 - (void)nativeKeyboardActive:(bool)active;
@@ -88,15 +92,10 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (void)setRemoteIdleTimeout:(int)timeout;
 - (void)setShouldRemoteIdle:(BOOL)idle;
 
-- (NSArray<UIScreenMode*>*)availableScreenModes:(UIScreen*)screen;
-- (UIScreenMode*)preferredScreenMode:(UIScreen*)screen;
-- (bool)changeScreen:(unsigned int)screenIdx withMode:(UIScreenMode*)mode;
-
 - (void)insertVideoView:(UIView*)view;
 - (void)removeVideoView:(UIView*)view;
-- (float)getDisplayRate;
-- (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange;
-- (void)displayRateReset;
+- (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)));
+
 - (EAGLContext*)getEAGLContextObj;
 
 @end

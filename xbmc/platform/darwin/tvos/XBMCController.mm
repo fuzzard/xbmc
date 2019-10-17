@@ -28,6 +28,7 @@
 #import "platform/darwin/ios-common/AnnounceReceiver.h"
 #import "platform/darwin/ios-common/IOSKeyboardView.h"
 #import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
+#import "platform/darwin/tvos/TVOSDisplayManager.h"
 #import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/tvos/XBMCApplication.h"
@@ -36,35 +37,20 @@
 
 #import "system.h"
 
-#import <AVFoundation/AVDisplayCriteria.h>
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
-
-#define DISPLAY_MODE_SWITCH_IN_PROGRESS NSStringFromSelector(@selector(displayModeSwitchInProgress))
-
-@interface AVDisplayCriteria ()
-@property(readonly) int videoDynamicRange;
-@property(readonly, nonatomic) float refreshRate;
-- (id)initWithRefreshRate:(float)arg1 videoDynamicRange:(int)arg2;
-@end
 
 using namespace KODI::MESSAGING;
 
 XBMCController* g_xbmcController;
 
 //--------------------------------------------------------------
-#pragma mark - XBMCController interface
-@interface XBMCController ()
-@property(strong, nonatomic) NSTimer* pressAutoRepeatTimer;
-@property(strong, nonatomic) NSTimer* remoteIdleTimer;
-@property(nonatomic, strong) CADisplayLink* displayLink;
-@property(nonatomic, assign) float displayRate;
-@end
-
 #pragma mark - XBMCController implementation
 @implementation XBMCController
 
 @synthesize MPNPInfoManager;
+@synthesize displayManager;
+@synthesize glView;
 
 #pragma mark - internal key press methods
 - (void)sendButtonPressed:(int)buttonId
@@ -357,7 +343,7 @@ XBMCController* g_xbmcController;
     swipeRecognizer.delaysTouchesBegan = NO;
     swipeRecognizer.direction = swipeDirection;
     swipeRecognizer.delegate = self;
-    [m_glView addGestureRecognizer:swipeRecognizer];
+    [glView addGestureRecognizer:swipeRecognizer];
   }
 }
 
@@ -367,7 +353,7 @@ XBMCController* g_xbmcController;
   // for pan gestures with one finger
   auto pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
   pan.delegate = self;
-  [m_glView addGestureRecognizer:pan];
+  [glView addGestureRecognizer:pan];
   m_clickResetPan = false;
 }
 //--------------------------------------------------------------
@@ -391,7 +377,7 @@ XBMCController* g_xbmcController;
                                                                    action:std::get<1>(t)];
     arrowRecognizer.allowedPressTypes = allowedPressTypes;
     arrowRecognizer.delegate = self;
-    [m_glView addGestureRecognizer:arrowRecognizer];
+    [glView addGestureRecognizer:arrowRecognizer];
 
     // @todo doesn't seem to work
     // we need UILongPressGestureRecognizer here because it will give
@@ -403,7 +389,7 @@ XBMCController* g_xbmcController;
     longArrowRecognizer.allowedPressTypes = allowedPressTypes;
     longArrowRecognizer.minimumPressDuration = 0.01;
     longArrowRecognizer.delegate = self;
-    [m_glView addGestureRecognizer:longArrowRecognizer];
+    [glView addGestureRecognizer:longArrowRecognizer];
   }
 }
 //--------------------------------------------------------------
@@ -413,14 +399,14 @@ XBMCController* g_xbmcController;
                                                                 action:@selector(menuPressed:)];
   menuRecognizer.allowedPressTypes = @[ @(UIPressTypeMenu) ];
   menuRecognizer.delegate = self;
-  [m_glView addGestureRecognizer:menuRecognizer];
+  [glView addGestureRecognizer:menuRecognizer];
 
   auto playPauseTypes = @[ @(UIPressTypePlayPause) ];
   auto playPauseRecognizer =
       [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(playPausePressed:)];
   playPauseRecognizer.allowedPressTypes = playPauseTypes;
   playPauseRecognizer.delegate = self;
-  [m_glView addGestureRecognizer:playPauseRecognizer];
+  [glView addGestureRecognizer:playPauseRecognizer];
 
   auto doublePlayPauseRecognizer =
       [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -428,15 +414,15 @@ XBMCController* g_xbmcController;
   doublePlayPauseRecognizer.allowedPressTypes = playPauseTypes;
   doublePlayPauseRecognizer.numberOfTapsRequired = 2;
   doublePlayPauseRecognizer.delegate = self;
-  [m_glView.gestureRecognizers.lastObject requireGestureRecognizerToFail:doublePlayPauseRecognizer];
-  [m_glView addGestureRecognizer:doublePlayPauseRecognizer];
+  [glView.gestureRecognizers.lastObject requireGestureRecognizerToFail:doublePlayPauseRecognizer];
+  [glView addGestureRecognizer:doublePlayPauseRecognizer];
 
   auto longPlayPauseRecognizer =
       [[UILongPressGestureRecognizer alloc] initWithTarget:self
                                                     action:@selector(longPlayPausePressed:)];
   longPlayPauseRecognizer.allowedPressTypes = playPauseTypes;
   longPlayPauseRecognizer.delegate = self;
-  [m_glView addGestureRecognizer:longPlayPauseRecognizer];
+  [glView addGestureRecognizer:longPlayPauseRecognizer];
 
   auto selectTypes = @[ @(UIPressTypeSelect) ];
   auto longSelectRecognizer =
@@ -445,14 +431,14 @@ XBMCController* g_xbmcController;
   longSelectRecognizer.allowedPressTypes = selectTypes;
   longSelectRecognizer.minimumPressDuration = 0.001;
   longSelectRecognizer.delegate = self;
-  [m_glView addGestureRecognizer:longSelectRecognizer];
+  [glView addGestureRecognizer:longSelectRecognizer];
 
   auto selectRecognizer =
       [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(SiriSelectHandler:)];
   selectRecognizer.allowedPressTypes = selectTypes;
   selectRecognizer.delegate = self;
   [longSelectRecognizer requireGestureRecognizerToFail:selectRecognizer];
-  [m_glView addGestureRecognizer:selectRecognizer];
+  [glView addGestureRecognizer:selectRecognizer];
 
   auto doubleSelectRecognizer =
       [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -461,21 +447,21 @@ XBMCController* g_xbmcController;
   doubleSelectRecognizer.numberOfTapsRequired = 2;
   doubleSelectRecognizer.delegate = self;
   [longSelectRecognizer requireGestureRecognizerToFail:doubleSelectRecognizer];
-  [m_glView.gestureRecognizers.lastObject requireGestureRecognizerToFail:doubleSelectRecognizer];
-  [m_glView addGestureRecognizer:doubleSelectRecognizer];
+  [glView.gestureRecognizers.lastObject requireGestureRecognizerToFail:doubleSelectRecognizer];
+  [glView addGestureRecognizer:doubleSelectRecognizer];
 }
 
 //--------------------------------------------------------------
 - (void)activateKeyboard:(UIView*)view
 {
   [self.view addSubview:view];
-  m_glView.userInteractionEnabled = NO;
+  glView.userInteractionEnabled = NO;
 }
 //--------------------------------------------------------------
 - (void)deactivateKeyboard:(UIView*)view
 {
   [view removeFromSuperview];
-  m_glView.userInteractionEnabled = YES;
+  glView.userInteractionEnabled = YES;
   [self becomeFirstResponder];
 }
 //--------------------------------------------------------------
@@ -876,7 +862,7 @@ XBMCController* g_xbmcController;
 #pragma mark -
 - (void)insertVideoView:(UIView*)view
 {
-  [self.view insertSubview:view belowSubview:m_glView];
+  [self.view insertSubview:view belowSubview:glView];
   [self.view setNeedsDisplay];
 }
 
@@ -895,7 +881,6 @@ XBMCController* g_xbmcController;
   m_appAlive = FALSE;
   m_animating = FALSE;
 
-  m_screenIdx = 0;
   m_isPlayingBeforeInactive = NO;
   m_bgTask = UIBackgroundTaskInvalid;
 
@@ -903,18 +888,14 @@ XBMCController* g_xbmcController;
 
   g_xbmcController = self;
   MPNPInfoManager = [DarwinEmbedNowPlayingInfoManager new];
-
-  self.displayLink = [CADisplayLink displayLinkWithTarget:self
-                                                 selector:@selector(displayLinkTick:)];
-  // we want the native cadence of the display hardware.
-  self.displayLink.preferredFramesPerSecond = 0;
-  [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+  displayManager = [TVOSDisplayManager new];
 
   return self;
 }
 //--------------------------------------------------------------
 - (void)dealloc
 {
+  [displayManager removeModeSwitchObserver];
   // stop background task (if running)
   [self disableBackGroundTask];
 
@@ -925,25 +906,18 @@ XBMCController* g_xbmcController;
 {
   [super viewDidLoad];
 
-  m_glView = [[TVOSEAGLView alloc] initWithFrame:self.view.bounds withScreen:[UIScreen mainScreen]];
+  glView = [[TVOSEAGLView alloc] initWithFrame:self.view.bounds withScreen:[UIScreen mainScreen]];
 
   // Check if screen is Retina
-  m_screenScale = [m_glView getScreenScale:[UIScreen mainScreen]];
-  [self.view addSubview:m_glView];
+  displayManager.screenScale = [glView getScreenScale:[UIScreen mainScreen]];
+  [self.view addSubview:glView];
 
   [self createSwipeGestureRecognizers];
   [self createPanGestureRecognizers];
   [self createPressGesturecognizers];
   [self createTapGesturecognizers];
 
-  if (@available(tvOS 11.2, *))
-  {
-    auto avDisplayManager = self.avDisplayManager;
-    [avDisplayManager addObserver:self
-                       forKeyPath:DISPLAY_MODE_SWITCH_IN_PROGRESS
-                          options:NSKeyValueObservingOptionNew
-                          context:nullptr];
-  }
+  [displayManager addModeSwitchObserver];
 }
 //--------------------------------------------------------------
 - (void)viewWillAppear:(BOOL)animated
@@ -964,11 +938,6 @@ XBMCController* g_xbmcController;
 {
   [self pauseAnimation];
   [super viewWillDisappear:animated];
-  if (@available(tvOS 11.2, *))
-  {
-    auto avDisplayManager = self.avDisplayManager;
-    [avDisplayManager removeObserver:self forKeyPath:DISPLAY_MODE_SWITCH_IN_PROGRESS];
-  }
 }
 //--------------------------------------------------------------
 - (void)viewDidUnload
@@ -996,24 +965,15 @@ XBMCController* g_xbmcController;
 - (void)setFramebuffer
 {
   if (!m_pause)
-    [m_glView setFramebuffer];
+    [glView setFramebuffer];
 }
 //--------------------------------------------------------------
 - (bool)presentFramebuffer
 {
   if (!m_pause)
-    return [m_glView presentFramebuffer];
+    return [glView presentFramebuffer];
   else
     return FALSE;
-}
-//--------------------------------------------------------------
-- (CGSize)getScreenSize
-{
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    m_screensize.width = m_glView.bounds.size.width * m_screenScale;
-    m_screensize.height = m_glView.bounds.size.height * m_screenScale;
-  });
-  return m_screensize;
 }
 
 //--------------------------------------------------------------
@@ -1091,26 +1051,6 @@ XBMCController* g_xbmcController;
   return inActive;
 }
 
-//--------------------------------------------------------------
-- (UIScreenMode*)preferredScreenMode:(UIScreen*)screen
-{
-  // tvOS only support one mode, the current one.
-  return screen.currentMode;
-}
-
-//--------------------------------------------------------------
-- (NSArray<UIScreenMode*>*)availableScreenModes:(UIScreen*)screen
-{
-  // tvOS only support one mode, the current one,
-  // pass back an array with this inside.
-  return @[ screen.currentMode ];
-}
-
-//--------------------------------------------------------------
-- (bool)changeScreen:(unsigned int)screenIdx withMode:(UIScreenMode*)mode
-{
-  return true;
-}
 //--------------------------------------------------------------
 - (void)enterBackground
 {
@@ -1209,156 +1149,6 @@ XBMCController* g_xbmcController;
   }
 }
 
-#pragma mark - display switching routines
-//--------------------------------------------------------------
-- (float)getDisplayRate
-{
-  if (self.displayRate > 0.0f)
-    return self.displayRate;
-
-  return 60.0f;
-}
-
-//--------------------------------------------------------------
-- (void)displayLinkTick:(CADisplayLink*)sender
-{
-  auto duration = self.displayLink.duration;
-  if (duration > 0.0)
-  {
-    // we want fps, not duration in seconds.
-    self.displayRate = 1.0 / duration;
-  }
-}
-
-//--------------------------------------------------------------
-- (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange
-{
-  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
-          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
-    return;
-  if (@available(tvOS 11.2, *))
-  {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      auto avDisplayManager = self.avDisplayManager;
-      if (refreshRate > 0.0f)
-      {
-        // initWithRefreshRate is private in 11.2 beta4 but apple
-        // will move it public at some time.
-        // videoDynamicRange values are based on watching
-        // console log when forcing different values.
-        // search for "Native Mode Requested" and pray :)
-        // searches for "FBSDisplayConfiguration" and "currentMode" will show the actual
-        // for example, currentMode = <FBSDisplayMode: 0x1c4298100; 1920x1080@2x (3840x2160/2) 24Hz p3 HDR10>
-        // SDR == 0, 1
-        // HDR == 2, 3
-        // DoblyVision == 4
-        auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
-                                                          videoDynamicRange:dynamicRange];
-        // setting preferredDisplayCriteria will trigger a display rate switch
-        avDisplayManager.preferredDisplayCriteria = displayCriteria;
-      }
-      else
-      {
-        // switch back to tvOS defined user settings if we get
-        // zero or less than value for refreshRate. Should never happen :)
-        avDisplayManager.preferredDisplayCriteria = nil;
-      }
-    });
-    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}, dynamicRange = {}",
-              refreshRate, [self stringFromDynamicRange:dynamicRange]);
-  }
-}
-
-//--------------------------------------------------------------
-- (void)displayRateReset
-{
-  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
-          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
-    return;
-  if (@available(tvOS 11.2, *))
-  {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      // setting preferredDisplayCriteria to nil will
-      // switch back to tvOS defined user settings
-      self.avDisplayManager.preferredDisplayCriteria = nil;
-    });
-  }
-}
-
-//--------------------------------------------------------------
-- (void)observeValueForKeyPath:(NSString*)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary*)change
-                       context:(void*)context
-{
-  if (![keyPath isEqualToString:DISPLAY_MODE_SWITCH_IN_PROGRESS])
-    return;
-
-  // tracking displayModeSwitchInProgress via NSKeyValueObservingOptionNew,
-  // any changes in displayModeSwitchInProgress will fire this callback.
-  if (@available(tvOS 11.2, *))
-  {
-    std::string switchState = "NO";
-    int dynamicRange = 0;
-    float refreshRate;
-    auto avDisplayManager = self.avDisplayManager;
-    auto displayCriteria = avDisplayManager.preferredDisplayCriteria;
-    // preferredDisplayCriteria can be nil, this is NOT an error
-    // and just indicates tvOS defined user settings which we cannot see.
-    if (displayCriteria != nil)
-    {
-      refreshRate = displayCriteria.refreshRate;
-      dynamicRange = displayCriteria.videoDynamicRange;
-    }
-    if (avDisplayManager.displayModeSwitchInProgress)
-    {
-      switchState = "YES";
-      CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
-      winSystem->AnnounceOnLostDevice();
-      winSystem->StartLostDeviceTimer();
-    }
-    else
-    {
-      switchState = "DONE";
-      CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
-      winSystem->StopLostDeviceTimer();
-      winSystem->AnnounceOnResetDevice();
-      // displayLinkTick is tracking actual refresh duration.
-      // when isDisplayModeSwitchInProgress == NO, we have switched
-      // and stablized. We might have switched to some other
-      // rate than what we requested. setting preferredDisplayCriteria is
-      // only a request. For example, 30Hz might only be avaliable in HDR
-      // and asking for 30Hz/SDR might result in 60Hz/SDR and
-      // g_graphicsContext.SetFPS needs the actual refresh rate.
-      refreshRate = [self getDisplayRate];
-    }
-    //! @todo
-    //g_graphicsContext.SetFPS(refreshRate);
-    CLog::Log(LOGDEBUG, "displayModeSwitchInProgress = {}, refreshRate = {}, dynamicRange = {}",
-              switchState, refreshRate, [self stringFromDynamicRange:dynamicRange]);
-  }
-}
-
-- (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)))
-{
-  return self.view.window.avDisplayManager;
-}
-
-- (const char*)stringFromDynamicRange:(int)dynamicRange
-{
-  switch (dynamicRange)
-  {
-  case 0 ... 1:
-    return "SDR";
-  case 2 ... 3:
-    return "HDR10";
-  case 4:
-    return "DolbyVision";
-  default:
-    return "Unknown";
-  }
-}
-
 #pragma mark - runtime routines
 //--------------------------------------------------------------
 - (void)pauseAnimation
@@ -1375,7 +1165,7 @@ XBMCController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)startAnimation
 {
-  if (!m_animating && [m_glView getCurrentEAGLContext])
+  if (!m_animating && [glView getCurrentEAGLContext])
   {
     // kick off an animation thread
     m_animationThreadLock = [[NSConditionLock alloc] initWithCondition:FALSE];
@@ -1389,7 +1179,7 @@ XBMCController* g_xbmcController;
 //--------------------------------------------------------------
 - (void)stopAnimation
 {
-  if (!m_animating && [m_glView getCurrentEAGLContext])
+  if (!m_animating && [glView getCurrentEAGLContext])
   {
     m_appAlive = FALSE;
     m_animating = FALSE;
@@ -1563,11 +1353,16 @@ int KODI_Run(bool renderGUI)
   }
 }
 
+- (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)))
+{
+  return self.view.window.avDisplayManager;
+}
+
 #pragma mark - private helper methods
 
 - (EAGLContext*)getEAGLContextObj
 {
-  return [m_glView getCurrentEAGLContext];
+  return [glView getCurrentEAGLContext];
 }
 
 @end
