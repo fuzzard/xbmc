@@ -28,6 +28,7 @@
 #import "platform/darwin/ios-common/AnnounceReceiver.h"
 #import "platform/darwin/ios-common/IOSKeyboardView.h"
 #import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
+#import "platform/darwin/tvos/TVOSDisplayManager.h"
 #import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/tvos/XBMCApplication.h"
@@ -36,35 +37,19 @@
 
 #import "system.h"
 
-#import <AVFoundation/AVDisplayCriteria.h>
 #import <AVKit/AVDisplayManager.h>
 #import <AVKit/UIWindow.h>
-
-#define DISPLAY_MODE_SWITCH_IN_PROGRESS NSStringFromSelector(@selector(displayModeSwitchInProgress))
-
-@interface AVDisplayCriteria ()
-@property(readonly) int videoDynamicRange;
-@property(readonly, nonatomic) float refreshRate;
-- (id)initWithRefreshRate:(float)arg1 videoDynamicRange:(int)arg2;
-@end
 
 using namespace KODI::MESSAGING;
 
 XBMCController* g_xbmcController;
 
 //--------------------------------------------------------------
-#pragma mark - XBMCController interface
-@interface XBMCController ()
-@property(strong, nonatomic) NSTimer* pressAutoRepeatTimer;
-@property(strong, nonatomic) NSTimer* remoteIdleTimer;
-@property(nonatomic, strong) CADisplayLink* displayLink;
-@property(nonatomic, assign) float displayRate;
-@end
-
 #pragma mark - XBMCController implementation
 @implementation XBMCController
 
 @synthesize DarwinEmbedMPNPInfoManager;
+@synthesize displayManager;
 
 #pragma mark - internal key press methods
 - (void)sendButtonPressed:(int)buttonId
@@ -895,7 +880,6 @@ XBMCController* g_xbmcController;
   m_appAlive = FALSE;
   m_animating = FALSE;
 
-  m_screenIdx = 0;
   m_isPlayingBeforeInactive = NO;
   m_bgTask = UIBackgroundTaskInvalid;
 
@@ -903,18 +887,14 @@ XBMCController* g_xbmcController;
 
   g_xbmcController = self;
   DarwinEmbedMPNPInfoManager = [DarwinEmbedNowPlayingInfoManager new];
-
-  self.displayLink = [CADisplayLink displayLinkWithTarget:self
-                                                 selector:@selector(displayLinkTick:)];
-  // we want the native cadence of the display hardware.
-  self.displayLink.preferredFramesPerSecond = 0;
-  [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+  displayManager = [TVOSDisplayManager new];
 
   return self;
 }
 //--------------------------------------------------------------
 - (void)dealloc
 {
+  [displayManager removeModeSwitchObserver];
   // stop background task (if running)
   [self disableBackGroundTask];
 
@@ -936,14 +916,7 @@ XBMCController* g_xbmcController;
   [self createPressGesturecognizers];
   [self createTapGesturecognizers];
 
-  if (@available(tvOS 11.2, *))
-  {
-    auto avDisplayManager = self.avDisplayManager;
-    [avDisplayManager addObserver:self
-                       forKeyPath:DISPLAY_MODE_SWITCH_IN_PROGRESS
-                          options:NSKeyValueObservingOptionNew
-                          context:nullptr];
-  }
+  [displayManager addModeSwitchObserver];
 }
 //--------------------------------------------------------------
 - (void)viewWillAppear:(BOOL)animated
@@ -964,11 +937,6 @@ XBMCController* g_xbmcController;
 {
   [self pauseAnimation];
   [super viewWillDisappear:animated];
-  if (@available(tvOS 11.2, *))
-  {
-    auto avDisplayManager = self.avDisplayManager;
-    [avDisplayManager removeObserver:self forKeyPath:DISPLAY_MODE_SWITCH_IN_PROGRESS];
-  }
 }
 //--------------------------------------------------------------
 - (void)viewDidUnload
@@ -1092,26 +1060,6 @@ XBMCController* g_xbmcController;
 }
 
 //--------------------------------------------------------------
-- (UIScreenMode*)preferredScreenMode:(UIScreen*)screen
-{
-  // tvOS only support one mode, the current one.
-  return screen.currentMode;
-}
-
-//--------------------------------------------------------------
-- (NSArray<UIScreenMode*>*)availableScreenModes:(UIScreen*)screen
-{
-  // tvOS only support one mode, the current one,
-  // pass back an array with this inside.
-  return @[ screen.currentMode ];
-}
-
-//--------------------------------------------------------------
-- (bool)changeScreen:(unsigned int)screenIdx withMode:(UIScreenMode*)mode
-{
-  return true;
-}
-//--------------------------------------------------------------
 - (void)enterBackground
 {
   // We have 5 seconds before the OS will force kill us for delaying too long.
@@ -1206,156 +1154,6 @@ XBMCController* g_xbmcController;
   {
     m_isPlayingBeforeInactive = YES;
     CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE_IF_PLAYING);
-  }
-}
-
-#pragma mark - display switching routines
-//--------------------------------------------------------------
-- (float)getDisplayRate
-{
-  if (self.displayRate > 0.0f)
-    return self.displayRate;
-
-  return 60.0f;
-}
-
-//--------------------------------------------------------------
-- (void)displayLinkTick:(CADisplayLink*)sender
-{
-  auto duration = self.displayLink.duration;
-  if (duration > 0.0)
-  {
-    // we want fps, not duration in seconds.
-    self.displayRate = 1.0 / duration;
-  }
-}
-
-//--------------------------------------------------------------
-- (void)displayRateSwitch:(float)refreshRate withDynamicRange:(int)dynamicRange
-{
-  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
-          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
-    return;
-  if (@available(tvOS 11.2, *))
-  {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      auto avDisplayManager = self.avDisplayManager;
-      if (refreshRate > 0.0f)
-      {
-        // initWithRefreshRate is private in 11.2 beta4 but apple
-        // will move it public at some time.
-        // videoDynamicRange values are based on watching
-        // console log when forcing different values.
-        // search for "Native Mode Requested" and pray :)
-        // searches for "FBSDisplayConfiguration" and "currentMode" will show the actual
-        // for example, currentMode = <FBSDisplayMode: 0x1c4298100; 1920x1080@2x (3840x2160/2) 24Hz p3 HDR10>
-        // SDR == 0, 1
-        // HDR == 2, 3
-        // DoblyVision == 4
-        auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
-                                                          videoDynamicRange:dynamicRange];
-        // setting preferredDisplayCriteria will trigger a display rate switch
-        avDisplayManager.preferredDisplayCriteria = displayCriteria;
-      }
-      else
-      {
-        // switch back to tvOS defined user settings if we get
-        // zero or less than value for refreshRate. Should never happen :)
-        avDisplayManager.preferredDisplayCriteria = nil;
-      }
-    });
-    CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}, dynamicRange = {}",
-              refreshRate, [self stringFromDynamicRange:dynamicRange]);
-  }
-}
-
-//--------------------------------------------------------------
-- (void)displayRateReset
-{
-  if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
-          CSettings::SETTING_VIDEOPLAYER_ADJUSTREFRESHRATE) == ADJUST_REFRESHRATE_OFF)
-    return;
-  if (@available(tvOS 11.2, *))
-  {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      // setting preferredDisplayCriteria to nil will
-      // switch back to tvOS defined user settings
-      self.avDisplayManager.preferredDisplayCriteria = nil;
-    });
-  }
-}
-
-//--------------------------------------------------------------
-- (void)observeValueForKeyPath:(NSString*)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary*)change
-                       context:(void*)context
-{
-  if (![keyPath isEqualToString:DISPLAY_MODE_SWITCH_IN_PROGRESS])
-    return;
-
-  // tracking displayModeSwitchInProgress via NSKeyValueObservingOptionNew,
-  // any changes in displayModeSwitchInProgress will fire this callback.
-  if (@available(tvOS 11.2, *))
-  {
-    std::string switchState = "NO";
-    int dynamicRange = 0;
-    float refreshRate;
-    auto avDisplayManager = self.avDisplayManager;
-    auto displayCriteria = avDisplayManager.preferredDisplayCriteria;
-    // preferredDisplayCriteria can be nil, this is NOT an error
-    // and just indicates tvOS defined user settings which we cannot see.
-    if (displayCriteria != nil)
-    {
-      refreshRate = displayCriteria.refreshRate;
-      dynamicRange = displayCriteria.videoDynamicRange;
-    }
-    if (avDisplayManager.displayModeSwitchInProgress)
-    {
-      switchState = "YES";
-      CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
-      winSystem->AnnounceOnLostDevice();
-      winSystem->StartLostDeviceTimer();
-    }
-    else
-    {
-      switchState = "DONE";
-      CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
-      winSystem->StopLostDeviceTimer();
-      winSystem->AnnounceOnResetDevice();
-      // displayLinkTick is tracking actual refresh duration.
-      // when isDisplayModeSwitchInProgress == NO, we have switched
-      // and stablized. We might have switched to some other
-      // rate than what we requested. setting preferredDisplayCriteria is
-      // only a request. For example, 30Hz might only be avaliable in HDR
-      // and asking for 30Hz/SDR might result in 60Hz/SDR and
-      // g_graphicsContext.SetFPS needs the actual refresh rate.
-      refreshRate = [self getDisplayRate];
-    }
-    //! @todo
-    //g_graphicsContext.SetFPS(refreshRate);
-    CLog::Log(LOGDEBUG, "displayModeSwitchInProgress = {}, refreshRate = {}, dynamicRange = {}",
-              switchState, refreshRate, [self stringFromDynamicRange:dynamicRange]);
-  }
-}
-
-- (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)))
-{
-  return self.view.window.avDisplayManager;
-}
-
-- (const char*)stringFromDynamicRange:(int)dynamicRange
-{
-  switch (dynamicRange)
-  {
-  case 0 ... 1:
-    return "SDR";
-  case 2 ... 3:
-    return "HDR10";
-  case 4:
-    return "DolbyVision";
-  default:
-    return "Unknown";
   }
 }
 
@@ -1561,6 +1359,11 @@ int KODI_Run(bool renderGUI)
     // start remote timeout
     [self startRemoteTimer];
   }
+}
+
+- (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)))
+{
+  return self.view.window.avDisplayManager;
 }
 
 #pragma mark - private helper methods
