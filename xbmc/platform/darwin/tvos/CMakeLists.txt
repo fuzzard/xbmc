@@ -1,4 +1,5 @@
 set(SOURCES PreflightHandler.mm
+            TVOSDisplayManager.mm
             TVOSEAGLView.mm
             TVOSSettingsHandler.mm
             tvosShared.m
@@ -6,6 +7,7 @@ set(SOURCES PreflightHandler.mm
             XBMCController.mm)
 
 set(HEADERS PreflightHandler.h
+            TVOSDisplayManager.h
             TVOSEAGLView.h
             TVOSSettingsHandler.h
             tvosShared.h
