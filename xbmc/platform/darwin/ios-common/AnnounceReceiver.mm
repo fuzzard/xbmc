@@ -131,31 +131,32 @@ void AnnounceBridge(ANNOUNCEMENT::AnnouncementFlag flag,
     NSMutableDictionary* item = dict[@"item"];
     NSDictionary* player = dict[@"player"];
     item[@"speed"] = player[@"speed"];
-    std::string thumb = g_application.CurrentFileItem().GetArt("thumb");
-    if (!thumb.empty())
-    {
-      bool needsRecaching;
-      std::string cachedThumb(CTextureCache::GetInstance().CheckCachedImage(thumb, needsRecaching));
-      if (!cachedThumb.empty())
-      {
-        std::string thumbRealPath = CSpecialProtocol::TranslatePath(cachedThumb);
-        item[@"thumb"] = @(thumbRealPath.c_str());
-      }
-    }
     double duration = g_application.GetTotalTime();
     if (duration > 0)
       item[@"duration"] = @(duration);
     item[@"elapsed"] = @(g_application.GetTime());
-    int current = CServiceBroker::GetPlaylistPlayer().GetCurrentSong();
-    if (current >= 0)
-    {
-      item[@"current"] = @(current);
-      item[@"total"] = @(CServiceBroker::GetPlaylistPlayer()
+    if (g_application.CurrentFileItem().HasMusicInfoTag())
+    {   
+      std::string thumb = g_application.CurrentFileItem().GetArt("thumb");
+      if (!thumb.empty())
+      {
+        bool needsRecaching;
+        std::string cachedThumb(CTextureCache::GetInstance().CheckCachedImage(thumb, needsRecaching));
+        if (!cachedThumb.empty())
+        {
+          std::string thumbRealPath = CSpecialProtocol::TranslatePath(cachedThumb);
+          item[@"thumb"] = @(thumbRealPath.c_str());
+        }
+      }
+      int current = CServiceBroker::GetPlaylistPlayer().GetCurrentSong();
+      if (current >= 0)
+      {
+        item[@"current"] = @(current);
+        item[@"total"] = @(CServiceBroker::GetPlaylistPlayer()
                              .GetPlaylist(CServiceBroker::GetPlaylistPlayer().GetCurrentPlaylist())
                              .size());
-    }
-    if (g_application.CurrentFileItem().HasMusicInfoTag())
-    {
+      }
+
       const auto& genre = g_application.CurrentFileItem().GetMusicInfoTag()->GetGenre();
       if (!genre.empty())
       {
@@ -167,7 +168,22 @@ void AnnounceBridge(ANNOUNCEMENT::AnnouncementFlag flag,
         item[@"genre"] = genreArray;
       }
     }
-
+    else if (g_application.CurrentFileItem().HasVideoInfoTag())
+    {
+      //! @Todo: video related info (thumb/art,Title, ??)
+/*      const std::vector<std::string>& genre =
+          g_application.CurrentFileItem().GetVideoInfoTag()->GetGenre();
+      if (!genre.empty())
+      {
+        NSMutableArray* genreArray = [[NSMutableArray alloc] initWithCapacity:genre.size()];
+        for (std::vector<std::string>::const_iterator it = genre.begin(); it != genre.end(); ++it)
+        {
+          [genreArray addObject:@(it->c_str())];
+        }
+        [item setValue:genreArray forKey:@"genre"];
+      }
+*/
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
       [g_xbmcController.MPNPInfoManager onPlay:item];
     });
