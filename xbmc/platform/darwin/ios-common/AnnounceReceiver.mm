@@ -124,41 +124,40 @@ void AnnounceBridge(ANNOUNCEMENT::AnnouncementFlag flag,
     }
   }
 
-  //LOG(@"AnnounceBridge: [%s], [%s], [%s]", ANNOUNCEMENT::AnnouncementFlagToString(flag), sender, message);
   NSDictionary* dict = dictionaryFromVariantMap(nonConstData);
-  //LOG(@"data: %@", dict.description);
   if (msg == "OnPlay" || msg == "OnResume")
   {
     NSDictionary* item = dict[@"item"];
     NSDictionary* player = dict[@"player"];
     [item setValue:[player valueForKey:@"speed"] forKey:@"speed"];
-    std::string thumb = g_application.CurrentFileItem().GetArt("thumb");
-    if (!thumb.empty())
-    {
-      bool needsRecaching;
-      std::string cachedThumb(CTextureCache::GetInstance().CheckCachedImage(thumb, needsRecaching));
-      //LOG("thumb: %s, %s", thumb.c_str(), cachedThumb.c_str());
-      if (!cachedThumb.empty())
-      {
-        std::string thumbRealPath = CSpecialProtocol::TranslatePath(cachedThumb);
-        [item setValue:@(thumbRealPath.c_str()) forKey:@"thumb"];
-      }
-    }
     double duration = g_application.GetTotalTime();
     if (duration > 0)
       [item setValue:@(duration) forKey:@"duration"];
     [item setValue:@(g_application.GetTime()) forKey:@"elapsed"];
-    int current = CServiceBroker::GetPlaylistPlayer().GetCurrentSong();
-    if (current >= 0)
-    {
-      [item setValue:@(current) forKey:@"current"];
-      [item setValue:@(CServiceBroker::GetPlaylistPlayer()
-                           .GetPlaylist(CServiceBroker::GetPlaylistPlayer().GetCurrentPlaylist())
-                           .size())
-              forKey:@"total"];
-    }
     if (g_application.CurrentFileItem().HasMusicInfoTag())
-    {
+    {    
+      std::string thumb = g_application.CurrentFileItem().GetArt("thumb");
+      if (!thumb.empty())
+      {
+        bool needsRecaching;
+        std::string cachedThumb(CTextureCache::GetInstance().CheckCachedImage(thumb, needsRecaching));
+        //LOG("thumb: %s, %s", thumb.c_str(), cachedThumb.c_str());
+        if (!cachedThumb.empty())
+        {
+          std::string thumbRealPath = CSpecialProtocol::TranslatePath(cachedThumb);
+          [item setValue:@(thumbRealPath.c_str()) forKey:@"thumb"];
+        }
+      }
+      int current = CServiceBroker::GetPlaylistPlayer().GetCurrentSong();
+      if (current >= 0)
+      {
+        [item setValue:@(current) forKey:@"current"];
+        [item setValue:@(CServiceBroker::GetPlaylistPlayer()
+                             .GetPlaylist(CServiceBroker::GetPlaylistPlayer().GetCurrentPlaylist())
+                             .size())
+                forKey:@"total"];
+      }
+
       const std::vector<std::string>& genre =
           g_application.CurrentFileItem().GetMusicInfoTag()->GetGenre();
       if (!genre.empty())
@@ -170,6 +169,22 @@ void AnnounceBridge(ANNOUNCEMENT::AnnouncementFlag flag,
         }
         [item setValue:genreArray forKey:@"genre"];
       }
+    }
+    else if (g_application.CurrentFileItem().HasVideoInfoTag())
+    {
+      //! @Todo: video related info (thumb/art,Title, ??)
+/*      const std::vector<std::string>& genre =
+          g_application.CurrentFileItem().GetVideoInfoTag()->GetGenre();
+      if (!genre.empty())
+      {
+        NSMutableArray* genreArray = [[NSMutableArray alloc] initWithCapacity:genre.size()];
+        for (std::vector<std::string>::const_iterator it = genre.begin(); it != genre.end(); ++it)
+        {
+          [genreArray addObject:@(it->c_str())];
+        }
+        [item setValue:genreArray forKey:@"genre"];
+      }
+*/
     }
     dispatch_async(dispatch_get_main_queue(), ^{
       [g_xbmcController.MPNPInfoManager onPlay:item];
