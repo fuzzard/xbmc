@@ -14,6 +14,8 @@
 #include "settings/lib/Setting.h"
 #include "threads/Atomics.h"
 
+#import "platform/darwin/tvos/input/LibInputHandler.h"
+#import "platform/darwin/tvos/input/LibInputSettings.h"
 #import "platform/darwin/tvos/XBMCController.h"
 
 #import "system.h"
@@ -38,13 +40,13 @@ void CTVOSInputSettings::Initialize()
 {
   bool enable = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(
       CSettings::SETTING_INPUT_APPLESIRI);
-  [g_xbmcController setSiriRemote:enable];
+  g_xbmcController.inputHandler.inputSettings.useSiriRemote = enable;
   bool enableTimeout = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(
       CSettings::SETTING_INPUT_APPLESIRITIMEOUTENABLED);
-  [g_xbmcController setShouldRemoteIdle:enableTimeout];
+  [g_xbmcController.inputHandler.inputSettings setRemoteIdleEnabled:enableTimeout];
   int timeout = CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
       CSettings::SETTING_INPUT_APPLESIRITIMEOUT);
-  [g_xbmcController setRemoteIdleTimeout:timeout];
+  [g_xbmcController.inputHandler.inputSettings setRemoteIdleTimeout:timeout];
 }
 
 void CTVOSInputSettings::OnSettingChanged(std::shared_ptr<const CSetting> setting)
@@ -56,18 +58,18 @@ void CTVOSInputSettings::OnSettingChanged(std::shared_ptr<const CSetting> settin
   if (settingId == CSettings::SETTING_INPUT_APPLESIRI)
   {
     bool enable = std::dynamic_pointer_cast<const CSettingBool>(setting)->GetValue();
-    [g_xbmcController setSiriRemote:enable];
+    g_xbmcController.inputHandler.inputSettings.useSiriRemote = enable;
   }
   else if (settingId == CSettings::SETTING_INPUT_APPLESIRITIMEOUTENABLED)
   {
     bool enableTimeout = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(
         CSettings::SETTING_INPUT_APPLESIRITIMEOUTENABLED);
-    [g_xbmcController setShouldRemoteIdle:enableTimeout];
+    [g_xbmcController.inputHandler.inputSettings setRemoteIdleEnabled:enableTimeout];
   }
   else if (settingId == CSettings::SETTING_INPUT_APPLESIRITIMEOUT)
   {
     int timeout = CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
         CSettings::SETTING_INPUT_APPLESIRITIMEOUT);
-    [g_xbmcController setRemoteIdleTimeout:timeout];
+    [g_xbmcController.inputHandler.inputSettings setRemoteIdleTimeout:timeout];
   }
 }
