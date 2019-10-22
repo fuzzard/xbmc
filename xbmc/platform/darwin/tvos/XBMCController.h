@@ -15,56 +15,28 @@
 #import <OpenGLES/EAGL.h>
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
-  UIPanGestureRecognizerDirectionUndefined,
-  UIPanGestureRecognizerDirectionUp,
-  UIPanGestureRecognizerDirectionDown,
-  UIPanGestureRecognizerDirectionLeft,
-  UIPanGestureRecognizerDirectionRight
-};
-
 @class AVDisplayManager;
+@class TVOSLibInputHandler;
 @class TVOSDisplayManager;
-@class TVOSEAGLView;
 
 
-@interface XBMCController : UIViewController <UIGestureRecognizerDelegate>
+@interface XBMCController : UIViewController
 {
 @private
-  // Touch handling
-  CGPoint m_lastGesturePoint;
-  int m_screenIdx;
-  int m_currentClick;
-
   bool m_isPlayingBeforeInactive;
   UIBackgroundTaskIdentifier m_bgTask;
-
   bool m_nativeKeyboardActive;
-
   BOOL m_pause;
-  BOOL m_appAlive;
   BOOL m_animating;
-  BOOL m_disableIdleTimer;
   NSConditionLock* m_animationThreadLock;
   NSThread* m_animationThread;
-  BOOL m_directionOverride;
-  BOOL m_mimicAppleSiri;
-  XBMCKey m_currentKey;
-  BOOL m_clickResetPan;
-  BOOL m_remoteIdleState;
-  CGFloat m_remoteIdleTimeout;
-  BOOL m_shouldRemoteIdle;
-  BOOL m_RemoteOSDSwipes;
-  unsigned long m_touchDirection;
-  bool m_touchBeginSignaled;
-  UIPanGestureRecognizerDirection m_direction;
 }
 
-@property(strong, nonatomic) NSTimer* pressAutoRepeatTimer;
-@property(strong, nonatomic) NSTimer* remoteIdleTimer;
+@property (nonatomic) BOOL appAlive;
 @property (nonatomic, strong) DarwinEmbedNowPlayingInfoManager* MPNPInfoManager;
 @property (nonatomic, strong) TVOSDisplayManager* displayManager;
 @property (nonatomic, strong) TVOSEAGLView* glView;
+@property (nonatomic, strong) TVOSLibInputHandler* inputHandler;
 
 - (void)pauseAnimation;
 - (void)resumeAnimation;
@@ -88,9 +60,6 @@ typedef NS_ENUM(NSUInteger, UIPanGestureRecognizerDirection) {
 - (void)disableScreenSaver;
 - (void)enableScreenSaver;
 - (bool)resetSystemIdleTimer;
-- (void)setSiriRemote:(BOOL)enable;
-- (void)setRemoteIdleTimeout:(int)timeout;
-- (void)setShouldRemoteIdle:(BOOL)idle;
 
 - (void)insertVideoView:(UIView*)view;
 - (void)removeVideoView:(UIView*)view;
