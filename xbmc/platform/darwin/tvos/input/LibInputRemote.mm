@@ -110,7 +110,7 @@
 
 - (void)remoteControlEvent:(UIEvent*)receivedEvent
 {
-  switch (receivedEvent.subtype)
+/*  switch (receivedEvent.subtype)
   {
   case UIEventSubtypeRemoteControlTogglePlayPause:
     KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(
@@ -151,6 +151,7 @@
   }
   // start remote timeout
   [self startRemoteTimer];
+*/
 }
 
 @end

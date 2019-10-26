@@ -16,12 +16,14 @@
 #include "input/InputManager.h"
 #include "utils/log.h"
 
+#import "platform/darwin/tvos/input/LibInputMPRemoteCommand.h"
 #import "platform/darwin/tvos/input/LibInputRemote.h"
 #import "platform/darwin/tvos/input/LibInputSettings.h"
 #import "platform/darwin/tvos/input/LibInputTouch.h"
 
 @implementation TVOSLibInputHandler
 
+@synthesize inputMPCommand;
 @synthesize inputRemote;
 @synthesize inputSettings;
 @synthesize inputTouch;
@@ -62,6 +64,7 @@
   if (!self)
     return nil;
 
+  inputMPCommand = [TVOSLibInputMPRemoteCommand new];
   inputRemote = [TVOSLibInputRemote new];
   inputSettings = [TVOSLibInputSettings new];
   inputTouch = [TVOSLibInputTouch new];

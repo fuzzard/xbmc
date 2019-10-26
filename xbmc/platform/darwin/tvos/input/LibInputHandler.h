@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+@class TVOSLibInputMPRemoteCommand;
 @class TVOSLibInputRemote;
 @class TVOSLibInputSettings;
 @class TVOSLibInputTouch;
 
 @interface TVOSLibInputHandler : NSObject
 
+@property(nonatomic, strong) TVOSLibInputMPRemoteCommand* inputMPCommand;
 @property(nonatomic, strong) TVOSLibInputRemote* inputRemote;
 @property(nonatomic, strong) TVOSLibInputSettings* inputSettings;
 @property(nonatomic, strong) TVOSLibInputTouch* inputTouch;

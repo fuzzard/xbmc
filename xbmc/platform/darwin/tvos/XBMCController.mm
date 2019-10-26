@@ -28,6 +28,7 @@
 #import "platform/darwin/tvos/TVOSTopShelf.h"
 #import "platform/darwin/tvos/XBMCApplication.h"
 #import "platform/darwin/tvos/input/LibInputHandler.h"
+#import "platform/darwin/tvos/input/LibInputMPRemoteCommand.h"
 #import "platform/darwin/tvos/input/LibInputRemote.h"
 #import "platform/darwin/tvos/input/LibInputTouch.h"
 #import "windowing/tvos/WinEventsTVOS.h"
@@ -99,6 +100,8 @@ XBMCController* g_xbmcController;
   [inputHandler.inputTouch createPressGesturecognizers];
   [inputHandler.inputTouch createTapGesturecognizers];
 
+  [inputHandler.inputMPCommand createCustomControlCenter];
+
   [displayManager addModeSwitchObserver];
 }
 
@@ -112,8 +115,8 @@ XBMCController* g_xbmcController;
 {
   [super viewDidAppear:animated];
   [self becomeFirstResponder];
-  [[UIApplication sharedApplication]
-      beginReceivingRemoteControlEvents]; // @todo MPRemoteCommandCenter
+//  [[UIApplication sharedApplication]
+//      beginReceivingRemoteControlEvents]; // @todo MPRemoteCommandCenter
 }
 
 - (void)viewWillDisappear:(BOOL)animated
