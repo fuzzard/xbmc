@@ -77,13 +77,21 @@
         auto displayCriteria = [[AVDisplayCriteria alloc] initWithRefreshRate:refreshRate
                                                             videoDynamicRange:dynamicRange];
         // setting preferredDisplayCriteria will trigger a display rate switch
-        avDisplayManager.preferredDisplayCriteria = displayCriteria;
+        if (@available(tvOS 11.3, *))
+          if (avDisplayManager.displayCriteriaMatchingEnabled)
+            avDisplayManager.preferredDisplayCriteria = displayCriteria;
+        else
+          avDisplayManager.preferredDisplayCriteria = displayCriteria;
       }
       else
       {
         // switch back to tvOS defined user settings if we get
         // zero or less than value for refreshRate. Should never happen :)
-        avDisplayManager.preferredDisplayCriteria = nil;
+        if (@available(tvOS 11.3, *))
+          if (avDisplayManager.displayCriteriaMatchingEnabled)
+            avDisplayManager.preferredDisplayCriteria = nil;
+        else
+          avDisplayManager.preferredDisplayCriteria = nil;
       }
     });
     CLog::Log(LOGDEBUG, "displayRateSwitch request: refreshRate = {}, dynamicRange = {}",
@@ -101,8 +109,18 @@
     dispatch_async(dispatch_get_main_queue(), ^{
       // setting preferredDisplayCriteria to nil will
       // switch back to tvOS defined user settings
-      auto avDisplayManager = [g_xbmcController avDisplayManager];
-      avDisplayManager.preferredDisplayCriteria = nil;
+      if (@available(tvOS 11.3, *))
+      {
+        if (avDisplayManager.displayCriteriaMatchingEnabled)
+        {
+          auto avDisplayManager = [g_xbmcController avDisplayManager];
+          avDisplayManager.preferredDisplayCriteria = nil;
+        }
+      }
+      else
+      {
+        avDisplayManager.preferredDisplayCriteria = nil;
+      }
     });
   }
 }
