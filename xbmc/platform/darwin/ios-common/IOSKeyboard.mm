@@ -38,11 +38,16 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback,
       if (m_impl->g_pIosKeyboard)
         return false;
 
-      // assume we are only drawn on the mainscreen ever!
-      auto keyboardFrame = [g_xbmcController fullscreenSubviewFrame];
-
       //create the keyboardview
-      m_impl->g_pIosKeyboard = [[KeyboardView alloc] initWithFrame:keyboardFrame];
+      __block id blockself;
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        // assume we are only drawn on the mainscreen ever!
+        auto keyboardFrame = [g_xbmcController fullscreenSubviewFrame];
+        blockself = [[KeyboardView alloc] initWithFrame:keyboardFrame];
+      });
+
+      m_impl->g_pIosKeyboard = blockself;
+
       if (!m_impl->g_pIosKeyboard)
         return false;
 
@@ -56,17 +61,17 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback,
     // init keyboard stuff
     SetTextToKeyboard(initialString);
     [m_impl->g_pIosKeyboard setHidden:bHiddenInput];
-    [m_impl->g_pIosKeyboard setHeading:[NSString stringWithUTF8String:heading.c_str()]];
-    [m_impl->g_pIosKeyboard registerKeyboard:this]; // for calling back
+    [m_impl->g_pIosKeyboard setHeading:@(heading.c_str())];
+    [m_impl->g_pIosKeyboard iosKeyboard] = this; // for calling back
     bool confirmed = false;
     if (!m_bCanceled)
     {
       [m_impl->g_pIosKeyboard setCancelFlag:&m_bCanceled];
       [m_impl->g_pIosKeyboard activate]; // blocks and shows keyboard
       // user is done - get resulted text and confirmation
-      confirmed = m_impl->g_pIosKeyboard.isConfirmed;
+      confirmed = [m_impl->g_pIosKeyboard isConfirmed];
       if (confirmed)
-        typedString = [m_impl->g_pIosKeyboard.text UTF8String];
+        typedString = [m_impl->g_pIosKeyboard text].UTF8String;
     }
     @synchronized([KeyboardView class])
     {
@@ -86,8 +91,7 @@ bool CIOSKeyboard::SetTextToKeyboard(const std::string& text, bool closeKeyboard
 {
   if (!m_impl->g_pIosKeyboard)
     return false;
-  [m_impl->g_pIosKeyboard setKeyboardText:[NSString stringWithUTF8String:text.c_str()]
-                            closeKeyboard:closeKeyboard ? YES : NO];
+  [m_impl->g_pIosKeyboard setKeyboardText:@(text.c_str()) closeKeyboard:closeKeyboard ? YES : NO];
   return true;
 }
 
