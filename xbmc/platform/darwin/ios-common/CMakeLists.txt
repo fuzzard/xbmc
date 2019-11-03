@@ -1,4 +1,5 @@
 set(SOURCES AnnounceReceiver.mm
+            CPUInfoDarwinEmbed.cpp
             DarwinEmbedNowPlayingInfoManager.mm
             DarwinNSUserDefaults.mm
             IOSKeyboard.mm
@@ -6,6 +7,7 @@ set(SOURCES AnnounceReceiver.mm
             NSData+GZIP.m)
 
 set(HEADERS AnnounceReceiver.h
+            CPUInfoDarwinEmbed.h
             DarwinEmbedNowPlayingInfoManager.h
             DarwinNSUserDefaults.h
             IOSKeyboard.h
