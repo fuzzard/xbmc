@@ -16,6 +16,7 @@
 #include "input/InputManager.h"
 #include "utils/log.h"
 
+#import "platform/darwin/tvos/input/LibInputGameController.h"
 #import "platform/darwin/tvos/input/LibInputRemote.h"
 #import "platform/darwin/tvos/input/LibInputSettings.h"
 #import "platform/darwin/tvos/input/LibInputTouch.h"
@@ -62,6 +63,7 @@
   if (!self)
     return nil;
 
+  inputGamepad = [TVOSLibInputGameController new];
   inputRemote = [TVOSLibInputRemote new];
   inputSettings = [TVOSLibInputSettings new];
   inputTouch = [TVOSLibInputTouch new];

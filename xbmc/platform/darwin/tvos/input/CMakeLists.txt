@@ -1,9 +1,11 @@
-set(SOURCES LibInputHandler.mm
+set(SOURCES LibInputGameController.mm
+            LibInputHandler.mm
             LibInputRemote.mm
             LibInputSettings.mm
             LibInputTouch.mm)
 
-set(HEADERS LibInputHandler.h
+set(HEADERS LibInputGameController.h
+            LibInputHandler.h
             LibInputRemote.h
             LibInputSettings.h
             LibInputTouch.h)

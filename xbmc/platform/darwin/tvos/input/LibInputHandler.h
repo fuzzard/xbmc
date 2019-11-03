@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+@class TVOSLibInputGamepad;
 @class TVOSLibInputRemote;
 @class TVOSLibInputSettings;
 @class TVOSLibInputTouch;
 
 @interface TVOSLibInputHandler : NSObject
 
+@property(nonatomic, strong) TVOSLibInputGameController* inputGamepad;
 @property(nonatomic, strong) TVOSLibInputRemote* inputRemote;
 @property(nonatomic, strong) TVOSLibInputSettings* inputSettings;
 @property(nonatomic, strong) TVOSLibInputTouch* inputTouch;
