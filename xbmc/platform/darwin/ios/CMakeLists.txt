@@ -1,11 +1,9 @@
-set(SOURCES CPUInfoIos.cpp
-            IOSEAGLView.mm
+set(SOURCES IOSEAGLView.mm
             IOSExternalTouchController.mm
             IOSScreenManager.mm
             XBMCController.mm)
 
-set(HEADERS CPUInfoIos.h
-            IOSEAGLView.h
+set(HEADERS IOSEAGLView.h
             IOSExternalTouchController.h
             IOSScreenManager.h
             XBMCApplication.h
