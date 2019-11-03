@@ -23,6 +23,7 @@
 
 @implementation TVOSLibInputHandler
 
+@synthesize inputGamepad;
 @synthesize inputRemote;
 @synthesize inputSettings;
 @synthesize inputTouch;

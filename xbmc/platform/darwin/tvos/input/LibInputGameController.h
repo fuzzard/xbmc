@@ -7,8 +7,9 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <GameController/GameController.h>
 
-@interface TVOSLibGameController
+@interface TVOSLibInputGameController : NSObject
 {
   GCController* m_gameController;
 }

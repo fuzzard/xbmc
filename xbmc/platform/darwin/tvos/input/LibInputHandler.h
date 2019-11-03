@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class TVOSLibInputGamepad;
+@class TVOSLibInputGameController;
 @class TVOSLibInputRemote;
 @class TVOSLibInputSettings;
 @class TVOSLibInputTouch;

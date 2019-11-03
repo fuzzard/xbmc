@@ -14,8 +14,9 @@
 #import "platform/darwin/tvos/input/LibInputHandler.h"
 
 #import <Foundation/Foundation.h>
+#import <GameController/GameController.h>
 
-@implementation TVOSLibGameController
+@implementation TVOSLibInputGameController
 
 - (void)gameControllerConnected:(NSNotification*)notification
 {
@@ -23,7 +24,7 @@
   CLog::Log(LOGDEBUG, "Controller connected: {}", controller.vendorName.UTF8String);
 
 // Array (tuple? vendorname:object?) required for upto 2 controllers
-  self.m_gameController = controller;
+  m_gameController = controller;
   [self inputChangeHandler:controller];
 }
 
@@ -33,7 +34,7 @@
   CLog::Log(LOGDEBUG, "Controller disconnected: {}", controller.vendorName.UTF8String);
 
 // Array - check and remove correct device
-  self.m_gameController = nil;
+  m_gameController = nil;
 }
 
 - (void)addObservers
@@ -53,8 +54,7 @@
   // register block for input change detection
   GCExtendedGamepad* profile = gameController.extendedGamepad;
   profile.valueChangedHandler = ^(GCExtendedGamepad* gamepad, GCControllerElement* element) {
-    NSString* message = @"";
-    CGPoint position = CGPointMake(0, 0);
+//    CGPoint position = CGPointMake(0, 0);
 
     // left trigger
     if (gamepad.leftTrigger == element && gamepad.leftTrigger.isPressed)
