@@ -6,6 +6,7 @@
  *  See LICENSES/README.md for more information.
  */
 
+#include "FileItem.h"
 #include "windowing/XBMC_events.h"
 
 #import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
@@ -19,17 +20,17 @@
 @class TVOSLibInputHandler;
 @class TVOSDisplayManager;
 
-
 @interface XBMCController : UIViewController
 {
 @private
   bool m_isPlayingBeforeInactive;
-  UIBackgroundTaskIdentifier m_bgTask;
   bool m_nativeKeyboardActive;
   BOOL m_pause;
   BOOL m_animating;
   NSConditionLock* m_animationThreadLock;
   NSThread* m_animationThread;
+  std::unique_ptr<CFileItem> m_playingFileItemBeforeBackground;
+  std::string m_lastUsedPlayer;
 }
 
 @property(nonatomic) BOOL appAlive;
@@ -52,8 +53,8 @@
 - (void)deactivateKeyboard:(UIView*)view;
 - (void)nativeKeyboardActive:(bool)active;
 
-- (void)enableBackGroundTask;
-- (void)disableBackGroundTask;
+- (UIBackgroundTaskIdentifier)enableBackGroundTask;
+- (void)disableBackGroundTask:(UIBackgroundTaskIdentifier)bgTaskID;
 
 - (void)disableSystemSleep;
 - (void)enableSystemSleep;
