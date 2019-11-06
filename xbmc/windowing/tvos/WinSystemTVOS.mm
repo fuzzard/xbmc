@@ -93,8 +93,8 @@ void CWinSystemTVOS::AnnounceOnLostDevice()
   CSingleLock lock(m_resourceSection);
   // tell any shared resources
   CLog::Log(LOGDEBUG, "CWinSystemTVOS::AnnounceOnLostDevice");
-  for (std::vector<IDispResource*>::iterator i = m_resources.begin(); i != m_resources.end(); i++)
-    (*i)->OnLostDisplay();
+  for (auto dispResource : m_resources)
+    dispResource->OnLostDisplay();
 }
 
 void CWinSystemTVOS::AnnounceOnResetDevice()
@@ -102,8 +102,8 @@ void CWinSystemTVOS::AnnounceOnResetDevice()
   CSingleLock lock(m_resourceSection);
   // tell any shared resources
   CLog::Log(LOGDEBUG, "CWinSystemTVOS::AnnounceOnResetDevice");
-  for (std::vector<IDispResource*>::iterator i = m_resources.begin(); i != m_resources.end(); i++)
-    (*i)->OnResetDisplay();
+  for (auto dispResource : m_resources)
+    dispResource->OnResetDisplay();
 }
 
 void CWinSystemTVOS::StartLostDeviceTimer()
@@ -334,8 +334,8 @@ void CWinSystemTVOS::OnAppFocusChange(bool focus)
   CSingleLock lock(m_resourceSection);
   m_bIsBackgrounded = !focus;
   CLog::Log(LOGDEBUG, "CWinSystemTVOS::OnAppFocusChange: %d", focus ? 1 : 0);
-  for (std::vector<IDispResource*>::iterator i = m_resources.begin(); i != m_resources.end(); i++)
-    (*i)->OnAppFocusChange(focus);
+  for (auto dispResource : m_resources)
+    dispResource->OnAppFocusChange(focus);
 }
 
 //--------------------------------------------------------------
