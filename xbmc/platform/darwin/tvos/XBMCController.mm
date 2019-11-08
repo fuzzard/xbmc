@@ -210,32 +210,21 @@ XBMCController* g_xbmcController;
   if (g_application.GetAppPlayer().IsPlaying() && !g_application.GetAppPlayer().IsPaused())
   {
     m_isPlayingBeforeInactive = YES;
-
-    // set the actual offset instead of store and load it from database
+    m_lastUsedPlayer = g_application.GetAppPlayer().GetCurrentPlayer();
+    m_playingFileItemBeforeBackground = std::make_unique<CFileItem>(g_application.CurrentFileItem());
     if (!g_application.CurrentFileItem().IsLiveTV())
     {
-      // Store State of player/FileItem for restart of LiveTV
-      m_lastUsedPlayer = g_application.GetAppPlayer().GetCurrentPlayer();
-      m_playingFileItemBeforeBackground = std::make_unique<CFileItem>(g_application.CurrentFileItem());
-
-      // Stop Player for LiveTV
-      g_application.StopPlaying();
+      // For stored media, set start offset earlier for less interruption 
+      m_playingFileItemBeforeBackground->m_lStartOffset = g_application.GetAppPlayer().GetTime() - 1.50;
+      CLog::Log(LOGDEBUG, "XBMCController::enterBackground - store last played item (startOffset: %i ms)", m_playingFileItemBeforeBackground->m_lStartOffset);
     }
-    else
-    {
-      // Test with sendMsg PAUSE, if it doesnt work, store player/FileItem state and restart with offset
-      // m_playingFileItemBeforeBackground->m_lStartOffset = g_application.GetAppPlayer().GetTime() - 1.50;
-      // CLog::Log(LOGDEBUG, "XBMCController::enterBackground - store last played item (startOffset: %i ms)", m_playingFileItemBeforeBackground->m_lStartOffset);
-
-      // if not LiveTV, just send Pause Msg for quicker resume
-      CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE_IF_PLAYING);
-    }
+    g_application.StopPlaying();
   }
 
   CServiceBroker::GetPVRManager().OnSleep();
 //  g_application.StopShutdownTimer();
 //  g_application.StopScreenSaverTimer();
-  g_application.CloseNetworkShares();
+//  g_application.CloseNetworkShares();
   CServiceBroker::GetActiveAE()->Suspend();
 
   CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
@@ -273,35 +262,28 @@ XBMCController* g_xbmcController;
 
   // restart NetworkServices
   CServiceBroker::GetNetwork().GetServices().Start();
-  // If AnnouncementManager is registered, send OnWake for startup, otherwise its a full startup
-  // that will init services anyway.
-  if (CServiceBroker::GetAnnouncementManager())
-    CServiceBroker::GetAnnouncementManager()->Announce(ANNOUNCEMENT::System, "xbmc", "OnWake");
 
   // when we come back, restore playing if we were.
   if (m_isPlayingBeforeInactive)
   {
-    // We only save state on LiveTV, so if m_playingFileItemBeforeBackground is valid, assume LiveTV
-    if (m_playingFileItemBeforeBackground)
-    {
-      CLog::Log(LOGDEBUG, "%s: Live TV was playing before suspend. Restart channel", __PRETTY_FUNCTION__);
-      // Restart player with lastused FileItem
-      g_application.PlayFile(*m_playingFileItemBeforeBackground, m_lastUsedPlayer, true);
-      m_playingFileItemBeforeBackground = std::make_unique<CFileItem>();
-      m_lastUsedPlayer = "";
-    }
-    else
-    {
-      // non livetv can be resumed without restarting player for quicker startup.
-      CLog::Log(LOGDEBUG, "%s: Media was playing before suspend. Unpause", __PRETTY_FUNCTION__);
-      CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_UNPAUSE);
-    }
+    // Restart player with lastused FileItem
+    g_application.PlayFile(*m_playingFileItemBeforeBackground, m_lastUsedPlayer, true);
+    m_playingFileItemBeforeBackground = std::make_unique<CFileItem>();
+    m_lastUsedPlayer = "";
+
+    CLog::Log(LOGDEBUG, "%s: Media was playing before suspend. Unpause", __PRETTY_FUNCTION__);
+//      CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_UNPAUSE);
     m_isPlayingBeforeInactive = NO;
   }
 
   // do not update if we are already updating
   if (!(g_application.IsVideoScanning() || g_application.IsMusicScanning()))
     g_application.UpdateLibraries();
+
+  // If AnnouncementManager is registered, send OnWake for startup, otherwise its a full startup
+  // that will init services anyway.
+  if (CServiceBroker::GetAnnouncementManager())
+    CServiceBroker::GetAnnouncementManager()->Announce(ANNOUNCEMENT::System, "xbmc", "OnWake");
 
   // this handles what to do if we got pushed
   // into foreground by a topshelf item select/play
@@ -320,20 +302,17 @@ XBMCController* g_xbmcController;
   if (g_application.GetAppPlayer().IsPlayingVideo() && !g_application.GetAppPlayer().IsPaused())
   {
     m_isPlayingBeforeInactive = YES;
-    // set the actual offset instead of store and load it from database
+    m_lastUsedPlayer = g_application.GetAppPlayer().GetCurrentPlayer();
+    m_playingFileItemBeforeBackground = std::make_unique<CFileItem>(g_application.CurrentFileItem());
     if (!g_application.CurrentFileItem().IsLiveTV())
     {
-      m_lastUsedPlayer = g_application.GetAppPlayer().GetCurrentPlayer();
-      m_playingFileItemBeforeBackground = std::make_unique<CFileItem>(g_application.CurrentFileItem());
+        // set the actual offset instead of store and load it from database
       m_playingFileItemBeforeBackground->m_lStartOffset = g_application.GetAppPlayer().GetTime() - 1.50;
       CLog::Log(LOGDEBUG, "XBMCController::becomeInactive - store last played item (startOffset: %i ms)", m_playingFileItemBeforeBackground->m_lStartOffset);
-      g_application.StopPlaying();
-    }
-    else
-    {
       // if not LiveTV, just send Pause Msg for quicker resume
-      CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE_IF_PLAYING);
+//      CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE_IF_PLAYING);
     }
+    g_application.StopPlaying();
   }
 }
 
