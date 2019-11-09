@@ -22,16 +22,12 @@
   return static_cast<XBMCController*>(self.window.rootViewController);
 }
 
+#pragma mark - Shutdown Procedures
+
 - (void)applicationWillResignActive:(UIApplication*)application
 {
   [self.xbmcController pauseAnimation];
   [self.xbmcController becomeInactive];
-}
-
-- (void)applicationDidBecomeActive:(UIApplication*)application
-{
-  [self.xbmcController resumeAnimation];
-  [self.xbmcController enterForeground];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication*)application
@@ -46,6 +42,14 @@
 - (void)applicationWillTerminate:(UIApplication*)application
 {
   [self.xbmcController stopAnimation];
+}
+
+#pragma mark - Startup Procedures
+
+- (void)applicationDidBecomeActive:(UIApplication*)application
+{
+  [self.xbmcController resumeAnimation];
+  [self.xbmcController enterForeground];
 }
 
 - (BOOL)application:(UIApplication*)application

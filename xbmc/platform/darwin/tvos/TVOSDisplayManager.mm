@@ -16,6 +16,7 @@
 #include "windowing/GraphicContext.h"
 #import "windowing/tvos/WinSystemTVOS.h"
 
+#import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/XBMCController.h"
 
 #import <AVFoundation/AVDisplayCriteria.h>

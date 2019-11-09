@@ -14,6 +14,7 @@
 #include "guilib/GUIWindowManager.h"
 #include "utils/log.h"
 
+#import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/XBMCController.h"
 #import "platform/darwin/tvos/input/LibInputHandler.h"
 #import "platform/darwin/tvos/input/LibInputRemote.h"

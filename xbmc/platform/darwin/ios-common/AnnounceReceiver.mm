@@ -19,6 +19,7 @@
 #include "playlists/PlayList.h"
 #include "utils/Variant.h"
 
+#import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
 #if defined(TARGET_DARWIN_IOS)
 #import "platform/darwin/ios/XBMCController.h"
 #elif defined(TARGET_DARWIN_TVOS)
