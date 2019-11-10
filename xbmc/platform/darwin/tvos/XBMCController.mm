@@ -215,32 +215,23 @@ XBMCController* g_xbmcController;
 
   CLog::Log(LOGNOTICE, "%s: Running sleep jobs", __FUNCTION__);
 
-  // this should not be required as we 'should' get becomeInactive before enterBackground
-/*  if (g_application.GetAppPlayer().IsPlaying() && !g_application.GetAppPlayer().IsPaused())
-  {
-    m_isPlayingBeforeInactive = YES;
-    m_lastUsedPlayer = g_application.GetAppPlayer().GetCurrentPlayer();
-    m_playingFileItemBeforeBackground = std::make_unique<CFileItem>(g_application.CurrentFileItem());
-    CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_PAUSE_IF_PLAYING);
-  }
-  else
-  {
-    // if we are not playing/pause when going to background
-    // close out network shares as we can get fully suspended.
-//    g_application.CloseNetworkShares();
-  }
-*/
   CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
   winSystem->OnAppFocusChange(false);
 
+  // Media was paused, Full background shutdown, so stop now.
+  // Only do for PVR? leave regular media paused?
+  if (g_application.GetAppPlayer().IsPaused())
+    g_application.StopPlaying();
+
+  CServiceBroker::GetPVRManager().OnSleep();
   CServiceBroker::GetActiveAE()->Suspend();
   CServiceBroker::GetNetwork().GetServices().Stop(true);
 
-  if (!m_isPlayingBeforeInactive)
+//  if (!m_isPlayingBeforeInactive)
     g_application.CloseNetworkShares();
 
-  [self disableBackGroundTask:m_bgTask];
   m_bgTaskActive = NO;
+  [self disableBackGroundTask:m_bgTask];
 }
 
 - (void)enterForeground
@@ -274,6 +265,13 @@ XBMCController* g_xbmcController;
   while (!g_application.IsInitialized())
     usleep(50 * 1000);
 
+  CServiceBroker::GetNetwork().WaitForNet();
+  CServiceBroker::GetNetwork().GetServices().Start();
+
+  if (CServiceBroker::GetActiveAE())
+    if (CServiceBroker::GetActiveAE()->IsSuspended())
+      CServiceBroker::GetActiveAE()->Resume();
+
   CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
   winSystem->OnAppFocusChange(true);
 
@@ -288,18 +286,19 @@ XBMCController* g_xbmcController;
     }
     else
     {
-      CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_UNPAUSE);
+      if (g_application.GetAppPlayer().IsPaused())
+      {
+        CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_UNPAUSE);
+      }
+      else
+      {
+        g_application.PlayFile(*m_playingFileItemBeforeBackground, m_lastUsedPlayer, true);
+      }
     }
     m_playingFileItemBeforeBackground = std::make_unique<CFileItem>();
     m_lastUsedPlayer = "";
     m_isPlayingBeforeInactive = NO;
   }
-
-  if (CServiceBroker::GetActiveAE())
-    if (CServiceBroker::GetActiveAE()->IsSuspended())
-      CServiceBroker::GetActiveAE()->Resume();
-
-  CServiceBroker::GetNetwork().GetServices().Start();
 
   // do not update if we are already updating
   if (!(g_application.IsVideoScanning() || g_application.IsMusicScanning()))
