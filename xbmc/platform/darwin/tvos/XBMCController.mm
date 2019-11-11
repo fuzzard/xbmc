@@ -21,6 +21,7 @@
 #include "network/Network.h"
 #include "network/NetworkServices.h"
 #include "platform/xbmc.h"
+#include "pvr/PVRManager.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
 #include "utils/log.h"
