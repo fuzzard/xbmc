@@ -55,8 +55,8 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
     // init keyboard stuff
     SetTextToKeyboard(initialString);
     [m_impl->g_pIosKeyboard setHidden:bHiddenInput];
-    [m_impl->g_pIosKeyboard setHeading:[NSString stringWithUTF8String:heading.c_str()]];
-    [m_impl->g_pIosKeyboard registerKeyboard:this]; // for calling back
+    [m_impl->g_pIosKeyboard setHeading:@(heading.c_str())];
+    m_impl->g_pIosKeyboard.iosKeyboard = this; // for calling back
     bool confirmed = false;
     if (!m_bCanceled)
     {
@@ -65,7 +65,7 @@ bool CIOSKeyboard::ShowAndGetInput(char_callback_t pCallback, const std::string 
       // user is done - get resulted text and confirmation
       confirmed = m_impl->g_pIosKeyboard.isConfirmed;
       if (confirmed)
-        typedString = [m_impl->g_pIosKeyboard.text UTF8String];
+        typedString = m_impl->g_pIosKeyboard.text.UTF8String;
     }
     @synchronized([KeyboardView class])
     {
@@ -85,8 +85,7 @@ bool CIOSKeyboard::SetTextToKeyboard(const std::string &text, bool closeKeyboard
 {
   if (!m_impl->g_pIosKeyboard)
     return false;
-  [m_impl->g_pIosKeyboard setKeyboardText:[NSString stringWithUTF8String:text.c_str()]
-                            closeKeyboard:closeKeyboard ? YES : NO];
+  [m_impl->g_pIosKeyboard setKeyboardText:@(text.c_str()) closeKeyboard:closeKeyboard ? YES : NO];
   return true;
 }
 
