@@ -13,7 +13,7 @@
 #include "threads/Event.h"
 
 #import "platform/darwin/NSLogDebugHelpers.h"
-#import "platform/darwin/ios-common/IOSKeyboard.h"
+#import "platform/darwin/ios-common/IOSKeyboardView.h"
 #import "platform/darwin/ios/IOSScreenManager.h"
 #import "platform/darwin/ios/XBMCController.h"
 
@@ -23,90 +23,89 @@ static CEvent keyboardFinishedEvent;
 #define SPACE_BETWEEN_INPUT_AND_KEYBOARD 0
 
 @implementation KeyboardView
-@synthesize text;
-@synthesize _confirmed;
-@synthesize _iosKeyboard;
-@synthesize _frame;
 
-- (id)initWithFrame:(CGRect)frame
+// super is actually called, don't spit the warning
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
+- (instancetype)initWithFrame:(CGRect)frame
+#pragma clang diagnostic pop
 {
-  _frame = frame;
-  if([NSThread currentThread] != [NSThread mainThread])
-  {
-    [self performSelectorOnMainThread:@selector(initWithFrameInternal) withObject:nil  waitUntilDone:YES];
-  }
+  // @todo in fact, it's client's responsibility to init on main thread
+  auto frameObj = @(frame);
+  if (NSThread.isMainThread)
+    self = [self initWithFrameInternal:frameObj];
   else
-  {
-    self = [self initWithFrameInternal];
-  }
+    [self performSelectorOnMainThread:@selector(initWithFrameInternal:)
+                           withObject:frameObj
+                        waitUntilDone:YES];
   return self;
 }
 
-- (id)initWithFrameInternal
+- (instancetype)initWithFrameInternal:(NSValue*)frameObj
 {
-  CGRect frame = _frame;
+  CGRect frame = frameObj.CGRectValue;
   self = [super initWithFrame:frame];
-  if (self)
-  {
-    _iosKeyboard = nil;
-    _keyboardIsShowing = 0;
-    _confirmed = NO;
-    _canceled = NULL;
-    _deactivated = NO;
+  if (!self)
+    return nil;
 
-    self.text = [NSMutableString stringWithString:@""];
+  // @todo if using native keyboard on tvOS, ignore most of the code but textfield
+  _keyboardIsShowing = 0;
+  _confirmed = NO;
+  _canceled = NULL;
+  _deactivated = NO;
 
-   // default input box position above the half screen.
-    CGRect textFieldFrame = CGRectMake(frame.size.width/2,
-                                       frame.size.height/2-INPUT_BOX_HEIGHT-SPACE_BETWEEN_INPUT_AND_KEYBOARD,
-                                       frame.size.width/2,
-                                       INPUT_BOX_HEIGHT);
-    _textField = [[UITextField alloc] initWithFrame:textFieldFrame];
-    _textField.clearButtonMode = UITextFieldViewModeAlways;
-    // UITextBorderStyleRoundedRect; - with round rect we can't control backgroundcolor
-    _textField.borderStyle = UITextBorderStyleNone;
-    _textField.returnKeyType = UIReturnKeyDone;
-    _textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-    _textField.backgroundColor = [UIColor whiteColor];
-    _textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    _textField.delegate = self;
+  self.text = [NSMutableString string];
 
-    CGRect labelFrame = textFieldFrame;
-    labelFrame.origin.x = 0;
-    _heading = [[UITextField alloc] initWithFrame:labelFrame];
-    _heading.borderStyle = UITextBorderStyleNone;
-    _heading.backgroundColor = [UIColor whiteColor];
-    _heading.adjustsFontSizeToFitWidth = YES;
-    _heading.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    _heading.enabled = NO;
+  // default input box position above the half screen.
+  CGRect textFieldFrame =
+      CGRectMake(frame.size.width / 2,
+                 frame.size.height / 2 - INPUT_BOX_HEIGHT - SPACE_BETWEEN_INPUT_AND_KEYBOARD,
+                 frame.size.width / 2, INPUT_BOX_HEIGHT);
+  _textField = [[UITextField alloc] initWithFrame:textFieldFrame];
+  _textField.clearButtonMode = UITextFieldViewModeAlways;
+  // UITextBorderStyleRoundedRect; - with round rect we can't control backgroundcolor
+  _textField.borderStyle = UITextBorderStyleNone;
+  _textField.returnKeyType = UIReturnKeyDone;
+  _textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+  _textField.backgroundColor = [UIColor whiteColor];
+  _textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+  _textField.delegate = self;
 
-    [self addSubview:_heading];
-    [self addSubview:_textField];
+  CGRect labelFrame = textFieldFrame;
+  labelFrame.origin.x = 0;
+  _heading = [[UITextField alloc] initWithFrame:labelFrame];
+  _heading.borderStyle = UITextBorderStyleNone;
+  _heading.backgroundColor = [UIColor whiteColor];
+  _heading.adjustsFontSizeToFitWidth = YES;
+  _heading.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+  _heading.enabled = NO;
 
-    self.userInteractionEnabled = YES;
+  [self addSubview:_heading];
+  [self addSubview:_textField];
 
-    [self setAlpha:0.9];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(textChanged:)
-                                                 name:UITextFieldTextDidChangeNotification
-                                               object:_textField];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardDidHide:)
-                                                 name:UIKeyboardDidHideNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardDidChangeFrame:)
-                                                 name:UIKeyboardDidChangeFrameNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillShow:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardDidShow:)
-                                                 name:UIKeyboardDidShowNotification
-                                               object:nil];
-  }
+  self.userInteractionEnabled = YES;
+
+  [self setAlpha:0.9];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(textChanged:)
+                                               name:UITextFieldTextDidChangeNotification
+                                             object:_textField];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardDidHide:)
+                                               name:UIKeyboardDidHideNotification
+                                             object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardDidChangeFrame:)
+                                               name:UIKeyboardDidChangeFrameNotification
+                                             object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardWillShow:)
+                                               name:UIKeyboardWillShowNotification
+                                             object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardDidShow:)
+                                               name:UIKeyboardDidShowNotification
+                                             object:nil];
   return self;
 }
 
@@ -143,7 +142,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  PRINT_SIGNATURE();
   [_textField resignFirstResponder];
 }
 
@@ -157,12 +155,10 @@ static CEvent keyboardFinishedEvent;
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
-  PRINT_SIGNATURE();
   [self deactivate];
 }
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
-  PRINT_SIGNATURE();
   _confirmed = YES;
   [_textField resignFirstResponder];
   return YES;
@@ -174,8 +170,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void)keyboardDidHide:(id)sender
 {
-  PRINT_SIGNATURE();
-
   _keyboardIsShowing = 0;
 
   if (_textField.editing)
@@ -189,7 +183,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void) doActivate:(NSDictionary *)dict
 {
-  PRINT_SIGNATURE();
   [g_xbmcController activateKeyboard:self];
   [_textField becomeFirstResponder];
   [self setNeedsLayout];
@@ -198,7 +191,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void)activate
 {
-  PRINT_SIGNATURE();
   if([NSThread currentThread] != [NSThread mainThread])
   {
     [self performSelectorOnMainThread:@selector(doActivate:) withObject:nil  waitUntilDone:YES];
@@ -212,10 +204,10 @@ static CEvent keyboardFinishedEvent;
   // we are waiting on the user finishing the keyboard
   while(!keyboardFinishedEvent.WaitMSec(500))
   {
-    if (NULL != _canceled && *_canceled)
+    if (nullptr != _canceled && *_canceled)
     {
       [self deactivate];
-      _canceled = NULL;
+      _canceled = nullptr;
     }
   }
 }
@@ -254,7 +246,6 @@ static CEvent keyboardFinishedEvent;
 
 - (void) deactivate
 {
-  PRINT_SIGNATURE();
   if([NSThread currentThread] != [NSThread mainThread])
   {
     [self performSelectorOnMainThread:@selector(doDeactivate:) withObject:nil  waitUntilDone:YES];
@@ -307,19 +298,19 @@ static CEvent keyboardFinishedEvent;
 
 - (void) setDefault:(NSString *)defaultText
 {
-  [_textField setText:defaultText];
+  _textField.text = defaultText;
   [self textChanged:nil];
 }
 
 - (void) setHiddenInternal:(NSNumber *)hidden
 {
-  BOOL hiddenBool = [hidden boolValue];
-  [_textField setSecureTextEntry:hiddenBool];
+  BOOL hiddenBool = hidden.boolValue;
+  _textField.secureTextEntry = hiddenBool;
 }
 
 - (void) setHidden:(BOOL)hidden
 {
-  NSNumber *passedValue = [NSNumber numberWithBool:hidden];
+  NSNumber* passedValue = @(hidden);
 
   if([NSThread currentThread] != [NSThread mainThread])
   {
@@ -338,7 +329,7 @@ static CEvent keyboardFinishedEvent;
     [self.text setString:_textField.text];
     if (_iosKeyboard)
     {
-      _iosKeyboard->fireCallback([self.text UTF8String]);
+      _iosKeyboard->fireCallback(self.text.UTF8String);
     }
   }
 }
