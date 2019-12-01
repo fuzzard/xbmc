@@ -73,8 +73,22 @@
   // audio session setup
   auto audioSession = AVAudioSession.sharedInstance;
   NSError* err = nil;
-  if (![audioSession setCategory:AVAudioSessionCategoryPlayback error:&err])
-    NSLog(@"audioSession setCategory failed: %@", err);
+  if (@available(tvOS 11.0, *))
+  {
+    NSString* categoryMode = AVAudioSessionModeDefault;
+    AVAudioSessionCategoryOptions options = 0;
+    AVAudioSessionRouteSharingPolicy policy = AVAudioSessionRouteSharingPolicyLongForm;
+    NSString* categoryString = AVAudioSessionCategoryPlayback;
+    if (![[AVAudioSession sharedInstance] setCategory:categoryString mode:categoryMode routeSharingPolicy:policy options:options error:&err])
+    {
+      NSLog(@"AVAudioSession setCategory (longform) failed: %ld", static_cast<long>(err.code));
+    }
+  }
+  else
+  {
+    if (![audioSession setCategory:AVAudioSessionCategoryPlayback error:&err])
+      NSLog(@"audioSession setCategory failed: %@", err);
+  }
 
   err = nil;
   if (![audioSession setMode:AVAudioSessionModeMoviePlayback error:&err])
@@ -83,6 +97,8 @@
   err = nil;
   if (![audioSession setActive:YES error:&err])
     NSLog(@"audioSession setActive failed: %@", err);
+
+  [self.xbmcController.audioManager registerAudioRouteNotifications];
 
   return YES;
 }

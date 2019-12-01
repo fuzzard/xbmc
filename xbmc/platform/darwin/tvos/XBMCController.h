@@ -15,6 +15,7 @@
 
 @class AVDisplayManager;
 @class DarwinEmbedNowPlayingInfoManager;
+@class TVOSAudioManager;
 @class TVOSEAGLView;
 @class TVOSLibInputHandler;
 @class TVOSDisplayManager;
@@ -35,6 +36,7 @@ class CFileItem;
 
 @property(nonatomic) BOOL appAlive;
 @property(nonatomic, strong) DarwinEmbedNowPlayingInfoManager* MPNPInfoManager;
+@property(nonatomic, strong) TVOSAudioManager* audioManager;
 @property(nonatomic, strong) TVOSDisplayManager* displayManager;
 @property(nonatomic, strong) TVOSEAGLView* glView;
 @property(nonatomic, strong) TVOSLibInputHandler* inputHandler;

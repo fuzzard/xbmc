@@ -26,6 +26,7 @@
 
 #import "platform/darwin/ios-common/AnnounceReceiver.h"
 #import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
+#import "platform/darwin/tvos/TVOSAudioManager.h"
 #import "platform/darwin/tvos/TVOSDisplayManager.h"
 #import "platform/darwin/tvos/TVOSEAGLView.h"
 #import "platform/darwin/tvos/TVOSTopShelf.h"
@@ -47,6 +48,7 @@ XBMCController* g_xbmcController;
 @implementation XBMCController
 
 @synthesize appAlive = m_appAlive;
+@synthesize audioManager;
 @synthesize MPNPInfoManager;
 @synthesize displayManager;
 @synthesize inputHandler;
@@ -517,7 +519,7 @@ int KODI_Run(bool renderGUI)
   [displayManager removeModeSwitchObserver];
   // stop background task (if running)
   [self disableBackGroundTask];
-
+  [audioManager unregisterAudioRouteNotifications];
   [self stopAnimation];
 }
 
@@ -538,8 +540,12 @@ int KODI_Run(bool renderGUI)
 
   g_xbmcController = self;
   MPNPInfoManager = [DarwinEmbedNowPlayingInfoManager new];
+  audioManager = [TVOSAudioManager new];
   displayManager = [TVOSDisplayManager new];
   inputHandler = [TVOSLibInputHandler new];
+
+// too early to register?
+//  [audioManager registerAudioRouteNotifications];
 
   return self;
 }
