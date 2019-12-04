@@ -91,11 +91,10 @@
             openURL:(NSURL*)url
             options:(NSDictionary<NSString*, id>*)options
 {
-  NSArray* urlComponents = [[url absoluteString] componentsSeparatedByString:@"/"];
-  NSString* action = urlComponents[2];
+  auto urlComponents = [url.absoluteString componentsSeparatedByString:@"/"];
+  auto action = urlComponents[2];
   if ([action isEqualToString:@"display"] || [action isEqualToString:@"play"])
-    CTVOSTopShelf::GetInstance().HandleTopShelfUrl(std::string{url.absoluteString.UTF8String},
-                                                   true);
+    CTVOSTopShelf::GetInstance().HandleTopShelfUrl(url.absoluteString.UTF8String, true);
   return YES;
 }
 @end
