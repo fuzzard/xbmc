@@ -511,9 +511,7 @@
                 break;
               }
               default:
-              {
                 break;
-              }
             }
           }
 
