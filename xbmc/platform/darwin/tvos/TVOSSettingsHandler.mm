@@ -32,10 +32,6 @@ CTVOSInputSettings& CTVOSInputSettings::GetInstance()
   return *m_instance;
 }
 
-CTVOSInputSettings::CTVOSInputSettings()
-{
-}
-
 void CTVOSInputSettings::Initialize()
 {
   bool enable = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(

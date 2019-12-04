@@ -20,7 +20,7 @@ public:
   virtual void OnSettingChanged(std::shared_ptr<const CSetting> setting) override;
 
 private:
-  CTVOSInputSettings();
+  CTVOSInputSettings() = default;
   CTVOSInputSettings(CTVOSInputSettings const&);
   CTVOSInputSettings& operator=(CTVOSInputSettings const&);
 
