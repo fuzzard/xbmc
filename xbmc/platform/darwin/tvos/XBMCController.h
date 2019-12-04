@@ -23,7 +23,6 @@ class CFileItem;
 
 @interface XBMCController : UIViewController
 {
-@private
   BOOL m_isPlayingBeforeInactive;
   UIBackgroundTaskIdentifier m_bgTask;
   bool m_nativeKeyboardActive;
