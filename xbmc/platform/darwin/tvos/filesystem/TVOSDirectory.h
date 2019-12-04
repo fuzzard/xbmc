@@ -30,8 +30,8 @@ namespace XFILE
 class CTVOSDirectory : public CPosixDirectory
 {
 public:
-  CTVOSDirectory();
-  ~CTVOSDirectory();
+  CTVOSDirectory() = default;
+  ~CTVOSDirectory() = default;
 
   bool static WantsDirectory(const CURL& url);
 

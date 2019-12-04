@@ -35,18 +35,10 @@
 
 using namespace XFILE;
 
-CTVOSDirectory::CTVOSDirectory()
-{
-}
-
-CTVOSDirectory::~CTVOSDirectory()
-{
-}
-
 bool CTVOSDirectory::WantsDirectory(const CURL& url)
 {
-  std::string rootpath = CSpecialProtocol::TranslatePath(url);
-  size_t found = rootpath.find(CTVOSFileUtils::GetUserHomeDirectory());
+  auto rootpath = CSpecialProtocol::TranslatePath(url);
+  auto found = rootpath.find(CTVOSFileUtils::GetUserHomeDirectory());
   if (found == std::string::npos)
     return false;
 
@@ -67,10 +59,10 @@ bool CTVOSDirectory::GetDirectory(const CURL& url, CFileItemList& items)
 
   // To see user home xml files in the file manager,
   // we have to populate a list on a directory request.
-  std::string rootpath = CSpecialProtocol::TranslatePath(url);
+  auto rootpath = CSpecialProtocol::TranslatePath(url);
   // quick return check, we do not care if
   // not going to user home.
-  size_t found = rootpath.find(CTVOSFileUtils::GetUserHomeDirectory());
+  auto found = rootpath.find(CTVOSFileUtils::GetUserHomeDirectory());
   if (found == std::string::npos)
     return rtn;
 
