@@ -13,7 +13,7 @@
 class COSScreenSaverTVOS : public KODI::WINDOWING::IOSScreenSaver
 {
 public:
-  COSScreenSaverTVOS();
+  COSScreenSaverTVOS() = default;
   void Inhibit() override;
   void Uninhibit() override;
 };
