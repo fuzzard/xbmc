@@ -53,7 +53,7 @@
 // (for ensuring that e.x. AE isn't stuck)
 constexpr uint32_t LOST_DEVICE_TIMEOUT_MS{3000};
 
-// TVOSDisplayLinkCallback is declared in the lower part of the file
+// TVOSDisplayLinkCallback is defined in the lower part of the file
 @interface TVOSDisplayLinkCallback : NSObject
 {
 @private
@@ -238,7 +238,7 @@ bool CWinSystemTVOS::GetScreenResolution(int* w, int* h, double* fps, int screen
   *h = [g_xbmcController.displayManager getScreenSize].height;
   *fps = [g_xbmcController.displayManager getDisplayRate];
 
-  CLog::Log(LOGDEBUG, "Current resolution Screen: {} with {} x {} @  {}", screenIdx, *w, *h, *fps);
+  CLog::Log(LOGDEBUG, "Current resolution Screen: {} with {} x {} @ {}", screenIdx, *w, *h, *fps);
   return true;
 }
 
@@ -266,8 +266,8 @@ void CWinSystemTVOS::UpdateResolutions()
 void CWinSystemTVOS::FillInVideoModes(int screenIdx)
 {
   // Potential refresh rates
-  std::vector<float> supportedDispRefreshRates = {23.976, 24.000, 25.000, 29.970,
-                                                  30.000, 50.000, 59.940, 60.000};
+  std::vector<float> supportedDispRefreshRates = {23.976f, 24.000f, 25.000f, 29.970f,
+                                                  30.000f, 50.000f, 59.940f, 60.000f};
 
   UIScreen* aScreen = UIScreen.screens[screenIdx];
   UIScreenMode* mode = aScreen.currentMode;
