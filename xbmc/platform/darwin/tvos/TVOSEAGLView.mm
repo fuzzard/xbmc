@@ -22,25 +22,21 @@
 
 using namespace KODI::MESSAGING;
 
-//--------------------------------------------------------------
 @implementation TVOSEAGLView
 @synthesize m_context;
 @synthesize m_currentScreen;
 
-// You must implement this method
 + (Class)layerClass
 {
   return [CAEAGLLayer class];
 }
 
-//--------------------------------------------------------------
 - (id)initWithFrame:(CGRect)frame withScreen:(UIScreen*)screen
 {
   m_framebufferResizeRequested = FALSE;
   if ((self = [super initWithFrame:frame]))
   {
-    UIScreen* currentScreen = [UIScreen mainScreen];
-    CGFloat scaleFactor = [self getScreenScale:currentScreen];
+    auto scaleFactor = [self getScreenScale:UIScreen.mainScreen];
 
     // Get the layer
     CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
@@ -54,10 +50,10 @@ using namespace KODI::MESSAGING;
     };
 
     // Try OpenGL ES 3.0
-    EAGLContext* aContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    auto aContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
 
     // Fallback to OpenGL ES 2.0
-    if (aContext == nullptr)
+    if (!aContext)
       aContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
     if (!aContext)
@@ -74,20 +70,17 @@ using namespace KODI::MESSAGING;
   return self;
 }
 
-//--------------------------------------------------------------
 - (void)dealloc
 {
   [self deleteFramebuffer];
 }
 
-//--------------------------------------------------------------
 - (BOOL)canBecomeFocused
 {
   // need this or we do not get GestureRecognizers under tvos.
   return YES;
 }
 
-//--------------------------------------------------------------
 - (void)setContext:(EAGLContext*)newContext
 {
   if (m_context != newContext)
@@ -100,7 +93,6 @@ using namespace KODI::MESSAGING;
   }
 }
 
-//--------------------------------------------------------------
 - (void)createFramebuffer
 {
   if (m_context && !m_defaultFramebuffer)
@@ -133,7 +125,6 @@ using namespace KODI::MESSAGING;
   }
 }
 
-//--------------------------------------------------------------
 - (void)deleteFramebuffer
 {
   if (m_context)
@@ -160,7 +151,6 @@ using namespace KODI::MESSAGING;
   }
 }
 
-//--------------------------------------------------------------
 - (void)setFramebuffer
 {
   if (m_context)
@@ -183,7 +173,6 @@ using namespace KODI::MESSAGING;
   }
 }
 
-//--------------------------------------------------------------
 - (bool)presentFramebuffer
 {
   bool success = FALSE;
@@ -199,7 +188,6 @@ using namespace KODI::MESSAGING;
   return success;
 }
 
-//--------------------------------------------------------------
 - (CGFloat)getScreenScale:(UIScreen*)screen
 {
   return screen.scale;
