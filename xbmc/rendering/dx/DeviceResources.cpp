@@ -513,11 +513,13 @@ void DX::DeviceResources::ResizeBuffers()
 
   CLog::LogF(LOGDEBUG, "resize buffers.");
 
-  bool bHWStereoEnabled = RENDER_STEREO_MODE_HARDWAREBASED == CServiceBroker::GetWinSystem()->GetGfxContext().GetStereoMode();
+  bool bHWStereoEnabled = RENDER_STEREO_MODE_HARDWAREBASED ==
+                          CServiceBroker::GetWinSystem()->GetGfxContext().GetStereoMode();
   bool windowed = true;
+  bool isHdrEnabled = false;
   HRESULT hr = E_FAIL;
-
   DXGI_SWAP_CHAIN_DESC1 scDesc = { 0 };
+
   if (m_swapChain)
   {
     BOOL bFullcreen = 0;
@@ -529,14 +531,15 @@ void DX::DeviceResources::ResizeBuffers()
 
     // check if swapchain needs to be recreated
     m_swapChain->GetDesc1(&scDesc);
-    if ((scDesc.Stereo == TRUE) != bHWStereoEnabled)
+    isHdrEnabled = IsDisplayHDREnabled();
+
+    if ((scDesc.Stereo == TRUE) != bHWStereoEnabled || (m_Is10bSwapchain != isHdrEnabled))
     {
       // check fullscreen state and go to windowing if necessary
       if (!!bFullcreen)
       {
         m_swapChain->SetFullscreenState(false, nullptr); // mandatory before releasing swapchain
       }
-
       m_swapChain = nullptr;
       m_deferrContext->Flush();
       m_d3dContext->Flush();
@@ -587,9 +590,9 @@ void DX::DeviceResources::ResizeBuffers()
     scFSDesc.Windowed = windowed;
 
     ComPtr<IDXGISwapChain1> swapChain;
-    if ( m_d3dFeatureLevel >= D3D_FEATURE_LEVEL_11_0
-      && !bHWStereoEnabled
-      && CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bTry10bitOutput)
+    if (m_d3dFeatureLevel >= D3D_FEATURE_LEVEL_11_0 && !bHWStereoEnabled &&
+        (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bTry10bitOutput ||
+         isHdrEnabled))
     {
       swapChainDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
       hr = CreateSwapChain(swapChainDesc, scFSDesc, &swapChain);
@@ -615,13 +618,37 @@ void DX::DeviceResources::ResizeBuffers()
       hr = CreateSwapChain(swapChainDesc, scFSDesc, &swapChain); CHECK_ERR();
 
       // fallback to split_horizontal mode.
-      CServiceBroker::GetWinSystem()->GetGfxContext().SetStereoMode(RENDER_STEREO_MODE_SPLIT_HORIZONTAL);
+      CServiceBroker::GetWinSystem()->GetGfxContext().SetStereoMode(
+          RENDER_STEREO_MODE_SPLIT_HORIZONTAL);
     }
 
     if (FAILED(hr))
     {
       CLog::LogF(LOGERROR, "unable to create swapchain.");
       return;
+    }
+
+    if (swapChainDesc.Format == DXGI_FORMAT_R10G10B10A2_UNORM)
+    {
+      std::string txOutput;
+      m_Is10bSwapchain = true;
+      if (isHdrEnabled)
+      {
+        m_IsHDROutput = true;
+        txOutput = "HDR";
+      }
+      else
+      {
+        m_IsHDROutput = false;
+        txOutput = "SDR";
+      }
+      CLog::LogF(LOGNOTICE, "10 bit swapchain is used with {0:s} output", txOutput);
+    }
+    else
+    {
+      m_Is10bSwapchain = false;
+      m_IsHDROutput = false;
+      CLog::LogF(LOGNOTICE, "8 bit swapchain is used with SDR output");
     }
 
     hr = swapChain.As(&m_swapChain); CHECK_ERR();
@@ -633,6 +660,8 @@ void DX::DeviceResources::ResizeBuffers()
     hr = m_d3dDevice.As(&dxgiDevice); CHECK_ERR();
     dxgiDevice->SetMaximumFrameLatency(1);
   }
+
+  CLog::LogF(LOGDEBUG, "end resize buffers.");
 }
 
 // These resources need to be recreated every time the window size is changed.
@@ -1097,3 +1126,190 @@ void DX::DeviceResources::Trim() const
 }
 
 #endif
+
+DXGI_HDR_METADATA_HDR10 DX::DeviceResources::GetHdr10Display() const
+{
+  ComPtr<IDXGIOutput> pOutput;
+  ComPtr<IDXGIOutput6> pOutput6;
+  DXGI_HDR_METADATA_HDR10 hdr10 = {};
+  DXGI_OUTPUT_DESC1 od = {};
+  bool hdrCapable = false;
+
+  if (m_swapChain == nullptr)
+    return hdr10;
+
+  if (SUCCEEDED(m_swapChain->GetContainingOutput(pOutput.GetAddressOf())))
+  {
+    if (SUCCEEDED(pOutput.As(&pOutput6)))
+    {
+      if (SUCCEEDED(pOutput6->GetDesc1(&od)))
+      {
+        constexpr float FACTOR_1 = 50000.0;
+        constexpr float FACTOR_2 = 10000.0;
+        hdr10.RedPrimary[0] = static_cast<uint16_t>(FACTOR_1 * od.RedPrimary[0]);
+        hdr10.RedPrimary[1] = static_cast<uint16_t>(FACTOR_1 * od.RedPrimary[1]);
+        hdr10.GreenPrimary[0] = static_cast<uint16_t>(FACTOR_1 * od.GreenPrimary[0]);
+        hdr10.GreenPrimary[1] = static_cast<uint16_t>(FACTOR_1 * od.GreenPrimary[1]);
+        hdr10.BluePrimary[0] = static_cast<uint16_t>(FACTOR_1 * od.BluePrimary[0]);
+        hdr10.BluePrimary[1] = static_cast<uint16_t>(FACTOR_1 * od.BluePrimary[1]);
+        hdr10.WhitePoint[0] = static_cast<uint16_t>(FACTOR_1 * od.WhitePoint[0]);
+        hdr10.WhitePoint[1] = static_cast<uint16_t>(FACTOR_1 * od.WhitePoint[1]);
+        hdr10.MaxMasteringLuminance = static_cast<uint32_t>(FACTOR_2 * od.MaxLuminance);
+        hdr10.MinMasteringLuminance = static_cast<uint32_t>(FACTOR_2 * od.MinLuminance);
+        hdr10.MaxContentLightLevel = static_cast<uint16_t>(od.MaxFullFrameLuminance);
+
+        if (od.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020)
+        {
+          CLog::LogF(LOGNOTICE, "Display HDR capable detected and HDR current state is ENABLED:");
+          hdrCapable = true;
+        }
+        else if (od.MaxLuminance >= 400.0)
+        {
+          CLog::LogF(LOGNOTICE, "Display HDR capable is detected but NOT enabled:");
+          hdrCapable = true;
+        }
+        else
+        {
+          CLog::LogF(LOGNOTICE, "No display HDR capable detected.");
+        }
+        if (hdrCapable)
+        {
+          std::string txColorSpace = "UNKNOWN";
+          switch (od.ColorSpace)
+          {
+            case DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020:
+              txColorSpace = "DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020";
+              break;
+            case DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709:
+              txColorSpace = "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709";
+              break;
+          }
+          CLog::LogF(LOGNOTICE, "ColorSpace = {0:s}", txColorSpace);
+          CLog::LogF(LOGNOTICE, "RedPrimary = {0:0.3f}, {1:0.3f}", od.RedPrimary[0],
+                     od.RedPrimary[1]);
+          CLog::LogF(LOGNOTICE, "GreenPrimary = {0:0.3f}, {1:0.3f}", od.GreenPrimary[0],
+                     od.GreenPrimary[1]);
+          CLog::LogF(LOGNOTICE, "BluePrimary = {0:0.3f}, {1:0.3f}", od.BluePrimary[0],
+                     od.BluePrimary[1]);
+          CLog::LogF(LOGNOTICE, "WhitePoint = {0:0.3f}, {1:0.3f}", od.WhitePoint[0],
+                     od.WhitePoint[1]);
+          CLog::LogF(LOGNOTICE, "MinLuminance = {0:0.4f}", od.MinLuminance);
+          CLog::LogF(LOGNOTICE, "MaxLuminance = {0:0.0f}", od.MaxLuminance);
+          CLog::LogF(LOGNOTICE, "MaxFullFrameLuminance = {0:0.0f}", od.MaxFullFrameLuminance);
+        }
+      }
+      else
+      {
+        CLog::LogF(LOGERROR, "DXGI GetDesc1 failed");
+      }
+    }
+  }
+
+  return hdr10;
+}
+
+void DX::DeviceResources::SetHdrMetaData(DXGI_HDR_METADATA_HDR10& hdr10) const
+{
+  ComPtr<IDXGISwapChain4> swapChain4;
+
+  if (m_swapChain == nullptr)
+    return;
+
+  if (SUCCEEDED(m_swapChain.As(&swapChain4)))
+  {
+    if (SUCCEEDED(swapChain4->SetHDRMetaData(DXGI_HDR_METADATA_TYPE_HDR10, sizeof(hdr10), &hdr10)))
+    {
+      constexpr double FACTOR_1 = 50000.0;
+      constexpr double FACTOR_2 = 10000.0;
+      const double RP_0 = static_cast<double>(hdr10.RedPrimary[0]) / FACTOR_1;
+      const double RP_1 = static_cast<double>(hdr10.RedPrimary[1]) / FACTOR_1;
+      const double GP_0 = static_cast<double>(hdr10.GreenPrimary[0]) / FACTOR_1;
+      const double GP_1 = static_cast<double>(hdr10.GreenPrimary[1]) / FACTOR_1;
+      const double BP_0 = static_cast<double>(hdr10.BluePrimary[0]) / FACTOR_1;
+      const double BP_1 = static_cast<double>(hdr10.BluePrimary[1]) / FACTOR_1;
+      const double WP_0 = static_cast<double>(hdr10.WhitePoint[0]) / FACTOR_1;
+      const double WP_1 = static_cast<double>(hdr10.WhitePoint[1]) / FACTOR_1;
+      const double Max_ML = static_cast<double>(hdr10.MaxMasteringLuminance) / FACTOR_2;
+      const double min_ML = static_cast<double>(hdr10.MinMasteringLuminance) / FACTOR_2;
+
+      CLog::LogF(LOGNOTICE,
+                 "Stream HDR metadata => RP {0:0.3f} {1:0.3f} | GP {2:0.3f} {3:0.3f} | BP "
+                 "{4:0.3f} {5:0.3f} | WP {6:0.3f} "
+                 "{7:0.3f} | MAX ML {8:0.0f} "
+                 "| min ML {9:0.3f} | Max CLL {10:d} | Max FALL {11:d}",
+                 RP_0, RP_1, GP_0, GP_1, BP_0, BP_1, WP_0, WP_1, Max_ML, min_ML,
+                 hdr10.MaxContentLightLevel, hdr10.MaxFrameAverageLightLevel);
+    }
+    else
+    {
+      CLog::LogF(LOGERROR, "DXGI SetHDRMetaData failed");
+    }
+  }
+}
+
+void DX::DeviceResources::SetHdrColorSpace(const DXGI_COLOR_SPACE_TYPE colorSpace) const
+{
+  ComPtr<IDXGISwapChain3> swapChain3;
+
+  if (m_swapChain == nullptr)
+    return;
+
+  if (SUCCEEDED(m_swapChain.As(&swapChain3)))
+  {
+    DXGI_COLOR_SPACE_TYPE cs = colorSpace;
+    if (DX::Windowing()->UseLimitedColor())
+    {
+      switch (cs)
+      {
+        case DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709:
+          cs = DXGI_COLOR_SPACE_RGB_STUDIO_G22_NONE_P709;
+          break;
+        case DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020:
+          cs = DXGI_COLOR_SPACE_RGB_STUDIO_G2084_NONE_P2020;
+          break;
+        case DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P2020:
+          cs = DXGI_COLOR_SPACE_RGB_STUDIO_G22_NONE_P2020;
+          break;
+      }
+    }
+    if (SUCCEEDED(swapChain3->SetColorSpace1(cs)))
+    {
+      CLog::LogF(LOGDEBUG, "DXGI SetColorSpace1 success");
+    }
+    else
+    {
+      CLog::LogF(LOGERROR, "DXGI SetColorSpace1 failed");
+    }
+  }
+}
+
+bool DX::DeviceResources::IsDisplayHDREnabled() const
+{
+  ComPtr<IDXGIOutput> pOutput;
+  ComPtr<IDXGIOutput6> pOutput6;
+  DXGI_OUTPUT_DESC1 od = {};
+
+  if (m_swapChain == nullptr)
+    return false;
+
+  if (SUCCEEDED(m_swapChain->GetContainingOutput(pOutput.GetAddressOf())))
+  {
+    if (SUCCEEDED(pOutput.As(&pOutput6)))
+    {
+      if (SUCCEEDED(pOutput6->GetDesc1(&od)))
+      {
+        CLog::LogF(LOGDEBUG, "DXGI GetDesc1 success");
+        if (od.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020)
+        {
+          return true;
+        }
+      }
+      else
+      {
+        CLog::LogF(LOGERROR, "DXGI GetDesc1 failed");
+      }
+    }
+  }
+
+  return false;
+}

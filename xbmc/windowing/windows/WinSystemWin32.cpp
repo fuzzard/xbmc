@@ -32,6 +32,7 @@
 #include "windowing/windows/Win32DPMSSupport.h"
 
 #include "platform/win32/CharsetConverter.h"
+#include "platform/win32/WIN32Util.h"
 #include "platform/win32/input/IRServerSuite.h"
 #include "platform/win32/powermanagement/Win32PowerSyscall.h"
 
@@ -1192,4 +1193,14 @@ WINDOW_STATE CWinSystemWin32::GetState(bool fullScreen) const
 bool CWinSystemWin32::MessagePump()
 {
   return m_winEvents->MessagePump();
+}
+
+void CWinSystemWin32::ToggleDisplayHDR()
+{
+  CWIN32Util::ToggleWindowsHDR();
+}
+
+int CWinSystemWin32::GetHDRDisplayStatus()
+{
+  return CWIN32Util::GetHDRDisplayStatus();
 }

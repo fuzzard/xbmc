@@ -21,7 +21,6 @@
 #include "utils/log.h"
 
 #include <Windows.h>
-#include <dxgi1_5.h>
 #include <d3d11_4.h>
 
 using namespace DXVA;
@@ -35,12 +34,6 @@ do { \
     CLog::LogF(LOGERROR, "failed executing "#a" at line %d with error %x", __LINE__, res); \
   } \
 } while(0);
-
-template<typename T>
-T from_rational(uint64_t default_factor, AVRational rat)
-{
-  return static_cast<T>(default_factor * rat.num / rat.den);
-}
 
 CProcessorHD::CProcessorHD()
 {
@@ -209,6 +202,9 @@ bool CProcessorHD::InitProcessor()
     }
   }
 
+  if (m_bSupportHDR10)
+    m_hdr10Display = DX::DeviceResources::Get()->GetHdr10Display();
+
   return true;
 }
 
@@ -369,6 +365,9 @@ DXGI_COLOR_SPACE_TYPE CProcessorHD::GetDXGIColorSpace(CRenderBuffer* view, bool 
       // DXGI_COLOR_SPACE_YCBCR_STUDIO_G2084_TOPLEFT_P2020
       return DXGI_COLOR_SPACE_YCBCR_STUDIO_G2084_LEFT_P2020;
 
+    if (view->color_transfer == AVCOL_TRC_ARIB_STD_B67) // HLG
+      return DXGI_COLOR_SPACE_YCBCR_STUDIO_GHLG_TOPLEFT_P2020;
+
     if (view->full_range)
       return DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P2020;
 
@@ -505,44 +504,50 @@ bool CProcessorHD::Render(CRect src, CRect dst, ID3D11Resource* target, CRenderB
   if (SUCCEEDED(m_pVideoContext.As(&videoCtx1)))
   {
     const DXGI_COLOR_SPACE_TYPE source_color = GetDXGIColorSpace(views[2], m_bSupportHDR10);
-    const DXGI_COLOR_SPACE_TYPE target_color = DX::Windowing()->UseLimitedColor() 
-                                               ? DXGI_COLOR_SPACE_RGB_STUDIO_G22_NONE_P709 
-                                               : DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
+    DXGI_COLOR_SPACE_TYPE target_color = DX::Windowing()->UseLimitedColor()
+                                             ? DXGI_COLOR_SPACE_RGB_STUDIO_G22_NONE_P709
+                                             : DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
 
-    videoCtx1->VideoProcessorSetStreamColorSpace1(m_pVideoProcessor.Get(), DEFAULT_STREAM_INDEX, source_color);
+    if (DX::DeviceResources::Get()->IsHDROutput())
+    {
+      if ((views[2]->color_transfer == AVCOL_TRC_SMPTE2084 ||
+           views[2]->color_transfer == AVCOL_TRC_ARIB_STD_B67) &&
+          views[2]->primaries == AVCOL_PRI_BT2020)
+      {
+        target_color = DX::Windowing()->UseLimitedColor()
+                           ? DXGI_COLOR_SPACE_RGB_STUDIO_G2084_NONE_P2020
+                           : DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
+      }
+      else if (views[2]->primaries == AVCOL_PRI_BT2020)
+      {
+        target_color = DX::Windowing()->UseLimitedColor()
+                           ? DXGI_COLOR_SPACE_RGB_STUDIO_G22_NONE_P2020
+                           : DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P2020;
+      }
+    }
+
+    videoCtx1->VideoProcessorSetStreamColorSpace1(m_pVideoProcessor.Get(), DEFAULT_STREAM_INDEX,
+                                                  source_color);
     videoCtx1->VideoProcessorSetOutputColorSpace1(m_pVideoProcessor.Get(), target_color);
     // makes target available for processing in shaders
     videoCtx1->VideoProcessorSetOutputShaderUsage(m_pVideoProcessor.Get(), 1);
 
-    if (m_bSupportHDR10)
+    if (DX::DeviceResources::Get()->IsHDROutput() && m_bSupportHDR10 &&
+        views[2]->color_transfer == AVCOL_TRC_SMPTE2084 && views[2]->primaries == AVCOL_PRI_BT2020)
     {
       ComPtr<ID3D11VideoContext2> videoCtx2;
-      if (SUCCEEDED(m_pVideoContext.As(&videoCtx2)) && views[2]->hasDisplayMetadata)
+      if (SUCCEEDED(m_pVideoContext.As(&videoCtx2)))
       {
-        DXGI_HDR_METADATA_HDR10 hdr10 = {};
-        hdr10.WhitePoint[0] = from_rational<uint16_t>(50000, views[2]->displayMetadata.white_point[0]);
-        hdr10.WhitePoint[1] = from_rational<uint16_t>(50000, views[2]->displayMetadata.white_point[1]);
-        if (views[2]->displayMetadata.has_primaries)
-        {
-          hdr10.RedPrimary[0] = from_rational<uint16_t>(50000, views[2]->displayMetadata.display_primaries[0][0]);
-          hdr10.RedPrimary[1] = from_rational<uint16_t>(50000, views[2]->displayMetadata.display_primaries[0][1]);
-          hdr10.GreenPrimary[0] = from_rational<uint16_t>(50000, views[2]->displayMetadata.display_primaries[1][0]);
-          hdr10.GreenPrimary[1] = from_rational<uint16_t>(50000, views[2]->displayMetadata.display_primaries[1][1]);
-          hdr10.BluePrimary[0] = from_rational<uint16_t>(50000, views[2]->displayMetadata.display_primaries[2][0]);
-          hdr10.BluePrimary[1] = from_rational<uint16_t>(50000, views[2]->displayMetadata.display_primaries[2][1]);
-        }
-        if (views[2]->displayMetadata.has_luminance)
-        {
-          hdr10.MinMasteringLuminance = from_rational<uint32_t>(10000, views[2]->displayMetadata.min_luminance);
-          hdr10.MaxMasteringLuminance = from_rational<uint32_t>(10000, views[2]->displayMetadata.max_luminance);
-        }
-        if (views[2]->hasLightMetadata)
-        {
-          hdr10.MaxContentLightLevel = static_cast<uint16_t>(views[2]->lightMetadata.MaxCLL);
-          hdr10.MaxFrameAverageLightLevel = static_cast<uint16_t>(views[2]->lightMetadata.MaxFALL);
-        }
-        videoCtx2->VideoProcessorSetStreamHDRMetaData(m_pVideoProcessor.Get(), DEFAULT_STREAM_INDEX, 
-                                                      DXGI_HDR_METADATA_TYPE_HDR10, sizeof(hdr10), &hdr10);
+        // Passes stream SEI HDR metadata to VideoProcessor (refresh changes during playback)
+        DXGI_HDR_METADATA_HDR10 hdr10Stream = CRendererBase::GetDXGIHDR10MetaData(views[2]);
+        videoCtx2->VideoProcessorSetStreamHDRMetaData(m_pVideoProcessor.Get(), DEFAULT_STREAM_INDEX,
+                                                      DXGI_HDR_METADATA_TYPE_HDR10,
+                                                      sizeof(hdr10Stream), &hdr10Stream);
+
+        // Passes Display HDR parameters (EDID) to VideoProcessor
+        videoCtx2->VideoProcessorSetOutputHDRMetaData(m_pVideoProcessor.Get(),
+                                                      DXGI_HDR_METADATA_TYPE_HDR10,
+                                                      sizeof(m_hdr10Display), &m_hdr10Display);
       }
     }
   }
