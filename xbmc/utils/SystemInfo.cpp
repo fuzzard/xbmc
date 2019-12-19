@@ -1271,13 +1271,12 @@ std::string CSysInfo::GetBuildTargetPlatformVersionDecoded(void)
     return StringUtils::Format("version %d.%d.%d", (__MAC_OS_X_VERSION_MIN_REQUIRED / 100) % 100,
       (__MAC_OS_X_VERSION_MIN_REQUIRED / 10) % 10, __MAC_OS_X_VERSION_MIN_REQUIRED % 10);
 #endif // defined(MAC_OS_X_VERSION_10_10) && __MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10
-#elif defined(TARGET_DARWIN_IOS)
-  return StringUtils::Format("version %d.%d.%d", (__IPHONE_OS_VERSION_MIN_REQUIRED / 10000) % 100,
-                             (__IPHONE_OS_VERSION_MIN_REQUIRED / 100) % 100, __IPHONE_OS_VERSION_MIN_REQUIRED % 100);
-#elif defined(TARGET_DARWIN_TVOS)
-  return StringUtils::Format("version %d.%d.%d", (__TV_OS_VERSION_MIN_REQUIRED / 10000) % 100,
-                             (__TV_OS_VERSION_MIN_REQUIRED / 100) % 100,
-                             __TV_OS_VERSION_MIN_REQUIRED % 100);
+#elif defined(TARGET_DARWIN_EMBEDDED)
+  std::string versionStr = GetBuildTargetPlatformVersion();
+  int major = (std::stoi(versionStr) / 10000) % 100;
+  int minor = (std::stoi(versionStr) / 100) % 100;
+  int rev = std::stoi(versionStr) % 100;
+  return StringUtils::Format("version %d.%d.%d", major, minor, rev);
 #elif defined(TARGET_FREEBSD)
   // FIXME: should works well starting from FreeBSD 8.1
   static const int major = (__FreeBSD_version / 100000) % 100;
