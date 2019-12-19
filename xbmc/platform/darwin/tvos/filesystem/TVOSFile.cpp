@@ -31,12 +31,6 @@
 
 using namespace XFILE;
 
-
-CTVOSFile::CTVOSFile() : m_position(-1), m_pFallbackFile(nullptr)
-{
-}
-
-
 CTVOSFile::~CTVOSFile()
 {
   Close();
@@ -148,7 +142,7 @@ bool CTVOSFile::Rename(const CURL& url, const CURL& urlnew)
     if (CDarwinNSUserDefaults::GetKeyDataFromPath(url.Get(), lpBuf,
                                                   uiBufSize)) // get size from old file
     {
-      lpBuf = (void*)new char[uiBufSize];
+      lpBuf = static_cast<void*>(new char[uiBufSize]);
       if (CDarwinNSUserDefaults::GetKeyDataFromPath(url.Get(), lpBuf, uiBufSize)) // read old file
       {
         if (CDarwinNSUserDefaults::SetKeyDataFromPath(urlnew.Get(), lpBuf, uiBufSize,

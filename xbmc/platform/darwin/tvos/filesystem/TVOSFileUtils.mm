@@ -18,10 +18,11 @@
 const char* CTVOSFileUtils::GetUserHomeDirectory()
 {
   static std::string appHomeFolder;
-  if (appHomeFolder.empty())
-  {
+  static std::once_flag dir_flag;
+
+  std::call_once(dir_flag, [] {
     appHomeFolder = URIUtils::AddFileToFolder(GetOSCachesDirectory(), CCompileInfo::GetAppName());
-  }
+  });
 
   return appHomeFolder.c_str();
 }

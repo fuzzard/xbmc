@@ -77,8 +77,7 @@ bool CTVOSDirectory::GetDirectory(const CURL& url, CFileItemList& items)
   CDarwinNSUserDefaults::GetDirectoryContents(rootpath, contents);
   for (const auto& path : contents)
   {
-    std::string itemLabel = URIUtils::GetFileName(path);
-    CFileItemPtr pItem(new CFileItem(itemLabel));
+    CFileItemPtr pItem(new CFileItem(URIUtils::GetFileName(path)));
     // we only save files to persistent storage
     pItem->m_bIsFolder = false;
     // path must a full path, with no protocol
