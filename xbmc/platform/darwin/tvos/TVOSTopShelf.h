@@ -20,8 +20,8 @@ public:
   void HandleTopShelfUrl(const std::string& url, const bool run);
 
 private:
-  CTVOSTopShelf();
-  ~CTVOSTopShelf();
+  CTVOSTopShelf() = default;
+  ~CTVOSTopShelf() = default;
 
   static std::string m_url;
   static bool m_handleUrl;

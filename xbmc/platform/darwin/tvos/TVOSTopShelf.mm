@@ -40,14 +40,6 @@ static const int MaxItems = 5;
 std::string CTVOSTopShelf::m_url;
 bool CTVOSTopShelf::m_handleUrl;
 
-CTVOSTopShelf::CTVOSTopShelf()
-{
-}
-
-CTVOSTopShelf::~CTVOSTopShelf()
-{
-}
-
 CTVOSTopShelf& CTVOSTopShelf::GetInstance()
 {
   static CTVOSTopShelf sTopShelf;
@@ -64,7 +56,7 @@ void CTVOSTopShelf::SetTopShelfItems(CFileItemList& movies, CFileItemList& tv)
 
     storeUrl = [storeUrl URLByAppendingPathComponent:@"RA" isDirectory:YES];
     const BOOL isJailbroken = [tvosShared isJailbroken];
-    CLog::Log(LOGDEBUG, "TopShelf: using shared path %s (jailbroken: %s)\n",
+    CLog::Log(LOGDEBUG, "TopShelf: using shared path {} (jailbroken: {}})",
               storeUrl.path.UTF8String, isJailbroken ? "yes" : "no");
 
     auto sharedDefaults = [[NSUserDefaults alloc] initWithSuiteName:[tvosShared getSharedID]];
@@ -114,7 +106,7 @@ void CTVOSTopShelf::SetTopShelfItems(CFileItemList& movies, CFileItemList& tv)
               }
 
               auto title = getTitleForItem(videoItem);
-              CLog::Log(LOGDEBUG, "TopShelf: - adding video to '%s' array: %s\n",
+              CLog::Log(LOGDEBUG, "TopShelf: - adding video to '{}' array: {}",
                         videosKey.UTF8String, title.c_str());
               [videosArray addObject:@{
                 @"title" : @(title.c_str()),
@@ -152,8 +144,9 @@ void CTVOSTopShelf::SetTopShelfItems(CFileItemList& movies, CFileItemList& tv)
     videoDb.Close();
 
     // remove unused thumbs from cache folder
-    for (NSString* strFiles in filePaths)
-      [fileManager removeItemAtURL:[storeUrl URLByAppendingPathComponent:strFiles isDirectory:FALSE]
+    NSString* strFiles;
+    for (strFiles in filePaths)
+      [fileManager removeItemAtURL:[storeUrl URLByAppendingPathComponent:strFiles isDirectory:NO]
                              error:nil];
 
     [sharedDictJailbreak writeToURL:[storeUrl URLByAppendingPathComponent:@"shared.dict"]
@@ -164,28 +157,28 @@ void CTVOSTopShelf::SetTopShelfItems(CFileItemList& movies, CFileItemList& tv)
 
 void CTVOSTopShelf::RunTopShelf()
 {
-  if (m_handleUrl)
+  if (!m_handleUrl)
+    return;
+
+  m_handleUrl = false;
+
+  auto split = StringUtils::Split(m_url, "/");
+
+  auto url = Base64::Decode(split[4]);
+
+  if (split[2] == "display")
   {
-    m_handleUrl = false;
-
-    std::vector<std::string> split = StringUtils::Split(m_url, "/");
-
-    std::string url = Base64::Decode(split[4]);
-
-    if (split[2] == "display")
-    {
-      KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(
-          TMSG_MASK_WINDOWMANAGER + 9, -1, -1,
-          static_cast<void*>(new CFileItem(url.c_str(), false)));
-    }
-    else //play
-    {
-      // its a bit ugly, but only way to get resume window to show
-      std::string cmd =
-          StringUtils::Format("PlayMedia(%s)", StringUtils::Paramify(url.c_str()).c_str());
-      KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_EXECUTE_BUILT_IN, -1, -1,
-                                                                    nullptr, cmd);
-    }
+    KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(
+        TMSG_MASK_WINDOWMANAGER + 9, -1, -1,
+        static_cast<void*>(new CFileItem(url.c_str(), false)));
+  }
+  else //play
+  {
+    // its a bit ugly, but only way to get resume window to show
+    auto cmd =
+        StringUtils::Format("PlayMedia(%s)", StringUtils::Paramify(url.c_str()).c_str());
+    KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_EXECUTE_BUILT_IN, -1, -1,
+                                                                  nullptr, cmd);
   }
 }
 
