@@ -15,7 +15,6 @@
 // Note that setting the view non-opaque will only work if the EAGL surface has an alpha channel.
 @interface TVOSEAGLView : UIView
 {
-@private
   EAGLContext* m_context;
   // The pixel dimensions of the CAEAGLLayer.
   GLint m_framebufferWidth;
