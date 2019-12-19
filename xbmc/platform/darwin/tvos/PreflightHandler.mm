@@ -56,7 +56,7 @@ void CPreflightHandler::NSUserDefaultsPurge(const char* prefix)
     if ([aKey hasPrefix:@(prefix)])
     {
       [defaults removeObjectForKey:aKey];
-      CLog::Log(LOGDEBUG, "nsuserdefaults: removing %s", aKey.UTF8String);
+      CLog::Log(LOGDEBUG, "nsuserdefaults: removing {}", aKey.UTF8String);
     }
   }
 }
@@ -80,8 +80,7 @@ void CPreflightHandler::CheckForRemovedCacheFolder()
 void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
 {
   CLog::Log(LOGDEBUG,
-            "MigrateUserdataXMLToNSUserDefaults: "
-            "NSUserDefaultsSize(%lld)",
+            "MigrateUserdataXMLToNSUserDefaults: NSUserDefaultsSize({})",
             NSUserDefaultsSize());
 
   auto defaults = NSUserDefaults.standardUserDefaults;
@@ -100,8 +99,8 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
   NSUserDefaultsPurge("/userdata");
   // now search for all xxx.xml files in the
   // user home directory and copy them into NSUserDefaults
-  std::string userHome = CTVOSFileUtils::GetUserHomeDirectory();
-  auto nsPath = @(userHome.c_str());
+  auto userHome = CTVOSFileUtils::GetUserHomeDirectory();
+  auto nsPath = @(userHome);
 
   auto enumerator = [NSFileManager.defaultManager enumeratorAtPath:nsPath];
   while (auto file = enumerator.nextObject)
@@ -123,72 +122,79 @@ void CPreflightHandler::MigrateUserdataXMLToNSUserDefaults()
     {
       // log what we are doing
       CLog::Log(LOGDEBUG,
-                "MigrateUserdataXMLToNSUserDefaults: "
-                "Found -> {}",
+                "MigrateUserdataXMLToNSUserDefaults: Found -> {}",
                 fullPath.UTF8String);
 
       // we cannot use a Cfile for src, it will get mapped into a CTVOSFile
       const CURL srcUrl(fullPath.UTF8String);
       XFILE::CPosixFile srcfile;
-      if (srcfile.Open(srcUrl))
+      if (!srcfile.Open(srcUrl))
       {
-        // we could use a CFile here but WTH, let's go direct
-        const CURL dtsUrl(fullPath.UTF8String);
-        XFILE::CTVOSFile dstfile;
-        if (dstfile.OpenForWrite(dtsUrl, true))
+        CLog::Log(LOGDEBUG,
+                  "MigrateUserdataXMLToNSUserDefaults: Failed opening file {}",
+                  srcUrl.Get().c_str());
+        continue;
+      }
+
+      // we could use a CFile here but WTH, let's go direct
+      const CURL dtsUrl(fullPath.UTF8String);
+      XFILE::CTVOSFile dstfile;
+      if (!dstfile.OpenForWrite(dtsUrl, true))
+      {
+        CLog::Log(LOGERROR,
+                  "MigrateUserdataXMLToNSUserDefaults: Failed write to file {}",
+                  dtsUrl.Get().c_str());
+        srcfile.Close();
+      }
+      else
+      {
+        auto iBufferSize = 128 * 1024;
+        XFILE::auto_buffer buffer(iBufferSize);
+
+        while (true)
         {
-          auto iBufferSize = 128 * 1024;
-          XFILE::auto_buffer buffer(iBufferSize);
-
-          while (true)
+          // read data
+          auto iread = srcfile.Read(buffer.get(), iBufferSize);
+          if (iread == 0)
+            break;
+          else if (iread < 0)
           {
-            // read data
-            auto iread = srcfile.Read(buffer.get(), iBufferSize);
-            if (iread == 0)
-              break;
-            else if (iread < 0)
-            {
-              CLog::Log(LOGERROR,
-                        "MigrateUserdataXMLToNSUserDefaults: "
-                        "Failed read from file {}",
-                        srcUrl.Get().c_str());
-              break;
-            }
-
-            // write data and make sure we write it all
-            auto iwrite = 0;
-            while (iwrite < iread)
-            {
-              auto iwrite2 = dstfile.Write(buffer.get() + iwrite, iread - iwrite);
-              if (iwrite2 <= 0)
-                break;
-              iwrite += iwrite2;
-            }
-
-            if (iwrite != iread)
-            {
-              CLog::Log(LOGERROR,
-                        "MigrateUserdataXMLToNSUserDefaults: "
-                        "Failed write to file {}",
-                        dtsUrl.Get().c_str());
-              break;
-            }
+            CLog::Log(LOGERROR,
+                      "MigrateUserdataXMLToNSUserDefaults: Failed read from file {}",
+                      srcUrl.Get().c_str());
+            break;
           }
-          dstfile.Close();
+
+          // write data and make sure we write it all
+          auto iwrite = 0;
+          while (iwrite < iread)
+          {
+            auto iwrite2 = dstfile.Write(buffer.get() + iwrite, iread - iwrite);
+            if (iwrite2 <= 0)
+              break;
+            iwrite += iwrite2;
+          }
+
+          if (iwrite != iread)
+          {
+            CLog::Log(LOGERROR,
+                      "MigrateUserdataXMLToNSUserDefaults: Failed write to file {}",
+                      dtsUrl.Get().c_str());
+            break;
+          }
         }
+        dstfile.Close();
         srcfile.Close();
         srcfile.Delete(srcUrl);
       }
     }
-
-    // set the migration_key to a known value and write it.
-    [defaults setObject:@"1" forKey:migration_key];
-    defaults.synchronize;
-
-    CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: migration finished");
-    CLog::Log(LOGDEBUG,
-              "MigrateUserdataXMLToNSUserDefaults: "
-              "NSUserDefaultsSize({})",
-              NSUserDefaultsSize());
   }
+  // set the migration_key to a known value and write it.
+  [defaults setObject:@"1" forKey:migration_key];
+  defaults.synchronize;
+
+  CLog::Log(LOGDEBUG, "MigrateUserdataXMLToNSUserDefaults: migration finished");
+  CLog::Log(LOGDEBUG,
+            "MigrateUserdataXMLToNSUserDefaults: NSUserDefaultsSize({})",
+            NSUserDefaultsSize());
 }
