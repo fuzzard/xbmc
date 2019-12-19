@@ -8,9 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-extern float const REPEATED_KEYPRESS_DELAY_S;
-extern float const REPEATED_KEYPRESS_PAUSE_S;
-
 @interface TVOSLibInputSettings : NSObject
 
 @property(nonatomic) bool useSiriRemote;

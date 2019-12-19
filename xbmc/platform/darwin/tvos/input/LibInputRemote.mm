@@ -25,6 +25,10 @@
 
 @synthesize remoteIdleState = m_remoteIdleState;
 
+// Default Timer values (seconds)
+NSTimeInterval REPEATED_KEYPRESS_DELAY_S = 0.50;
+NSTimeInterval REPEATED_KEYPRESS_PAUSE_S = 0.05;
+
 #pragma mark - remote idle timer
 
 - (void)startRemoteTimer
@@ -35,9 +39,9 @@
     [self stopRemoteTimer];
   if (g_xbmcController.inputHandler.inputSettings.remoteIdleEnabled)
   {
-    NSDate* fireDate = [NSDate
+    auto fireDate = [NSDate
         dateWithTimeIntervalSinceNow:g_xbmcController.inputHandler.inputSettings.remoteIdleTimeout];
-    NSTimer* timer = [[NSTimer alloc] initWithFireDate:fireDate
+    auto timer = [[NSTimer alloc] initWithFireDate:fireDate
                                               interval:0.0
                                                 target:self
                                               selector:@selector(setRemoteIdleState)
@@ -75,12 +79,12 @@
 
   [g_xbmcController.inputHandler sendButtonPressed:keyId];
 
-  NSNumber* number = @(keyId);
-  NSDate* fireDate = [NSDate dateWithTimeIntervalSinceNow:REPEATED_KEYPRESS_DELAY_S];
+  auto number = @(keyId);
+  auto fireDate = [NSDate dateWithTimeIntervalSinceNow:REPEATED_KEYPRESS_DELAY_S];
 
   // schedule repeated timer which starts after REPEATED_KEYPRESS_DELAY_S
   // and fires every REPEATED_KEYPRESS_PAUSE_S
-  NSTimer* timer = [[NSTimer alloc] initWithFireDate:fireDate
+  auto timer = [[NSTimer alloc] initWithFireDate:fireDate
                                             interval:interval
                                               target:self
                                             selector:@selector(keyPressTimerCallback:)

@@ -14,10 +14,6 @@
 
 #import <Foundation/Foundation.h>
 
-// Default Timer values (seconds)
-const float REPEATED_KEYPRESS_DELAY_S = 0.50;
-const float REPEATED_KEYPRESS_PAUSE_S = 0.05;
-
 @implementation TVOSLibInputSettings
 
 @synthesize useSiriRemote = m_useSiriRemote;
