@@ -1228,7 +1228,7 @@ bool CWIN32Util::SetThreadLocalLocale(bool enable /* = true */)
   return _configthreadlocale(param) != -1;
 }
 
-void CWIN32Util::ToggleWindowsHDR()
+bool CWIN32Util::SetHDR()
 {
   uint32_t pathCount, modeCount;
 
@@ -1239,67 +1239,101 @@ void CWIN32Util::ToggleWindowsHDR()
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x01, 0x00, 0x00, 0xDB, 0x00,
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00};
 
-  if (ERROR_SUCCESS == GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &pathCount, &modeCount))
+  long retvalue;
+  retvalue = GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &pathCount, &modeCount);
+  if (retvalue != ERROR_SUCCESS)
   {
-    DISPLAYCONFIG_PATH_INFO* pathsArray = nullptr;
-    DISPLAYCONFIG_MODE_INFO* modesArray = nullptr;
+    CLog::Log(LOGDEBUG, "GetDisplayConfigBufferSizes failed: Error {}", retvalue);
+    return false;
+  }
 
-    const size_t sizePathsArray = pathCount * sizeof(DISPLAYCONFIG_PATH_INFO);
-    const size_t sizeModesArray = modeCount * sizeof(DISPLAYCONFIG_MODE_INFO);
+  DISPLAYCONFIG_PATH_INFO* pathsArray = nullptr;
+  DISPLAYCONFIG_MODE_INFO* modesArray = nullptr;
 
-    pathsArray = static_cast<DISPLAYCONFIG_PATH_INFO*>(std::malloc(sizePathsArray));
-    modesArray = static_cast<DISPLAYCONFIG_MODE_INFO*>(std::malloc(sizeModesArray));
+  const size_t sizePathsArray = pathCount * sizeof(DISPLAYCONFIG_PATH_INFO);
+  const size_t sizeModesArray = modeCount * sizeof(DISPLAYCONFIG_MODE_INFO);
 
-    if (pathsArray != nullptr && modesArray != nullptr)
+  pathsArray = static_cast<DISPLAYCONFIG_PATH_INFO*>(std::malloc(sizePathsArray));
+  modesArray = static_cast<DISPLAYCONFIG_MODE_INFO*>(std::malloc(sizeModesArray));
+
+  std::memset(pathsArray, 0, sizePathsArray);
+  std::memset(modesArray, 0, sizeModesArray);
+
+  retvalue =
+      QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, pathsArray, &modeCount, modesArray, 0);
+
+  std::free(pathsArray);
+
+  if (retvalue != ERROR_SUCCESS)
+  {
+    std::free(modesArray);
+    CLog::Log(LOGDEBUG, "QueryDisplayConfig failed: Error {}", retvalue);
+    return false;
+  }
+
+  DISPLAYCONFIG_DEVICE_INFO_HEADER* setPacket =
+      reinterpret_cast<DISPLAYCONFIG_DEVICE_INFO_HEADER*>(set);
+  DISPLAYCONFIG_DEVICE_INFO_HEADER* requestPacket =
+      reinterpret_cast<DISPLAYCONFIG_DEVICE_INFO_HEADER*>(request);
+
+  for (int i = 0; i < modeCount; i++)
+  {
+    if (modesArray[i].infoType == DISPLAYCONFIG_MODE_INFO_TYPE_TARGET)
     {
-      std::memset(pathsArray, 0, sizePathsArray);
-      std::memset(modesArray, 0, sizeModesArray);
+      setPacket->adapterId.HighPart = modesArray[i].adapterId.HighPart;
+      setPacket->adapterId.LowPart = modesArray[i].adapterId.LowPart;
+      setPacket->id = modesArray[i].id;
 
-      if (ERROR_SUCCESS == QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, pathsArray,
-                                              &modeCount, modesArray, 0))
-      {
-        DISPLAYCONFIG_DEVICE_INFO_HEADER* setPacket =
-            reinterpret_cast<DISPLAYCONFIG_DEVICE_INFO_HEADER*>(set);
-        DISPLAYCONFIG_DEVICE_INFO_HEADER* requestPacket =
-            reinterpret_cast<DISPLAYCONFIG_DEVICE_INFO_HEADER*>(request);
-
-        for (int i = 0; i < modeCount; i++)
-        {
-          if (modesArray[i].infoType == DISPLAYCONFIG_MODE_INFO_TYPE_TARGET)
-          {
-            setPacket->adapterId.HighPart = modesArray[i].adapterId.HighPart;
-            setPacket->adapterId.LowPart = modesArray[i].adapterId.LowPart;
-            setPacket->id = modesArray[i].id;
-
-            requestPacket->adapterId.HighPart = modesArray[i].adapterId.HighPart;
-            requestPacket->adapterId.LowPart = modesArray[i].adapterId.LowPart;
-            requestPacket->id = modesArray[i].id;
-          }
-        }
-
-        if (ERROR_SUCCESS == DisplayConfigGetDeviceInfo(requestPacket))
-        {
-          if (request[20] == 0xD1) // HDR is OFF
-          {
-            set[20] = 1;
-            CLog::LogF(LOGNOTICE, "Toggle Windows HDR On (OFF => ON).");
-            DisplayConfigSetDeviceInfo(setPacket);
-          }
-          else if (request[20] == 0xD3) // HDR is ON
-          {
-            set[20] = 0;
-            CLog::LogF(LOGNOTICE, "Toggle Windows HDR Off (ON => OFF).");
-            DisplayConfigSetDeviceInfo(setPacket);
-          }
-        }
-      }
-      std::free(pathsArray);
-      std::free(modesArray);
+      requestPacket->adapterId.HighPart = modesArray[i].adapterId.HighPart;
+      requestPacket->adapterId.LowPart = modesArray[i].adapterId.LowPart;
+      requestPacket->id = modesArray[i].id;
     }
   }
+
+  std::free(modesArray);
+
+  retvalue = DisplayConfigGetDeviceInfo(requestPacket);
+  if (retvalue != ERROR_SUCCESS)
+  {
+    CLog::Log(LOGDEBUG, "DisplayConfigGetDeviceInfo failed: Error {}", retvalue);
+    return false;
+  }
+
+  if (request[20] == 0xD1) // HDR is OFF
+  {
+    set[20] = 1;
+    retvalue = DisplayConfigSetDeviceInfo(setPacket);
+    if (retvalue == ERROR_SUCCESS)
+    {
+      CLog::LogF(LOGNOTICE, "Windows HDR Enabled (OFF => ON).");
+      return true;
+    }
+    else
+    {
+      CLog::LogF(LOGDEBUG, "DisplayConfigSetDeviceInfo failed: Error {}", retvalue);
+      return false;
+    }
+  }
+  else if (request[20] == 0xD3) // HDR is ON
+  {
+    set[20] = 0;
+    retvalue = DisplayConfigSetDeviceInfo(setPacket);
+    if (retvalue == ERROR_SUCCESS)
+    {
+      CLog::LogF(LOGNOTICE, "Windows HDR Disabled (ON => OFF).");
+      return true;
+    }
+    else
+    {
+      CLog::LogF(LOGDEBUG, "DisplayConfigSetDeviceInfo failed: Error {}", retvalue);
+      return false;
+    }
+  }
+
+  return false;
 }
 
-int CWIN32Util::GetHDRDisplayStatus()
+int CWIN32Util::GetOSHDRStatus()
 {
   uint32_t pathCount, modeCount;
 
@@ -1307,73 +1341,76 @@ int CWIN32Util::GetHDRDisplayStatus()
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x01, 0x00, 0x00, 0xDB, 0x00,
                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00};
 
-  int status = 0;
-
-  if (ERROR_SUCCESS == GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &pathCount, &modeCount))
+  OSHDRSTATUS status = UNKNOWN;
+  long retvalue;
+  retvalue = GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &pathCount, &modeCount);
+  if (retvalue != ERROR_SUCCESS)
   {
-    DISPLAYCONFIG_PATH_INFO* pathsArray = nullptr;
-    DISPLAYCONFIG_MODE_INFO* modesArray = nullptr;
+    CLog::Log(LOGDEBUG, "GetDisplayConfigBufferSizes failed: Error {}", retvalue);
+    return status;
+  }
 
-    const size_t sizePathsArray = pathCount * sizeof(DISPLAYCONFIG_PATH_INFO);
-    const size_t sizeModesArray = modeCount * sizeof(DISPLAYCONFIG_MODE_INFO);
+  DISPLAYCONFIG_PATH_INFO* pathsArray = nullptr;
+  DISPLAYCONFIG_MODE_INFO* modesArray = nullptr;
 
-    pathsArray = static_cast<DISPLAYCONFIG_PATH_INFO*>(std::malloc(sizePathsArray));
-    modesArray = static_cast<DISPLAYCONFIG_MODE_INFO*>(std::malloc(sizeModesArray));
+  const size_t sizePathsArray = pathCount * sizeof(DISPLAYCONFIG_PATH_INFO);
+  const size_t sizeModesArray = modeCount * sizeof(DISPLAYCONFIG_MODE_INFO);
 
-    if (pathsArray != nullptr && modesArray != nullptr)
+  pathsArray = static_cast<DISPLAYCONFIG_PATH_INFO*>(std::malloc(sizePathsArray));
+  modesArray = static_cast<DISPLAYCONFIG_MODE_INFO*>(std::malloc(sizeModesArray));
+
+  std::memset(pathsArray, 0, sizePathsArray);
+  std::memset(modesArray, 0, sizeModesArray);
+
+  retvalue =
+      QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, pathsArray, &modeCount, modesArray, 0);
+
+  std::free(pathsArray);
+
+  if (retvalue != ERROR_SUCCESS)
+  {
+    std::free(modesArray);
+    CLog::Log(LOGDEBUG, "QueryDisplayConfig failed: Error {}", retvalue);
+    return status;
+  }
+
+  DISPLAYCONFIG_DEVICE_INFO_HEADER* requestPacket =
+      reinterpret_cast<DISPLAYCONFIG_DEVICE_INFO_HEADER*>(request);
+
+  for (int i = 0; i < modeCount; i++)
+  {
+    if (modesArray[i].infoType == DISPLAYCONFIG_MODE_INFO_TYPE_TARGET)
     {
-      std::memset(pathsArray, 0, sizePathsArray);
-      std::memset(modesArray, 0, sizeModesArray);
-
-      if (ERROR_SUCCESS == QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, pathsArray,
-                                              &modeCount, modesArray, 0))
-      {
-        DISPLAYCONFIG_DEVICE_INFO_HEADER* requestPacket =
-            reinterpret_cast<DISPLAYCONFIG_DEVICE_INFO_HEADER*>(request);
-
-        for (int i = 0; i < modeCount; i++)
-        {
-          if (modesArray[i].infoType == DISPLAYCONFIG_MODE_INFO_TYPE_TARGET)
-          {
-            requestPacket->adapterId.HighPart = modesArray[i].adapterId.HighPart;
-            requestPacket->adapterId.LowPart = modesArray[i].adapterId.LowPart;
-            requestPacket->id = modesArray[i].id;
-          }
-        }
-
-        if (ERROR_SUCCESS == DisplayConfigGetDeviceInfo(requestPacket))
-        {
-          std::string txDeviceInfo;
-          switch (request[20])
-          {
-            case 0xD0: // display is not HDR capable
-              status = 0;
-              txDeviceInfo = "No HDR capable";
-              break;
-            case 0xD1: // capable and HDR is OFF
-              status = 1;
-              txDeviceInfo = "HDR capable and OFF";
-              break;
-            case 0xD3: // capable and HDR is ON
-              status = 2;
-              txDeviceInfo = "HDR capable and ON";
-              break;
-            default:
-              status = 0;
-              txDeviceInfo = "UNKNOWN";
-              break;
-          }
-          if (CServiceBroker::IsServiceManagerUp())
-            CLog::LogF(LOGDEBUG,
-                       "DisplayConfigGetDeviceInfo returned value 0x{0:2X} \"{1:s}\"  (return "
-                       "status = {2:d})",
-                       request[20], txDeviceInfo, status);
-        }
-      }
-      std::free(pathsArray);
-      std::free(modesArray);
+      requestPacket->adapterId.HighPart = modesArray[i].adapterId.HighPart;
+      requestPacket->adapterId.LowPart = modesArray[i].adapterId.LowPart;
+      requestPacket->id = modesArray[i].id;
     }
   }
+
+  retvalue = DisplayConfigGetDeviceInfo(requestPacket);
+  if (retvalue != ERROR_SUCCESS)
+  {
+    CLog::Log(LOGDEBUG, "DisplayConfigGetDeviceInfo failed: Error {}", retvalue);
+    return status;
+  }
+
+  std::string txDeviceInfo;
+  switch (request[20])
+  {
+    case 0xD1: // capable and HDR is OFF
+      status = HDR_OFF;
+      break;
+    case 0xD3: // capable and HDR is ON
+      status = HDR_ON;
+      break;
+    default:
+      status = UNKNOWN;
+      return status;
+      break;
+  }
+
+  CLog::LogF(LOGDEBUG, "DisplayConfigGetDeviceInfo HDR status = {}",
+             status == HDR_ON ? "Enabled" : "Disabled");
 
   return status;
 }

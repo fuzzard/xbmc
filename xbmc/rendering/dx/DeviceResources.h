@@ -80,7 +80,7 @@ namespace DX
     bool SetFullScreen(bool fullscreen, RESOLUTION_INFO& res);
 
     // HDR display support
-    bool IsDisplayHDREnabled() const;
+    bool IsHDRDisplay() const;
     void SetHdrMetaData(DXGI_HDR_METADATA_HDR10& hdr10) const;
     void SetHdrColorSpace(const DXGI_COLOR_SPACE_TYPE colorSpace) const;
     bool IsHDROutput() const { return m_IsHDROutput; }

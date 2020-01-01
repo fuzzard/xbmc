@@ -1637,20 +1637,12 @@ const infomap weather[] =        {{ "isfetched",        WEATHER_IS_FETCHED },
 ///     @skinning_v19 **[New Boolean Condition]** \link  System_SupportsCPUUsage ` System.SupportsCPUUsage`\endlink
 ///     <p>
 ///   }
-///   \table_row3{   <b>`System.IsHDRDisplayOff`</b>,
-///                  \anchor System_IsHDRDisplayOff
+///   \table_row3{   <b>`System.IsOSHDREnabled`</b>,
+///                  \anchor System_IsOSHDREnabled
 ///                  _boolean_,
-///     @return **True** if the system has HDR display capable but HDR no enabled.
+///     @return **True** if the OS HDR mode is enabled.
 ///     <p><hr>
-///     @skinning_v19 **[New Boolean Condition]** \link  System_IsHDRDisplayOff ` System.IsHDRDisplayOff`\endlink
-///     <p>
-///   }
-///   \table_row3{   <b>`System.IsHDRDisplayOn`</b>,
-///                  \anchor System_IsHDRDisplayOn
-///                  _boolean_,
-///     @return **True** if the system has HDR display enabled.
-///     <p><hr>
-///     @skinning_v19 **[New Boolean Condition]** \link  System_IsHDRDisplayOn ` System.IsHDRDisplayOn`\endlink
+///     @skinning_v19 **[New Boolean Condition]** \link  System_IsOSHDREnabled ` System.IsOSHDREnabled`\endlink
 ///     <p>
 ///   }
 const infomap system_labels[] =  {{ "hasnetwork",       SYSTEM_ETHERNET_LINK_ACTIVE },
@@ -1722,8 +1714,7 @@ const infomap system_labels[] =  {{ "hasnetwork",       SYSTEM_ETHERNET_LINK_ACT
                                   { "privacypolicy",    SYSTEM_PRIVACY_POLICY },
                                   { "haspvraddon",      SYSTEM_HAS_PVR_ADDON },
                                   { "supportscpuusage", SYSTEM_SUPPORTS_CPU_USAGE },
-                                  {"ishdrdisplayoff", SYSTEM_IS_HDR_DISPLAY_OFF},
-                                  {"ishdrdisplayon", SYSTEM_IS_HDR_DISPLAY_ON}};
+                                  { "IsOSHDREnabled", SYSTEM_IS_OS_HDR_ENABLED }};
 
 /// \page modules__infolabels_boolean_conditions
 ///   \table_row3{   <b>`System.HasAddon(id)`</b>,

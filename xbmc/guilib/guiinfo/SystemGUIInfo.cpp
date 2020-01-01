@@ -570,11 +570,8 @@ bool CSystemGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int context
     case SYSTEM_SHOW_EXIT_BUTTON:
       value = CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_showExitButton;
       return true;
-    case SYSTEM_IS_HDR_DISPLAY_OFF:
-      value = (1 == CServiceBroker::GetWinSystem()->GetHDRDisplayStatus());
-      return true;
-    case SYSTEM_IS_HDR_DISPLAY_ON:
-      value = (2 == CServiceBroker::GetWinSystem()->GetHDRDisplayStatus());
+    case SYSTEM_IS_OS_HDR_ENABLED:
+      value = CServiceBroker::GetWinSystem()->GetOSHDRStatus();
       return true;
     case SYSTEM_HAS_LOGINSCREEN:
       value = CServiceBroker::GetSettingsComponent()->GetProfileManager()->UsingLoginScreen();

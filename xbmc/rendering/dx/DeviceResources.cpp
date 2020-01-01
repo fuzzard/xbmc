@@ -519,7 +519,6 @@ void DX::DeviceResources::ResizeBuffers()
   bool isHdrEnabled = false;
   HRESULT hr = E_FAIL;
   DXGI_SWAP_CHAIN_DESC1 scDesc = { 0 };
-
   if (m_swapChain)
   {
     BOOL bFullcreen = 0;
@@ -531,7 +530,7 @@ void DX::DeviceResources::ResizeBuffers()
 
     // check if swapchain needs to be recreated
     m_swapChain->GetDesc1(&scDesc);
-    isHdrEnabled = IsDisplayHDREnabled();
+    isHdrEnabled = dynamic_cast<CWinSystemWin32*>(CServiceBroker::GetWinSystem())->IsHDRDisplay();
 
     if ((scDesc.Stereo == TRUE) != bHWStereoEnabled || (m_Is10bSwapchain != isHdrEnabled))
     {
@@ -1144,35 +1143,21 @@ DXGI_HDR_METADATA_HDR10 DX::DeviceResources::GetHdr10Display() const
     {
       if (SUCCEEDED(pOutput6->GetDesc1(&od)))
       {
-        constexpr float FACTOR_1 = 50000.0;
-        constexpr float FACTOR_2 = 10000.0;
-        hdr10.RedPrimary[0] = static_cast<uint16_t>(FACTOR_1 * od.RedPrimary[0]);
-        hdr10.RedPrimary[1] = static_cast<uint16_t>(FACTOR_1 * od.RedPrimary[1]);
-        hdr10.GreenPrimary[0] = static_cast<uint16_t>(FACTOR_1 * od.GreenPrimary[0]);
-        hdr10.GreenPrimary[1] = static_cast<uint16_t>(FACTOR_1 * od.GreenPrimary[1]);
-        hdr10.BluePrimary[0] = static_cast<uint16_t>(FACTOR_1 * od.BluePrimary[0]);
-        hdr10.BluePrimary[1] = static_cast<uint16_t>(FACTOR_1 * od.BluePrimary[1]);
-        hdr10.WhitePoint[0] = static_cast<uint16_t>(FACTOR_1 * od.WhitePoint[0]);
-        hdr10.WhitePoint[1] = static_cast<uint16_t>(FACTOR_1 * od.WhitePoint[1]);
-        hdr10.MaxMasteringLuminance = static_cast<uint32_t>(FACTOR_2 * od.MaxLuminance);
-        hdr10.MinMasteringLuminance = static_cast<uint32_t>(FACTOR_2 * od.MinLuminance);
+        constexpr float COLOURFACTOR = 50000.0;
+        constexpr float LUMINANCEFACTOR = 10000.0;
+        hdr10.RedPrimary[0] = static_cast<uint16_t>(COLOURFACTOR * od.RedPrimary[0]);
+        hdr10.RedPrimary[1] = static_cast<uint16_t>(COLOURFACTOR * od.RedPrimary[1]);
+        hdr10.GreenPrimary[0] = static_cast<uint16_t>(COLOURFACTOR * od.GreenPrimary[0]);
+        hdr10.GreenPrimary[1] = static_cast<uint16_t>(COLOURFACTOR * od.GreenPrimary[1]);
+        hdr10.BluePrimary[0] = static_cast<uint16_t>(COLOURFACTOR * od.BluePrimary[0]);
+        hdr10.BluePrimary[1] = static_cast<uint16_t>(COLOURFACTOR * od.BluePrimary[1]);
+        hdr10.WhitePoint[0] = static_cast<uint16_t>(COLOURFACTOR * od.WhitePoint[0]);
+        hdr10.WhitePoint[1] = static_cast<uint16_t>(COLOURFACTOR * od.WhitePoint[1]);
+        hdr10.MaxMasteringLuminance = static_cast<uint32_t>(LUMINANCEFACTOR * od.MaxLuminance);
+        hdr10.MinMasteringLuminance = static_cast<uint32_t>(LUMINANCEFACTOR * od.MinLuminance);
         hdr10.MaxContentLightLevel = static_cast<uint16_t>(od.MaxFullFrameLuminance);
 
-        if (od.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020)
-        {
-          CLog::LogF(LOGNOTICE, "Display HDR capable detected and HDR current state is ENABLED:");
-          hdrCapable = true;
-        }
-        else if (od.MaxLuminance >= 400.0)
-        {
-          CLog::LogF(LOGNOTICE, "Display HDR capable is detected but NOT enabled:");
-          hdrCapable = true;
-        }
-        else
-        {
-          CLog::LogF(LOGNOTICE, "No display HDR capable detected.");
-        }
-        if (hdrCapable)
+        if (od.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020 || od.MaxLuminance >= 400.0))
         {
           std::string txColorSpace = "UNKNOWN";
           switch (od.ColorSpace)
@@ -1184,18 +1169,22 @@ DXGI_HDR_METADATA_HDR10 DX::DeviceResources::GetHdr10Display() const
               txColorSpace = "DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709";
               break;
           }
-          CLog::LogF(LOGNOTICE, "ColorSpace = {0:s}", txColorSpace);
-          CLog::LogF(LOGNOTICE, "RedPrimary = {0:0.3f}, {1:0.3f}", od.RedPrimary[0],
+          CLog::LogF(LOGDEBUG, "ColorSpace = {}", txColorSpace);
+          CLog::LogF(LOGDEBUG, "RedPrimary = {0:0.3f}, {1:0.3f}", od.RedPrimary[0],
                      od.RedPrimary[1]);
-          CLog::LogF(LOGNOTICE, "GreenPrimary = {0:0.3f}, {1:0.3f}", od.GreenPrimary[0],
+          CLog::LogF(LOGDEBUG, "GreenPrimary = {0:0.3f}, {1:0.3f}", od.GreenPrimary[0],
                      od.GreenPrimary[1]);
-          CLog::LogF(LOGNOTICE, "BluePrimary = {0:0.3f}, {1:0.3f}", od.BluePrimary[0],
+          CLog::LogF(LOGDEBUG, "BluePrimary = {0:0.3f}, {1:0.3f}", od.BluePrimary[0],
                      od.BluePrimary[1]);
-          CLog::LogF(LOGNOTICE, "WhitePoint = {0:0.3f}, {1:0.3f}", od.WhitePoint[0],
+          CLog::LogF(LOGDEBUG, "WhitePoint = {0:0.3f}, {1:0.3f}", od.WhitePoint[0],
                      od.WhitePoint[1]);
-          CLog::LogF(LOGNOTICE, "MinLuminance = {0:0.4f}", od.MinLuminance);
-          CLog::LogF(LOGNOTICE, "MaxLuminance = {0:0.0f}", od.MaxLuminance);
-          CLog::LogF(LOGNOTICE, "MaxFullFrameLuminance = {0:0.0f}", od.MaxFullFrameLuminance);
+          CLog::LogF(LOGDEBUG, "MinLuminance = {0:0.4f}", od.MinLuminance);
+          CLog::LogF(LOGDEBUG, "MaxLuminance = {0:0.0f}", od.MaxLuminance);
+          CLog::LogF(LOGDEBUG, "MaxFullFrameLuminance = {0:0.0f}", od.MaxFullFrameLuminance);
+        }
+        else
+        {
+          CLog::LogF(LOGDEBUG, "No HDR capable display detected.");
         }
       }
       else
@@ -1219,18 +1208,18 @@ void DX::DeviceResources::SetHdrMetaData(DXGI_HDR_METADATA_HDR10& hdr10) const
   {
     if (SUCCEEDED(swapChain4->SetHDRMetaData(DXGI_HDR_METADATA_TYPE_HDR10, sizeof(hdr10), &hdr10)))
     {
-      constexpr double FACTOR_1 = 50000.0;
-      constexpr double FACTOR_2 = 10000.0;
-      const double RP_0 = static_cast<double>(hdr10.RedPrimary[0]) / FACTOR_1;
-      const double RP_1 = static_cast<double>(hdr10.RedPrimary[1]) / FACTOR_1;
-      const double GP_0 = static_cast<double>(hdr10.GreenPrimary[0]) / FACTOR_1;
-      const double GP_1 = static_cast<double>(hdr10.GreenPrimary[1]) / FACTOR_1;
-      const double BP_0 = static_cast<double>(hdr10.BluePrimary[0]) / FACTOR_1;
-      const double BP_1 = static_cast<double>(hdr10.BluePrimary[1]) / FACTOR_1;
-      const double WP_0 = static_cast<double>(hdr10.WhitePoint[0]) / FACTOR_1;
-      const double WP_1 = static_cast<double>(hdr10.WhitePoint[1]) / FACTOR_1;
-      const double Max_ML = static_cast<double>(hdr10.MaxMasteringLuminance) / FACTOR_2;
-      const double min_ML = static_cast<double>(hdr10.MinMasteringLuminance) / FACTOR_2;
+      constexpr double COLOURFACTOR = 50000.0;
+      constexpr double LUMINANCEFACTOR = 10000.0;
+      const double RP_0 = static_cast<double>(hdr10.RedPrimary[0]) / COLOURFACTOR;
+      const double RP_1 = static_cast<double>(hdr10.RedPrimary[1]) / COLOURFACTOR;
+      const double GP_0 = static_cast<double>(hdr10.GreenPrimary[0]) / COLOURFACTOR;
+      const double GP_1 = static_cast<double>(hdr10.GreenPrimary[1]) / COLOURFACTOR;
+      const double BP_0 = static_cast<double>(hdr10.BluePrimary[0]) / COLOURFACTOR;
+      const double BP_1 = static_cast<double>(hdr10.BluePrimary[1]) / COLOURFACTOR;
+      const double WP_0 = static_cast<double>(hdr10.WhitePoint[0]) / COLOURFACTOR;
+      const double WP_1 = static_cast<double>(hdr10.WhitePoint[1]) / COLOURFACTOR;
+      const double Max_ML = static_cast<double>(hdr10.MaxMasteringLuminance) / LUMINANCEFACTOR;
+      const double min_ML = static_cast<double>(hdr10.MinMasteringLuminance) / LUMINANCEFACTOR;
 
       CLog::LogF(LOGNOTICE,
                  "Stream HDR metadata => RP {0:0.3f} {1:0.3f} | GP {2:0.3f} {3:0.3f} | BP "
@@ -1283,7 +1272,7 @@ void DX::DeviceResources::SetHdrColorSpace(const DXGI_COLOR_SPACE_TYPE colorSpac
   }
 }
 
-bool DX::DeviceResources::IsDisplayHDREnabled() const
+bool DX::DeviceResources::IsHDRDisplay() const
 {
   ComPtr<IDXGIOutput> pOutput;
   ComPtr<IDXGIOutput6> pOutput6;

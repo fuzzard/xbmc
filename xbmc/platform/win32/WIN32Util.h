@@ -64,6 +64,13 @@ public:
   static std::string WUSysMsg(DWORD dwError);
   static bool SetThreadLocalLocale(bool enable = true);
 
-  static void ToggleWindowsHDR();
-  static int GetHDRDisplayStatus();
+  static bool SetHDR();
+  static int GetOSHDRStatus();
+
+  enum OSHDRSTATUS
+  {
+    UNKNOWN = 0,
+    HDR_ON = 1,
+    HDR_OFF = 2
+  };
 };

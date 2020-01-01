@@ -19,6 +19,7 @@
 #include "filesystem/SpecialProtocol.h"
 #include "messaging/ApplicationMessenger.h"
 #include "platform/Environment.h"
+#include "rendering/dx/DeviceResources.h"
 #include "rendering/dx/ScreenshotSurfaceWindows.h"
 #include "resource.h"
 #include "settings/AdvancedSettings.h"
@@ -1195,12 +1196,17 @@ bool CWinSystemWin32::MessagePump()
   return m_winEvents->MessagePump();
 }
 
-void CWinSystemWin32::ToggleDisplayHDR()
+int CWinSystemWin32::GetOSHDRStatus()
 {
-  CWIN32Util::ToggleWindowsHDR();
+  return CWIN32Util::GetOSHDRStatus();
 }
 
-int CWinSystemWin32::GetHDRDisplayStatus()
+bool CWinSystemWin32::IsHDRDisplay()
 {
-  return CWIN32Util::GetHDRDisplayStatus();
+  return DX::DeviceResources::Get()->IsHDRDisplay();
+}
+
+bool CWinSystemWin32::SetHDR(const VideoPicture* videoPicture)
+{
+  return CWIN32Util::SetHDR();
 }

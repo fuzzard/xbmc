@@ -24,13 +24,8 @@
 					</item>
 					<item>
 						<label>$LOCALIZE[13037]</label>
-						<onclick>ToggleDisplayHDR()</onclick>
-						<visible>System.IsHDRDisplayOff</visible>
-					</item>
-					<item>
-						<label>$LOCALIZE[13038]</label>
-						<onclick>ToggleDisplayHDR()</onclick>
-						<visible>System.IsHDRDisplayOn</visible>
+						<onclick>SetOSHDR()</onclick>
+						<visible>System.IsOSHDREnabled</visible>
 					</item>
 					<item>
 						<label>$LOCALIZE[13016]</label>
