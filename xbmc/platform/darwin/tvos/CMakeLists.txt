@@ -1,6 +1,7 @@
 set(SOURCES PreflightHandler.mm
             TVOSDisplayManager.mm
             TVOSEAGLView.mm
+            TVOSKeyboardView.mm
             TVOSSettingsHandler.mm
             tvosShared.m
             TVOSTopShelf.mm
@@ -9,6 +10,7 @@ set(SOURCES PreflightHandler.mm
 set(HEADERS PreflightHandler.h
             TVOSDisplayManager.h
             TVOSEAGLView.h
+            TVOSKeyboardView.h
             TVOSSettingsHandler.h
             tvosShared.h
             TVOSTopShelf.h

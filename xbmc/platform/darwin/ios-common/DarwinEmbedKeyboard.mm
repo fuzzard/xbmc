@@ -9,12 +9,19 @@
 #include "DarwinEmbedKeyboard.h"
 
 #include "platform/darwin/ios-common/DarwinEmbedKeyboardView.h"
-#include "platform/darwin/ios/IOSKeyboardView.h"
+#if defined(TARGET_DARWIN_IOS)
+#include "platform/darwin/tvos/IOSKeyboardView.h"
 #include "platform/darwin/ios/XBMCController.h"
+#define KEYBOARDVIEW_CLASS IOSKeyboardView
+#elif defined(TARGET_DARWIN_TVOS)
+#include "platform/darwin/tvos/TVOSKeyboardView.h"
+#include "platform/darwin/tvos/XBMCController.h"
+#define KEYBOARDVIEW_CLASS TVOSKeyboardView
+#endif
 
 struct CDarwinEmbedKeyboardImpl
 {
-  IOSKeyboardView* g_pKeyboard = nil;
+  KEYBOARDVIEW_CLASS* g_pKeyboard = nil;
 };
 
 CDarwinEmbedKeyboard::CDarwinEmbedKeyboard()
@@ -37,13 +44,12 @@ bool CDarwinEmbedKeyboard::ShowAndGetInput(char_callback_t pCallback,
       if (m_impl->g_pKeyboard)
         return false;
 
-      //! @Todo generalise this block for platform
       //create the keyboardview
-      IOSKeyboardView* __block keyboardView;
+      KEYBOARDVIEW_CLASS* __block keyboardView;
       dispatch_sync(dispatch_get_main_queue(), ^{
         // assume we are only drawn on the mainscreen ever!
         auto keyboardFrame = [g_xbmcController fullscreenSubviewFrame];
-        keyboardView = [[IOSKeyboardView alloc] initWithFrame:keyboardFrame];
+        keyboardView = [[KEYBOARDVIEW_CLASS alloc] initWithFrame:keyboardFrame];
       });
       ////////////////////////////////////////////
       if (!keyboardView)

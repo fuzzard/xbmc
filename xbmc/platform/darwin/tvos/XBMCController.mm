@@ -73,7 +73,7 @@ XBMCController* g_xbmcController;
 
 - (void)nativeKeyboardActive:(bool)active;
 {
-  m_nativeKeyboardActive = active;
+  // Not used on tvOS
 }
 
 #pragma mark - View
@@ -154,6 +154,11 @@ XBMCController* g_xbmcController;
     return [glView presentFramebuffer];
   else
     return FALSE;
+}
+
+- (CGRect)fullscreenSubviewFrame
+{
+    return UIScreen.mainScreen.bounds;
 }
 
 - (void)didReceiveMemoryWarning

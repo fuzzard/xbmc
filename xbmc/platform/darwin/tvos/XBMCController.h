@@ -26,7 +26,6 @@ class CFileItem;
   BOOL m_isPlayingBeforeInactive;
   UIBackgroundTaskIdentifier m_bgTask;
   BOOL m_bgTaskActive;
-  bool m_nativeKeyboardActive;
   BOOL m_pause;
   BOOL m_animating;
   NSConditionLock* m_animationThreadLock;
@@ -61,6 +60,8 @@ class CFileItem;
 - (void)disableScreenSaver;
 - (void)enableScreenSaver;
 - (bool)resetSystemIdleTimer;
+
+- (CGRect)fullscreenSubviewFrame;
 
 - (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)));
 
