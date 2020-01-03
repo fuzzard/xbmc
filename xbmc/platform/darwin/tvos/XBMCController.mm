@@ -223,7 +223,16 @@ XBMCController* g_xbmcController;
   // Media was paused, Full background shutdown, so stop now.
   // Only do for PVR? leave regular media paused?
   if (g_application.GetAppPlayer().IsPaused())
+  {
+    if (CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindow() == WINDOW_SLIDESHOW ||
+      CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindow() == WINDOW_FULLSCREEN_VIDEO ||
+      CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindow() == WINDOW_FULLSCREEN_GAME ||
+      CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindow() == WINDOW_VISUALISATION)
+        CServiceBroker::GetGUI()->GetWindowManager().PreviousWindow();
+
     g_application.StopPlaying();
+  }
+    
 
   CServiceBroker::GetPVRManager().OnSleep();
   CServiceBroker::GetActiveAE()->Suspend();
@@ -273,6 +282,8 @@ XBMCController* g_xbmcController;
   if (CServiceBroker::GetActiveAE())
     if (CServiceBroker::GetActiveAE()->IsSuspended())
       CServiceBroker::GetActiveAE()->Resume();
+  
+  CServiceBroker::GetPVRManager().OnWake();
 
   CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
   winSystem->OnAppFocusChange(true);
@@ -289,7 +300,7 @@ XBMCController* g_xbmcController;
     }
     else
     {
-      if (g_application.GetAppPlayer().IsPaused())
+      if (g_application.GetAppPlayer().IsPaused() && g_application.GetAppPlayer().HasPlayer())
       {
         CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_UNPAUSE);
       }
