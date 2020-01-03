@@ -72,6 +72,9 @@ bool CDarwinEmbedKeyboard::ShowAndGetInput(char_callback_t pCallback,
     if (!m_canceled)
     {
       [m_impl->g_pKeyboard setCancelFlag:&m_canceled];
+      // workaround for multiple keyboardviews running quickly - race condition
+      sleep(1);
+
       [m_impl->g_pKeyboard activate]; // blocks and shows keyboard
       // user is done - get resulted text and confirmation
       confirmed = [m_impl->g_pKeyboard isConfirmed];
