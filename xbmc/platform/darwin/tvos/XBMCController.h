@@ -62,8 +62,6 @@ class CFileItem;
 - (void)enableScreenSaver;
 - (bool)resetSystemIdleTimer;
 
-- (void)insertVideoView:(UIView*)view;
-- (void)removeVideoView:(UIView*)view;
 - (AVDisplayManager*)avDisplayManager __attribute__((availability(tvos, introduced = 11.2)));
 
 - (EAGLContext*)getEAGLContextObj;

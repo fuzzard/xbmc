@@ -78,17 +78,6 @@ XBMCController* g_xbmcController;
 
 #pragma mark - View
 
-- (void)insertVideoView:(UIView*)view
-{
-  [self.view insertSubview:view belowSubview:glView];
-  [self.view setNeedsDisplay];
-}
-
-- (void)removeVideoView:(UIView*)view
-{
-  [view removeFromSuperview];
-}
-
 - (void)viewDidLoad
 {
   [super viewDidLoad];
