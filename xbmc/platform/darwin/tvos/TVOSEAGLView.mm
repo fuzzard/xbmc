@@ -43,7 +43,7 @@ using namespace KODI::MESSAGING;
     eaglLayer.contentsScale = scaleFactor;
     self.contentScaleFactor = scaleFactor;
 
-    eaglLayer.opaque = NO;
+    eaglLayer.opaque = TRUE;
     eaglLayer.drawableProperties = @{
       kEAGLDrawablePropertyRetainedBacking : @NO,
       kEAGLDrawablePropertyColorFormat : kEAGLColorFormatRGBA8

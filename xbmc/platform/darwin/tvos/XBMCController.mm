@@ -86,6 +86,8 @@ XBMCController* g_xbmcController;
 
   // Check if screen is Retina
   displayManager.screenScale = [glView getScreenScale:[UIScreen mainScreen]];
+
+  self.view.backgroundColor = UIColor.blackColor;
   [self.view addSubview:glView];
 
   [inputHandler.inputTouch createSwipeGestureRecognizers];
