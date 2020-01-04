@@ -274,6 +274,8 @@ XBMCController* g_xbmcController;
     if (CServiceBroker::GetActiveAE()->IsSuspended())
       CServiceBroker::GetActiveAE()->Resume();
 
+  CServiceBroker::GetPVRManager().OnWake();
+
   CWinSystemTVOS* winSystem = dynamic_cast<CWinSystemTVOS*>(CServiceBroker::GetWinSystem());
   winSystem->OnAppFocusChange(true);
 
@@ -289,7 +291,7 @@ XBMCController* g_xbmcController;
     }
     else
     {
-      if (g_application.GetAppPlayer().IsPaused())
+      if (g_application.GetAppPlayer().IsPaused() && g_application.GetAppPlayer().HasPlayer())
       {
         CApplicationMessenger::GetInstance().SendMsg(TMSG_MEDIA_UNPAUSE);
       }
