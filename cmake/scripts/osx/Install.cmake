@@ -35,7 +35,12 @@ add_custom_target(dmg
                                                ${CMAKE_BINARY_DIR}/tools/darwin/packaging/osx/
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/tools/darwin/packaging/media/osx/
                                                ${CMAKE_BINARY_DIR}/tools/darwin/packaging/media/osx/
-    COMMAND ./mkdmg-osx.sh ${CORE_BUILD_CONFIG}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tools/darwin/Support/Codesign.command
+                                     ${CMAKE_BINARY_DIR}/tools/darwin/packaging/osx/Codesign.command
+    COMMAND "CODESIGNING_FOLDER_PATH=${PACKAGE_OUTPUT_DIR}/${APP_NAME}.app"
+            "EXPANDED_CODE_SIGN_IDENTITY_NAME=${CODE_SIGN_IDENTITY}"
+            "PLATFORM_NAME=${PLATFORM}"
+            ./mkdmg-osx.sh ${CORE_BUILD_CONFIG}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tools/darwin/packaging/osx)
 set_target_properties(dmg PROPERTIES FOLDER "Build Utilities")
 add_dependencies(dmg bundle)
