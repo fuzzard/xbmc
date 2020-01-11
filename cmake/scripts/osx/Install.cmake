@@ -41,6 +41,11 @@ add_custom_target(dmg
             "EXPANDED_CODE_SIGN_IDENTITY_NAME=${CODE_SIGN_IDENTITY}"
             "PLATFORM_NAME=${PLATFORM}"
             ./mkdmg-osx.sh ${CORE_BUILD_CONFIG}
+    COMMAND "DEV_ACCOUNT=${DEV_ACCOUNT}"
+            "DEV_ACCOUNT_PASSWORD=${DEV_ACCOUNT_PASSWORD}"
+            "DEV_TEAM=${DEV_TEAM}"
+            "CODE_SIGN_IDENTITY=${CODE_SIGN_IDENTITY}"
+            ./notarize.sh ${PACKAGE_OUTPUT_DIR}/${APP_NAME}.app/Contents/Info.plist
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tools/darwin/packaging/osx)
 set_target_properties(dmg PROPERTIES FOLDER "Build Utilities")
 add_dependencies(dmg bundle)
