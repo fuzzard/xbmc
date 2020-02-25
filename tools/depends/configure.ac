@@ -673,8 +673,6 @@ echo -e
   AC_SUBST(build_tools_path)
 fi
 
-AC_SUBST(meson_system)
-AC_SUBST(meson_cpu)
 AC_SUBST(use_debug)
 AC_SUBST(use_host)
 AC_SUBST(deps_dir)
@@ -720,6 +718,7 @@ cp -vf target/Toolchain.cmake $prefix/$deps_dir/share
 cp -vf target/Toolchain_binaddons.cmake $prefix/$deps_dir/share
 cp -vf native/config.site.native $prefix/$tool_dir/share/config.site
 
+source  target/meson-cross-install.sh
 
 echo -e "\n\n#------- configuration -------#"
 echo -e "ccache:\t\t $use_ccache"

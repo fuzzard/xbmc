@@ -1,6 +1,6 @@
 include ../../Makefile.include
 PLATFORM=$(NATIVEPLATFORM)
-DEPS=../../Makefile.include Makefile cross-file-setup.sh
+DEPS=../../Makefile.include Makefile
 
 # lib name, version
 LIBNAME=meson
@@ -23,7 +23,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 $(LIBDYLIB): $(PLATFORM)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build
 
-.installed-$(PLATFORM): $(LIBDYLIB) cross-file
+.installed-$(PLATFORM): $(LIBDYLIB)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py install --prefix="$(NATIVEPREFIX)"
 	touch $@
 
@@ -33,18 +33,3 @@ clean:
 
 distclean::
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
-
-cross-file:
-	PREFIX="$(PREFIX)" \
-	NATIVEPREFIX="$(NATIVEPREFIX)" \
-	CC="$(CC)" \
-	CXX="$(CXX)" \
-	AR="$(AR)" \
-	STRIP="$(STRIP)" \
-	MESON_SYSTEM="$(MESON_SYSTEM)" \
-	MESON_CPU="$(MESON_CPU)" \
-	CPU="$(CPU)" \
-	CFLAGS="$(CFLAGS)" \
-	CXXFLAGS="$(CXXFLAGS)" \
-	LDFLAGS="$(LDFLAGS)" \
-	./cross-file-setup.sh
