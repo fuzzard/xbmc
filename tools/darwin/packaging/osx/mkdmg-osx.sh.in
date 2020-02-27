@@ -22,17 +22,7 @@ if [ ! -d $APP ]; then
 fi
 ARCHITECTURE=`file $APP/Contents/MacOS/@APP_NAME@ | awk '{print $NF}'`
 
-# codesign .app
-if [ "$EXPANDED_CODE_SIGN_IDENTITY_NAME" ]; then
-  # execute codesign script
-  "$DIRNAME/Codesign.command"
-  # sign helper tool
-  codesign -vvvv -s "$EXPANDED_CODE_SIGN_IDENTITY_NAME" -o runtime "$APP/Contents/Resources/Kodi/tools/darwin/runtime/XBMCHelper"
-  # perform top-level signing (Xcode does it automatically when signing settings are configured)
-  codesign -vvvv -s "$EXPANDED_CODE_SIGN_IDENTITY_NAME" -o runtime "$APP"
-fi
-
-PACKAGE=org.xbmc.@APP_NAME_LC@-osx
+PACKAGE=@PLATFORM_BUNDLE_IDENTIFIER@.@APP_NAME_LC@-osx
 
 VERSION=@APP_VERSION_MAJOR@.@APP_VERSION_MINOR@
 REVISION=0

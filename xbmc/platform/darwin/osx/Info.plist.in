@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
@@ -13,7 +11,9 @@
 	<key>CFBundleIconFile</key>
 	<string>@APP_NAME_LC@.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.xbmc.@APP_NAME_LC@</string>
+	<string>@PLATFORM_BUNDLE_IDENTIFIER@</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>@APP_NAME@</string>
 	<key>CFBundlePackageType</key>
@@ -21,10 +21,8 @@
 	<key>CFBundleShortVersionString</key>
 	<string>@APP_VERSION_MAJOR@.@APP_VERSION_MINOR@.@APP_VERSION_TAG_LC@</string>
 	<key>CFBundleVersion</key>
-	<string>r####</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>@CMAKE_OSX_DEPLOYMENT_TARGET@</string>
+	<string>@APP_SCMID@</string>
 	<key>CFBundleSignature</key>
-	<string>@APP_NAME@</string>
+	<string>????</string>
 </dict>
 </plist>
