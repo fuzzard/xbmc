@@ -17,9 +17,6 @@
 #  along with MrMC; see the file COPYING.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-#set -x
-
-TARGET_CONTENTS="${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}"
 TARGET_FRAMEWORKS=$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH
 
 # use the same date/time stamp format for all CFBundleVersions
@@ -28,6 +25,16 @@ BUNDLE_REVISION=$(date -u +%y%m%d.%H%M)
 # ios/tvos use different framework plists
 if [ "${PLATFORM_NAME}" == "appletvos" ]; then
   SEEDFRAMEWORKPLIST="${SRCROOT}/xbmc/platform/darwin/tvos/FrameworkSeed_Info.plist"
+  FRAMEWORKPATH="Frameworks"
+  SRCFRAMEWORKPATH="Frameworks"
+  APP_NAME="${EXECUTABLE_FOLDER_PATH}"
+  TARGET_FRAMEWORKS_SOURCE="$TARGET_FRAMEWORKS"
+elif [ "${PLATFORM_NAME}" == "macosx" ]; then
+  SEEDFRAMEWORKPLIST="${SRCROOT}/xbmc/platform/darwin/osx/FrameworkSeed_Info.plist"
+  FRAMEWORKPATH="../Frameworks"
+  SRCFRAMEWORKPATH="../Libraries"
+  TARGET_FRAMEWORKS=$TARGET_BUILD_DIR/$APP_NAME/$FRAMEWORKS_FOLDER_PATH
+  TARGET_FRAMEWORKS_SOURCE="$TARGET_BUILD_DIR/$APP_NAME/Contents/Libraries"
 # todo: implement soft frameworks for ios
 #elif [ "$PLATFORM_NAME" == "iphoneos" ]; then
 #  SEEDFRAMEWORKPLIST="${SRCROOT}/xbmc/platform/darwin/ios/FrameworkSeed_Info.plist"
@@ -44,12 +51,12 @@ function convert2framework
   DYLIB_LIBNAME="${DYLIB_LIBBASENAME%.dylib}"
 
   # Update main bundle executable to new location of frameworks
-  install_name_tool -change  @executable_path/Frameworks/${DYLIB_BASENAME} @executable_path/Frameworks/${DYLIB_LIBNAME}.framework/${DYLIB_LIBNAME} ${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/${EXECUTABLE_NAME}
-  install_name_tool -add_rpath @executable_path/Frameworks/${DYLIB_LIBNAME}.framework ${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/${EXECUTABLE_NAME}
+  install_name_tool -change  @executable_path/${SRCFRAMEWORKPATH}/${DYLIB_BASENAME} @executable_path/${FRAMEWORKPATH}/${DYLIB_LIBNAME}.framework/${DYLIB_LIBNAME} ${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/${EXECUTABLE_NAME}
+  install_name_tool -add_rpath @executable_path/${FRAMEWORKPATH}/${DYLIB_LIBNAME}.framework ${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/${EXECUTABLE_NAME}
 
-  BUNDLEID=`mdls -raw -name kMDItemCFBundleIdentifier ${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}`
+  BUNDLEID=`mdls -raw -name kMDItemCFBundleIdentifier ${TARGET_BUILD_DIR}/${APP_NAME}`
   if [ "${BUNDLEID}" == "(null)" ] ; then
-    BUNDLEID=`/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' ${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/Info.plist`
+    BUNDLEID=`/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' ${TARGET_BUILD_DIR}/${APP_NAME}/Info.plist`
   fi
 
   FRAMEWORKBUNDLEID="${BUNDLEID}.framework.${DYLIB_LIBNAME}"
@@ -76,8 +83,8 @@ function convert2framework
 
   # fixup loader id/paths
   LC_ID_DYLIB="@rpath/${DYLIB_LIBNAME}.framework/${DYLIB_LIBNAME}"
-  LC_RPATH1="@executable_path/Frameworks/${DYLIB_LIBNAME}.framework"
-  LC_RPATH2="@loader_path/Frameworks/${DYLIB_LIBNAME}.framework"
+  LC_RPATH1="@executable_path/${FRAMEWORKPATH}/${DYLIB_LIBNAME}.framework"
+  LC_RPATH2="@loader_path/${FRAMEWORKPATH}/${DYLIB_LIBNAME}.framework"
   install_name_tool -id "${LC_ID_DYLIB}" "${DEST_FRAMEWORK}/${DYLIB_LIBNAME}"
   install_name_tool -add_rpath "${LC_RPATH1}" "${DEST_FRAMEWORK}/${DYLIB_LIBNAME}"
   install_name_tool -add_rpath "${LC_RPATH2}" "${DEST_FRAMEWORK}/${DYLIB_LIBNAME}"
@@ -98,9 +105,18 @@ function convert2framework
 }
 
 # todo: convert ios to soft frameworks as well to remove this if guard
-if [ "$PLATFORM_NAME" == "appletvos" ]; then
-  # loop over all xxx.dylibs in xxx.app/Frameworks
-  for dylib in $(find "${TARGET_FRAMEWORKS}" -name "*.dylib" -type f); do
+if [ "$PLATFORM_NAME" == "appletvos" ] || [ "$PLATFORM_NAME" == "macosx" ]; then
+
+  # clear any existing frameworks for a clean build
+  if [ "$PLATFORM_NAME" == "macosx" ]; then
+    if [ -d "$TARGET_FRAMEWORKS" ]; then
+      rm -rf "$TARGET_FRAMEWORKS"
+    fi
+    mkdir -p "$TARGET_FRAMEWORKS"
+  fi
+
+  # loop over all xxx.dylibs in source Frameworks or Libraries
+  for dylib in $(find "${TARGET_FRAMEWORKS_SOURCE}" -name "*.dylib" -type f); do
     convert2framework "${dylib}"
   done
 fi

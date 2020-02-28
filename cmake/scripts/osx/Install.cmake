@@ -49,7 +49,15 @@ add_custom_target(bundle
             "FULL_PRODUCT_NAME=${APP_NAME}.app"
             "SRCROOT=${CMAKE_BINARY_DIR}"
             "PYTHON_VERSION=${PYTHON_VERSION}"
-            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-osx.command)
+            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-osx.command
+    COMMAND "FRAMEWORKS_FOLDER_PATH=Contents/Frameworks"
+            "APP_NAME=${APP_NAME}.app"
+            "EXECUTABLE_FOLDER_PATH=${APP_NAME}.app/Contents/MacOS"
+            "EXECUTABLE_NAME=${APP_NAME}"
+            "TARGET_BUILD_DIR=${PACKAGE_OUTPUT_DIR}"
+            "SRCROOT=${CMAKE_SOURCE_DIR}"
+            "PYTHON_VERSION=${PYTHON_VERSION}"
+            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-dylibs2frameworks.command)
 set_target_properties(bundle PROPERTIES FOLDER "Build Utilities")
 add_dependencies(bundle ${APP_NAME_LC})
 
