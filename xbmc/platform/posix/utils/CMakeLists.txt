@@ -1,5 +1,4 @@
 set(SOURCES Mmap.cpp
-            PosixInterfaceForCLog.cpp
             SharedMemory.cpp)
 
 set(HEADERS FileHandle.h

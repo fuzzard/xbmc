@@ -420,11 +420,7 @@ bool CApplication::Create(const CAppParamParser &params)
     CopyUserDataIfNeeded("special://masterprofile/", "iOS/sources.xml", "sources.xml");
   #endif
 
-  if (!CLog::Init(CSpecialProtocol::TranslatePath("special://logpath").c_str()))
-  {
-    fprintf(stderr,"Could not init logging classes. Log folder error (%s)\n", CSpecialProtocol::TranslatePath("special://logpath").c_str());
-    return false;
-  }
+  CLog::Initialize(CSpecialProtocol::TranslatePath("special://logpath"));
 
 #ifdef TARGET_POSIX //! @todo Win32 has no special://home/ mapping by default, so we
   //!       must create these here. Ideally this should be using special://home/ and
@@ -2638,6 +2634,8 @@ void CApplication::Stop(int exitCode)
   {
     CLog::Log(LOGERROR, "Exception in CApplication::Stop()");
   }
+
+  CLog::Uninitialize();
 
   cleanup_emu_environ();
 
