@@ -13,6 +13,8 @@
 #include "utils/XBMCTinyXML.h"
 #include "utils/log.h"
 
+Logger ISettingControl::s_logger = CLog::Get("ISettingControl");
+
 bool ISettingControl::Deserialize(const TiXmlNode *node, bool update /* = false */)
 {
   if (node == nullptr)
@@ -28,7 +30,7 @@ bool ISettingControl::Deserialize(const TiXmlNode *node, bool update /* = false 
     format = strTmp;
   if (!SetFormat(format))
   {
-    CLog::Log(LOGERROR, "ISettingControl: error reading \"format\" attribute of <control>");
+    s_logger->error("error reading \"{}\" attribute of <control>", SETTING_XML_ATTR_FORMAT);
     return false;
   }
 
@@ -36,7 +38,7 @@ bool ISettingControl::Deserialize(const TiXmlNode *node, bool update /* = false 
   {
     if (!StringUtils::EqualsNoCase(strTmp, "false") && !StringUtils::EqualsNoCase(strTmp, "true"))
     {
-      CLog::Log(LOGERROR, "ISettingControl: error reading \"delayed\" attribute of <control>");
+      s_logger->error("error reading \"{}\" attribute of <control>", SETTING_XML_ATTR_DELAYED);
       return false;
     }
     else

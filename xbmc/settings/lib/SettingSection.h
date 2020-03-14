@@ -12,6 +12,8 @@
 #include "Setting.h"
 #include "SettingCategoryAccess.h"
 
+#include "utils/logtypes.h"
+
 #include <string>
 #include <vector>
 
@@ -66,6 +68,8 @@ public:
 private:
   SettingList m_settings;
   std::shared_ptr<ISettingControl> m_control;
+
+  static Logger s_logger;
 };
 
 using SettingGroupPtr = std::shared_ptr<CSettingGroup>;
@@ -122,6 +126,8 @@ public:
 private:
   SettingGroupList m_groups;
   CSettingCategoryAccess m_accessCondition;
+
+  static Logger s_logger;
 };
 
 using SettingCategoryPtr = std::shared_ptr<CSettingCategory>;
@@ -170,6 +176,8 @@ public:
 
 private:
   SettingCategoryList m_categories;
+
+  static Logger s_logger;
 };
 
 using SettingSectionPtr = std::shared_ptr<CSettingSection>;

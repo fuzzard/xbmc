@@ -17,6 +17,7 @@
 #include "SettingType.h"
 #include "SettingUpdate.h"
 #include "threads/SharedSection.h"
+#include "utils/logtypes.h"
 
 #include <memory>
 #include <set>
@@ -117,6 +118,9 @@ protected:
   mutable CSharedSection m_critical;
 
   std::string m_referencedId;
+
+private:
+  static Logger s_logger;
 };
 
 template<typename TValue, SettingType TSettingType>
@@ -198,6 +202,9 @@ protected:
   std::string m_delimiter = "|";
   int m_minimumItems = 0;
   int m_maximumItems = -1;
+
+private:
+  static Logger s_logger;
 };
 
 /*!
@@ -235,6 +242,8 @@ private:
 
   bool m_value = false;
   bool m_default = false;
+
+  static Logger s_logger;
 };
 
 /*!
@@ -312,6 +321,8 @@ private:
   void *m_optionsFillerData = nullptr;
   IntegerSettingOptions m_dynamicOptions;
   SettingOptionsSort m_optionsSort = SettingOptionsSort::NoSorting;
+
+  static Logger s_logger;
 };
 
 /*!
@@ -361,6 +372,8 @@ private:
   double m_min = 0.0;
   double m_step = 1.0;
   double m_max = 0.0;
+
+  static Logger s_logger;
 };
 
 /*!
@@ -428,6 +441,8 @@ protected:
   void *m_optionsFillerData = nullptr;
   StringSettingOptions m_dynamicOptions;
   SettingOptionsSort m_optionsSort = SettingOptionsSort::NoSorting;
+
+  static Logger s_logger;
 };
 
 /*!
