@@ -12,6 +12,19 @@
 #
 #   Fmt::Fmt   - The Fmt library
 
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(PC_FMT libfmt QUIET)
+  set(FMT_VERSION ${PC_FMT_VERSION})
+endif()
+
+find_path(FMT_INCLUDE_DIR NAMES fmt/format.h
+                          PATHS ${PC_FMT_INCLUDEDIR})
+
+if (NOT ENABLE_INTERNAL_FMT AND NOT FMT_INCLUDE_DIR)
+  set(ENABLE_INTERNAL_FMT ON)
+  message(STATUS "FMT not found, falling back to internal build")
+endif()
+
 if(ENABLE_INTERNAL_FMT)
   include(ExternalProject)
   file(STRINGS ${CMAKE_SOURCE_DIR}/tools/depends/target/libfmt/Makefile VER REGEX "^[ ]*VERSION[ ]*=.+$")
@@ -49,35 +62,19 @@ if(ENABLE_INTERNAL_FMT)
                       BUILD_BYPRODUCTS ${FMT_LIBRARY})
   set_target_properties(fmt PROPERTIES FOLDER "External Projects")
 
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(Fmt
-                                    REQUIRED_VARS FMT_LIBRARY FMT_INCLUDE_DIR
-                                    VERSION_VAR FMT_VERSION)
-
   set(FMT_LIBRARIES ${FMT_LIBRARY})
   set(FMT_INCLUDE_DIRS ${FMT_INCLUDE_DIR})
-
 else()
+  find_package(FMT 6.1.2 CONFIG REQUIRED QUIET)
 
-find_package(FMT 6.1.2 CONFIG REQUIRED QUIET)
-
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_FMT libfmt QUIET)
-  if(PC_FMT_VERSION AND NOT FMT_VERSION)
-    set(FMT_VERSION ${PC_FMT_VERSION})
-  endif()
-endif()
-
-find_path(FMT_INCLUDE_DIR NAMES fmt/format.h
-                          PATHS ${PC_FMT_INCLUDEDIR})
-
-find_library(FMT_LIBRARY_RELEASE NAMES fmt
+  find_library(FMT_LIBRARY_RELEASE NAMES fmt
+                                  PATHS ${PC_FMT_LIBDIR})
+  find_library(FMT_LIBRARY_DEBUG NAMES fmtd
                                 PATHS ${PC_FMT_LIBDIR})
-find_library(FMT_LIBRARY_DEBUG NAMES fmtd
-                               PATHS ${PC_FMT_LIBDIR})
 
-include(SelectLibraryConfigurations)
-select_library_configurations(FMT)
+  include(SelectLibraryConfigurations)
+  select_library_configurations(FMT)
+endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Fmt
@@ -88,13 +85,12 @@ if(FMT_FOUND)
   set(FMT_LIBRARIES ${FMT_LIBRARY})
   set(FMT_INCLUDE_DIRS ${FMT_INCLUDE_DIR})
 
-  if(NOT TARGET fmt)
-    add_library(fmt UNKNOWN IMPORTED)
-    set_target_properties(fmt PROPERTIES
-                               IMPORTED_LOCATION "${FMT_LIBRARY}"
-                               INTERFACE_INCLUDE_DIRECTORIES "${FMT_INCLUDE_DIR}")
+  if(NOT TARGET Fmt::Fmt)
+    add_library(Fmt::Fmt UNKNOWN IMPORTED)
+    set_target_properties(Fmt::Fmt PROPERTIES
+                                   IMPORTED_LOCATION "${FMT_LIBRARY}"
+                                   INTERFACE_INCLUDE_DIRECTORIES "${FMT_INCLUDE_DIR}")
   endif()
 endif()
 
-endif()
 mark_as_advanced(FMT_INCLUDE_DIR FMT_LIBRARY)
