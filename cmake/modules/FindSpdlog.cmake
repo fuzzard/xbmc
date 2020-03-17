@@ -61,17 +61,28 @@ if(ENABLE_INTERNAL_SPDLOG)
                                  -DSPDLOG_BUILD_TESTS=OFF
                                  -DSPDLOG_BUILD_BENCH=OFF
                                  -DSPDLOG_FMT_EXTERNAL=ON
-                                 "${EXTRA_ARGS}")
+                                 "${EXTRA_ARGS}"
+                      BUILD_BYPRODUCTS ${SPDLOG_LIBRARY})
   set_target_properties(spdlog PROPERTIES FOLDER "External Projects")
 
   if(ENABLE_INTERNAL_FMT)
     add_dependencies(spdlog fmt)
   endif()
+else()
+  find_package(SPDLOG 1.5.0 CONFIG REQUIRED QUIET)
+
+  find_library(SPDLOG_LIBRARY_RELEASE NAMES spdlog
+                                      PATHS ${PC_SPDLOG_LIBDIR})
+  find_library(SPDLOG_LIBRARY_DEBUG NAMES spdlogd
+                                    PATHS ${PC_SPDLOG_LIBDIR})
+
+  include(SelectLibraryConfigurations)
+  select_library_configurations(SPDLOG)
 endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Spdlog
-                                  REQUIRED_VARS SPDLOG_INCLUDE_DIR
+                                  REQUIRED_VARS SPDLOG_LIBRARY SPDLOG_INCLUDE_DIR
                                   VERSION_VAR SPDLOG_VERSION)
 
 if(SPDLOG_FOUND)
@@ -89,8 +100,9 @@ if(SPDLOG_FOUND)
   if(NOT TARGET Spdlog::Spdlog)
     add_library(Spdlog::Spdlog UNKNOWN IMPORTED)
     set_target_properties(Spdlog::Spdlog PROPERTIES
-                                        INTERFACE_INCLUDE_DIRECTORIES "${SPDLOG_INCLUDE_DIR}"
-                                        INTERFACE_COMPILE_DEFINITIONS "${SPDLOG_DEFINITIONS}")
+                                         IMPORTED_LOCATION "${SPDLOG_LIBRARY}"
+                                         INTERFACE_INCLUDE_DIRECTORIES "${SPDLOG_INCLUDE_DIR}"
+                                         INTERFACE_COMPILE_DEFINITIONS "${SPDLOG_DEFINITIONS}")
   endif()
 endif()
 
