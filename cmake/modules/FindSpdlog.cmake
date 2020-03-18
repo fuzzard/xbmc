@@ -48,6 +48,7 @@ if(ENABLE_INTERNAL_SPDLOG)
 
   set(SPDLOG_LIBRARY ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/libspdlog.a)
   set(SPDLOG_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/include)
+  set(spdlog_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/cmake/spdlog)
   externalproject_add(spdlog
                       URL ${SPDLOG_URL}
                       DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/download
