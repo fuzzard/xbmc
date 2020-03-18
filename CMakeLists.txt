@@ -57,7 +57,7 @@ if(UNIX)
   option(ENABLE_INTERNAL_FSTRCMP "Enable internal fstrcmp?" OFF)
   option(ENABLE_INTERNAL_FLATBUFFERS "Enable internal flatbuffers?" OFF)
   option(ENABLE_INTERNAL_DAV1D "Enable internal dav1d?" OFF)
-  option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?" ON)
+  option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?" OFF)
 endif()
 # System options
 if(NOT WIN32)

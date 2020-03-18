@@ -48,7 +48,7 @@ if(ENABLE_INTERNAL_SPDLOG)
 
   set(SPDLOG_LIBRARY ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/libspdlog.a)
   set(SPDLOG_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/include)
-  set(spdlog_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/cmake/spdlog)
+
   externalproject_add(spdlog
                       URL ${SPDLOG_URL}
                       DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/download
@@ -69,16 +69,6 @@ if(ENABLE_INTERNAL_SPDLOG)
   if(ENABLE_INTERNAL_FMT)
     add_dependencies(spdlog fmt)
   endif()
-else()
-  find_package(SPDLOG 1.5.0 CONFIG REQUIRED QUIET)
-
-  find_library(SPDLOG_LIBRARY_RELEASE NAMES spdlog
-                                      PATHS ${PC_SPDLOG_LIBDIR})
-  find_library(SPDLOG_LIBRARY_DEBUG NAMES spdlogd
-                                    PATHS ${PC_SPDLOG_LIBDIR})
-
-  include(SelectLibraryConfigurations)
-  select_library_configurations(SPDLOG)
 endif()
 
 include(FindPackageHandleStandardArgs)
