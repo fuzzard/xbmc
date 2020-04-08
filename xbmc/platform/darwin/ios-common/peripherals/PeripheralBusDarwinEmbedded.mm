@@ -26,6 +26,7 @@
   PERIPHERALS::CPeripheralBusDarwinEmbedded* parentClass;
   NSMutableArray* controllerArray;
   std::vector<kodi::addon::PeripheralEvent> m_digitalEvents;
+  std::vector<kodi::addon::PeripheralEvent> m_axisEvents;
   CCriticalSection m_eventMutex;
   BOOL dpadLeftPressed;
   BOOL dpadRightPressed;
@@ -39,6 +40,7 @@
 - (void)controllerWasConnected:(NSNotification*)notification;
 - (void)controllerWasDisconnected:(NSNotification*)notification;
 - (std::vector<kodi::addon::PeripheralEvent>)GetButtonEvents;
+- (std::vector<kodi::addon::PeripheralEvent>)GetAxisEvents;
 - (void)registerChangeHandler:(GCController*)controller;
 - (void)displayMessage:(NSString*)message controllerID:(NSString*)controllerID;
 - (int)GetControllerType:(int)deviceID;
@@ -156,9 +158,16 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::GetEvents(
 {
   {
     CSingleLock lock(m_critSectionStates);
-    events = [m_peripheralDarwinEmbedded->callbackClass GetButtonEvents];
-    // Todo: Handle axes events
-    //    GetAxisEvents(events);
+    std::vector<kodi::addon::PeripheralEvent> digitalEvents;
+    digitalEvents = [m_peripheralDarwinEmbedded->callbackClass GetButtonEvents];
+    
+    std::vector<kodi::addon::PeripheralEvent> axisEvents;
+    axisEvents = [m_peripheralDarwinEmbedded->callbackClass GetAxisEvents];
+    
+    events.reserve(digitalEvents.size() + axisEvents.size()); // preallocate memory
+    events.insert(events.end(), digitalEvents.begin(), digitalEvents.end());
+    events.insert(events.end(), axisEvents.begin(), axisEvents.end());
+
   }
 }
 
@@ -205,7 +214,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::ProcessEvents()
       }
       case PERIPHERAL_EVENT_TYPE_DRIVER_AXIS:
       {
-        //        joystick->OnAxisMotion(event.DriverIndex(), event.AxisState());
+        joystick->OnAxisMotion(event.DriverIndex(), event.AxisState());
         break;
       }
       default:
@@ -369,6 +378,11 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
      }
  */
   controller.playerIndex = GCControllerPlayerIndex1;
+  
+  // set microgamepad to absolute values for dpad (ie center touchpad is 0,0)
+  if (controller.microGamepad != nil)
+    controller.microGamepad.reportsAbsoluteDpadValues = YES;
+  
   CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: input device with ID {} playerIndex {} added ",
             [controller.vendorName UTF8String], (unsigned long)controller.playerIndex);
   [controllerArray addObject:controller];
@@ -404,6 +418,19 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
             "CPeripheralBusDarwinEmbedded: failed to remove input device {} Not Found ",
             [controller.vendorName UTF8String]);
 
+}
+
+- (std::vector<kodi::addon::PeripheralEvent>)GetAxisEvents
+{
+  std::vector<kodi::addon::PeripheralEvent> events;
+  CSingleLock lock(m_eventMutex);
+
+  for (unsigned int i = 0; i < m_axisEvents.size(); i++)
+    events.emplace_back(m_axisEvents[i]);
+
+  m_axisEvents.clear();
+
+  return events;
 }
 
 - (std::vector<kodi::addon::PeripheralEvent>)GetButtonEvents
@@ -445,10 +472,13 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
       NSString* controllerID =
           [NSString stringWithFormat:@"%d", static_cast<int>(controller.playerIndex)];
       NSString* message = @"";
-      CGPoint position = CGPointMake(0, 0);
 
       kodi::addon::PeripheralEvent newEvent = {};
+      kodi::addon::PeripheralEvent axisEvent = {};
       newEvent.SetPeripheralIndex(static_cast<int>(controller.playerIndex));
+      axisEvent.SetPeripheralIndex(static_cast<int>(controller.playerIndex));
+
+      BOOL bAxisEvent = NO;
 
       CSingleLock lock(m_eventMutex);
 
@@ -733,65 +763,165 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
         }
       }
       // left stick
+      // thumbstick DriverIndex = 0 Left
+      // thumbstick DriverIndex = 1 Right
       if (gamepad.leftThumbstick == element)
       {
+        bAxisEvent = YES;
         if (gamepad.leftThumbstick.up.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Left Stick %f", gamepad.leftThumbstick.yAxis.value];
+              [NSString stringWithFormat:@"Left Stick Down %f", gamepad.leftThumbstick.yAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(1);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.yAxis.value);
         }
         if (gamepad.leftThumbstick.down.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Left Stick %f", gamepad.leftThumbstick.yAxis.value];
+              [NSString stringWithFormat:@"Left Stick Down %f", gamepad.leftThumbstick.yAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(1);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.yAxis.value);
         }
         if (gamepad.leftThumbstick.left.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Left Stick %f", gamepad.leftThumbstick.xAxis.value];
+              [NSString stringWithFormat:@"Left Stick Left %f", gamepad.leftThumbstick.xAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(0);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.xAxis.value);
         }
         if (gamepad.leftThumbstick.right.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Left Stick %f", gamepad.leftThumbstick.xAxis.value];
+              [NSString stringWithFormat:@"Left Stick Right %f", gamepad.leftThumbstick.xAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(0);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.xAxis.value);
         }
-        position =
-            CGPointMake(gamepad.leftThumbstick.xAxis.value, gamepad.leftThumbstick.yAxis.value);
       }
       // right stick
       if (gamepad.rightThumbstick == element)
       {
+        bAxisEvent = YES;
         if (gamepad.rightThumbstick.up.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Right Stick %f", gamepad.rightThumbstick.yAxis.value];
+              [NSString stringWithFormat:@"Right Stick Up %f", gamepad.rightThumbstick.yAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(3);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.yAxis.value);
         }
         if (gamepad.rightThumbstick.down.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Right Stick %f", gamepad.rightThumbstick.yAxis.value];
+              [NSString stringWithFormat:@"Right Stick Down %f", gamepad.rightThumbstick.yAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(3);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.yAxis.value);
         }
         if (gamepad.rightThumbstick.left.isPressed)
         {
           message =
-              [NSString stringWithFormat:@"Right Stick %f", gamepad.rightThumbstick.xAxis.value];
+              [NSString stringWithFormat:@"Right Stick Left %f", gamepad.rightThumbstick.xAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(2);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.xAxis.value);
         }
         if (gamepad.rightThumbstick.right.isPressed)
         {
           message =
               [NSString stringWithFormat:@"Right Stick %f", gamepad.rightThumbstick.xAxis.value];
+          axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
+          axisEvent.SetDriverIndex(2);
+          axisEvent.SetAxisState(gamepad.leftThumbstick.xAxis.value);
         }
-        position =
-            CGPointMake(gamepad.rightThumbstick.xAxis.value, gamepad.rightThumbstick.yAxis.value);
       }
 
       m_digitalEvents.emplace_back(newEvent);
+      if (bAxisEvent)
+        m_axisEvents.emplace_back(axisEvent);
+        
       [self displayMessage:message controllerID:controllerID];
     };
   }
   else if (controller.microGamepad != nil)
   {
     CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: microGamepad not supported currently");
+    
+    GCMicroGamepad* profile = controller.microGamepad;
+    profile.valueChangedHandler = ^(GCMicroGamepad* gamepad, GCControllerElement* element) {
+      NSString* controllerID =
+          [NSString stringWithFormat:@"%d", static_cast<int>(controller.playerIndex)];
+      NSString* message = @"";
+
+      kodi::addon::PeripheralEvent newEvent = {};
+      newEvent.SetPeripheralIndex(static_cast<int>(controller.playerIndex));
+
+      CSingleLock lock(m_eventMutex);
+
+      // A button
+      if (gamepad.buttonA == element)
+      {
+        message = @"A Button";
+        newEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_BUTTON);
+        newEvent.SetDriverIndex(5);
+
+        if (gamepad.buttonA.isPressed)
+        {
+          newEvent.SetButtonState(JOYSTICK_STATE_BUTTON_PRESSED);
+          message = [message stringByAppendingString:@" Pressed"];
+        }
+        else
+        {
+          newEvent.SetButtonState(JOYSTICK_STATE_BUTTON_UNPRESSED);
+          message = [message stringByAppendingString:@" Released"];
+        }
+      }
+      // X button
+      if (gamepad.buttonX == element)
+      {
+        message = @"X Button";
+        newEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_BUTTON);
+        newEvent.SetDriverIndex(6);
+
+        if (gamepad.buttonX.isPressed)
+        {
+          newEvent.SetButtonState(JOYSTICK_STATE_BUTTON_PRESSED);
+          message = [message stringByAppendingString:@" Pressed"];
+        }
+        else
+        {
+          newEvent.SetButtonState(JOYSTICK_STATE_BUTTON_UNPRESSED);
+          message = [message stringByAppendingString:@" Released"];
+        }
+      }
+      // buttonMenu
+      if (@available(iOS 13.0, tvOS 11.0, *))
+      {
+        if (gamepad.buttonMenu == element)
+        {
+          message = @"Menu Button";
+          newEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_BUTTON);
+          newEvent.SetDriverIndex(4);
+
+          if (gamepad.buttonMenu.isPressed)
+          {
+            newEvent.SetButtonState(JOYSTICK_STATE_BUTTON_PRESSED);
+            message = [message stringByAppendingString:@" Pressed"];
+          }
+          else
+          {
+            newEvent.SetButtonState(JOYSTICK_STATE_BUTTON_UNPRESSED);
+            message = [message stringByAppendingString:@" Released"];
+          }
+        }
+      }
+    
+      m_digitalEvents.emplace_back(newEvent);
+      [self displayMessage:message controllerID:controllerID];
+    };
   }
 }
 
