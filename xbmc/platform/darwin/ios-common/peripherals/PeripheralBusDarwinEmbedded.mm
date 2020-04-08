@@ -41,6 +41,7 @@
 - (std::vector<kodi::addon::PeripheralEvent>)GetButtonEvents;
 - (void)registerChangeHandler:(GCController*)controller;
 - (void)displayMessage:(NSString*)message controllerID:(NSString*)controllerID;
+- (int)GetControllerType:(int)deviceID;
 - (std::string)GetDeviceLocation:(int)deviceId;
 - (void)controllerConnection:(GCController*)controller;
 @end
@@ -85,6 +86,7 @@ bool PERIPHERALS::CPeripheralBusDarwinEmbedded::InitializeProperties(CPeripheral
     return false;
   }
 
+  // deviceId will be our playerIndex
   int deviceId;
   if (!GetDeviceId(peripheral.Location(), deviceId))
   {
@@ -94,22 +96,33 @@ bool PERIPHERALS::CPeripheralBusDarwinEmbedded::InitializeProperties(CPeripheral
     return false;
   }
 
-  // need to map to a specific gamecontroller - strLocation = playerIndex
-  CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: Initializing device \"%s\"",
-            peripheral.DeviceName().c_str());
+  CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: Initializing device \"{}\"",
+            peripheral.DeviceName());
 
   CPeripheralJoystick& joystick = static_cast<CPeripheralJoystick&>(peripheral);
-  // Todo: Support multiple controllers
-  //  if (device.getControllerNumber() > 0)
-  //     joystick.SetRequestedPort(device.getControllerNumber() - 1);
-  joystick.SetRequestedPort(0);
+
+  joystick.SetRequestedPort(deviceId);
   joystick.SetProvider(JOYSTICK_PROVIDER_DARWINEMBEDDED);
 
-  // Todo: Check controller type and set buttons accordingly.
-  // fill in the number of buttons, hats and axes
-  joystick.SetButtonCount(
-      14); // 14 extended, 6 micro - check gamepad type, set button count to extended or micro
-  joystick.SetAxisCount(2); // 2 for extended, 0 for micro
+  int controllerType = [m_peripheralDarwinEmbedded->callbackClass GetControllerType:deviceId];
+
+  if (controllerType == 1)
+  {
+    // Extended Gamepad - possible 15, power button on xbox controller recognized in testing
+    joystick.SetButtonCount(14);
+    joystick.SetAxisCount(2);
+  }
+  else if (controllerType == 2)
+  {
+    // Micro Gamepad
+    joystick.SetButtonCount(6);
+    joystick.SetAxisCount(0);
+  }
+  else
+  {
+    CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: Unknown Controller Type");
+    return false;
+  }
 
   CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: Device has %u buttons and %u axes",
             joystick.ButtonCount(), joystick.AxisCount());
@@ -248,9 +261,16 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
     peripheralScanResult.m_iVendorId = 0; //[controller.vendorName UTF8String];
     peripheralScanResult.m_iProductId = 0; //[controller.vendorName UTF8String];
     peripheralScanResult.m_mappedType = PERIPHERALS::PERIPHERAL_JOYSTICK;
-    peripheralScanResult.m_strDeviceName = std::string([controller.vendorName UTF8String]) +
-                                           std::string("playerid") +
-                                           std::to_string((unsigned long)controller.playerIndex);
+
+    if (controller.extendedGamepad != nil)
+    {
+      peripheralScanResult.m_strDeviceName = "Extended Gamepad";
+    }
+    else if (controller.microGamepad != nil)
+    {
+      peripheralScanResult.m_strDeviceName = "Micro Gamepad";
+    }
+
     peripheralScanResult.m_busType = PERIPHERALS::PERIPHERAL_BUS_DARWINEMBEDDED;
     peripheralScanResult.m_mappedBusType = PERIPHERALS::PERIPHERAL_BUS_DARWINEMBEDDED;
     peripheralScanResult.m_iSequence = 0;
@@ -773,6 +793,22 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
   {
     CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: microGamepad not supported currently");
   }
+}
+
+- (int)GetControllerType:(int)deviceID
+{
+  // ToDo: arbitrary numbers change to an enum
+  for (GCController* controller in controllerArray)
+  {
+    if (controller.playerIndex == deviceID)
+    {
+      if (controller.extendedGamepad != nil)
+        return 1;
+      else if (controller.microGamepad != nil)
+        return 2;
+    }
+  }
+  return 0;
 }
 
 - (std::string)GetDeviceLocation:(int)deviceId
