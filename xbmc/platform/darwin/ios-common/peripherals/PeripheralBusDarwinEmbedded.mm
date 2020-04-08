@@ -235,7 +235,11 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 - (PERIPHERALS::PeripheralScanResults)GetInputDevices
 {
   PERIPHERALS::PeripheralScanResults scanresults;
-  for (GCController* controller in [GCController controllers])
+
+  if ([controllerArray count] == 0)
+    return scanresults;
+
+  for (GCController* controller in controllerArray)
   {
     PERIPHERALS::PeripheralScanResult peripheralScanResult;
     peripheralScanResult.m_type = PERIPHERALS::PERIPHERAL_JOYSTICK;
@@ -322,8 +326,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
     if ([controlObj isEqual:controller])
     {
       CLog::Log(LOGINFO,
-                "CPeripheralBusDarwinEmbedded: ignoring added input device with ID {} because we "
-                "already know it",
+                "CPeripheralBusDarwinEmbedded: ignoring input device with ID {} already known",
                 [controller.vendorName UTF8String]);
       return;
     }
@@ -349,8 +352,9 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
   CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: input device with ID {} playerIndex {} added ",
             [controller.vendorName UTF8String], (unsigned long)controller.playerIndex);
   [controllerArray addObject:controller];
-
+  parentClass->SetScanResults([self GetInputDevices]);
   parentClass->callOnDeviceAdded([self GetDeviceLocation:static_cast<int>(controller.playerIndex)]);
+
   // ToDo: changehandler only relevant to ios input at this stage
   [self registerChangeHandler:controller];
 }
@@ -359,7 +363,6 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 {
   // a controller was disconnected
   GCController* controller = (GCController*)notification.object;
-  bool removed = false;
 
   // remove the device from the Controller Array
   for (GCController* controlObj in controllerArray)
@@ -370,23 +373,17 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
                 [controller.vendorName UTF8String]);
       controller.playerIndex = GCControllerPlayerIndexUnset;
       [controllerArray removeObject:controller];
-      removed = true;
-      break;
+      parentClass->callOnDeviceRemoved(
+        [self GetDeviceLocation:static_cast<int>(controller.playerIndex)]);
+      parentClass->SetScanResults([self GetInputDevices]);
+      return;
     }
   }
 
-  if (removed)
-  {
-    parentClass->callOnDeviceRemoved(
-        [self GetDeviceLocation:static_cast<int>(controller.playerIndex)]);
-  }
-  else
-    CLog::Log(LOGWARNING,
-              "CPeripheralBusDarwinEmbedded: failed to remove input device {} because it couldn't "
-              "be found",
-              [controller.vendorName UTF8String]);
+  CLog::Log(LOGWARNING,
+            "CPeripheralBusDarwinEmbedded: failed to remove input device {} Not Found ",
+            [controller.vendorName UTF8String]);
 
-  parentClass->SetScanResults([self GetInputDevices]);
 }
 
 - (std::vector<kodi::addon::PeripheralEvent>)GetButtonEvents
