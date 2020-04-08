@@ -149,19 +149,16 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::SetScanResults(
 void PERIPHERALS::CPeripheralBusDarwinEmbedded::GetEvents(
     std::vector<kodi::addon::PeripheralEvent>& events)
 {
-  {
-    CSingleLock lock(m_critSectionStates);
-    std::vector<kodi::addon::PeripheralEvent> digitalEvents;
-    digitalEvents = [m_peripheralDarwinEmbedded->callbackClass GetButtonEvents];
-    
-    std::vector<kodi::addon::PeripheralEvent> axisEvents;
-    axisEvents = [m_peripheralDarwinEmbedded->callbackClass GetAxisEvents];
-    
-    events.reserve(digitalEvents.size() + axisEvents.size()); // preallocate memory
-    events.insert(events.end(), digitalEvents.begin(), digitalEvents.end());
-    events.insert(events.end(), axisEvents.begin(), axisEvents.end());
+  CSingleLock lock(m_critSectionStates);
+  std::vector<kodi::addon::PeripheralEvent> digitalEvents;
+  digitalEvents = [m_peripheralDarwinEmbedded->callbackClass GetButtonEvents];
 
-  }
+  std::vector<kodi::addon::PeripheralEvent> axisEvents;
+  axisEvents = [m_peripheralDarwinEmbedded->callbackClass GetAxisEvents];
+
+  events.reserve(digitalEvents.size() + axisEvents.size()); // preallocate memory
+  events.insert(events.end(), digitalEvents.begin(), digitalEvents.end());
+  events.insert(events.end(), axisEvents.begin(), axisEvents.end());
 }
 
 bool PERIPHERALS::CPeripheralBusDarwinEmbedded::GetDeviceId(const std::string& deviceLocation,
@@ -242,11 +239,6 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 
 @implementation CBPeripheralBusDarwinEmbedded
 
-- (bool)InitializeProperties:(PERIPHERALS::CPeripheral*)peripheral
-{
-  return true;
-}
-
 - (PERIPHERALS::PeripheralScanResults)GetInputDevices
 {
   PERIPHERALS::PeripheralScanResults scanresults;
@@ -305,11 +297,15 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
   return self;
 }
 
+- (void)dealloc
+{
+  parentClass = nil;
+}
+
 #pragma mark - Notificaton Observer
 
 - (void)addModeSwitchObserver
 {
-  CLog::Log(LOGINFO, "CBPeripheralBusDarwinEmbedded: modeswitchObserver added");
   // notifications for controller (dis)connect
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(controllerWasConnected:)
@@ -442,7 +438,6 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 
 - (void)registerChangeHandler:(GCController*)controller
 {
-  CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: registerChangeHandler");
   if (controller.extendedGamepad)
   {
     CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: extendedGamepad changehandler added");
@@ -743,8 +738,6 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
         }
       }
       // left stick
-      // thumbstick DriverIndex = 0 Left
-      // thumbstick DriverIndex = 1 Right
       if (gamepad.leftThumbstick == element)
       {
         bAxisEvent = YES;
@@ -826,10 +819,9 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
       [self displayMessage:message controllerID:controllerID];
     };
   }
-  else if (controller.microGamepad != nil)
+  else if (controller.microGamepad)
   {
-    CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: microGamepad not supported currently");
-    
+    CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: microGamepad changehandler added");
     GCMicroGamepad* profile = controller.microGamepad;
     profile.valueChangedHandler = ^(GCMicroGamepad* gamepad, GCControllerElement* element) {
       NSString* controllerID =
