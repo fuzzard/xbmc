@@ -35,17 +35,10 @@
 }
 - (instancetype)initWithName:(PERIPHERALS::CPeripheralBusDarwinEmbedded*)parentClass;
 - (PERIPHERALS::PeripheralScanResults)GetInputDevices;
-- (void)removeModeSwitchObserver;
-- (void)addModeSwitchObserver;
-- (void)controllerWasConnected:(NSNotification*)notification;
-- (void)controllerWasDisconnected:(NSNotification*)notification;
 - (std::vector<kodi::addon::PeripheralEvent>)GetButtonEvents;
 - (std::vector<kodi::addon::PeripheralEvent>)GetAxisEvents;
-- (void)registerChangeHandler:(GCController*)controller;
-- (void)displayMessage:(NSString*)message controllerID:(NSString*)controllerID;
 - (int)GetControllerType:(int)deviceID;
 - (std::string)GetDeviceLocation:(int)deviceId;
-- (void)controllerConnection:(GCController*)controller;
 @end
 
 #define JOYSTICK_PROVIDER_DARWINEMBEDDED "darwinembedded"
@@ -289,23 +282,21 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
   return scanresults;
 }
 
-- (void)dealloc
-{
-  [self removeModeSwitchObserver];
-}
-
 - (instancetype)initWithName:(PERIPHERALS::CPeripheralBusDarwinEmbedded*)initClass
 {
+  self = [super init];
+
   CLog::Log(LOGINFO, "CBPeripheralBusDarwinEmbedded: init");
   [self addModeSwitchObserver];
   parentClass = initClass;
 
   controllerArray = [[NSMutableArray alloc] init];
 
+  auto controllers = [GCController controllers];
   // Iterate through any pre-existing controller connections at startup to enable value handlers
-  if ([[GCController controllers] count] > 0)
+  if ([controllers count] > 0)
   {
-    for (GCController* controller in [GCController controllers])
+    for (GCController* controller in controllers)
     {
       [self controllerConnection:controller];
     }
@@ -315,16 +306,6 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 }
 
 #pragma mark - Notificaton Observer
-
-- (void)removeModeSwitchObserver
-{
-  [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                  name:GCControllerDidConnectNotification
-                                                object:nil];
-  [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                  name:GCControllerDidDisconnectNotification
-                                                object:nil];
-}
 
 - (void)addModeSwitchObserver
 {
@@ -401,23 +382,22 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
   // remove the device from the Controller Array
   for (GCController* controlObj in controllerArray)
   {
-    if ([controlObj isEqual:controller])
-    {
-      CLog::Log(LOGINFO, "CPeripheralBusDarwinEmbedded: input device \"{}\" removed",
-                [controller.vendorName UTF8String]);
-      controller.playerIndex = GCControllerPlayerIndexUnset;
-      [controllerArray removeObject:controller];
-      parentClass->callOnDeviceRemoved(
-        [self GetDeviceLocation:static_cast<int>(controller.playerIndex)]);
-      parentClass->SetScanResults([self GetInputDevices]);
-      return;
-    }
+    if (![controlObj isEqual:controller])
+      continue;
+
+    CLog::Log(LOGINFO, "CPeripheralBusDarwinEmbedded: input device \"{}\" removed",
+              [controller.vendorName UTF8String]);
+    controller.playerIndex = GCControllerPlayerIndexUnset;
+    [controllerArray removeObject:controller];
+    parentClass->callOnDeviceRemoved(
+      [self GetDeviceLocation:static_cast<int>(controller.playerIndex)]);
+    parentClass->SetScanResults([self GetInputDevices]);
+    return;
   }
 
   CLog::Log(LOGWARNING,
             "CPeripheralBusDarwinEmbedded: failed to remove input device {} Not Found ",
             [controller.vendorName UTF8String]);
-
 }
 
 - (std::vector<kodi::addon::PeripheralEvent>)GetAxisEvents
@@ -463,11 +443,11 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 - (void)registerChangeHandler:(GCController*)controller
 {
   CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: registerChangeHandler");
-  if (controller.extendedGamepad != nil)
+  if (controller.extendedGamepad)
   {
     CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: extendedGamepad changehandler added");
     // register block for input change detection
-    GCExtendedGamepad* profile = controller.extendedGamepad;
+    auto profile = controller.extendedGamepad;
     profile.valueChangedHandler = ^(GCExtendedGamepad* gamepad, GCControllerElement* element) {
       NSString* controllerID =
           [NSString stringWithFormat:@"%d", static_cast<int>(controller.playerIndex)];
@@ -949,7 +929,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
 - (void)displayMessage:(NSString*)message controllerID:(NSString*)controllerID
 {
   CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: inputhandler - ID {} - Action {}",
-            [controllerID UTF8String], [message UTF8String]);
+            controllerID.UTF8String, message.UTF8String);
 }
 
 @end
