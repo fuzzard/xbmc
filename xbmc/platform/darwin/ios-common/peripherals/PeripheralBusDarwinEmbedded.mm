@@ -32,14 +32,6 @@
   BOOL dpadRightPressed;
   BOOL dpadUpPressed;
   BOOL dpadDownPressed;
-  BOOL axisLeftLeft;
-  BOOL axisLeftRight;
-  BOOL axisLeftUp;
-  BOOL axisLeftDown;
-  BOOL axisRightLeft;
-  BOOL axisRightRight;
-  BOOL axisRightUp;
-  BOOL axisRightDown;
 }
 - (instancetype)initWithName:(PERIPHERALS::CPeripheralBusDarwinEmbedded*)parentClass;
 - (PERIPHERALS::PeripheralScanResults)GetInputDevices;
@@ -47,7 +39,6 @@
 - (std::vector<kodi::addon::PeripheralEvent>)GetAxisEvents;
 - (int)GetControllerType:(int)deviceID;
 - (std::string)GetDeviceLocation:(int)deviceId;
-- (void)SetAxisHome:(int)deviceId;
 @end
 
 #define JOYSTICK_PROVIDER_DARWINEMBEDDED "darwinembedded"
@@ -130,8 +121,6 @@ bool PERIPHERALS::CPeripheralBusDarwinEmbedded::InitializeProperties(CPeripheral
 
   CLog::Log(LOGDEBUG, "CPeripheralBusDarwinEmbedded: Device has %u buttons and %u axes",
             joystick.ButtonCount(), joystick.AxisCount());
-
-//  [m_peripheralDarwinEmbedded->callbackClass SetAxisHome:deviceId];
 
   return true;
 }
@@ -773,20 +762,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
           if (gamepad.leftThumbstick.yAxis.value > 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisLeftUp = YES;
-            axisLeftDown = NO;
           }
-        }
-        else if (!gamepad.leftThumbstick.up.isPressed && axisLeftUp)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(1);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisLeftUp = NO;
         }
         if (gamepad.leftThumbstick.down.isPressed)
         {
@@ -798,20 +774,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
           if (gamepad.leftThumbstick.yAxis.value < 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisLeftUp = NO;
-            axisLeftDown = YES;
           }
-        }
-        else if (!gamepad.leftThumbstick.down.isPressed && axisLeftDown)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(1);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisLeftDown = NO;
         }
         if (gamepad.leftThumbstick.left.isPressed)
         {
@@ -823,20 +786,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
           if (gamepad.leftThumbstick.xAxis.value < 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisLeftLeft = YES;
-            axisLeftRight = NO;
           }
-        }
-        else if (!gamepad.leftThumbstick.left.isPressed && axisLeftLeft)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(0);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisLeftLeft = NO;
         }
         if (gamepad.leftThumbstick.right.isPressed)
         {
@@ -848,20 +798,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
           if (gamepad.leftThumbstick.xAxis.value > 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisLeftLeft = NO;
-            axisLeftRight = YES;
           }
-        }
-        else if (!gamepad.leftThumbstick.right.isPressed && axisLeftRight)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(0);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisLeftRight = NO;
         }
       }
       // right stick
@@ -874,24 +811,11 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
               [NSString stringWithFormat:@"Right Stick Up %f", gamepad.rightThumbstick.yAxis.value];
           axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
           axisEvent.SetDriverIndex(3);
-          axisEvent.SetAxisState(gamepad.leftThumbstick.yAxis.value);
+          axisEvent.SetAxisState(gamepad.rightThumbstick.yAxis.value);
           if (gamepad.rightThumbstick.yAxis.value > 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisRightDown = NO;
-            axisRightUp = YES;
           }
-        }
-        else if (!gamepad.rightThumbstick.up.isPressed && axisRightUp)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(3);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisRightUp = NO;
         }
         if (gamepad.rightThumbstick.down.isPressed)
         {
@@ -903,20 +827,7 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
           if (gamepad.rightThumbstick.yAxis.value < 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisRightDown = YES;
-            axisRightUp = NO;
           }
-        }
-        else if (!gamepad.rightThumbstick.down.isPressed && axisRightDown)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(3);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisRightDown = NO;
         }
         if (gamepad.rightThumbstick.left.isPressed)
         {
@@ -924,24 +835,11 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
               [NSString stringWithFormat:@"Right Stick Left %f", gamepad.rightThumbstick.xAxis.value];
           axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
           axisEvent.SetDriverIndex(2);
-          axisEvent.SetAxisState(gamepad.leftThumbstick.xAxis.value);
+          axisEvent.SetAxisState(gamepad.rightThumbstick.xAxis.value);
           if (gamepad.rightThumbstick.xAxis.value < 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisRightLeft = YES;
-            axisRightRight = NO;
           }
-        }
-        else if (!gamepad.rightThumbstick.left.isPressed && axisRightLeft)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(2);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisRightLeft = NO;
         }
         if (gamepad.rightThumbstick.right.isPressed)
         {
@@ -949,30 +847,17 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
               [NSString stringWithFormat:@"Right Stick Right %f", gamepad.rightThumbstick.xAxis.value];
           axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
           axisEvent.SetDriverIndex(2);
-          axisEvent.SetAxisState(gamepad.leftThumbstick.xAxis.value);
+          axisEvent.SetAxisState(gamepad.rightThumbstick.xAxis.value);
           if (gamepad.rightThumbstick.xAxis.value > 0)
           {
             m_axisEvents.emplace_back(axisEvent);
-            axisRightLeft = NO;
-            axisRightRight = YES;
           }
-        }
-        else if (!gamepad.rightThumbstick.right.isPressed && axisRightRight)
-        {
-          kodi::addon::PeripheralEvent newReleaseEvent = {};
-          newReleaseEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-          newReleaseEvent.SetPeripheralIndex(static_cast<unsigned int>(controller.playerIndex));
-          newReleaseEvent.SetDriverIndex(2);
-          newReleaseEvent.SetAxisState(0.0f);
-
-//          m_axisEvents.emplace_back(newReleaseEvent);
-          axisRightRight = NO;
         }
       }
 
       m_digitalEvents.emplace_back(newEvent);
-        
-      [self displayMessage:message controllerID:controllerID];
+      // Debug Purposes only - excessive log spam
+      // [self displayMessage:message controllerID:controllerID];
     };
   }
   else if (controller.microGamepad)
@@ -1048,7 +933,8 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
       }
     
       m_digitalEvents.emplace_back(newEvent);
-      [self displayMessage:message controllerID:controllerID];
+      // Debug Purposes only - excessive log spam
+      // [self displayMessage:message controllerID:controllerID];
     };
   }
 }
@@ -1079,19 +965,4 @@ void PERIPHERALS::CPeripheralBusDarwinEmbedded::callOnDeviceRemoved(const std::s
   CLog::Log(LOGDEBUG, "CBPeripheralBusDarwinEmbedded: inputhandler - ID {} - Action {}",
             controllerID.UTF8String, message.UTF8String);
 }
-
-- (void)SetAxisHome:(int)deviceId
-{
-  kodi::addon::PeripheralEvent axisEvent = {};
-  axisEvent.SetPeripheralIndex(deviceId);
-  axisEvent.SetType(PERIPHERAL_EVENT_TYPE_DRIVER_AXIS);
-  axisEvent.SetAxisState(0.0f);
-
-  for (int axis = 0; axis < 4; axis++)
-  {
-    axisEvent.SetDriverIndex(axis);
-    m_axisEvents.emplace_back(axisEvent);
-  }
-}
-
 @end
