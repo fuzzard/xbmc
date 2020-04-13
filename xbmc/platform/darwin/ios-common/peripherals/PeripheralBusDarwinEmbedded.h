@@ -41,6 +41,14 @@ public:
 
   void SetScanResults(const PeripheralScanResults resScanResults);
 
+  const std::string& getDeviceLocationPrefix()
+  {
+    // Initialize the static variable
+    static std::string DeviceLocationPrefix("darwinembedded/inputdevice/");
+    return DeviceLocationPrefix;
+  }
+
+
 private:
   void GetEvents(std::vector<kodi::addon::PeripheralEvent>& events);
   std::unique_ptr<PeripheralBusDarwinEmbeddedWrapper> m_peripheralDarwinEmbedded;

@@ -53,6 +53,7 @@ enum class GCCONTROLLER_TYPE
   UNKNOWN = 0,
   EXTENDED = 1,
   MICRO = 2,
+  NOTFOUND = 98,
   UNUSED = 99
 };
 
@@ -80,8 +81,8 @@ struct InputValueInfo
   {
   }
 
-  InputValueInfo(GCCONTROLLER_EXTENDED_GAMEPAD_AXIS extendedAxis)
-    : controllerType(GCCONTROLLER_TYPE::UNUSED),
+  InputValueInfo(GCCONTROLLER_TYPE controllerType, GCCONTROLLER_EXTENDED_GAMEPAD_AXIS extendedAxis)
+    : controllerType(controllerType),
       extendedButton(GCCONTROLLER_EXTENDED_GAMEPAD_BUTTON::UNUSED),
       extendedAxis(extendedAxis),
       microButton(GCCONTROLLER_MICRO_GAMEPAD_BUTTON::UNUSED)
