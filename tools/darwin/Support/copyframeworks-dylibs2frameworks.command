@@ -29,8 +29,8 @@ BUNDLE_REVISION=$(date -u +%y%m%d.%H%M)
 if [ "${PLATFORM_NAME}" == "appletvos" ]; then
   SEEDFRAMEWORKPLIST="${SRCROOT}/xbmc/platform/darwin/tvos/FrameworkSeed_Info.plist"
 # todo: implement soft frameworks for ios
-#elif [ "$PLATFORM_NAME" == "iphoneos" ]; then
-#  SEEDFRAMEWORKPLIST="${SRCROOT}/xbmc/platform/darwin/ios/FrameworkSeed_Info.plist"
+elif [ "$PLATFORM_NAME" == "iphoneos" ]; then
+  SEEDFRAMEWORKPLIST="${SRCROOT}/xbmc/platform/darwin/ios/FrameworkSeed_Info.plist"
 fi
 
 function convert2framework
@@ -98,9 +98,9 @@ function convert2framework
 }
 
 # todo: convert ios to soft frameworks as well to remove this if guard
-if [ "$PLATFORM_NAME" == "appletvos" ]; then
+#if [ "$PLATFORM_NAME" == "appletvos" ]; then
   # loop over all xxx.dylibs in xxx.app/Frameworks
   for dylib in $(find "${TARGET_FRAMEWORKS}" -name "*.dylib" -type f); do
     convert2framework "${dylib}"
   done
-fi
+#fi
