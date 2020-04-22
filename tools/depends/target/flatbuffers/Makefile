@@ -1,11 +1,12 @@
--include ../../Makefile.include
-DEPS=Makefile
-
 # lib name, version
 LIBNAME=flatbuffers
 VERSION=1.11.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+
+-include ../../Makefile.include
+include ../../MakefileUtils.include
+DEPS=Makefile
 
 ifeq ($(PLATFORM),)
 	# Building stand-alone
@@ -35,11 +36,6 @@ CMAKE_OPTIONS := -DCMAKE_BUILD_TYPE=Release \
                  -DFLATBUFFERS_BUILD_SHAREDLIB=OFF \
                  $(CMAKE_OPTIONS)
 BUILDDIR = $(PLATFORM)/build-cmake # 'build' conflicts with file BUILD on case-insensitive FS
-
-all: .installed-$(PLATFORM)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(PREFIX),)
