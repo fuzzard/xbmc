@@ -1,4 +1,5 @@
 -include ../../Makefile.include
+include ../../MakefileUtils.include
 DEPS = Makefile 0001-remove_custom_cxx_flags.patch
 
 # lib name, version
@@ -30,10 +31,7 @@ endif
 
 all: .installed-$(PLATFORM)
 
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
-
-$(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
+$(PLATFORM): .downloadverify $(DEPS)
 ifeq ($(PREFIX),)
 	@echo
 	@echo "ERROR: please set PREFIX to the kodi install path e.g. $(MAKE) PREFIX=/usr/local"

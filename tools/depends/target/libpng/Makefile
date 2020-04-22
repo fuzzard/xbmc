@@ -1,4 +1,5 @@
 include ../../Makefile.include
+include ../../MakefileUtils.include
 DEPS= ../../Makefile.include Makefile
 
 # lib name, version
@@ -15,10 +16,11 @@ LIBDYLIB=$(PLATFORM)/.libs/$(LIBNAME)16.a
 
 all: .installed-$(PLATFORM)
 
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
+.PHONY: .hashcheck
+.hashcheck:
+	$(VERIFYHASH)
 
-$(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
+$(PLATFORM): .downloadverify $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); $(CONFIGURE)

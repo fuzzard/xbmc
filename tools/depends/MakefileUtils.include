@@ -1,0 +1,24 @@
+
+.PHONY: .downloadverify
+.downloadverify:
+	@if [ ! -f "$(TARBALLS_LOCATION)/$(ARCHIVE)" ]; then \
+      cd $(TARBALLS_LOCATION); \
+      $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE); \
+    fi; \
+    for count in 1 2 3 4; do \
+      if [ $$count = "4" ]; then \
+        echo "ERROR: HASH failed with download 3 times. Aborting"; \
+        exit 1; \
+      fi; \
+      calc_sha=`$(HASH_TOOL) $(TARBALLS_LOCATION)/$(ARCHIVE) | awk '{ print $$1 }'`; \
+      if [ ! "$(SHA256)" = "$$calc_sha" ]; then \
+        echo "Hash failure for archive $(ARCHIVE)"; \
+        echo "Calculated: $$calc_sha"; \
+        echo "Stored:     $(SHA256)"; \
+        rm -f $(TARBALLS_LOCATION)/$(ARCHIVE); \
+        cd $(TARBALLS_LOCATION); \
+        $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE); \
+      else \
+        break; \
+      fi \
+    done
