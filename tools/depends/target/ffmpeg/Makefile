@@ -1,5 +1,6 @@
-include ../../Makefile.include
 include FFMPEG-VERSION
+include ../../Makefile.include
+include ../../MakefileUtils.include
 DEPS= ../../Makefile.include FFMPEG-VERSION Makefile
 
 # set to "yes" to enable patching
@@ -68,11 +69,6 @@ endif
 ifeq ($(Configuration), Release)
   ffmpg_config += --disable-debug
 endif
-
-all: .installed-$(PLATFORM)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) -Ls --create-dirs -f -o $(TARBALLS_LOCATION)/$(ARCHIVE) $(BASE_URL)/archive/$(VERSION).tar.gz
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
