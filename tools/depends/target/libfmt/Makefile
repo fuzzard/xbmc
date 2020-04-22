@@ -1,12 +1,13 @@
--include ../../Makefile.include
-DEPS = Makefile
-
 # lib name, version
 LIBNAME=fmt
 VERSION=6.1.2
 SHA256=1cafc80701b746085dddf41bd9193e6d35089e1c6ec1940e037fcb9c98f62365
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+
+-include ../../Makefile.include
+include ../../MakefileUtils.include
+DEPS = Makefile
 
 CMAKE_OPTIONS=-DCMAKE_CXX_STANDARD=14 -DCMAKE_CXX_EXTENSIONS:BOOL=OFF -DFMT_DOC=OFF -DFMT_INSTALL=ON -DFMT_TEST=OFF
 
@@ -31,11 +32,6 @@ endif
 LIBDYLIB=$(PLATFORM)/build/libfmt.a
 
 .PHONY: .installed-native
-
-all: .installed-$(PLATFORM)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(PREFIX),)
