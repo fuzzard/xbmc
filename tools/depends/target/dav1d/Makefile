@@ -1,5 +1,6 @@
 -include ../../Makefile.include
 include DAV1D-VERSION
+include ../../MakefileUtils.include
 DEPS = Makefile DAV1D-VERSION
 
 ifeq ($(CROSS_COMPILING), yes)
@@ -53,12 +54,7 @@ export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig
 
 LIBDYLIB=$(PLATFORM)/lib/lib$(LIBNAME).a
 
-all: .installed-$(PLATFORM)
-
-download: $(TARBALLS_LOCATION)/$(ARCHIVE)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
+$(TARBALLS_LOCATION)/$(ARCHIVE): .downloadverify
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
