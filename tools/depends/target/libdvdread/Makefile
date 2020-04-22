@@ -1,5 +1,6 @@
 -include ../../Makefile.include
 include DVDREAD-VERSION
+include ../../MakefileUtils.include
 DEPS = DVDREAD-VERSION Makefile
 
 # configuration settings
@@ -37,13 +38,6 @@ ifeq ($(GITREV),)
 else
   ARCHIVE=$(LIBNAME)-$(GITREV).tar.gz
 endif
-
-all: .installed-$(PLATFORM)
-
-download: $(TARBALLS_LOCATION)/$(ARCHIVE)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) -o $(TARBALLS_LOCATION)/$(ARCHIVE) $(BASE_URL)/archive/$(VERSION).tar.gz
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)

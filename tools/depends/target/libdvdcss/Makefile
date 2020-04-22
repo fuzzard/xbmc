@@ -1,5 +1,6 @@
 -include ../../Makefile.include
 include DVDCSS-VERSION
+include ../../MakefileUtils.include
 DEPS= DVDCSS-VERSION Makefile
 
 ifeq ($(CROSS_COMPILING), yes)
@@ -27,14 +28,6 @@ ifeq ($(GITREV),)
 else
   ARCHIVE=$(LIBNAME)-$(GITREV).tar.gz
 endif
-
-
-all: .installed-$(PLATFORM)
-
-download: $(TARBALLS_LOCATION)/$(ARCHIVE)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) -o $(TARBALLS_LOCATION)/$(ARCHIVE) $(BASE_URL)/archive/$(VERSION).tar.gz
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
