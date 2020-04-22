@@ -1,22 +1,18 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile
-
 # lib name, version
 LIBNAME=libpng
 VERSION=1.6.26
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
+include ../../Makefile.include
+include ../../MakefileUtils.include
+DEPS= ../../Makefile.include Makefile
+
 # configuration settings
 CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
           ./configure --prefix=$(PREFIX) --disable-shared
 
 LIBDYLIB=$(PLATFORM)/.libs/$(LIBNAME)16.a
-
-all: .installed-$(PLATFORM)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
