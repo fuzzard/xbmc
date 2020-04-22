@@ -1,6 +1,3 @@
--include ../../Makefile.include
-DEPS = Makefile
-
 # lib name, version
 LIBNAME=crossguid
 VERSION=8f399e8bd4
@@ -8,6 +5,9 @@ SHA256=3d77d09a5df0de510aeeb940df4cb534787ddff3bb1828779753f5dfa1229d10
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
+-include ../../Makefile.include
+include ../../MakefileUtils.include
+DEPS = Makefile
 
 ifeq ($(CROSS_COMPILING), yes)
   DEPS += ../../Makefile.include
@@ -38,11 +38,6 @@ endif
 LIBDYLIB=$(PLATFORM)/lib$(LIBNAME).a
 
 .PHONY: .installed-native
-
-all: .installed-$(PLATFORM)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(PREFIX),)
