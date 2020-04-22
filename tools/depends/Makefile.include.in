@@ -27,6 +27,8 @@ AAPT=@AAPT@
 DX=@DX@
 ZIPALIGN=@ZIPALIGN@
 
+HASH_TOOL=@hash_tool@
+
 HAS_ZLIB=@has_zlib@
 NEED_LIBICONV=@need_libiconv@
 LINK_ICONV=@link_iconv@

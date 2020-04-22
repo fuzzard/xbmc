@@ -192,6 +192,8 @@ AC_PATH_PROG([NM_FOR_BUILD], [nm], nm, $PATH_FOR_BUILD)
 AC_PATH_PROG([OBJDUMP_FOR_BUILD], [objdump], objdump, $PATH_FOR_BUILD)
 AC_PATH_PROG([CC_FOR_BUILD],[gcc llvm-gcc $platform_cc], gcc, $PATH_FOR_BUILD)
 AC_PATH_PROG([CXX_FOR_BUILD],[g++ llvm-g++ $platform_cxx], g++, $PATH_FOR_BUILD)
+AC_PATH_PROG([SHA256SUM],[sha256sum],,)
+AC_PATH_PROG([SHASUM],[shasum],,)
 
 
 platform_cc=gcc
@@ -243,7 +245,7 @@ case $host in
     platform_cflags="-DANDROID -D__ANDROID_API__=$use_ndk_api -fexceptions -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fPIC -DPIC"
     optimize_flags="-Os"
     platform_ldflags="-Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libatomic.a -L$prefix/$deps_dir/lib/android-$use_ndk_api"
-
+    hash_tool="${SHA256SUM}"
     case $host in
       arm*-*linux-android*)
         if test "x$use_cpu" = "xauto"; then
@@ -293,6 +295,7 @@ case $host in
     if test "x$use_cpu" = "xauto"; then
       use_cpu=$host_cpu
     fi
+    hash_tool="${SHA256SUM}"
     use_toolchain="${use_toolchain:-/usr}"
     platform_cflags="-fPIC -DPIC"
     optimize_flags="-Os"
@@ -310,6 +313,7 @@ case $host in
         meson_cpu="x86_64"
       ;;
     esac
+    hash_tool="${SHA256SUM}"
     use_cpu=$host_cpu
     use_toolchain="${use_toolchain:-/usr}"
     platform_cflags="-fPIC -DPIC"
@@ -323,6 +327,8 @@ case $host in
     if test "x$prefix" = "xNONE"; then
       prefix=/Users/Shared/xbmc-depends
     fi
+
+    hash_tool="${SHASUM} -a 256"
 
     use_xcodebuild=$use_xcodepath/usr/bin/xcodebuild
     AC_MSG_RESULT(found xcodebuild at $use_xcodebuild)
@@ -685,6 +691,7 @@ AC_SUBST(use_ccache)
 AC_SUBST(native_platform_min_version)
 AC_SUBST(app_rendersystem)
 AC_SUBST(ffmpeg_options)
+AC_SUBST(hash_tool)
 
 AC_OUTPUT
 
@@ -703,6 +710,7 @@ cp -vf native/config.site.native $prefix/$tool_dir/share/config.site
 
 
 echo -e "\n\n#------- configuration -------#"
+echo -e "hash_tool:\t\t $hash_tool"
 echo -e "ccache:\t\t $use_ccache"
 echo -e "build type:\t $build_type"
 echo -e "toolchain:\t $use_toolchain"
