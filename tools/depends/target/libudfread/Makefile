@@ -1,5 +1,6 @@
 -include ../../Makefile.include
 include UDFREAD-VERSION
+include ../../MakefileUtils.include
 DEPS = Makefile UDFREAD-VERSION
 
 ifeq ($(CROSS_COMPILING), yes)
@@ -16,12 +17,6 @@ endif
 CONFIGURE = ./configure --prefix=$(PREFIX) --disable-shared --enable-static
 
 LIBDYLIB=$(PLATFORM)/lib/lib$(LIBNAME).a
-
-all: .installed-$(PLATFORM)
-download: $(TARBALLS_LOCATION)/$(ARCHIVE)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
