@@ -1,6 +1,3 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile
-
 # lib name, version
 LIBNAME=fstrcmp
 VERSION=0.7.D001
@@ -8,15 +5,14 @@ SHA256=e4018e850f80700acee8da296e56e15b1eef711ab15157e542e7d7e1237c3476
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
+include ../../Makefile.include
+include ../../MakefileUtils.include
+DEPS= ../../Makefile.include Makefile
+
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX)
 
 LIBDYLIB=$(PLATFORM)/lib/.libs/lib$(LIBNAME).a
-
-all: .installed-$(PLATFORM)
-
-$(TARBALLS_LOCATION)/$(ARCHIVE):
-	cd $(TARBALLS_LOCATION); $(RETRIEVE_TOOL) $(RETRIEVE_TOOL_FLAGS) $(BASE_URL)/$(ARCHIVE)
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
