@@ -244,6 +244,18 @@ endif()
 # error either in ADDONS_TO_BUILD or in the directory configuration.
 set(SUPPORTED_ADDON_FOUND FALSE)
 
+set(EXCLUDE_ADDONS "")
+foreach(addon ${ADDONS_TO_BUILD})
+  set(FOUND_EXCLUSION "")
+  string(REGEX MATCH "^[-](.*)" FOUND_EXCLUSION "${addon}")
+  if(NOT FOUND_EXCLUSION STREQUAL "")
+    list(APPEND EXCLUDE_ADDONS ${CMAKE_MATCH_1})
+    list(REMOVE_ITEM REGEX_ADDONS_TO_BUILD "-${CMAKE_MATCH_1}")
+  endif()
+endforeach()
+
+message(STATUS "Exclusion list: ${EXCLUDE_ADDONS}")
+
 # Exact addon match list
 set(EXACT_MATCH_ADDON_LIST "")
 foreach(addon ${ADDONS_TO_BUILD})
@@ -272,7 +284,20 @@ foreach(addon ${addons})
     if("${ADDONS_TO_BUILD}" STREQUAL "all")
       set(ADDON_FOUND TRUE)
     else()
+      set(ADDON_EXCLUDE FALSE)
       set(ADDON_FOUND FALSE)
+      foreach(exclusion ${EXCLUDE_ADDONS})
+        if(id MATCHES "${exclusion}")
+          set(ADDON_EXCLUDE TRUE)
+          message(STATUS "Addon ${id} matches exclusion rule -${exclusion}")
+          break()
+        endif()
+      endforeach()
+
+      if(ADDON_EXCLUDE)
+        continue()
+      endif()
+
       list(FIND EXACT_MATCH_ADDON_LIST ${id} idx)
       if(idx GREATER -1)
         # exact match, so build
