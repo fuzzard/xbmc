@@ -244,15 +244,40 @@ endif()
 # error either in ADDONS_TO_BUILD or in the directory configuration.
 set(SUPPORTED_ADDON_FOUND FALSE)
 
+set(EXCLUDE_ADDONS "")
+foreach(addon ${ADDONS_TO_BUILD})
+  set(FOUND_EXCLUSION "")
+  string(REGEX MATCH "^[-].*" FOUND_EXCLUSION "${addon}")
+  if(NOT FOUND_EXCLUSION STREQUAL "")
+    # Remove beginning - and then append to excluded addon list
+    STRING(REGEX MATCH "-([^ ]*)"  excluded_addon ${FOUND_EXCLUSION})
+    list(APPEND EXCLUDE_ADDONS ${CMAKE_MATCH_1})
+    message(STATUS "Exclusion found ${CMAKE_MATCH_1}")
+  endif()
+endforeach()
+
 foreach(addon ${addons})
   if(NOT (addon MATCHES platforms.txt))
     file(STRINGS ${addon} def)
     string(REPLACE " " ";" def ${def})
     list(GET def 0 id)
 
+    list(FIND ADDONS_TO_BUILD ${id} idx)
+    set(ADDON_EXCLUDE FALSE)
+    foreach(exclusion ${EXCLUDE_ADDONS})
+      if(id MATCHES "${exclusion}")
+        set(ADDON_EXCLUDE TRUE)
+        message(STATUS "Addon ${id} matches exclusion rule -${exclusion}")
+        break()
+      endif()
+    endforeach()
+
+    if(ADDON_EXCLUDE)
+      continue()
+    endif()
+
     set(ADDON_FOUND FALSE)
     # try to find a perfect match
-    list(FIND ADDONS_TO_BUILD ${id} idx)
     if(idx GREATER -1 OR "${ADDONS_TO_BUILD}" STREQUAL "all")
       set(ADDON_FOUND TRUE)
     # Maybe we have a regex
