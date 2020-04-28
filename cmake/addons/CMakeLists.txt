@@ -244,17 +244,37 @@ endif()
 # error either in ADDONS_TO_BUILD or in the directory configuration.
 set(SUPPORTED_ADDON_FOUND FALSE)
 
+set(REGEX_ADDONS_TO_BUILD ${ADDONS_TO_BUILD})
 set(EXCLUDE_ADDONS "")
 foreach(addon ${ADDONS_TO_BUILD})
   set(FOUND_EXCLUSION "")
-  string(REGEX MATCH "^[-].*" FOUND_EXCLUSION "${addon}")
+  string(REGEX MATCH "^[-](.*)" FOUND_EXCLUSION "${addon}")
   if(NOT FOUND_EXCLUSION STREQUAL "")
-    # Remove beginning - and then append to excluded addon list
-    STRING(REGEX MATCH "-([^ ]*)"  excluded_addon ${FOUND_EXCLUSION})
     list(APPEND EXCLUDE_ADDONS ${CMAKE_MATCH_1})
-    message(STATUS "Exclusion found ${CMAKE_MATCH_1}")
+    list(REMOVE_ITEM REGEX_ADDONS_TO_BUILD "-${CMAKE_MATCH_1}")
   endif()
 endforeach()
+
+message(STATUS "Exclusion list: ${EXCLUDE_ADDONS}")
+
+# Exact addon match list
+set(EXACT_MATCH_ADDON_LIST "")
+foreach(addon ${ADDONS_TO_BUILD})
+  foreach(addonrepoitem ${addons})
+    if(NOT (addon MATCHES platforms.txt))
+      # need to strip regex chars, or the filter regex will use
+      string(REPLACE "*" "" strippedregex ${addon})
+      if(${addonrepoitem} MATCHES ".*${strippedregex}[.]txt")
+        list(APPEND EXACT_MATCH_ADDON_LIST ${addon})
+        # remove exact matches from addons_to_build
+        list(REMOVE_ITEM REGEX_ADDONS_TO_BUILD "${addon}")
+      endif()
+    endif()
+  endforeach()
+endforeach()
+
+message(STATUS "Exact Match list: ${EXACT_MATCH_ADDON_LIST}")
+message(STATUS "Regex list: ${REGEX_ADDONS_TO_BUILD}")
 
 foreach(addon ${addons})
   if(NOT (addon MATCHES platforms.txt))
@@ -262,33 +282,38 @@ foreach(addon ${addons})
     string(REPLACE " " ";" def ${def})
     list(GET def 0 id)
 
-    list(FIND ADDONS_TO_BUILD ${id} idx)
-    set(ADDON_EXCLUDE FALSE)
-    foreach(exclusion ${EXCLUDE_ADDONS})
-      if(id MATCHES "${exclusion}")
-        set(ADDON_EXCLUDE TRUE)
-        message(STATUS "Addon ${id} matches exclusion rule -${exclusion}")
-        break()
-      endif()
-    endforeach()
-
-    if(ADDON_EXCLUDE)
-      continue()
-    endif()
-
-    set(ADDON_FOUND FALSE)
-    # try to find a perfect match
-    if(idx GREATER -1 OR "${ADDONS_TO_BUILD}" STREQUAL "all")
+    if("${ADDONS_TO_BUILD}" STREQUAL "all")
       set(ADDON_FOUND TRUE)
-    # Maybe we have a regex
     else()
-      foreach(ADDONLISTITEM ${ADDONS_TO_BUILD})
-        if(id MATCHES "${ADDONLISTITEM}")
-          message(STATUS "Pattern ${ADDONLISTITEM} matches ${id}, building addon")
-          set(ADDON_FOUND TRUE)
+      set(ADDON_EXCLUDE FALSE)
+      set(ADDON_FOUND FALSE)
+      foreach(exclusion ${EXCLUDE_ADDONS})
+        if(id MATCHES "${exclusion}")
+          set(ADDON_EXCLUDE TRUE)
+          message(STATUS "Addon ${id} matches exclusion rule -${exclusion}")
           break()
         endif()
       endforeach()
+
+      if(ADDON_EXCLUDE)
+        continue()
+      endif()
+
+      list(FIND EXACT_MATCH_ADDON_LIST ${id} idx)
+      if(idx GREATER -1)
+        # exact match, so build
+        message(STATUS "Exact match ${id}, building addon")
+        set(ADDON_FOUND TRUE)
+      else()
+        # regex search
+        foreach(ADDONLISTITEM ${REGEX_ADDONS_TO_BUILD})
+          if(id MATCHES "${ADDONLISTITEM}")
+            message(STATUS "Pattern ${ADDONLISTITEM} matches ${id}, building addon")
+            set(ADDON_FOUND TRUE)
+            break()
+          endif()
+        endforeach()
+      endif()
     endif()
 
     if(ADDON_FOUND)
