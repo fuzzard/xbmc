@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.6)
 project(kodi-addons)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
@@ -244,26 +244,51 @@ endif()
 # error either in ADDONS_TO_BUILD or in the directory configuration.
 set(SUPPORTED_ADDON_FOUND FALSE)
 
+# Addon exclusion list
 set(EXCLUDE_ADDONS "")
 foreach(addon ${ADDONS_TO_BUILD})
   set(FOUND_EXCLUSION "")
-  string(REGEX MATCH "^[-].*" FOUND_EXCLUSION "${addon}")
+  string(REGEX MATCH "^[-](.*)" FOUND_EXCLUSION "${addon}")
   if(NOT FOUND_EXCLUSION STREQUAL "")
-    # Remove beginning - and then append to excluded addon list
-    STRING(REGEX MATCH "-([^ ]*)"  excluded_addon ${FOUND_EXCLUSION})
     list(APPEND EXCLUDE_ADDONS ${CMAKE_MATCH_1})
-    message(STATUS "Exclusion found ${CMAKE_MATCH_1}")
   endif()
 endforeach()
 
-foreach(addon ${addons})
-  if(NOT (addon MATCHES platforms.txt))
-    file(STRINGS ${addon} def)
-    string(REPLACE " " ";" def ${def})
-    list(GET def 0 id)
+message(STATUS "Exclusion list: ${EXCLUDE_ADDONS}")
 
-    list(FIND ADDONS_TO_BUILD ${id} idx)
+# Exact addon match list
+set(EXACT_MATCH_ADDON_LIST "")
+set(REGEX_ADDONS_TO_BUILD ${ADDONS_TO_BUILD})
+# remove platforms.txt entries from list - not needed
+list(FILTER addons EXCLUDE REGEX platforms.txt)
+foreach(addon ${ADDONS_TO_BUILD})
+  set(FILTER_LIST ${addons})
+  # need to strip regex chars, or the filter regex will use
+  string(REPLACE "*" "" strippedregex ${addon})
+  list(FILTER FILTER_LIST INCLUDE REGEX ".*${strippedregex}[.]txt")
+  if(NOT ${FILTER_LIST})
+    list(APPEND EXACT_MATCH_ADDON_LIST ${addon})
+    # remove exact matches from addons_to_build
+    list(REMOVE_ITEM REGEX_ADDONS_TO_BUILD "${addon}")
+  endif()
+endforeach()
+
+message(STATUS "Exact Match list: ${EXACT_MATCH_ADDON_LIST}")
+message(STATUS "Regex list: ${REGEX_ADDONS_TO_BUILD}")
+
+foreach(addon ${addons})
+  # Parses <addon>.txt - addonname repo branch
+  file(STRINGS ${addon} def)
+  string(REPLACE " " ";" def ${def})
+  # id = addonname
+  list(GET def 0 id)
+
+  if("${ADDONS_TO_BUILD}" STREQUAL "all")
+    set(ADDON_FOUND TRUE)
+  else()
+    # search exclusion rules for regex match of id
     set(ADDON_EXCLUDE FALSE)
+    set(ADDON_FOUND FALSE)
     foreach(exclusion ${EXCLUDE_ADDONS})
       if(id MATCHES "${exclusion}")
         set(ADDON_EXCLUDE TRUE)
@@ -276,13 +301,15 @@ foreach(addon ${addons})
       continue()
     endif()
 
-    set(ADDON_FOUND FALSE)
-    # try to find a perfect match
-    if(idx GREATER -1 OR "${ADDONS_TO_BUILD}" STREQUAL "all")
+    # search exact match - -1 if not found
+    list(FIND EXACT_MATCH_ADDON_LIST ${id} exactidx)
+    if(exactidx GREATER -1)
+      # exact match, so build
+      message(STATUS "Exact match ${id}, building addon")
       set(ADDON_FOUND TRUE)
-    # Maybe we have a regex
     else()
-      foreach(ADDONLISTITEM ${ADDONS_TO_BUILD})
+      # regex search
+      foreach(ADDONLISTITEM ${REGEX_ADDONS_TO_BUILD})
         if(id MATCHES "${ADDONLISTITEM}")
           message(STATUS "Pattern ${ADDONLISTITEM} matches ${id}, building addon")
           set(ADDON_FOUND TRUE)
@@ -290,175 +317,175 @@ foreach(addon ${addons})
         endif()
       endforeach()
     endif()
+  endif()
 
-    if(ADDON_FOUND)
-      message(STATUS "\n-- ---- Configuring addon ${addon} ----")
-      set(SUPPORTED_ADDON_FOUND TRUE)
+  if(ADDON_FOUND)
+    message(STATUS "\n-- ---- Configuring addon ${addon} ----")
+    set(SUPPORTED_ADDON_FOUND TRUE)
 
-      get_filename_component(dir ${addon} DIRECTORY)
+    get_filename_component(dir ${addon} DIRECTORY)
 
-      # check if the addon has a platforms.txt
-      set(platform_found FALSE)
-      check_target_platform(${dir} ${CORE_SYSTEM_NAME} platform_found)
+    # check if the addon has a platforms.txt
+    set(platform_found FALSE)
+    check_target_platform(${dir} ${CORE_SYSTEM_NAME} platform_found)
 
-      if(${platform_found})
-        # make sure the output directory is clean
-        file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/${id}/")
+    if(${platform_found})
+      # make sure the output directory is clean
+      file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/${id}/")
 
-        # get the URL and revision of the addon
-        list(LENGTH def deflength)
-        list(GET def 1 url)
+      # get the URL and revision of the addon
+      list(LENGTH def deflength)
+      list(GET def 1 url)
 
-        set(archive_name ${id})
-        if(ADDON_SRC_PREFIX)
-          set(SOURCE_DIR ${ADDON_SRC_PREFIX}/${id})
-          set(archive_name "")
-        else()
-          set(SOURCE_DIR "")
-        endif()
-
-        # if there is a 3rd parameter in the file, we consider it a git revision
-        if(deflength GREATER 2 AND "${SOURCE_DIR}" STREQUAL "")
-          list(GET def 2 revision)
-
-          # we need access to a git executable
-          find_package(Git REQUIRED)
-
-          # resolve revision to git hash
-          execute_process(COMMAND ${GIT_EXECUTABLE} ls-remote ${url} ${revision} OUTPUT_VARIABLE revision_hash)
-          # git ls-remote only works on branches and tag names but not on revisions
-          if(NOT "${revision_hash}" STREQUAL "")
-            string(REPLACE "\t" ";" revision_list ${revision_hash})
-            list(GET revision_list 0 revision_hash)
-            message(STATUS "${id}: git branch/tag ${revision} resolved to hash: ${revision_hash}")
-            set(revision ${revision_hash})
-          endif()
-
-          # Note: downloading specific revisions via http in the format below is probably github specific
-          # if we ever use other repositories, this might need adapting
-          set(url ${url}/archive/${revision}.tar.gz)
-          set(archive_name ${archive_name}-${revision})
-        elseif("${SOURCE_DIR}" STREQUAL "")
-          # check if the URL starts with file://
-          string(REGEX MATCH "^file://.*$" local_url "${url}")
-
-          #if not we assume this to be a local directory
-          if(local_url)
-            # this is not an archive
-            set(archive_name "")
-
-            # remove the file:// protocol from the URL
-            string(REPLACE "file://" "" SOURCE_DIR "${url}")
-
-            # on win32 we may have to remove another leading /
-            if(WIN32)
-              # check if the path is a local path
-              string(REGEX MATCH "^/.*$" local_path "${SOURCE_DIR}")
-              if(local_path)
-                string(SUBSTRING "${SOURCE_DIR}" 1 -1 SOURCE_DIR)
-              endif()
-            endif()
-          endif()
-        endif()
-
-        # download the addon if necessary
-        if(NOT "${archive_name}" STREQUAL "")
-          # download and extract the addon
-          if(NOT ADDON_TARBALL_CACHING OR NOT EXISTS ${BUILD_DIR}/download/${archive_name}.tar.gz)
-            # cleanup any of the previously downloaded archives of this addon
-            file(GLOB archives "${BUILD_DIR}/download/${id}*.tar.gz")
-            if(archives)
-              message(STATUS "Removing old archives of ${id}: ${archives}")
-              file(REMOVE ${archives})
-            endif()
-
-            # download the addon
-            file(DOWNLOAD "${url}" "${BUILD_DIR}/download/${archive_name}.tar.gz" STATUS dlstatus LOG dllog SHOW_PROGRESS)
-            list(GET dlstatus 0 retcode)
-            if(NOT ${retcode} EQUAL 0)
-              file(REMOVE ${BUILD_DIR}/download/${archive_name}.tar.gz)
-              message(STATUS "ERROR downloading ${url} - status: ${dlstatus} log: ${dllog}")
-              # add a dummy target for addons to get it in addons failure file
-              list(APPEND ALL_ADDONS_BUILDING ${id})
-              add_custom_target(${id} COMMAND ${CMAKE_COMMAND} -E echo "IGNORED ${id} - download failed" COMMAND exit 1)
-              continue()
-            endif()
-          endif()
-
-          # remove any previously extracted version of the addon
-          file(REMOVE_RECURSE "${BUILD_DIR}/${id}")
-
-          # extract the addon from the archive
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzvf ${BUILD_DIR}/download/${archive_name}.tar.gz
-                          WORKING_DIRECTORY ${BUILD_DIR})
-          file(GLOB extract_dir "${BUILD_DIR}/${archive_name}*")
-          if(extract_dir STREQUAL "")
-            message(FATAL_ERROR "${id}: error extracting ${BUILD_DIR}/download/${archive_name}.tar.gz")
-          else()
-            file(RENAME "${extract_dir}" "${BUILD_DIR}/${id}")
-          endif()
-
-          set(SOURCE_DIR ${BUILD_DIR}/${id})
-        endif()
-
-        if(NOT "${SOURCE_DIR}" STREQUAL "" AND EXISTS ${SOURCE_DIR})
-          # create a list of addons we are building
-          list(APPEND ALL_ADDONS_BUILDING ${id})
-
-          # setup the buildsystem for the addon
-          externalproject_add(${id}
-                              SOURCE_DIR ${SOURCE_DIR}
-                              INSTALL_DIR ${ADDON_INSTALL_DIR}
-                              CMAKE_ARGS ${BUILD_ARGS})
-
-          # add a custom step to the external project between the configure and the build step which will always
-          # be executed and therefore forces a re-build of all changed files
-          externalproject_add_step(${id} forcebuild
-                                   COMMAND ${CMAKE_COMMAND} -E echo "Force build of ${id}"
-                                   DEPENDEES configure
-                                   DEPENDERS build
-                                   ALWAYS 1)
-
-          set(${id}_DEPENDS_DIR ${SOURCE_DIR}/depends)
-
-          if(EXISTS ${${id}_DEPENDS_DIR})
-            include(${CORE_SOURCE_DIR}/cmake/scripts/common/HandleDepends.cmake)
-            add_addon_depends(${id} ${${id}_DEPENDS_DIR})
-            if(${id}_DEPS AND NOT "${${id}_DEPS}" STREQUAL "")
-              message(STATUS "${id} DEPENDENCIES: ${${id}_DEPS}")
-              add_dependencies(${id} ${${id}_DEPS})
-            endif()
-          endif()
-
-          if(CROSS_AUTOCONF AND AUTOCONF_FILES)
-            if(EXISTS ${SOURCE_DIR}/bootstrap/autoreconf.txt)
-              file(STRINGS ${SOURCE_DIR}/bootstrap/autoreconf.txt conf_dirs)
-              foreach(conf_dir ${conf_dirs})
-                foreach(afile ${AUTOCONF_FILES})
-                  message(STATUS "copying ${afile} to ${SOURCE_DIR}/${conf_dir}")
-                  file(COPY ${afile} DESTINATION ${SOURCE_DIR}/${conf_dir})
-                endforeach()
-              endforeach()
-            endif()
-          endif()
-
-          # create a forwarding target to the addon-package target
-          get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-          if(_isMultiConfig)
-            set(config --config $<CONFIG>)
-          endif()
-          add_custom_target(package-${id}
-                    COMMAND ${CMAKE_COMMAND} --build ${id}-prefix/src/${id}-build ${config} --target addon-package
-                    DEPENDS ${id})
-          add_dependencies(package-addons package-${id})
-
-        else()
-          message(FATAL_ERROR "${id}: invalid or missing addon source directory at ${SOURCE_DIR}")
-        endif()
+      set(archive_name ${id})
+      if(ADDON_SRC_PREFIX)
+        set(SOURCE_DIR ${ADDON_SRC_PREFIX}/${id})
+        set(archive_name "")
       else()
-        # add a dummy target for addons that are unsupported on this platform
-        add_custom_target(${id} COMMAND ${CMAKE_COMMAND} -E echo "IGNORED ${id} - not supported on ${CORE_SYSTEM_NAME}\n")
+        set(SOURCE_DIR "")
       endif()
+
+      # if there is a 3rd parameter in the file, we consider it a git revision
+      if(deflength GREATER 2 AND "${SOURCE_DIR}" STREQUAL "")
+        list(GET def 2 revision)
+
+        # we need access to a git executable
+        find_package(Git REQUIRED)
+
+        # resolve revision to git hash
+        execute_process(COMMAND ${GIT_EXECUTABLE} ls-remote ${url} ${revision} OUTPUT_VARIABLE revision_hash)
+        # git ls-remote only works on branches and tag names but not on revisions
+        if(NOT "${revision_hash}" STREQUAL "")
+          string(REPLACE "\t" ";" revision_list ${revision_hash})
+          list(GET revision_list 0 revision_hash)
+          message(STATUS "${id}: git branch/tag ${revision} resolved to hash: ${revision_hash}")
+          set(revision ${revision_hash})
+        endif()
+
+        # Note: downloading specific revisions via http in the format below is probably github specific
+        # if we ever use other repositories, this might need adapting
+        set(url ${url}/archive/${revision}.tar.gz)
+        set(archive_name ${archive_name}-${revision})
+      elseif("${SOURCE_DIR}" STREQUAL "")
+        # check if the URL starts with file://
+        string(REGEX MATCH "^file://.*$" local_url "${url}")
+
+        #if not we assume this to be a local directory
+        if(local_url)
+          # this is not an archive
+          set(archive_name "")
+
+          # remove the file:// protocol from the URL
+          string(REPLACE "file://" "" SOURCE_DIR "${url}")
+
+          # on win32 we may have to remove another leading /
+          if(WIN32)
+            # check if the path is a local path
+            string(REGEX MATCH "^/.*$" local_path "${SOURCE_DIR}")
+            if(local_path)
+              string(SUBSTRING "${SOURCE_DIR}" 1 -1 SOURCE_DIR)
+            endif()
+          endif()
+        endif()
+      endif()
+
+      # download the addon if necessary
+      if(NOT "${archive_name}" STREQUAL "")
+        # download and extract the addon
+        if(NOT ADDON_TARBALL_CACHING OR NOT EXISTS ${BUILD_DIR}/download/${archive_name}.tar.gz)
+          # cleanup any of the previously downloaded archives of this addon
+          file(GLOB archives "${BUILD_DIR}/download/${id}*.tar.gz")
+          if(archives)
+            message(STATUS "Removing old archives of ${id}: ${archives}")
+            file(REMOVE ${archives})
+          endif()
+
+          # download the addon
+          file(DOWNLOAD "${url}" "${BUILD_DIR}/download/${archive_name}.tar.gz" STATUS dlstatus LOG dllog SHOW_PROGRESS)
+          list(GET dlstatus 0 retcode)
+          if(NOT ${retcode} EQUAL 0)
+            file(REMOVE ${BUILD_DIR}/download/${archive_name}.tar.gz)
+            message(STATUS "ERROR downloading ${url} - status: ${dlstatus} log: ${dllog}")
+            # add a dummy target for addons to get it in addons failure file
+            list(APPEND ALL_ADDONS_BUILDING ${id})
+            add_custom_target(${id} COMMAND ${CMAKE_COMMAND} -E echo "IGNORED ${id} - download failed" COMMAND exit 1)
+            continue()
+          endif()
+        endif()
+
+        # remove any previously extracted version of the addon
+        file(REMOVE_RECURSE "${BUILD_DIR}/${id}")
+
+        # extract the addon from the archive
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzvf ${BUILD_DIR}/download/${archive_name}.tar.gz
+                        WORKING_DIRECTORY ${BUILD_DIR})
+        file(GLOB extract_dir "${BUILD_DIR}/${archive_name}*")
+        if(extract_dir STREQUAL "")
+          message(FATAL_ERROR "${id}: error extracting ${BUILD_DIR}/download/${archive_name}.tar.gz")
+        else()
+          file(RENAME "${extract_dir}" "${BUILD_DIR}/${id}")
+        endif()
+
+        set(SOURCE_DIR ${BUILD_DIR}/${id})
+      endif()
+
+      if(NOT "${SOURCE_DIR}" STREQUAL "" AND EXISTS ${SOURCE_DIR})
+        # create a list of addons we are building
+        list(APPEND ALL_ADDONS_BUILDING ${id})
+
+        # setup the buildsystem for the addon
+        externalproject_add(${id}
+                            SOURCE_DIR ${SOURCE_DIR}
+                            INSTALL_DIR ${ADDON_INSTALL_DIR}
+                            CMAKE_ARGS ${BUILD_ARGS})
+
+        # add a custom step to the external project between the configure and the build step which will always
+        # be executed and therefore forces a re-build of all changed files
+        externalproject_add_step(${id} forcebuild
+                                 COMMAND ${CMAKE_COMMAND} -E echo "Force build of ${id}"
+                                 DEPENDEES configure
+                                 DEPENDERS build
+                                 ALWAYS 1)
+
+        set(${id}_DEPENDS_DIR ${SOURCE_DIR}/depends)
+
+        if(EXISTS ${${id}_DEPENDS_DIR})
+          include(${CORE_SOURCE_DIR}/cmake/scripts/common/HandleDepends.cmake)
+          add_addon_depends(${id} ${${id}_DEPENDS_DIR})
+          if(${id}_DEPS AND NOT "${${id}_DEPS}" STREQUAL "")
+            message(STATUS "${id} DEPENDENCIES: ${${id}_DEPS}")
+            add_dependencies(${id} ${${id}_DEPS})
+          endif()
+        endif()
+
+        if(CROSS_AUTOCONF AND AUTOCONF_FILES)
+          if(EXISTS ${SOURCE_DIR}/bootstrap/autoreconf.txt)
+            file(STRINGS ${SOURCE_DIR}/bootstrap/autoreconf.txt conf_dirs)
+            foreach(conf_dir ${conf_dirs})
+              foreach(afile ${AUTOCONF_FILES})
+                message(STATUS "copying ${afile} to ${SOURCE_DIR}/${conf_dir}")
+                file(COPY ${afile} DESTINATION ${SOURCE_DIR}/${conf_dir})
+              endforeach()
+            endforeach()
+          endif()
+        endif()
+
+        # create a forwarding target to the addon-package target
+        get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+        if(_isMultiConfig)
+          set(config --config $<CONFIG>)
+        endif()
+        add_custom_target(package-${id}
+                  COMMAND ${CMAKE_COMMAND} --build ${id}-prefix/src/${id}-build ${config} --target addon-package
+                  DEPENDS ${id})
+        add_dependencies(package-addons package-${id})
+
+      else()
+        message(FATAL_ERROR "${id}: invalid or missing addon source directory at ${SOURCE_DIR}")
+      endif()
+    else()
+      # add a dummy target for addons that are unsupported on this platform
+      add_custom_target(${id} COMMAND ${CMAKE_COMMAND} -E echo "IGNORED ${id} - not supported on ${CORE_SYSTEM_NAME}\n")
     endif()
   endif()
 endforeach()
