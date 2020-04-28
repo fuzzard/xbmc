@@ -244,26 +244,50 @@ endif()
 # error either in ADDONS_TO_BUILD or in the directory configuration.
 set(SUPPORTED_ADDON_FOUND FALSE)
 
+# Exact addon match list
+set(EXACT_MATCH_ADDON_LIST "")
+foreach(addon ${ADDONS_TO_BUILD})
+  foreach(addonrepoitem ${addons})
+    if(NOT (addon MATCHES platforms.txt))
+      # need to strip regex chars, or the filter regex will use
+      string(REPLACE "*" "" strippedregex ${addon})
+      if(${addonrepoitem} MATCHES ".*${strippedregex}[.]txt")
+        list(APPEND EXACT_MATCH_ADDON_LIST ${addon})
+        # remove exact matches from addons_to_build
+        list(REMOVE_ITEM REGEX_ADDONS_TO_BUILD "${addon}")
+      endif()
+    endif()
+  endforeach()
+endforeach()
+
+message(STATUS "Exact Match list: ${EXACT_MATCH_ADDON_LIST}")
+message(STATUS "Regex list: ${REGEX_ADDONS_TO_BUILD}")
+
 foreach(addon ${addons})
   if(NOT (addon MATCHES platforms.txt))
     file(STRINGS ${addon} def)
     string(REPLACE " " ";" def ${def})
     list(GET def 0 id)
 
-    set(ADDON_FOUND FALSE)
-    # try to find a perfect match
-    list(FIND ADDONS_TO_BUILD ${id} idx)
-    if(idx GREATER -1 OR "${ADDONS_TO_BUILD}" STREQUAL "all")
+    if("${ADDONS_TO_BUILD}" STREQUAL "all")
       set(ADDON_FOUND TRUE)
-    # Maybe we have a regex
     else()
-      foreach(ADDONLISTITEM ${ADDONS_TO_BUILD})
-        if(id MATCHES "${ADDONLISTITEM}")
-          message(STATUS "Pattern ${ADDONLISTITEM} matches ${id}, building addon")
-          set(ADDON_FOUND TRUE)
-          break()
-        endif()
-      endforeach()
+      set(ADDON_FOUND FALSE)
+      list(FIND EXACT_MATCH_ADDON_LIST ${id} idx)
+      if(idx GREATER -1)
+        # exact match, so build
+        message(STATUS "Exact match ${id}, building addon")
+        set(ADDON_FOUND TRUE)
+      else()
+        # regex search
+        foreach(ADDONLISTITEM ${REGEX_ADDONS_TO_BUILD})
+          if(id MATCHES "${ADDONLISTITEM}")
+            message(STATUS "Pattern ${ADDONLISTITEM} matches ${id}, building addon")
+            set(ADDON_FOUND TRUE)
+            break()
+          endif()
+        endforeach()
+      endif()
     endif()
 
     if(ADDON_FOUND)
