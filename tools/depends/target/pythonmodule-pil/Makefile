@@ -1,13 +1,12 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile pillow-crosscompile.patch
+DEPS= ../../Makefile.include Makefile pillow-crosscompile.patch 01-rbpi-remove-lcms.patch
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 
 # lib name, version
 LIBNAME=Pillow
-VERSION=5.1.0
-BASE_URL=https://files.pythonhosted.org/packages/89/b8/2f49bf71cbd0e9485bb36f72d438421b69b7356180695ae10bd4fd3066f5
+VERSION=7.1.2
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
@@ -47,15 +46,18 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+ifeq ($(TARGET_PLATFORM),raspberry-pi)
+	cd $(PLATFORM); patch -p1 -i ../01-rbpi-remove-lcms.patch
+endif
 	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
 
 $(LIBDYLIB): $(PLATFORM)
 	mkdir -p $(PLATFORM)/output
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webpmux --disable-lcms $(PLATFORM_GUESSING)
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms $(PLATFORM_GUESSING)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 ifeq ($(OS),android)
-	mkdir -p $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib
+	mkdir -p $(PILPATH)/lib
 	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib  $(PILPATH)
 	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
 	cd $(PILPATH)/lib/PIL && \
