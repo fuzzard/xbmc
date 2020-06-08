@@ -12,25 +12,27 @@ SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
 LIBDYLIB=$(PLATFORM)/dist/Pillow-$(VERSION)-py3.7-$(OS)-$(CPU).egg
+PYTHONPATH=$(PREFIX)/lib/python3.7/site-packages/
+LDSHARED=$(CC) -shared
 
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python3.7/site-packages/"
 ifeq ($(OS),android)
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm" PYTHONPATH="$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/"
 LIBDYLIB=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib/PIL/_imaging.so
+PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
+PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/
+else ifeq ($(OS),darwin_embedded)
+LIBDYLIB=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib/PIL/_imaging.so
+PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
+PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/
+else ifeq ($(OS),osx)
+LIBDYLIB=$(PLATFORM)/dist/Pillow-$(VERSION)-py3.7-macosx-10.4-x86_64.egg
 endif
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
-LIBDYLIB=$(PLATFORM)/dist/Pillow-$(VERSION)-py3.7-macosx-10.4-x86_64.egg
-ifeq ($(OS),darwin_embedded)
-LIBDYLIB=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib/PIL/_imaging.so
-PYTHON_O=$(abs_top_srcdir)/target/python3/$(PLATFORM)/Programs/python.o
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-endif
 #ensure that only our target ldflags are passed to the python build
-LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/" LDSHARED="$(LDSHARED)"
+LDSHARED=$(CC) -bundle -undefined dynamic_lookup
 endif
+
+CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
 
 ifeq ($(CROSS_COMPILING),yes)
 PLATFORM_GUESSING=--disable-platform-guessing
@@ -53,13 +55,9 @@ $(LIBDYLIB): $(PLATFORM)
 .installed-$(PLATFORM): $(LIBDYLIB)
 ifeq ($(OS),android)
 	mkdir -p $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib  $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-	cd $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib && unzip -o ../Pillow-*.egg
-	cd $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib/PIL && \
-          sed -i -e 's/import sys/import os, sys /' \
-                 -e '/__file__/ s/_imaging/lib_imaging/g' \
-                 -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
-	cd $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil && rm -rf Pillow-*.egg
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib  $(PILPATH)
+	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
+	cd $(PILPATH) && rm -rf Pillow-*.egg
 else ifeq ($(OS),darwin_embedded)
 	mkdir -p $(PILPATH)/lib
 	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib  $(PILPATH)
