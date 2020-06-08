@@ -1,7 +1,7 @@
 --- a/setup.py
 +++ b/setup.py
-@@ -229,6 +229,16 @@
-         if _cmd_exists('pkg-config'):
+@@ -363,6 +363,16 @@
+         if _cmd_exists(os.environ.get("PKG_CONFIG", "pkg-config")):
              pkg_config = _pkg_config
  
 +        compiler = os.environ.get('CC')
@@ -16,8 +16,8 @@
 +
          #
          # add configured kits
-         for root_name, lib_name in dict(JPEG_ROOT="libjpeg",
-@@ -278,10 +288,11 @@
+         for root_name, lib_name in dict(
+@@ -418,10 +428,11 @@
                  for d in os.environ[k].split(os.path.pathsep):
                      _add_directory(library_dirs, d)
  
