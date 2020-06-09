@@ -19,7 +19,7 @@ ifeq ($(OS),android)
 LIBDYLIB=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib/PIL/_imaging.so
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
 PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/
-EXTRALDFLAGS=-lm
+EXTRALDFLAGS=-lm -lpython3.7
 else ifeq ($(OS),darwin_embedded)
 LIBDYLIB=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib/PIL/_imaging.so
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
