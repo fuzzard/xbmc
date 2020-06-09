@@ -1,0 +1,11 @@
+--- a/pkg_resources/__init__.py
++++ b/pkg_resources/__init__.py
+@@ -1596,7 +1596,7 @@
+         self.module_path = os.path.dirname(getattr(module, '__file__', ''))
+ 
+     def get_resource_filename(self, manager, resource_name):
+-        return self._fn(self.module_path, resource_name)
++        return self._fn(os.environ["KODI_ANDROID_LIBS"], "lib" + resource_name)
+ 
+     def get_resource_stream(self, manager, resource_name):
+         return io.BytesIO(self.get_resource_string(manager, resource_name))

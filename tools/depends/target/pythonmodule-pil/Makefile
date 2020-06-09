@@ -57,7 +57,7 @@ ifeq ($(OS),android)
 	mkdir -p $(PREFIX)/share/$(APP_NAME)/addons/script.module.pil/lib
 	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib  $(PILPATH)
 	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
-    cd $(PILPATH)/lib/PIL && \
+	cd $(PILPATH)/lib/PIL && \
        sed -i -e 's/import sys/import os, sys /' \
               -e '/__file__/ s/_imaging/lib_imaging/g' \
               -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
