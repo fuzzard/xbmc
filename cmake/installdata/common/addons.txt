@@ -22,6 +22,7 @@ addons/repository.xbmc.org/*
 addons/webinterface.default/*
 addons/screensaver.xbmc.builtin.dim/*
 addons/screensaver.xbmc.builtin.black/*
+addons/script.module.numpy/*
 addons/script.module.pil/*
 addons/script.module.pycryptodome/*
 addons/script.module.pysqlite/*

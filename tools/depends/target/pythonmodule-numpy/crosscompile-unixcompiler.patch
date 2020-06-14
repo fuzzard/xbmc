@@ -1,26 +1,14 @@
 --- a/numpy/distutils/unixccompiler.py
 +++ b/numpy/distutils/unixccompiler.py
-@@ -22,6 +22,12 @@
-     """Compile a single source files with a Unix-style compiler."""
-     # HP ad-hoc fix, see ticket 1383
-     ccomp = self.compiler_so
-+    try:
-+        ccomp.remove('-mmacosx-version-min=10.15.4')
-+    except: 
-+        pass
-+    
-+    self.compiler_so = ccomp
-     if ccomp[0] == 'aCC':
-         # remove flags that will trigger ANSI-C mode for aCC
-         if '-Ae' in ccomp:
-@@ -44,7 +50,9 @@
-         if opt not in llink_s:
-             self.linker_so = llink_s.split() + opt.split()
- 
--    display = '%s: %s' % (os.path.basename(self.compiler_so[0]), src)
-+        log.info("BRENT UNIXCOMPILE OPT: '%s'" % self.linker_so)
-+
-+    display = '%s: %s' % (os.path.basename(self.compiler_so[1]), src)
- 
-     # gcc style automatic dependencies, outputs a makefile (-MF) that lists
-     # all headers needed by a c file as a side effect of compilation (-MMD)
+@@ -36,6 +36,11 @@
+         from distutils.sysconfig import get_config_vars
+         opt = " ".join(os.environ['OPT'].split())
+         gcv_opt = " ".join(get_config_vars('OPT')[0].split())
++        try:
++            self.compiler_so.remove('-mmacosx-version-min=10.15.4')
++            self.compiler_so.remove('-I/Users/Shared/xbmc-depends/x86_64-darwin19.4.0-native/include')
++        except:
++            pass
+         ccomp_s = " ".join(self.compiler_so)
+         if opt not in ccomp_s:
+             ccomp_s = ccomp_s.replace(gcv_opt, opt)

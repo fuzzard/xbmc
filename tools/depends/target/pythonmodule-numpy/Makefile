@@ -1,5 +1,8 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile numpy-crosscompile.patch site.cfg crosscompile-systeminfo.patch crosscompile-ccompiler.patch crosscompile-unixcompiler.patch
+DEPS= ../../Makefile.include Makefile crosscompile-systeminfo.patch crosscompile-unixcompiler.patch
+
+VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
+APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 
 # lib name, version
 LIBNAME=numpy
@@ -8,23 +11,14 @@ BASE_URL=https://files.pythonhosted.org/packages/01/1b/d3ddcabd5817be02df0e6ee20
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).zip
 
-#CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python3.7/site-packages/"
-
-#NUMPYCONFIG=BLAS=None LAPACK=None ATLAS=None
-
 ifeq ($(OS),darwin_embedded)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
-#endif
 #ensure that only our target ldflags are passed to the python build
 LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-#CROSSFLAGS=_PYTHON_HOST_PLATFORM= PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) $(CFLAGS)" OPT="$(CFLAGS)" CCSHARED="$(CC) $(CFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/" LDSHARED="$(LDSHARED)"
-CROSSFLAGS=_PYTHON_HOST_PLATFORM= BLAS=None LAPACK=None ATLAS=None CC="$(CC)" CFLAGS="$(CFLAGS) -march=armv8-a" OPT="$(LDFLAGS) -march=armv8-a" LDFLAGS="$(LDFLAGS) -march=armv8-a" PYTHONXCPREFIX="$(PREFIX)"
-endif
-
-
-#ifeq (darwin, $(findstring darwin, $(HOST)))
+SDKPATH:=$(shell xcrun --sdk iphoneos --show-sdk-path)
+CROSSFLAGS=_PYTHON_HOST_PLATFORM="$(OS)-$(CPU)" PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) -arch $(CPU) --sysroot=$(SDKPATH)" OPT="$(CFLAGS) $(LDFLAGS)" LDSHARED="$(LDSHARED)" PYTHONPATH="$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/"
 LIBDYLIB=$(PILPATH)/libnumpy.a
-#endif
+endif
 
 all: .installed-$(PLATFORM)
 
@@ -34,26 +28,20 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-#	cd $(PLATFORM); patch -p1 -i ../numpy-crosscompile.patch
 	cd $(PLATFORM); patch -p1 -i ../crosscompile-systeminfo.patch
-	cd $(PLATFORM); patch -p1 -i ../crosscompile-ccompiler.patch
 	cd $(PLATFORM); patch -p1 -i ../crosscompile-unixcompiler.patch
-	cd $(PLATFORM); cp ../site.cfg ./
 
 $(LIBDYLIB): $(PLATFORM)
 	mkdir -p $(PLATFORM)/output
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py -v build_src --verbose-cfg
-#	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py --help-commands
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
-#ifeq ($(TARGET_PLATFORM),appletvos)
-#	mkdir -p $(PILPATH)/lib
-#	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib  $(PILPATH)
-#	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
-#	cd $(PILPATH) && rm -rf Pillow-*.egg
-#else
-#	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(PREFIX)
-#endif
+ifeq ($(OS),darwin_embedded)
+	mkdir -p $(PILPATH)/lib
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py bdist_egg --dist-dir=$(PILPATH)
+	cd $(PILPATH)/lib && unzip -o ../numpy-*.egg
+	cd $(PILPATH) && rm -rf numpy-*.egg
+endif
 	touch $@
 
 clean:
