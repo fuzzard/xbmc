@@ -1,0 +1,20 @@
+--- a/numpy/distutils/unixccompiler.py
++++ b/numpy/distutils/unixccompiler.py
+@@ -22,6 +22,8 @@
+     """Compile a single source files with a Unix-style compiler."""
+     # HP ad-hoc fix, see ticket 1383
+     ccomp = self.compiler_so
++    ccomp.remove('-mmacosx-version-min=10.15.4')
++    self.compiler_so = ccomp
+     if ccomp[0] == 'aCC':
+         # remove flags that will trigger ANSI-C mode for aCC
+         if '-Ae' in ccomp:
+@@ -44,7 +46,7 @@
+         if opt not in llink_s:
+             self.linker_so = llink_s.split() + opt.split()
+ 
+-    display = '%s: %s' % (os.path.basename(self.compiler_so[0]), src)
++    display = '%s: %s' % (os.path.basename(self.compiler_so[1]), src)
+ 
+     # gcc style automatic dependencies, outputs a makefile (-MF) that lists
+     # all headers needed by a c file as a side effect of compilation (-MMD)

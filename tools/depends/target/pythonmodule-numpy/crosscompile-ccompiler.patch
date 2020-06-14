@@ -1,0 +1,21 @@
+--- a/numpy/distutils/ccompiler.py
++++ b/numpy/distutils/ccompiler.py
+@@ -292,13 +292,15 @@
+             display.append("Fortran %s compiler: %s" % (fc, ' '.join(fcomp)))
+         display = '\n'.join(display)
+     else:
+-        ccomp = self.compiler_so
+-        display = "C compiler: %s\n" % (' '.join(ccomp),)
++        ccomp = os.environ.get('CC')
++        display = "C compiler: %s\n" % (ccomp)
+     log.info(display)
+     macros, objects, extra_postargs, pp_opts, build = \
+             self._setup_compile(output_dir, macros, include_dirs, sources,
+                                 depends, extra_postargs)
+-    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
++    cc_argstring = os.environ.get('CFLAGS')
++    cc_argstring = cc_argstring.strip('\"')
++    cc_args = list(cc_argstring.split(" "))
+     display = "compile options: '%s'" % (' '.join(cc_args))
+     if extra_postargs:
+         display += "\nextra options: '%s'" % (' '.join(extra_postargs))
