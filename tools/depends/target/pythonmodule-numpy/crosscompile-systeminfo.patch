@@ -72,3 +72,20 @@
  
  default_lib_dirs = [_m for _m in default_lib_dirs if os.path.isdir(_m)]
  default_runtime_dirs = [_m for _m in default_runtime_dirs if os.path.isdir(_m)]
+@@ -2151,6 +2157,7 @@
+         if sys.version_info < (3, 5) and sys.version_info > (3, 0) and c.compiler_type == "msvc":
+             extra_args.append("/MANIFEST")
+         try:
++            log.info("BRENT CHECK_SYMBOL: '%s'" % extra_args)
+             with open(src, 'wt') as f:
+                 f.write(s)
+             obj = c.compile([src], output_dir=tmpdir)
+@@ -2744,6 +2751,8 @@
+             dict_append(info, extra_compile_args=extra_compile_args)
+         if info:
+             self.set_info(**info)
++
++        log.info("BRENT PKG-CONFIG INFO: '%s'" % info)
+         return
+ 
+ 

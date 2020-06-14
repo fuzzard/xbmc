@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile numpy-crosscompile.patch site.cfg
+DEPS= ../../Makefile.include Makefile numpy-crosscompile.patch site.cfg crosscompile-systeminfo.patch crosscompile-ccompiler.patch crosscompile-unixcompiler.patch
 
 # lib name, version
 LIBNAME=numpy
@@ -18,7 +18,7 @@ PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
 #ensure that only our target ldflags are passed to the python build
 LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
 #CROSSFLAGS=_PYTHON_HOST_PLATFORM= PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) $(CFLAGS)" OPT="$(CFLAGS)" CCSHARED="$(CC) $(CFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/" LDSHARED="$(LDSHARED)"
-CROSSFLAGS=_PYTHON_HOST_PLATFORM= BLAS=None LAPACK=None ATLAS=None CC="$(CC)" CFLAGS="$(CFLAGS)" OPT="$(LDFLAGS)" extra_link_args="$(LDFLAGS)" PYTHONXCPREFIX="$(PREFIX)"
+CROSSFLAGS=_PYTHON_HOST_PLATFORM= BLAS=None LAPACK=None ATLAS=None CC="$(CC)" CFLAGS="$(CFLAGS) -march=armv8-a" OPT="$(LDFLAGS) -march=armv8-a" LDFLAGS="$(LDFLAGS) -march=armv8-a" PYTHONXCPREFIX="$(PREFIX)"
 endif
 
 
@@ -35,6 +35,9 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 #	cd $(PLATFORM); patch -p1 -i ../numpy-crosscompile.patch
+	cd $(PLATFORM); patch -p1 -i ../crosscompile-systeminfo.patch
+	cd $(PLATFORM); patch -p1 -i ../crosscompile-ccompiler.patch
+	cd $(PLATFORM); patch -p1 -i ../crosscompile-unixcompiler.patch
 	cd $(PLATFORM); cp ../site.cfg ./
 
 $(LIBDYLIB): $(PLATFORM)

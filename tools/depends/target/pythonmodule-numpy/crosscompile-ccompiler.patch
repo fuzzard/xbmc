@@ -1,6 +1,6 @@
 --- a/numpy/distutils/ccompiler.py
 +++ b/numpy/distutils/ccompiler.py
-@@ -292,13 +292,15 @@
+@@ -292,13 +292,21 @@
              display.append("Fortran %s compiler: %s" % (fc, ' '.join(fcomp)))
          display = '\n'.join(display)
      else:
@@ -16,6 +16,12 @@
 +    cc_argstring = os.environ.get('CFLAGS')
 +    cc_argstring = cc_argstring.strip('\"')
 +    cc_args = list(cc_argstring.split(" "))
++
++    display = "BRENT compile options: '%s'" % cc_args
++    log.info(display)
++    
++    
++    
      display = "compile options: '%s'" % (' '.join(cc_args))
      if extra_postargs:
          display += "\nextra options: '%s'" % (' '.join(extra_postargs))
