@@ -12,12 +12,20 @@ SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).zip
 
 ifeq ($(OS),darwin_embedded)
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
-#ensure that only our target ldflags are passed to the python build
-LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-SDKPATH:=$(shell xcrun --sdk iphoneos --show-sdk-path)
-CROSSFLAGS=_PYTHON_HOST_PLATFORM="$(OS)-$(CPU)" PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) -arch $(CPU) --sysroot=$(SDKPATH)" OPT="$(CFLAGS) $(LDFLAGS)" LDSHARED="$(LDSHARED)" PYTHONPATH="$(PILPATH):$(PREFIX)/lib/python3.7/site-packages/"
-LIBDYLIB=$(PILPATH)/libnumpy.a
+  ifeq ($(TARGET_PLATFORM),appletvos)
+    SDKPLATFORM:=appletvos
+  else
+    SDKPLATFORM:=iphoneos
+  endif
+  ADDONPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
+  #ensure that only our target ldflags are passed to the python build
+  LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
+  SDKPATH:=$(shell xcrun --sdk $(SDKPLATFORM) --show-sdk-path)
+  CROSSFLAGS=REMOVECFLAG="$(NATIVE_CFLAGS)" _PYTHON_HOST_PLATFORM="$(OS)-$(CPU)" CCSHARED="$(CC) -arch $(CPU) --sysroot=$(SDKPATH) $(CFLAGS)" PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) -arch $(CPU) --sysroot=$(SDKPATH)" OPT="$(CFLAGS)" LDSHARED="$(LDSHARED)" PYTHONPATH="$(ADDONPATH):$(PREFIX)/lib/python3.7/site-packages/"
+  LIBDYLIB=$(ADDONPATH)/lib/numpy/core/lib/libnumpy.a
+else
+  ADDONPATH=$(PREFIX)/lib/python3.7/site-packages/
+  LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-3.7/numpy
 endif
 
 all: .installed-$(PLATFORM)
@@ -37,10 +45,10 @@ $(LIBDYLIB): $(PLATFORM)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 ifeq ($(OS),darwin_embedded)
-	mkdir -p $(PILPATH)/lib
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py bdist_egg --dist-dir=$(PILPATH)
-	cd $(PILPATH)/lib && unzip -o ../numpy-*.egg
-	cd $(PILPATH) && rm -rf numpy-*.egg
+	mkdir -p $(ADDONPATH)/lib
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py bdist_egg --dist-dir=$(ADDONPATH)
+	cd $(ADDONPATH)/lib && unzip -o ../numpy-*.egg
+	cd $(ADDONPATH) && rm -rf numpy-*.egg
 endif
 	touch $@
 
