@@ -11,21 +11,23 @@ BASE_URL=https://files.pythonhosted.org/packages/01/1b/d3ddcabd5817be02df0e6ee20
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).zip
 
-ifeq ($(OS),darwin_embedded)
-  ifeq ($(TARGET_PLATFORM),appletvos)
-    SDKPLATFORM:=appletvos
-  else
-    SDKPLATFORM:=iphoneos
+ifeq (darwin, $(findstring darwin, $(HOST)))
+  SDKPATH:=$(shell xcrun --sdk $(TARGET_PLATFORM) --show-sdk-path)
+  LDSHARED:="$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)"
+  ifeq ($(OS),darwin_embedded)
+    ADDONPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
+    PYTHONPATH="$(ADDONPATH):$(PREFIX)/lib/python3.7/site-packages/"
+    LIBDYLIB=$(ADDONPATH)/lib/numpy/core/lib/libnumpy.a
+    # native_cflags are somehow being picked up by distutils. explicitly remove them using this env var and crosscompiler-unixcompiler.patch
+    REMOVECFLAG="$(NATIVE_CFLAGS)"
+    # required for distutils to allow a cross compile build and not enforce host info
+    PYTHONHOSTPLATFORM=_PYTHON_HOST_PLATFORM="$(OS)-$(CPU)"
+  else ifeq ($(OS),osx)
+    ADDONPATH="$(PREFIX)/lib/python3.7/site-packages/"
+    PYTHONPATH=$(ADDONPATH)
+    LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-3.7/numpy
   endif
-  ADDONPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
-  #ensure that only our target ldflags are passed to the python build
-  LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-  SDKPATH:=$(shell xcrun --sdk $(SDKPLATFORM) --show-sdk-path)
-  CROSSFLAGS=REMOVECFLAG="$(NATIVE_CFLAGS)" _PYTHON_HOST_PLATFORM="$(OS)-$(CPU)" CCSHARED="$(CC) -arch $(CPU) --sysroot=$(SDKPATH) $(CFLAGS)" PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) -arch $(CPU) --sysroot=$(SDKPATH)" OPT="$(CFLAGS)" LDSHARED="$(LDSHARED)" PYTHONPATH="$(ADDONPATH):$(PREFIX)/lib/python3.7/site-packages/"
-  LIBDYLIB=$(ADDONPATH)/lib/numpy/core/lib/libnumpy.a
-else
-  ADDONPATH=$(PREFIX)/lib/python3.7/site-packages/
-  LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-3.7/numpy
+  CROSSFLAGS=REMOVECFLAG=$(REMOVECFLAG) $(PYTHONHOSTPLATFORM) PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) -arch $(CPU) --sysroot=$(SDKPATH)" OPT="$(CFLAGS)" LDSHARED=$(LDSHARED) PYTHONPATH=$(PYTHONPATH)
 endif
 
 all: .installed-$(PLATFORM)
@@ -49,6 +51,8 @@ ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py bdist_egg --dist-dir=$(ADDONPATH)
 	cd $(ADDONPATH)/lib && unzip -o ../numpy-*.egg
 	cd $(ADDONPATH) && rm -rf numpy-*.egg
+else ifeq ($(OS),osx)
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py bdist_egg --dist-dir=$(ADDONPATH)
 endif
 	touch $@
 
