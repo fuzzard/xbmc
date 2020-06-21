@@ -413,6 +413,8 @@ void CAdvancedSettings::Initialize()
 
   m_allowUseSeparateDeviceForDecoding = false;
 
+  m_enablePythonProfileImportTime = false;
+
   m_videoAssFixedWorks = false;
 
   m_logLevelHint = m_logLevel = LOG_LEVEL_NORMAL;
@@ -1186,6 +1188,7 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
       m_seekSteps.push_back(atoi((*it).c_str()));
   }
 
+  XMLUtils::GetBoolean(pRootElement, "enablepythonprofileimporttime", m_enablePythonProfileImportTime);
   XMLUtils::GetBoolean(pRootElement, "opengldebugging", m_openGlDebugging);
 
   // load in the settings overrides

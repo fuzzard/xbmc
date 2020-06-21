@@ -357,6 +357,10 @@ class CAdvancedSettings : public ISettingCallback, public ISettingsHandler
 
     bool m_allowUseSeparateDeviceForDecoding;
 
+    /*!< @brief Enable python environment variable PYTHONPROFILEIMPORTTIME
+    True Log time taken for python import */
+    bool m_enablePythonProfileImportTime;
+
     /*!< @brief position behavior of ass subtitles when setting "subtitle position on screen" set to "fixed"
     True to show at the fixed position set in video calibration
     False to show at the bottom of video (default) */

@@ -555,6 +555,10 @@ bool XBPython::OnScriptInitialized(ILanguageInvoker *invoker)
 #endif
     // Info about interesting python envvars available
     // at http://docs.python.org/using/cmdline.html#environment-variables
+    if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_enablePythonProfileImportTime)
+    {
+      setenv("PYTHONPROFILEIMPORTTIME", "1", 1);
+    }
 
 #if !defined(TARGET_WINDOWS) && !defined(TARGET_ANDROID)
     /* PYTHONOPTIMIZE is set off intentionally when using external Python.
