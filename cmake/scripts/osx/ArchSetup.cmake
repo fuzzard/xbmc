@@ -3,8 +3,8 @@ if(NOT CMAKE_TOOLCHAIN_FILE)
 endif()
 
 set(CORE_MAIN_SOURCE ${CMAKE_SOURCE_DIR}/xbmc/platform/posix/main.cpp
-                     ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/SDLMain.mm
-                     ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/SDLMain.h)
+                     ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/XBMCApplication.mm
+                     ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/XBMCApplication.h)
 
 set(ARCH_DEFINES -DTARGET_POSIX -DTARGET_DARWIN -DTARGET_DARWIN_OSX)
 set(SYSTEM_DEFINES -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
