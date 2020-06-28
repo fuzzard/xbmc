@@ -10,6 +10,7 @@
 
 #include "AppParamParser.h"
 #include "Application.h"
+#include "CompileInfo.h"
 #include "FileItem.h"
 #include "PlayListPlayer.h"
 #include "Util.h"
@@ -57,30 +58,20 @@ static BOOL gCalledAppMainline = FALSE;
 
 static NSString* getApplicationName(void)
 {
-  NSDictionary* dict;
-  NSString* appName = 0;
-
-  // Determine the application name
-  dict = (NSDictionary*)CFBundleGetInfoDictionary(CFBundleGetMainBundle());
-  if (dict)
-    appName = [dict objectForKey:@"CFBundleName"];
-
-  if (![appName length])
-    appName = [[NSProcessInfo processInfo] processName];
-
+  auto appName = [NSString stringWithUTF8String:CCompileInfo::GetAppName()];
   return appName;
 }
+
 
 static void setupApplicationMenu(void)
 {
   // warning: this code is very odd
-  NSMenu* appleMenu;
+  //  NSMenu* appleMenu;
   NSMenuItem* menuItem;
   NSString* title;
-  NSString* appName;
 
-  appName = getApplicationName();
-  appleMenu = [[NSMenu alloc] initWithTitle:@""];
+  auto appName = getApplicationName();
+  auto appleMenu = [[NSMenu alloc] initWithTitle:@""];
 
   // Add menu items
   title = [@"About " stringByAppendingString:appName];
@@ -179,9 +170,13 @@ static void setupApplicationMenu(void)
 // is not required anymore, who knows ?
 - (void)kickstartMultiThreaded:(id)arg;
 {
+  @autoreleasepool
+  {
+    // empty
+  }
 }
 
-- (void)stopRunLoop
+- (void)CallExit
 {
   [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self
                                                                 name:NSWorkspaceDidMountNotification
@@ -212,27 +207,32 @@ static void setupApplicationMenu(void)
 
 - (void)mainLoopThread:(id)arg
 {
-  [[NSThread currentThread] setName:@"MCRuntimeLib"];
-
-#if defined(DEBUG)
-  struct rlimit rlim;
-  rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
-  if (setrlimit(RLIMIT_CORE, &rlim) == -1)
-    CLog::Log(LOGDEBUG, "Failed to set core size limit (%s)", strerror(errno));
-#endif
+  [NSThread currentThread].name = @"XBMC_Run";
 
   setlocale(LC_NUMERIC, "C");
 
-  // set up some kodi specific relationships
-  XBMC::Context context;
+  int status = -1;
+  try
+  {
+    // set up some Kodi specific relationships
+    //    XBMC::Context run_context; //! @todo
+    //      m_appAlive = YES;
+    // start up with gui enabled
+    CAppParamParser appParamParser;
+    appParamParser.Parse((const char**)gArgv, (int)gArgc);
 
-  CAppParamParser appParamParser;
-  appParamParser.Parse((const char**)gArgv, (int)gArgc);
+    status = XBMC_Run(true, appParamParser);
+    // we exited or died.
+    g_application.SetRenderGUI(false);
+  }
+  catch (...)
+  {
+    //      m_appAlive = FALSE;
+    CLog::Log(LOGERROR, "%sException caught on main loop status=%d. Exiting", __PRETTY_FUNCTION__,
+              status);
+  }
 
-  gStatus = XBMC_Run(true, appParamParser);
-  g_application.SetRenderGUI(false);
-
-  [self performSelectorOnMainThread:@selector(stopRunLoop) withObject:nil waitUntilDone:false];
+  [self performSelectorOnMainThread:@selector(CallExit) withObject:nil waitUntilDone:false];
 }
 
 // Called after the internal event loop has started running.
@@ -379,66 +379,63 @@ static void setupApplicationMenu(void)
 
 int main(int argc, char* argv[])
 {
-  MainDelegate* main_delegate;
-
-  // Block SIGPIPE
-  // SIGPIPE repeatably kills us, turn it off
+  @autoreleasepool
   {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGPIPE);
-    sigprocmask(SIG_BLOCK, &set, NULL);
-  }
+    XBMCDelegate* xbmc_delegate;
 
-  /* Copy the arguments into a global variable */
-  /* This is passed if we are launched by double-clicking */
-  if (argc >= 2 && strncmp(argv[1], "-psn", 4) == 0)
-  {
-    gArgv = (char**)malloc(sizeof(char*) * 2);
-    gArgv[0] = argv[0];
-    gArgv[1] = NULL;
-    gArgc = 1;
-    gFinderLaunch = YES;
-  }
-  else
-  {
-    gArgc = argc;
-    gArgv = (char**)malloc(sizeof(char*) * (argc + 1));
-    for (int i = 0; i <= argc; i++)
-      gArgv[i] = argv[i];
-    gFinderLaunch = NO;
-  }
+    // Block SIGPIPE
+    // SIGPIPE repeatably kills us, turn it off
+    {
+      sigset_t set;
+      sigemptyset(&set);
+      sigaddset(&set, SIGPIPE);
+      sigprocmask(SIG_BLOCK, &set, NULL);
+    }
 
-  // fix open with document/movie - autostart
-  // on mavericks we are not called with "-psn" anymore
-  // as the whole ProcessSerialNumber approach is deprecated
-  // in that case assume finder launch - else
-  // we wouldn't handle documents/movies someone dragged on the app icon
-  if (CDarwinUtils::IsMavericksOrHigher())
+    /* Copy the arguments into a global variable */
+    /* This is passed if we are launched by double-clicking */
+    if (argc >= 2 && strncmp(argv[1], "-psn", 4) == 0)
+    {
+      gArgv = (char**)malloc(sizeof(char*) * 2);
+      gArgv[0] = argv[0];
+      gArgv[1] = NULL;
+      gArgc = 1;
+      gFinderLaunch = YES;
+    }
+    else
+    {
+      gArgc = argc;
+      gArgv = (char**)malloc(sizeof(char*) * (argc + 1));
+      for (int i = 0; i <= argc; i++)
+        gArgv[i] = argv[i];
+      gFinderLaunch = NO;
+    }
+
     gFinderLaunch = TRUE;
 
-  // Ensure the application object is initialised.
-  [NSApplication sharedApplication];
+    // Ensure the application object is initialised.
+    [NSApplication sharedApplication];
 
-  CPSProcessSerNum PSN;
-  /* Tell the dock about us */
-  if (!CPSGetCurrentProcess(&PSN))
-    if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
-      if (!CPSSetFrontProcess(&PSN))
-        [NSApplication sharedApplication];
+    CPSProcessSerNum PSN;
+    /* Tell the dock about us */
+    if (!CPSGetCurrentProcess(&PSN))
+      if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
+        if (!CPSSetFrontProcess(&PSN))
+          [NSApplication sharedApplication];
 
-  // Set up the menubars
-  [NSApp setMainMenu:[[NSMenu alloc] init]];
-  setupApplicationMenu();
+    // Set up the menubars
+    [NSApp setMainMenu:[[NSMenu alloc] init]];
+    setupApplicationMenu();
 
-  // Create MainDelegate and make it the app delegate
-  main_delegate = [[MainDelegate alloc] init];
-  [main_delegate setupWindowMenu];
+    // Create MainDelegate and make it the app delegate
+    xbmc_delegate = [[XBMCDelegate alloc] init];
+    [xbmc_delegate setupWindowMenu];
 
-  [[NSApplication sharedApplication] setDelegate:main_delegate];
+    [[NSApplication sharedApplication] setDelegate:xbmc_delegate];
 
-  // Start the main event loop
-  [[NSApplication sharedApplication] run];
+    // Start the main event loop
+    [[NSApplication sharedApplication] run];
 
-  return gStatus;
+    return gStatus;
+  }
 }

@@ -34,6 +34,8 @@ typedef enum {
        XBMC_BUTTON,             /* Button (remote) pressed */
        XBMC_SETFOCUS,
        XBMC_USEREVENT,
+       XBMC_TOGGLEFULLSCREEN,   /* Toggle between fullscreen and windowed*/
+       XBMC_MINIMIZE,           /* Minimize the application window */
 
        XBMC_MAXEVENT = 256      /* XBMC_EventType is represented as uchar */
 } XBMC_EventType;

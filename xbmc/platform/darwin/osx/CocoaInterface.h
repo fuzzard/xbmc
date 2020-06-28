@@ -34,6 +34,10 @@ extern "C"
   //
   void Cocoa_HideMouse();
   void Cocoa_ShowMouse();
+  bool Cocoa_IsMouseHidden();
+
+  // threading
+  void Cocoa_RunBlockOnMainQueue(void (^block)(void));
 
   const char *Cocoa_Paste() ;
 

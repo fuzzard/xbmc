@@ -29,18 +29,12 @@ static CVDisplayLinkRef displayLink = NULL;
 
 CGDirectDisplayID Cocoa_GetDisplayIDFromScreen(NSScreen *screen);
 
-NSOpenGLContext* Cocoa_GL_GetCurrentContext(void)
-{
-  CWinSystemOSX *winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
-  return winSystem->GetNSOpenGLContext();
-}
-
 uint32_t Cocoa_GL_GetCurrentDisplayID(void)
 {
   // Find which display we are on from the current context (default to main display)
   CGDirectDisplayID display_id = kCGDirectMainDisplay;
 
-  NSOpenGLContext* context = Cocoa_GL_GetCurrentContext();
+  NSOpenGLContext* context = [NSOpenGLContext currentContext];
   if (context)
   {
     NSView* view;
@@ -228,14 +222,54 @@ bool Cocoa_GetVolumeNameFromMountPoint(const std::string &mountPoint, std::strin
   }
 }
 
+// calls for hiding and showing the cursor have to match each other
+// as of the cocoa reference. We ensure that and also ensure it is
+// called via mainthread here.
+@interface MouseCursorHelper : NSObject
++(void)HideMouseCursor;
++(void)ShowMouseCursor;
+@end
+
+static BOOL hidden = FALSE;
+
+@implementation MouseCursorHelper
+
++(void)HideMouseCursor
+{
+  if (!hidden)
+  {
+    //NSLog(@"Hide Cursor");
+    [NSCursor hide];
+    hidden = TRUE;
+  }
+}
+
++(void)ShowMouseCursor
+{
+  if (hidden)
+  {
+    //NSLog(@"Show Cursor");
+    [NSCursor unhide];
+    hidden = FALSE;
+  }
+}
+@end
+
 void Cocoa_HideMouse()
 {
-  [NSCursor hide];
+//  [NSCursor hide];
+  [MouseCursorHelper performSelectorOnMainThread:@selector(HideMouseCursor) withObject:nil waitUntilDone:TRUE];
 }
 
 void Cocoa_ShowMouse()
 {
-  [NSCursor unhide];
+//  [NSCursor unhide];
+  [MouseCursorHelper performSelectorOnMainThread:@selector(ShowMouseCursor) withObject:nil waitUntilDone:TRUE];
+}
+
+bool Cocoa_IsMouseHidden()
+{
+  return hidden;
 }
 
 //---------------------------------------------------------------------------------
@@ -251,4 +285,16 @@ const char *Cocoa_Paste()
   }
 
   return NULL;
+}
+
+void Cocoa_RunBlockOnMainQueue(void (^block)(void))
+{
+  if ([NSThread isMainThread])
+  {
+    block();
+  }
+  else
+  {
+    dispatch_sync(dispatch_get_main_queue(), block);
+  }
 }
