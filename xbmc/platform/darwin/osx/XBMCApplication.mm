@@ -15,23 +15,30 @@
 #include "PlayListPlayer.h"
 #include "Util.h"
 #import "messaging/ApplicationMessenger.h"
-#include "platform/XbmcContext.h"
+//#include "platform/XbmcContext.h"
 #include "platform/xbmc.h"
 #include "settings/AdvancedSettings.h"
-#import "storage/osx/DarwinStorageProvider.h"
+//#import "storage/osx/DarwinStorageProvider.h"
 #include "utils/log.h"
 #import "windowing/WinSystem.h"
-#include "windowing/WindowingFactory.h"
+//#include "windowing/WindowingFactory.h"
 #include "windowing/osx/WinEventsOSX.h"
 
 #import "platform/darwin/DarwinUtils.h"
 #import "platform/darwin/osx/CocoaInterface.h"
+
+#include "ServiceBroker.h"
+#import "platform/darwin/osx/storage/OSXStorageProvider.h"
 
 #include <signal.h>
 
 #import <sys/param.h> /* for MAXPATHLEN */
 #include <sys/resource.h>
 #import <unistd.h>
+
+@interface NSApplication(Missing_Methods)
+- (void)setAppleMenu:(NSMenu *)menu;
+@end
 
 // Use this flag to determine whether we use CPS (docking) or not
 
@@ -109,7 +116,7 @@ static void setupApplicationMenu(void)
 }
 
 // The main class of the application, the application's delegate
-@implementation MainDelegate
+@implementation XBMCDelegate
 
 // Create a window menu
 - (void)setupWindowMenu
@@ -272,14 +279,14 @@ static void setupApplicationMenu(void)
 {
   // NSLog(@"applicationWillResignActive");
   // when app moves to background
-  g_Windowing.NotifyAppFocusChange(false);
+  CServiceBroker::GetWinSystem()->NotifyAppFocusChange(false);
 }
 
 - (void)applicationWillBecomeActive:(NSNotification*)note
 {
   // NSLog(@"applicationWillBecomeActive");
   // when app moves to front
-  g_Windowing.NotifyAppFocusChange(true);
+  //CServiceBroker::GetWinSystem()->NotifyAppFocusChange(true);
 }
 
 /*
@@ -367,12 +374,32 @@ static void setupApplicationMenu(void)
 
 - (void)deviceDidMountNotification:(NSNotification*)note
 {
-  CDarwinStorageProvider::SetEvent();
+  // calling into c++ code, need to use autorelease pools
+  @autoreleasepool
+  {
+    NSString* volumeLabel = [note.userInfo objectForKey:@"NSWorkspaceVolumeLocalizedNameKey"];
+    const char* label = [volumeLabel UTF8String];
+
+    NSString* volumePath = [note.userInfo objectForKey:@"NSDevicePath"];
+    const char* path = [volumePath UTF8String];
+
+    COSXStorageProvider::VolumeMountNotification(label, path);
+  }
 }
 
 - (void)deviceDidUnMountNotification:(NSNotification*)note
 {
-  CDarwinStorageProvider::SetEvent();
+  // calling into c++ code, need to use autorelease pools
+  @autoreleasepool
+  {
+    NSString* volumeLabel = [note.userInfo objectForKey:@"NSWorkspaceVolumeLocalizedNameKey"];
+    const char* label = [volumeLabel UTF8String];
+
+    NSString* volumePath = [note.userInfo objectForKey:@"NSDevicePath"];
+    const char* path = [volumePath UTF8String];
+
+    COSXStorageProvider::VolumeUnmountNotification(label, path);
+  }
 }
 
 @end

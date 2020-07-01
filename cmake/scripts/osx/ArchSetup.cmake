@@ -2,8 +2,7 @@ if(NOT CMAKE_TOOLCHAIN_FILE)
   message(FATAL_ERROR "CMAKE_TOOLCHAIN_FILE required for osx. See ${CMAKE_SOURCE_DIR}/cmake/README.md")
 endif()
 
-set(CORE_MAIN_SOURCE ${CMAKE_SOURCE_DIR}/xbmc/platform/posix/main.cpp
-                     ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/XBMCApplication.mm
+set(CORE_MAIN_SOURCE ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/XBMCApplication.mm
                      ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/XBMCApplication.h)
 
 set(ARCH_DEFINES -DTARGET_POSIX -DTARGET_DARWIN -DTARGET_DARWIN_OSX)
@@ -33,7 +32,8 @@ list(APPEND DEPLIBS "-framework DiskArbitration" "-framework IOKit"
                     "-framework ApplicationServices" "-framework AppKit"
                     "-framework CoreAudio" "-framework AudioToolbox"
                     "-framework CoreGraphics" "-framework CoreMedia"
-                    "-framework VideoToolbox" "-framework Security")
+                    "-framework VideoToolbox" "-framework Security"
+                    "-ObjC")
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME OFF)

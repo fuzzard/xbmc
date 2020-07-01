@@ -1,14 +1,18 @@
 set(SOURCES CocoaDPMSSupport.cpp
             OSScreenSaverOSX.cpp
+            OSXGLView.mm
+            OSXGLWindow.mm
+            OSXScreenManager.mm
             WinEventsOSX.mm
-            WinEventsSDL.cpp
             WinSystemOSX.mm
             WinSystemOSXGL.mm
             VideoSyncOsx.mm)
 set(HEADERS CocoaDPMSSupport.h
             OSScreenSaverOSX.h
+            OSXGLView.h
+            OSXGLWindow.h
+            OSXScreenManager.h
             WinEventsOSX.h
-            WinEventsSDL.h
             WinSystemOSX.h
             WinSystemOSXGL.h
             VideoSyncOsx.h)

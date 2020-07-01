@@ -27,14 +27,14 @@ void CWinSystemOSXGL::PresentRenderImpl(bool rendered)
 
   // FlushBuffer does not block if window is obscured
   // in this case we need to throttle the render loop
-  if (IsObscured())
-    usleep(10000);
+  //if (IsObscured())
+//    usleep(10000);
 
-  if (m_delayDispReset && m_dispResetTimer.IsTimePast())
-  {
-    m_delayDispReset = false;
-    AnnounceOnResetDevice();
-  }
+//  if (m_delayDispReset && m_dispResetTimer.IsTimePast())
+//  {
+//    m_delayDispReset = false;
+//    AnnounceOnResetDevice();
+//  }
 }
 
 void CWinSystemOSXGL::SetVSyncImpl(bool enable)
@@ -72,4 +72,3 @@ bool CWinSystemOSXGL::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool 
 
   return true;
 }
-

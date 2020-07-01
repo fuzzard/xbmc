@@ -6,7 +6,7 @@
  *  See LICENSES/README.md for more information.
  */
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
 
-@interface MainDelegate : NSObject <NSApplicationDelegate>
+@interface XBMCDelegate : NSObject <NSApplicationDelegate>
 @end
