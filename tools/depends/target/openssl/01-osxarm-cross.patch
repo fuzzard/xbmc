@@ -1,0 +1,16 @@
+--- a/Configurations/10-main.conf
++++ b/Configurations/10-main.conf
+@@ -1608,6 +1608,13 @@
+         perlasm_scheme   => "macosx",
+         shared_ldflag    => "-arch x86_64 -dynamiclib",
+     },
++    "darwin64-arm64-cc" => {
++        inherit_from     => [ "darwin-common", asm("aarch64_asm") ],
++        cflags           => add("-arch arm64 -fno-common -mmacosx-version-min=11.0"),
++        bn_ops           => "SIXTY_FOUR_BIT_LONG",
++        perlasm_scheme   => "ios64",
++        shared_ldflag    => "-arch arm64 -dynamiclib",
++    },
+ 
+ #### iPhoneOS/iOS
+ #

@@ -1,0 +1,18 @@
+--- a/aclocal.m4
++++ b/aclocal.m4
+@@ -547,6 +547,7 @@
+ # remove anything that might look like compiler output to our "||" expression
+ rm -f conftest* a.out b.out a.exe a_out.exe
+ cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main ()
+ {
+@@ -588,6 +589,7 @@
+   gmp_cv_prog_exeext_for_build="$EXEEXT"
+ else
+   cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main ()
+ {

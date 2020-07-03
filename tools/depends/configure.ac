@@ -394,9 +394,12 @@ case $host in
         case $platform_os in
           darwin_embedded)
             target_minver="11.0"
+            platform_cflags+=" -ftree-vectorize -pipe -Wno-trigraphs -fpascal-strings"
+            platform_cflags+=" -Wreturn-type -Wunused-variable -fmessage-length=0 -gdwarf-2"
           ;;
           osx)
             target_minver="11.0"
+            platform_cflags+=" -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
           ;;
           *)
             AC_MSG_ERROR(invalid platform for architecture ($host))
@@ -411,8 +414,6 @@ case $host in
           AC_MSG_ERROR(invalid architecture (--with-cpu=$use_cpu))
         fi
 
-        platform_cflags+=" -ftree-vectorize -pipe -Wno-trigraphs -fpascal-strings"
-        platform_cflags+=" -Wreturn-type -Wunused-variable -fmessage-length=0 -gdwarf-2"
         optimize_flags="-O3"
         platform_ldflags+=" -L$use_sdk_path/usr/lib"
       ;;
