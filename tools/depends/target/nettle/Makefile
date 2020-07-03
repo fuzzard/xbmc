@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile 01-disable_testsuite.patch
+DEPS= ../../Makefile.include Makefile 01-disable_testsuite.patch 02-macosarm-cc_for_build.patch
 
 # lib name, version
 LIBNAME=nettle
@@ -9,6 +9,12 @@ ARCHIVE=$(SOURCE).tar.gz
 
 ifeq ($(OS),darwin_embedded)
   CONFIGURE_FLAGS=-disable-assembler
+endif
+
+ifeq ($(OS),osx)
+ifeq ($(CPU),arm64)
+  CONFIGURE_FLAGS=-disable-assembler
+endif
 endif
 
 # configuration settings
@@ -26,7 +32,9 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../01-disable_testsuite.patch
-	cd $(PLATFORM); $(CONFIGURE) CCPIC=" "
+	cd $(PLATFORM); patch -p1 -i ../02-macosarm-cc_for_build.patch
+	cd $(PLATFORM); $(AUTORECONF)
+	cd $(PLATFORM); $(CONFIGURE) CCPIC=" " CC_FOR_BUILD="$(CC_FOR_BUILD)"
 
 $(LIBDYLIB): $(PLATFORM)
 	$(MAKE) -C $(PLATFORM)

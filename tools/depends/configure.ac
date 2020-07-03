@@ -357,6 +357,7 @@ case $host in
           10.13);;
           10.14);;
           10.15);;
+          10.16);;
           *)
             AC_MSG_ERROR(error in configure of --with-sdk=$use_sdk)
         esac
@@ -366,51 +367,88 @@ case $host in
         use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
         platform_os="osx"
       ;;
-
-      aarch64-apple-darwin*)
+      aarch64-apple-macosx)
         MC_CHECK_NOT_CPU([$use_cpu], "*86")
-
-        # setup which sdk to use
-        if test "$use_platform" = "tvos"; then
-          target_platform=appletvos
-        else
-          target_platform=iphoneos
-        fi
-        platform_min_version="$target_platform-version-min=11.0"
 
         # setup which cpu to use
         if test "x$use_cpu" = "xauto"; then
           use_cpu=arm64
         fi
 
-        if test "$use_cpu" = "arm64"; then
-          meson_cpu="aarch64"
+        meson_cpu="aarch64"
+
+        # setup which sdk to use
+        target_platform=macosx
+        found_sdk_version=[`$use_xcodebuild -showsdks | grep $target_platform | sort | tail -n 1 | awk '{ print $2}'`]
+        use_sdk="${use_sdk:-$found_sdk_version}"
+        
+        # now that we know which sdk, error check sdk_name
+        case $use_sdk in
+          11.0);;
+          *)
+            AC_MSG_ERROR(error in configure of --with-sdk=$use_sdk)
+        esac
+        sdk_name=$target_platform$use_sdk
+        platform_min_version="macosx-version-min=11.0"
+
+        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
+        platform_os="osx"
+        platform_cflags+=" -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
+      ;;
+      aarch64-apple-darwin*)
+        MC_CHECK_NOT_CPU([$use_cpu], "*86")
+
+        # macosx requires 11.0 for os 11, ios/tvos may change to a larger version requirement more often
+        minver=11.0
+
+        # setup which sdk to use
+        if test "$use_platform" = "tvos"; then
+          target_platform=appletvos
         else
-          meson_cpu="arm"
+          if test "$use_platform" = "macosx"; then
+            target_platform=macosx
+          else
+            target_platform=iphoneos
+          fi
         fi
+        
+        platform_min_version="$target_platform-version-min=$minver"
+
+        # setup which cpu to use
+        if test "x$use_cpu" = "xauto"; then
+          use_cpu=arm64
+        fi
+
+        meson_cpu="aarch64"
 
         found_sdk_version=[`$use_xcodebuild -showsdks | grep "\-sdk $target_platform" | awk '{ print $2}'`]
         use_sdk="${use_sdk:-$found_sdk_version}"
         sdk_name=$target_platform$use_sdk
 
+        # 11.* case must always stay for Apple Silicon BigSur+
         case $use_sdk in
           11.*);;
           12.*);;
           13.*);;
+          14.*);;
             *)
               AC_MSG_ERROR(error in configure of --with-sdk=$use_sdk)
             ;;
         esac
 
-        platform_os="darwin_embedded"
+        if test "$use_platform" = "macosx"; then
+          platform_os="osx"
+          platform_cflags+=" -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
+        else
+          platform_os="darwin_embedded"
+          platform_cflags+=" -ftree-vectorize -pipe -Wno-trigraphs -fpascal-strings"
+          platform_cflags+=" -Wreturn-type -Wunused-variable -fmessage-length=0 -gdwarf-2"
+          platform_cflags+=" -Wno-error=implicit-function-declaration"
+        fi
 
-        platform_cflags+=" -ftree-vectorize -pipe -Wno-trigraphs -fpascal-strings"
-        platform_cflags+=" -Wreturn-type -Wunused-variable -fmessage-length=0 -gdwarf-2"
-        platform_cflags+=" -Wno-error=implicit-function-declaration"
         optimize_flags="-O3"
-        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name | grep ^Path | awk '{ print $2}'`]
+        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
         platform_ldflags+=" -L$use_sdk_path/usr/lib"
-        platform_cxxflags+=" $cpu_flags"
       ;;
     esac
     platform_cflags+=" -arch $use_cpu -m$platform_min_version"
@@ -461,6 +499,8 @@ case $use_platform in
     if test "$platform_os" != "darwin_embedded"; then
       AC_MSG_ERROR([$use_platform is only supported on the darwin_embedded platform])
     fi
+    ;;
+  macosx)
     ;;
   auto)
     ;;

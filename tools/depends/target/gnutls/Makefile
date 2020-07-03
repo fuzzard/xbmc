@@ -9,6 +9,10 @@ ARCHIVE=$(SOURCE).tar.xz
 
 ifeq ($(OS),darwin_embedded)
 CONFIGURE_OPTIONS = --disable-hardware-acceleration
+else ifeq ($(OS),osx)
+ifeq ($(CPU),arm64)
+CONFIGURE_OPTIONS= --disable-hardware-acceleration
+endif
 endif
 
 # configuration settings
