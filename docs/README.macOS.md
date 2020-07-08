@@ -94,7 +94,7 @@ Configure build (apple silicon):
 ```
 cd $HOME/kodi/tools/depends
 ./bootstrap
-./configure --host=aarch64-apple-darwin --with-platform=macosx
+./configure --host=aarch64-apple-darwin --with-platform=macosx CFLAGS="-isysroot `xcrun -sdk macosx --show-sdk-path`"
 ```
 
 Build tools and dependencies:
