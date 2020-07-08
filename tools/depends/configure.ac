@@ -167,7 +167,7 @@ case $build in
   ;;
   *darwin*)
     build_os="osx"
-    native_platform_min_version=-mmacosx-version-min=`sw_vers | grep ProductVersion | sed -E "s/.*:.*(10\..*)\.?.*/\1/"`
+    native_platform_min_version=-mmacosx-version-min=`sw_vers | grep ProductVersion | awk '{ print $2}'`
     use_xcodepath=`xcode-select -print-path`
     use_build_toolchain=$use_xcodepath
     android_toolchain_name="darwin-x86_64"
@@ -381,6 +381,7 @@ case $host in
         target_platform=macosx
         found_sdk_version=[`$use_xcodebuild -showsdks | grep $target_platform | sort | tail -n 1 | awk '{ print $2}'`]
         use_sdk="${use_sdk:-$found_sdk_version}"
+        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
         
         # now that we know which sdk, error check sdk_name
         case $use_sdk in
@@ -391,9 +392,8 @@ case $host in
         sdk_name=$target_platform$use_sdk
         platform_min_version="macosx-version-min=11.0"
 
-        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
         platform_os="osx"
-        platform_cflags+=" -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
+        platform_cflags+=" -isysroot $use_sdk_path -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
       ;;
       aarch64-apple-darwin*)
         MC_CHECK_NOT_CPU([$use_cpu], "*86")
@@ -424,6 +424,7 @@ case $host in
         found_sdk_version=[`$use_xcodebuild -showsdks | grep "\-sdk $target_platform" | awk '{ print $2}'`]
         use_sdk="${use_sdk:-$found_sdk_version}"
         sdk_name=$target_platform$use_sdk
+        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
 
         # 11.* case must always stay for Apple Silicon BigSur+
         case $use_sdk in
@@ -437,8 +438,9 @@ case $host in
         esac
 
         if test "$use_platform" = "macosx"; then
+          host_cflags+=" -isysroot $use_sdk_path"
           platform_os="osx"
-          platform_cflags+=" -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
+          platform_cflags+=" -isysroot $use_sdk_path -ftree-vectorize -pipe -fmessage-length=0 -gdwarf-2 -Wreturn-type -Wunused-variable"
         else
           platform_os="darwin_embedded"
           platform_cflags+=" -ftree-vectorize -pipe -Wno-trigraphs -fpascal-strings"
@@ -447,7 +449,6 @@ case $host in
         fi
 
         optimize_flags="-O3"
-        use_sdk_path=[`$use_xcodebuild -version -sdk $sdk_name Path`]
         platform_ldflags+=" -L$use_sdk_path/usr/lib"
       ;;
     esac
@@ -501,6 +502,8 @@ case $use_platform in
     fi
     ;;
   macosx)
+    CFLAGS+=" -isysroot $use_sdk_path"
+    EXTRA_CFLAGS+=" isysroot $use_sdk_path"
     ;;
   auto)
     ;;
