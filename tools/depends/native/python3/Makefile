@@ -1,10 +1,10 @@
 include ../../Makefile.include
 PLATFORM=$(NATIVEPLATFORM)
-DEPS= ../../Makefile.include Makefile
+DEPS= ../../Makefile.include Makefile osxarm-configure.patch osxarm-Modules-Ctypes.patch osxarm-setup-py.patch osxarm-Modules-getpath.patch
 
 # lib name, version
 LIBNAME=Python
-VERSION=3.7.4
+VERSION=3.8.5
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.xz
 CWD=$(shell pwd)
@@ -29,6 +29,10 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	cd $(PLATFORM); patch -p1 -i ../osxarm-configure.patch
+	cd $(PLATFORM); patch -p1 -i ../osxarm-Modules-Ctypes.patch
+	cd $(PLATFORM); patch -p1 -i ../osxarm-Modules-getpath.patch
+	cd $(PLATFORM); patch -p1 -i ../osxarm-setup-py.patch
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
@@ -37,7 +41,6 @@ $(LIBDYLIB): $(PLATFORM)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	cd $(PLATFORM); $(MAKE) install
-	install $(PLATFORM)/Parser/pgen $(NATIVEPREFIX)/bin
 	touch $(LIBDYLIB)
 	touch $@
 
