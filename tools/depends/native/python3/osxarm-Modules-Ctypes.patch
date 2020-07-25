@@ -1,0 +1,221 @@
+--- a/Modules/_ctypes/callbacks.c
++++ b/Modules/_ctypes/callbacks.c
+@@ -1,6 +1,8 @@
+ #include "Python.h"
+ #include "frameobject.h"
+ 
++#include <stdbool.h>
++
+ #include <ffi.h>
+ #ifdef MS_WIN32
+ #include <windows.h>
+@@ -18,7 +20,7 @@
+     Py_XDECREF(self->callable);
+     Py_XDECREF(self->restype);
+     if (self->pcl_write)
+-        ffi_closure_free(self->pcl_write);
++        Py_ffi_closure_free(self->pcl_write);
+     PyObject_GC_Del(self);
+ }
+ 
+@@ -361,7 +363,7 @@
+ 
+     assert(CThunk_CheckExact((PyObject *)p));
+ 
+-    p->pcl_write = ffi_closure_alloc(sizeof(ffi_closure),
++    p->pcl_write = Py_ffi_closure_alloc(sizeof(ffi_closure),
+                                                                          &p->pcl_exec);
+     if (p->pcl_write == NULL) {
+         PyErr_NoMemory();
+@@ -408,13 +410,35 @@
+                      "ffi_prep_cif failed with %d", result);
+         goto error;
+     }
+-#if defined(X86_DARWIN) || defined(POWERPC_DARWIN)
+-    result = ffi_prep_closure(p->pcl_write, &p->cif, closure_fcn, p);
++#if HAVE_FFI_PREP_CLOSURE_LOC
++#   if USING_APPLE_OS_LIBFFI
++#      define HAVE_FFI_PREP_CLOSURE_LOC_RUNTIME __builtin_available(macos 10.15, ios 13, watchos 6, tvos 13, *)
++#   else
++#      define HAVE_FFI_PREP_CLOSURE_LOC_RUNTIME true
++#   endif
++    if (HAVE_FFI_PREP_CLOSURE_LOC_RUNTIME) {
++        result = ffi_prep_closure_loc(p->pcl_write, &p->cif, closure_fcn,
++                                    p,
++                                    p->pcl_exec);
++    } else
++#endif
++    {
++#if USING_APPLE_OS_LIBFFI && defined(__arm64__)
++        PyErr_Format(PyExc_NotImplementedError, "ffi_prep_closure_loc() is missing");
++        goto error;
+ #else
+-    result = ffi_prep_closure_loc(p->pcl_write, &p->cif, closure_fcn,
+-                                  p,
+-                                  p->pcl_exec);
++#ifdef MACOSX
++        #pragma clang diagnostic push
++        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+ #endif
++        result = ffi_prep_closure(p->pcl_write, &p->cif, closure_fcn, p);
++
++#ifdef MACOSX
++        #pragma clang diagnostic pop
++#endif
++
++#endif
++    }
+     if (result != FFI_OK) {
+         PyErr_Format(PyExc_RuntimeError,
+                      "ffi_prep_closure failed with %d", result);
+--- a/Modules/_ctypes/callproc.c
++++ b/Modules/_ctypes/callproc.c
+@@ -57,6 +57,8 @@
+ #include "Python.h"
+ #include "structmember.h"
+ 
++#include <stdbool.h>
++
+ #ifdef MS_WIN32
+ #include <windows.h>
+ #include <tchar.h>
+@@ -813,7 +815,8 @@
+                                   ffi_type **atypes,
+                                   ffi_type *restype,
+                                   void *resmem,
+-                                  int argcount)
++                                  int argcount,
++								  int argtypecount)
+ {
+     PyThreadState *_save = NULL; /* For Py_BLOCK_THREADS and Py_UNBLOCK_THREADS */
+     PyObject *error_object = NULL;
+@@ -836,14 +839,60 @@
+     if ((flags & FUNCFLAG_CDECL) == 0)
+         cc = FFI_STDCALL;
+ #endif
+-    if (FFI_OK != ffi_prep_cif(&cif,
+-                               cc,
+-                               argcount,
+-                               restype,
+-                               atypes)) {
+-        PyErr_SetString(PyExc_RuntimeError,
+-                        "ffi_prep_cif failed");
+-        return -1;
++
++#   if USING_APPLE_OS_LIBFFI
++#      define HAVE_FFI_PREP_CIF_VAR_RUNTIME __builtin_available(macos 10.15, ios 13, watchos 6, tvos 13, *)
++#   elif HAVE_FFI_PREP_CIF_VAR
++#      define HAVE_FFI_PREP_CIF_VAR_RUNTIME true
++#   else
++#      define HAVE_FFI_PREP_CIF_VAR_RUNTIME false
++#   endif
++
++    /* Even on Apple-arm64 the calling convention for variadic functions conincides
++     * with the standard calling convention in the case that the function called
++     * only with its fixed arguments.   Thus, we do not need a special flag to be
++     * set on variadic functions.   We treat a function as variadic if it is called
++     * with a nonzero number of variadic arguments */
++    bool is_variadic = (argtypecount != 0 && argcount > argtypecount);
++    (void) is_variadic;
++
++#if defined(__APPLE__) && defined(__arm64__)
++    if (is_variadic) {
++        if (HAVE_FFI_PREP_CIF_VAR_RUNTIME) {
++        } else {
++            PyErr_SetString(PyExc_NotImplementedError, "ffi_prep_cif_var() is missing");
++            return -1;
++        }
++    }
++#endif
++
++#if HAVE_FFI_PREP_CIF_VAR
++    if (is_variadic) {
++        if (HAVE_FFI_PREP_CIF_VAR_RUNTIME) {
++            if (FFI_OK != ffi_prep_cif_var(&cif,
++                                        cc,
++                                        argtypecount,
++                                        argcount,
++                                        restype,
++                                        atypes)) {
++                PyErr_SetString(PyExc_RuntimeError,
++                                "ffi_prep_cif_var failed");
++                return -1;
++            }
++        }
++    } else
++#endif
++
++    {
++        if (FFI_OK != ffi_prep_cif(&cif,
++                                   cc,
++                                   argcount,
++                                   restype,
++                                   atypes)) {
++            PyErr_SetString(PyExc_RuntimeError,
++                            "ffi_prep_cif failed");
++            return -1;
++        }
+     }
+ 
+     if (flags & (FUNCFLAG_USE_ERRNO | FUNCFLAG_USE_LASTERROR)) {
+@@ -1213,9 +1262,8 @@
+ 
+     if (-1 == _call_function_pointer(flags, pProc, avalues, atypes,
+                                      rtype, resbuf,
+-                                     Py_SAFE_DOWNCAST(argcount,
+-                                                      Py_ssize_t,
+-                                                      int)))
++                                     Py_SAFE_DOWNCAST(argcount, Py_ssize_t, int),
++                                     Py_SAFE_DOWNCAST(argtype_count, Py_ssize_t, int)))
+         goto cleanup;
+ 
+ #ifdef WORDS_BIGENDIAN
+--- a/Modules/_ctypes/ctypes.h
++++ b/Modules/_ctypes/ctypes.h
+@@ -366,6 +366,14 @@
+ extern PyObject *ComError;
+ #endif
+ 
++#if USING_MALLOC_CLOSURE_DOT_C
++void Py_ffi_closure_free(void *p);
++void *Py_ffi_closure_alloc(size_t size, void** codeloc);
++#else
++#define Py_ffi_closure_free ffi_closure_free
++#define Py_ffi_closure_alloc ffi_closure_alloc
++#endif
++
+ /*
+  Local Variables:
+  compile-command: "python setup.py -q build install --home ~"
+--- a/Modules/_ctypes/malloc_closure.c
++++ b/Modules/_ctypes/malloc_closure.c
+@@ -89,16 +89,27 @@
+ /******************************************************************/
+ 
+ /* put the item back into the free list */
+-void ffi_closure_free(void *p)
++void Py_ffi_closure_free(void *p)
+ {
++#if USING_APPLE_OS_LIBFFI && HAVE_FFI_CLOSURE_ALLOC
++    if (__builtin_available(macos 10.15, ios 13, watchos 6, tvos 13, *)) {
++        ffi_closure_free(p);
++        return;
++    }
++#endif
+     ITEM *item = (ITEM *)p;
+     item->next = free_list;
+     free_list = item;
+ }
+ 
+ /* return one item from the free list, allocating more if needed */
+-void *ffi_closure_alloc(size_t ignored, void** codeloc)
++void *Py_ffi_closure_alloc(size_t size, void** codeloc)
+ {
++#if USING_APPLE_OS_LIBFFI && HAVE_FFI_CLOSURE_ALLOC
++    if (__builtin_available(macos 10.15, ios 13, watchos 6, tvos 13, *)) {
++        return ffi_closure_alloc(size, codeloc);
++    }
++#endif
+     ITEM *item;
+     if (!free_list)
+         more_core();

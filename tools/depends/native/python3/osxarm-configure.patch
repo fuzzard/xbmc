@@ -1,0 +1,25 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -2456,6 +2456,9 @@
+     	ppc)
+     		MACOSX_DEFAULT_ARCH="ppc64"
+     		;;
++    	arm64)
++    		MACOSX_DEFAULT_ARCH="arm64"
++    		;;
+     	*)
+     		AC_MSG_ERROR([Unexpected output of 'arch' on OSX])
+     		;;
+--- a/configure
++++ b/configure
+@@ -9277,6 +9277,9 @@
+     	ppc)
+     		MACOSX_DEFAULT_ARCH="ppc64"
+     		;;
++        arm64)
++    		MACOSX_DEFAULT_ARCH="arm64"
++    		;;
+     	*)
+     		as_fn_error $? "Unexpected output of 'arch' on OSX" "$LINENO" 5
+     		;;
+
