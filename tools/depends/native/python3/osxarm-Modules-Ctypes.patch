@@ -57,7 +57,7 @@
 +        #pragma clang diagnostic push
 +        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
  #endif
-+        result = ffi_prep_closure(p->pcl_write, &p->cif, closure_fcn, p);
++        //result = ffi_prep_closure(p->pcl_write, &p->cif, closure_fcn, p);
 +
 +#ifdef MACOSX
 +        #pragma clang diagnostic pop
