@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2456,6 +2456,9 @@
+@@ -2442,6 +2442,9 @@
      	ppc)
      		MACOSX_DEFAULT_ARCH="ppc64"
      		;;
@@ -10,9 +10,31 @@
      	*)
      		AC_MSG_ERROR([Unexpected output of 'arch' on OSX])
      		;;
+@@ -2990,10 +2993,13 @@
+ 
+ if test "$with_system_ffi" = "yes" && test -n "$PKG_CONFIG"; then
+     LIBFFI_INCLUDEDIR="`"$PKG_CONFIG" libffi --cflags-only-I 2>/dev/null | sed -e 's/^-I//;s/ *$//'`"
++	LIBFFI_LIBDIR="`"$PKG_CONFIG" libffi --libs-only-L 2>/dev/null | sed -e 's/^-L//;s/ *$//'`"
+ else
+     LIBFFI_INCLUDEDIR=""
++	LIBFFI_LIBDIR=""
+ fi
+ AC_SUBST(LIBFFI_INCLUDEDIR)
++AC_SUBST(LIBFFI_LIBDIR)
+ 
+ # Check for use of the system libmpdec library
+ AC_MSG_CHECKING(for --with-system-libmpdec)
 --- a/configure
 +++ b/configure
-@@ -9277,6 +9277,9 @@
+@@ -653,6 +653,7 @@
+ DTRACE
+ TCLTK_LIBS
+ TCLTK_INCLUDES
++LIBFFI_LIBDIR
+ LIBFFI_INCLUDEDIR
+ PKG_CONFIG_LIBDIR
+ PKG_CONFIG_PATH
+@@ -9264,6 +9265,9 @@
      	ppc)
      		MACOSX_DEFAULT_ARCH="ppc64"
      		;;
@@ -22,4 +44,14 @@
      	*)
      		as_fn_error $? "Unexpected output of 'arch' on OSX" "$LINENO" 5
      		;;
-
+@@ -10403,8 +10407,10 @@
+ 
+ if test "$with_system_ffi" = "yes" && test -n "$PKG_CONFIG"; then
+     LIBFFI_INCLUDEDIR="`"$PKG_CONFIG" libffi --cflags-only-I 2>/dev/null | sed -e 's/^-I//;s/ *$//'`"
++	LIBFFI_LIBDIR="`"$PKG_CONFIG" libffi --libs-only-L 2>/dev/null | sed -e 's/^-L//;s/ *$//'`"
+ else
+     LIBFFI_INCLUDEDIR=""
++	LIBFFI_LIBDIR=""
+ fi
+ 
+ 
