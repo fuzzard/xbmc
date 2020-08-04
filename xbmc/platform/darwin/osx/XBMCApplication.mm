@@ -7,15 +7,22 @@
  *  See LICENSES/README.md for more information.
  */
 
-#import "SDLMain.h"
-
 #import "messaging/ApplicationMessenger.h"
 
 #import "platform/darwin/osx/CocoaInterface.h"
-#import "platform/darwin/osx/HotKeyController.h"
 #import "platform/darwin/osx/storage/OSXStorageProvider.h"
+#import "XBMCApplication.h"
+#include "ServiceBroker.h"
+#include "utils/log.h"
+#include "AppParamParser.h"
+#include "messaging/ApplicationMessenger.h"
+#include "settings/SettingsComponent.h"
+#include "settings/AdvancedSettings.h"
+#include "AppInboundProtocol.h"
+#include "platform/xbmc.h"
+#include "ServiceBroker.h"
+#import "windowing/osx/WinSystemOSX.h"
 
-#import <SDL/SDL.h>
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>
 
@@ -28,9 +35,6 @@
 - (void)setAppleMenu:(NSMenu *)menu;
 @end
 
-// Use this flag to determine whether we use CPS (docking) or not
-#define		SDL_USE_CPS		1
-#ifdef SDL_USE_CPS
 // Portions of CPS.h
 typedef struct CPSProcessSerNum
 {
@@ -43,7 +47,6 @@ extern OSErr	CPSGetCurrentProcess(CPSProcessSerNum *psn);
 extern OSErr 	CPSEnableForegroundOperation(CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
 extern OSErr	CPSSetFrontProcess(CPSProcessSerNum *psn);
 }
-#endif /* SDL_USE_CPS */
 
 static int    gArgc;
 static char  **gArgv;
@@ -91,17 +94,16 @@ static void setupApplicationMenu(void)
 
   [appleMenu addItem:[NSMenuItem separatorItem]];
 
-  title = [@"Quit " stringByAppendingString:appName];
-  [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
-
+//  title = [@"Quit " stringByAppendingString:appName];
+//  [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
 
   // Put menu into the menubar
   menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
   [menuItem setSubmenu:appleMenu];
-  [[NSApp mainMenu] addItem:menuItem];
+  [[[NSApplication sharedApplication] mainMenu] addItem:menuItem];
 
   // Tell the application object that this is now the application menu
-  [NSApp setAppleMenu:appleMenu];
+  [[NSApplication sharedApplication] setAppleMenu:appleMenu];
 }
 
 // Create a window menu
@@ -128,80 +130,18 @@ static void setupWindowMenu(void)
   [windowMenu addItem:menuItem];
 
   // "Title Bar" item
-  menuItem = [[NSMenuItem alloc] initWithTitle:@"Title Bar" action:@selector(titlebarToggle:) keyEquivalent:@""];
-  [windowMenu addItem:menuItem];
-  [menuItem setState: true];
+//  menuItem = [[NSMenuItem alloc] initWithTitle:@"Title Bar" action:@selector(titlebarToggle:) keyEquivalent:@""];
+//  [windowMenu addItem:menuItem];
+//  [menuItem setState: true];
 
   // Put menu into the menubar
   windowMenuItem = [[NSMenuItem alloc] initWithTitle:@"Window" action:nil keyEquivalent:@""];
   [windowMenuItem setSubmenu:windowMenu];
-  [[NSApp mainMenu] addItem:windowMenuItem];
+  [[[NSApplication sharedApplication] mainMenu] addItem:windowMenuItem];
 
   // Tell the application object that this is now the window menu
-  [NSApp setWindowsMenu:windowMenu];
+  [[NSApplication sharedApplication] setWindowsMenu:windowMenu];
 }
-
-@interface XBMCApplication : NSApplication
-@end
-
-@implementation XBMCApplication
-
-// Called before the internal event loop has started running.
-- (void) finishLaunching
-{
-  [super finishLaunching];
-}
-
-// Invoked from the Quit menu item
-- (void)terminate:(id)sender
-{
-  // remove any notification handlers
-  [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-
-  // Post a SDL_QUIT event
-  SDL_Event event;
-  event.type = SDL_QUIT;
-  SDL_PushEvent(&event);
-}
-
-- (void)fullScreenToggle:(id)sender
-{
-  // Post an toggle full-screen event to the application thread.
-  SDL_Event event;
-  memset(&event, 0, sizeof(event));
-  event.type = SDL_USEREVENT;
-  event.user.code = TMSG_TOGGLEFULLSCREEN;
-  SDL_PushEvent(&event);
-}
-
-- (void)floatOnTopToggle:(id)sender
-{
-  NSWindow* window = [[[NSOpenGLContext currentContext] view] window];
-  if ([window level] == NSFloatingWindowLevel)
-  {
-    [window setLevel:NSNormalWindowLevel];
-    [sender setState:NSOffState];
-  }
-  else
-  {
-    [window setLevel:NSFloatingWindowLevel];
-    [sender setState:NSOnState];
-  }
-}
-
-- (void)titlebarToggle:(id)sender
-{
-  NSWindow* window = [[[NSOpenGLContext currentContext] view] window];
-  [window setStyleMask: [window styleMask] ^ NSWindowStyleMaskTitled ];
-  BOOL isSet = [window styleMask] & NSWindowStyleMaskTitled;
-  [window setMovableByWindowBackground: !isSet];
-  [sender setState: isSet];
-
-}
-
-
-@end
 
 // The main class of the application, the application's delegate
 @implementation XBMCDelegate
@@ -220,41 +160,27 @@ static void setupWindowMenu(void)
   CFRelease(url2);
 }
 
-- (void) applicationWillTerminate: (NSNotification *) note
+- (void) stopRunLoop
 {
-  [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self
-    name:NSWorkspaceDidMountNotification object:nil];
+  // to get applicationShouldTerminate and
+  // applicationWillTerminate notifications.
+  [[NSApplication sharedApplication] terminate:nil];
+  // to flag a stop on next event.
+  [[NSApplication sharedApplication] stop:nil];
 
-  [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self
-    name:NSWorkspaceDidUnmountNotification object:nil];
-
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-
-  [center removeObserver:self name:MediaKeyPower object:nil];
-  [center removeObserver:self name:MediaKeySoundMute object:nil];
-  [center removeObserver:self name:MediaKeySoundUp object:nil];
-  [center removeObserver:self name:MediaKeySoundDown object:nil];
-  [center removeObserver:self name:MediaKeyPlayPauseNotification object:nil];
-  [center removeObserver:self name:MediaKeyFastNotification object:nil];
-  [center removeObserver:self name:MediaKeyRewindNotification object:nil];
-  [center removeObserver:self name:MediaKeyNextNotification object:nil];
-  [center removeObserver:self name:MediaKeyPreviousNotification object:nil];
-
-  [[HotKeyController sharedController] disableTap];
-}
-
-- (void) applicationWillResignActive:(NSNotification *) note
-{
-  //[[HotKeyController sharedController] sysPower:NO];
-  //[[HotKeyController sharedController] sysVolume:NO];
-  [[HotKeyController sharedController] setActive:NO];
-}
-
-- (void) applicationWillBecomeActive:(NSNotification *) note
-{
-  //[[HotKeyController sharedController] sysPower:YES];
-  //[[HotKeyController sharedController] sysVolume:YES];
-  [[HotKeyController sharedController] setActive:YES];
+  //post a NOP event, so the run loop actually stops
+  //see http://www.cocoabuilder.com/archive/cocoa/219842-nsapp-stop.html
+  NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
+                                      location: NSMakePoint(0,0)
+                                 modifierFlags: 0
+                                     timestamp: 0.0
+                                  windowNumber: 0
+                                       context: nil
+                                       subtype: 0
+                                         data1: 0
+                                         data2: 0];
+  //
+  [[NSApplication sharedApplication] postEvent: event atStart: true];
 }
 
 // To use Cocoa on secondary POSIX threads, your application must first detach
@@ -266,6 +192,53 @@ static void setupWindowMenu(void)
   {
     // empty
   }
+}
+
+- (void) mainLoopThread:(id)arg
+{
+
+#if defined(DEBUG)
+  struct rlimit rlim;
+  rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
+  if (setrlimit(RLIMIT_CORE, &rlim) == -1)
+    CLog::Log(LOGDEBUG, "Failed to set core size limit (%s)", strerror(errno));
+#endif
+
+  setlocale(LC_NUMERIC, "C");
+  //CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->Initialize();
+
+  //this can't be set from CAdvancedSettings::Initialize() because it will overwrite
+  //the loglevel set with the --debug flag
+
+//dispatch_sync(dispatch_get_main_queue(), ^{
+  CAppParamParser appParamParser;
+  appParamParser.Parse((const char **)gArgv, (int)gArgc);
+  
+    XBMC_Run(true, appParamParser);
+//  });
+
+    #ifdef _DEBUG
+      CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_DEBUG);
+    #else
+    //  CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_NORMAL);
+      CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_DEBUG);
+    #endif
+    
+  std::shared_ptr<CAppInboundProtocol> appPort = CServiceBroker::GetAppPort();
+  if (appPort)
+    appPort->SetRenderGUI(false);
+
+  [self performSelectorOnMainThread:@selector(stopRunLoop) withObject:nil waitUntilDone:false];
+}
+
+- (void)applicationDidChangeOcclusionState:(NSNotification *)notification
+{
+  bool occluded = true;
+  if ([NSApp occlusionState] & NSApplicationOcclusionStateVisible)
+    occluded = false;
+
+  CWinSystemOSX* winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  winSystem->SetOcclusionState(occluded);
 }
 
 // Called after the internal event loop has started running.
@@ -288,62 +261,38 @@ static void setupWindowMenu(void)
     name:NSWorkspaceDidUnmountNotification
     object:nil];
 
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-
-  // create media key handler singleton
-  [[HotKeyController sharedController] enableTap];
-  // add media key notifications
-  [center addObserver:self
-    selector:@selector(powerKeyNotification)
-    name:MediaKeyPower object:nil];
-  [center addObserver:self
-    selector:@selector(muteKeyNotification)
-    name:MediaKeySoundMute object:nil];
-  [center addObserver:self
-    selector:@selector(soundUpKeyNotification)
-    name:MediaKeySoundUp object:nil];
-  [center addObserver:self
-    selector:@selector(soundDownKeyNotification)
-    name:MediaKeySoundDown object:nil];
-  [center addObserver:self
-    selector:@selector(playPauseKeyNotification)
-    name:MediaKeyPlayPauseNotification object:nil];
-  [center addObserver:self
-    selector:@selector(fastKeyNotification)
-    name:MediaKeyFastNotification object:nil];
-  [center addObserver:self
-    selector:@selector(rewindKeyNotification)
-    name:MediaKeyRewindNotification object:nil];
-  [center addObserver:self
-    selector:@selector(nextKeyNotification)
-    name:MediaKeyNextNotification object:nil];
-  [center addObserver:self
-    selector:@selector(previousKeyNotification)
-    name:MediaKeyPreviousNotification object:nil];
-
-  // We're going to manually manage the screensaver.
-  setenv("SDL_VIDEO_ALLOW_SCREENSAVER", "1", true);
-
   // Hand off to main application code
   gCalledAppMainline = TRUE;
 
-  // stop the main loop so we return to main (below) and can
-  // call SDL_main there.
-  [NSApp stop:nil];
+//  window.acceptsMouseMovedEvents = true
 
-  //post a NOP event, so the run loop actually stops
-  //see http://www.cocoabuilder.com/archive/cocoa/219842-nsapp-stop.html
-  NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-    location: NSMakePoint(0,0)
-    modifierFlags: 0
-    timestamp: 0.0
-    windowNumber: 0
-    context: nil
-    subtype: 0
-    data1: 0
-    data2: 0];
-  //
-  [NSApp postEvent: event atStart: true];
+  // kick our mainloop into an extra thread
+  [NSThread detachNewThreadSelector:@selector(mainLoopThread:) toTarget:self withObject:nil];
+
+}
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+{
+  return NSTerminateNow;
+}
+
+- (void) applicationWillTerminate: (NSNotification *) note
+{
+  [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self
+    name:NSWorkspaceDidMountNotification object:nil];
+
+  [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self
+    name:NSWorkspaceDidUnmountNotification object:nil];
+}
+
+- (void) applicationWillResignActive:(NSNotification *) note
+{
+  // when app moves to background
+}
+
+- (void) applicationWillBecomeActive:(NSNotification *) note
+{
+  // when app moves to front
 }
 
 /*
@@ -373,20 +322,20 @@ static void setupWindowMenu(void)
     return FALSE;
 
   temparg = [filename UTF8String];
-  arglen = SDL_strlen(temparg) + 1;
-  arg = (char *) SDL_malloc(arglen);
+  arglen = strlen(temparg) + 1;
+  arg = (char *) malloc(arglen);
   if (arg == NULL)
     return FALSE;
 
   newargv = (char **) realloc(gArgv, sizeof (char *) * (gArgc + 2));
   if (newargv == NULL)
   {
-    SDL_free(arg);
+    free(arg);
     return FALSE;
   }
   gArgv = newargv;
 
-  SDL_strlcpy(arg, temparg, arglen);
+  strlcpy(arg, temparg, arglen);
   gArgv[gArgc++] = arg;
   gArgv[gArgc] = NULL;
 
@@ -423,69 +372,31 @@ static void setupWindowMenu(void)
   }
 }
 
-static void keyPress(SDLKey key)
+// Invoked from the Quit menu item
+- (void)terminate:(id)sender
 {
-  SDL_Event event;
-  memset(&event, 0, sizeof(event));
-  event.type = SDL_KEYDOWN;
-  event.key.keysym.sym = key;
-  SDL_PushEvent(&event);
-  event.type = SDL_KEYUP;
-  SDL_PushEvent(&event);
+  // remove any notification handlers
+  [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-#define VK_SLEEP            0x143
-#define VK_VOLUME_MUTE      0xAD
-#define VK_VOLUME_DOWN      0xAE
-#define VK_VOLUME_UP        0xAF
-#define VK_MEDIA_NEXT_TRACK 0x9E
-#define VK_MEDIA_PREV_TRACK 0x9D
-#define VK_MEDIA_STOP       0xB2
-#define VK_MEDIA_PLAY_PAUSE 0xB3
-#define VK_REWIND           0xB1
-#define VK_FAST_FWD         0xB0
-
-- (void)powerKeyNotification
+- (void)fullScreenToggle:(id)sender
 {
-  keyPress((SDLKey)VK_SLEEP);
 }
 
-- (void)muteKeyNotification
+- (void)floatOnTopToggle:(id)sender
 {
-  keyPress((SDLKey)VK_VOLUME_MUTE);
-}
-- (void)soundUpKeyNotification
-{
-  keyPress((SDLKey)VK_VOLUME_UP);
-}
-- (void)soundDownKeyNotification
-{
-  keyPress((SDLKey)VK_VOLUME_DOWN);
-}
-
-- (void)playPauseKeyNotification
-{
-  keyPress((SDLKey)VK_MEDIA_PLAY_PAUSE);
-}
-
-- (void)fastKeyNotification
-{
-  keyPress((SDLKey)VK_FAST_FWD);
-}
-
-- (void)rewindKeyNotification
-{
-  keyPress((SDLKey)VK_REWIND);
-}
-
-- (void)nextKeyNotification
-{
-  keyPress((SDLKey)VK_MEDIA_NEXT_TRACK);
-}
-
-- (void)previousKeyNotification
-{
-  keyPress((SDLKey)VK_MEDIA_PREV_TRACK);
+  NSWindow* window = [[[NSOpenGLContext currentContext] view] window];
+  if ([window level] == NSFloatingWindowLevel)
+  {
+    [window setLevel:NSNormalWindowLevel];
+    [sender setState:NSOffState];
+  }
+  else
+  {
+    [window setLevel:NSFloatingWindowLevel];
+    [sender setState:NSOnState];
+  }
 }
 
 @end
@@ -513,7 +424,7 @@ int main(int argc, char *argv[])
     /* This is passed if we are launched by double-clicking */
     if (argc >= 2 && strncmp(argv[1], "-psn", 4) == 0)
     {
-      gArgv = (char**)SDL_malloc(sizeof(char*) * 2);
+      gArgv = (char**)malloc(sizeof(char*) * 2);
       gArgv[0] = argv[0];
       gArgv[1] = NULL;
       gArgc = 1;
@@ -521,27 +432,24 @@ int main(int argc, char *argv[])
     else
     {
       gArgc = argc;
-      gArgv = (char**)SDL_malloc(sizeof(char*) * (argc + 1));
+      gArgv = (char**)malloc(sizeof(char*) * (argc + 1));
       for (int i = 0; i <= argc; i++)
         gArgv[i] = argv[i];
     }
 
     // Ensure the application object is initialised
-    [XBMCApplication sharedApplication];
+    [NSApplication sharedApplication];
 
-#ifdef SDL_USE_CPS
-    {
-      CPSProcessSerNum PSN;
-      /* Tell the dock about us */
-      if (!CPSGetCurrentProcess(&PSN))
-        if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
-          if (!CPSSetFrontProcess(&PSN))
-            [XBMCApplication sharedApplication];
-    }
-#endif
+    CPSProcessSerNum PSN;
+    /* Tell the dock about us */
+    if (!CPSGetCurrentProcess(&PSN))
+      if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
+        if (!CPSSetFrontProcess(&PSN))
+          [NSApplication sharedApplication];
+
 
     // Set up the menubars
-    [NSApp setMainMenu:[[NSMenu alloc] init]];
+    [[NSApplication sharedApplication] setMainMenu:[[NSMenu alloc] init]];
     setupApplicationMenu();
     setupWindowMenu();
 
@@ -550,16 +458,9 @@ int main(int argc, char *argv[])
     [[NSApplication sharedApplication] setDelegate:xbmc_delegate];
 
     // Start the main event loop
-    [NSApp run];
+    [[NSApplication sharedApplication] run];
 
-    // call SDL_main which calls our real main in xbmc.cpp
-    // see http://lists.libsdl.org/pipermail/sdl-libsdl.org/2008-September/066542.html
-    int status;
-    status = SDL_main(gArgc, gArgv);
-    SDL_Quit();
 
-    [xbmc_delegate applicationWillTerminate:NULL];
-
-    return status;
+    return 1;
   }
 }
