@@ -24,23 +24,54 @@
 #import <unistd.h>
 
 
+// calls for hiding and showing the cursor have to match each other
+// as of the cocoa reference. We ensure that and also ensure it is
+// called via mainthread here.
+@interface MouseCursorHelper : NSObject
++(void)HideMouseCursor;
++(void)ShowMouseCursor;
+@end
+
+static BOOL hidden = FALSE;
+
+@implementation MouseCursorHelper
+
++(void)HideMouseCursor
+{
+  if (!hidden)
+  {
+    [NSCursor hide];
+    hidden = TRUE;
+  }
+}
+
++(void)ShowMouseCursor
+{
+  if (hidden)
+  {
+    [NSCursor unhide];
+    hidden = FALSE;
+  }
+}
+@end
+
 //display link for display management
 static CVDisplayLinkRef displayLink = NULL;
 
 CGDirectDisplayID Cocoa_GetDisplayIDFromScreen(NSScreen *screen);
 
-NSOpenGLContext* Cocoa_GL_GetCurrentContext(void)
+/*NSOpenGLContext* Cocoa_GL_GetCurrentContext(void)
 {
   CWinSystemOSX *winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
   return winSystem->GetNSOpenGLContext();
-}
+}*/
 
 uint32_t Cocoa_GL_GetCurrentDisplayID(void)
 {
   // Find which display we are on from the current context (default to main display)
   CGDirectDisplayID display_id = kCGDirectMainDisplay;
 
-  NSOpenGLContext* context = Cocoa_GL_GetCurrentContext();
+  NSOpenGLContext* context = [NSOpenGLContext currentContext];
   if (context)
   {
     NSView* view;
@@ -230,12 +261,17 @@ bool Cocoa_GetVolumeNameFromMountPoint(const std::string &mountPoint, std::strin
 
 void Cocoa_HideMouse()
 {
-  [NSCursor hide];
+//  [MouseCursorHelper performSelectorOnMainThread:@selector(HideMouseCursor) withObject:nil waitUntilDone:TRUE];
 }
 
 void Cocoa_ShowMouse()
 {
-  [NSCursor unhide];
+//  [MouseCursorHelper performSelectorOnMainThread:@selector(ShowMouseCursor) withObject:nil waitUntilDone:TRUE];
+}
+
+bool Cocoa_IsMouseHidden()
+{
+  return hidden;
 }
 
 //---------------------------------------------------------------------------------

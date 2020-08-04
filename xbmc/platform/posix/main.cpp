@@ -12,11 +12,7 @@
 #include <cstring>
 
 #if defined(TARGET_DARWIN_OSX) || defined(TARGET_FREEBSD)
-  #include "Util.h"
-  // SDL redefines main as SDL_main
-  #ifdef HAS_SDL
-    #include <SDL/SDL.h>
-  #endif
+#include "Util.h"
 #endif
 
 #include "AppParamParser.h"

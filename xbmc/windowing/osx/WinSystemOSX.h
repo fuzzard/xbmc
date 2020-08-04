@@ -15,14 +15,21 @@
 #include <string>
 #include <vector>
 
-typedef struct SDL_Surface SDL_Surface;
+typedef struct _CGLContextObject *CGLContextObj;
 
 class IDispResource;
 class CWinEventsOSX;
 class CWinSystemOSXImpl;
 #ifdef __OBJC__
-@class NSOpenGLContext;
+  @class NSOpenGLContext;
+  @class NSWindow;
+  @class OSXGLView;
+#else
+  class NSWindow;
+  class OSXGLView;
 #endif
+
+
 
 class CWinSystemOSX : public CWinSystemBase, public ITimerCallback
 {
@@ -50,6 +57,8 @@ public:
   bool Show(bool raise = true) override;
   void OnMove(int x, int y) override;
 
+  void SetOcclusionState(bool occluded);
+
   std::string GetClipboardText() override;
 
   void Register(IDispResource *resource) override;
@@ -65,12 +74,13 @@ public:
   void        StartLostDeviceTimer();
   void        StopLostDeviceTimer();
 
-  void* GetCGLContextObj();
-#ifdef __OBJC__
-  NSOpenGLContext* GetNSOpenGLContext();
-#else
-  void* GetNSOpenGLContext();
-#endif
+  void         SetMovedToOtherScreen(bool moved) { m_movedToOtherScreen = moved; }
+  int          CheckDisplayChanging(uint32_t flags);
+  void         SetFullscreenWillToggle(bool toggle){ m_fullscreenWillToggle = toggle; }
+  bool         GetFullscreenWillToggle(){ return m_fullscreenWillToggle; }
+
+  CGLContextObj GetCGLContextObj();
+
   void GetConnectedOutputs(std::vector<std::string> *outputs);
 
   // winevents override
@@ -90,11 +100,11 @@ protected:
   void  StopTextInput();
 
   std::unique_ptr<CWinSystemOSXImpl> m_impl;
-  SDL_Surface* m_SDLSurface;
-  CWinEventsOSX *m_osx_events;
+  static void                 *m_lastOwnedContext;
+  std::string                  m_name;
   bool                         m_obscured;
-  unsigned int                 m_obscured_timecheck;
-
+  NSWindow                    *m_appWindow;
+  OSXGLView                   *m_glView;
   bool                         m_movedToOtherScreen;
   int                          m_lastDisplayNr;
   double                       m_refreshRate;
@@ -105,4 +115,6 @@ protected:
   bool                         m_delayDispReset;
   XbmcThreads::EndTime         m_dispResetTimer;
   int m_updateGLContext = 0;
+  bool                         m_fullscreenWillToggle;
+  CCriticalSection             m_critSection;
 };
