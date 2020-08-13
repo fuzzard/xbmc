@@ -14,6 +14,7 @@ DEPENDS = \
 	libplist libcec libbluray tinyxml \
 	taglib libusb libnfs \
 	pythonmodule-pil pythonmodule-pycryptodome pythonmodule-setuptools \
+	pythonmodile-numpy pythonmodule-lxml \
 	libxslt ffmpeg crossguid libudfread \
 	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d
 
