@@ -103,7 +103,10 @@ libpng: $(ZLIB)
 openssl: $(ZLIB)
 gnutls: nettle $(ZLIB)
 nettle: gmp
-pythonmodule-pycryptodome: $(PYMODULE_DEPS) python3 pythonmodule-setuptools
+pythonmodule-crossenv: python3 pythonmodule-setuptools
+pythonmodule-lxml: $(PYMODULE_DEPS) python3 pythonmodule-setuptools libxml2 libxslt
+pythonmodule-numpy: $(PYMODULE_DEPS) python3 pythonmodule-setuptools
+pythonmodule-pycryptodome: $(PYMODULE_DEPS) python3 pythonmodule-setuptools pythonmodule-crossenv
 pythonmodule-pil: bzip2 $(PYMODULE_DEPS) $(ZLIB) libjpeg-turbo libpng freetype2 python3 pythonmodule-setuptools
 pythonmodule-setuptools: $(PYMODULE_DEPS) python3
 libxslt: libgcrypt libxml2
