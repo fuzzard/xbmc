@@ -11,7 +11,7 @@ NATIVE= m4 gettext heimdal autoconf automake \
         libpng libjpeg-turbo liblzo2 giflib \
         setuptools distutilscross JsonSchemaBuilder TexturePacker \
         flatbuffers \
-        meson ninja
+        meson ninja cython
 
 
 ifeq ($(OS),darwin_embedded)
@@ -35,6 +35,7 @@ all: native
 # Dependency layout for parallel builds
 autoconf: m4
 automake: autoconf
+cython: python3
 dpkg: automake gettext libtool pkg-config tar
 flatbuffers: cmake
 heimdal: libtool
