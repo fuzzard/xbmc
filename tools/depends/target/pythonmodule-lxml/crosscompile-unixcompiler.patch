@@ -1,0 +1,13 @@
+--- a/numpy/distutils/unixccompiler.py
++++ b/numpy/distutils/unixccompiler.py
+@@ -36,6 +36,10 @@
+         from distutils.sysconfig import get_config_vars
+         opt = " ".join(os.environ['OPT'].split())
+         gcv_opt = " ".join(get_config_vars('OPT')[0].split())
++        removeflags = os.environ['REMOVECFLAG'].split()
++        for removeflagitem in removeflags:
++            if removeflagitem in self.compiler_so:
++                self.compiler_so.remove(removeflagitem)
+         ccomp_s = " ".join(self.compiler_so)
+         if opt not in ccomp_s:
+             ccomp_s = ccomp_s.replace(gcv_opt, opt)
