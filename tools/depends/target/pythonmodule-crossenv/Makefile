@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile
+DEPS= ../../Makefile.include Makefile test.patch
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
@@ -21,12 +21,14 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	cd $(PLATFORM); patch -p1 -i ../test.patch
 
 .installed-$(PLATFORM): $(PLATFORM)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(NATIVEPREFIX)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 -m crossenv \
 				                                   --sysroot $(SDKROOT) \
 				                                   --without-cross-pip \
+                                                   --clear-both \
 			                                       --env CPATH:=$(PREFIX)/include \
 			                                       --env LIBRARY_PATH:=$(PREFIX)/lib \
 			                                       --env PATH:=$(PREFIX)/bin \
@@ -37,17 +39,18 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
                                                    --env PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig \
                                                    --env PKG_CONFIG_LIBDIR=${PREFIX}/lib/pkgconfig \
                                                    --env PKG_CONFIG_SYSROOT_DIR=${SDKROOT}} \
+                                                   --env PYTHONPATH=$(PREFIX)/lib/python3.7/site-packages \
                                                    --cc "$(CC) -arch $(CPU) --sysroot=$(SDKPATH)" \
                                                    --cxx "$(CXX)" \
                                                    --ar "$(AR)" \
 	                                               $(PREFIX)/bin/python3 \
 	                                               $(PREFIX)/bin/$(TARGETENV)
 #	example execution and read from environment var
-#	cd $(PLATFORM); source $(PREFIX)/bin/$(TARGETENV)/bin/cross-python -c 'import os; print(os.environ["BRENTFLAG"])'
+#	cd $(PLATFORM); source $(PREFIX)/bin/$(TARGETENV)/bin/cross-python -c 'import os; print(os.environ["PYTHONPATH"])'
 	touch $@
 
 clean:
-	$(MAKE) -C $(PLATFORM) clean
+#	$(MAKE) -C $(PLATFORM) clean
 	rm -f .installed-$(PLATFORM)
 
 distclean::

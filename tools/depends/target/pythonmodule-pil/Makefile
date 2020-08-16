@@ -9,6 +9,7 @@ LIBNAME=Pillow
 VERSION=7.1.2
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+TARGETENV=$(APP_NAME)targetenv
 
 PYTHONPATH=$(PREFIX)/lib/python3.8/site-packages/
 PILPATH=$(PYTHONPATH)
@@ -49,7 +50,7 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
+#	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
 
 $(PILPATHLIB):
 ifeq ($(OS),android)
@@ -59,18 +60,20 @@ else ifeq ($(OS),darwin_embedded)
 endif
 
 .installed-$(PLATFORM): $(PLATFORM) $(PILPATHLIB)
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
-ifeq ($(OS),android)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATHLIB)/PIL && \
-          sed -i -e 's/import sys/import os, sys /' \
-                 -e '/__file__/ s/_imaging/lib_imaging/g' \
-                 -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
-	cd $(PILPATH) && rm -rf Pillow-*.egg
-else ifeq ($(OS),darwin_embedded)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATH) && rm -rf Pillow-*.egg
-endif
+#	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+#	cd $(PLATFORM); _PYTHON_HOST_PLATFORM="$(OS)-$(CPU)" PYTHONPATH="$(PYTHONPATH)" LDFLAGS="$(EXTRALDFLAGS)" source $(PREFIX)/bin/$(TARGETENV)/bin/cross-python setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+	cd $(PLATFORM); LDFLAGS="$(EXTRALDFLAGS)" source $(PREFIX)/bin/$(TARGETENV)/bin/cross-python setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+#ifeq ($(OS),android)
+#	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
+#	cd $(PILPATHLIB)/PIL && \
+#         sed -i -e 's/import sys/import os, sys /' \
+#                 -e '/__file__/ s/_imaging/lib_imaging/g' \
+#                 -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
+#	cd $(PILPATH) && rm -rf Pillow-*.egg
+#else ifeq ($(OS),darwin_embedded)
+#	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
+#	cd $(PILPATH) && rm -rf Pillow-*.egg
+#endif
 	touch $@
 
 clean:
