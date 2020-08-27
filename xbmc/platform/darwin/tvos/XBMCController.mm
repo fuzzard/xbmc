@@ -84,13 +84,19 @@ XBMCController* g_xbmcController;
 {
   [super viewDidLoad];
 
-  glView = [[TVOSEAGLView alloc] initWithFrame:self.view.bounds withScreen:[UIScreen mainScreen]];
+//  glView = [[TVOSEAGLView alloc] initWithFrame:self.view.bounds withScreen:[UIScreen mainScreen]];
+
+    mtlView = (MTKView *)self.view;
+    mtlView.device = MTLCreateSystemDefaultDevice();
+
+    _renderer = [[AAPLMetalRenderer alloc] initWithFrame:mtlView];
 
   // Check if screen is Retina
-  displayManager.screenScale = [glView getScreenScale:[UIScreen mainScreen]];
+//  displayManager.screenScale = [glView getScreenScale:[UIScreen mainScreen]];
 
   self.view.backgroundColor = UIColor.blackColor;
-  [self.view addSubview:glView];
+//  [self.view addSubview:glView];
+  [self.view addSubview:mtlView];
 
   [inputHandler.inputTouch createSwipeGestureRecognizers];
   [inputHandler.inputTouch createPanGestureRecognizers];
