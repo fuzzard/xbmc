@@ -30,15 +30,19 @@
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
 #include "guilib/GUIComponent.h"
+#include "utils/log.h"
+
+#import "platform/darwin/osx/XBMCApplication.h"
 
 #import "windowing/osx/WinSystemOSX.h"
 
 #include "windowing/osx/WinEventsOSX.h"
-//#include "windowing/WindowingFactory.h"
 
 #include "platform/darwin/osx/CocoaInterface.h"
 //#import "platform/darwin/osx/DarwinUtils.h"
 #import "platform/darwin/osx/OSXGLView.h"
+
+#import <AppKit/AppKit.h>
 
 //------------------------------------------------------------------------------------------
 @implementation OSXGLWindow
@@ -136,7 +140,6 @@
     if (appPort)
       appPort->OnEvent(newEvent);
   }
-  //CServiceBroker::GetGUI()->GetWindowManager().MarkDirty();
 }
 
 -(void)windowDidChangeScreen:(NSNotification *)notification
@@ -169,28 +172,15 @@
 
 -(void)windowWillEnterFullScreen: (NSNotification*)pNotification
 {
-  CWinSystemOSX* winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
-  // if osx is the issuer of the toggle
-  // call XBMCs toggle function
-  if (!winSystem->GetFullscreenWillToggle())
-  {
-    // indicate that we are toggling
-    // flag will be reset in SetFullscreen once its
-    // called from XBMCs gui thread
-    winSystem->SetFullscreenWillToggle(true);
-
-    KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_TOGGLEFULLSCREEN);
-  }
-  else
-  {
-    // in this case we are just called because
-    // of xbmc did a toggle - just reset the flag
-    // we don't need to do anything else
-    winSystem->SetFullscreenWillToggle(false);
-  }
+  [self toggleFullscreen];
 }
 
 -(void)windowDidExitFullScreen: (NSNotification*)pNotification
+{
+  [self toggleFullscreen];
+}
+
+-(void)toggleFullscreen
 {
   CWinSystemOSX* winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
   // if osx is the issuer of the toggle
@@ -307,5 +297,26 @@
 {
 //  if (Cocoa_IsMouseHidden())
 //    CWinEventsOSXImp::HandleInputEvent(theEvent);
+}
+
+- (void)keyDown:(NSEvent *)theEvent {
+  CLog::Log(LOGDEBUG, "%s: Brent keypress Down", __PRETTY_FUNCTION__);
+
+//  if (NSApplication.shared.keyWindow != self.view.window)
+//    return;
+
+  if (theEvent.type == NSEventTypeKeyDown)
+  {
+//    [g_xbmcApplication.inputHandler.inputKeyboard sendButtonPressed:theEvent];
+  }
+    
+}
+
+- (void)keyUp:(NSEvent *)theEvent {
+  CLog::Log(LOGDEBUG, "%s: Brent keypress Up", __PRETTY_FUNCTION__);
+  if (theEvent.type == NSEventTypeKeyUp)
+  {
+//    [g_xbmcApplication.inputHandler.inputKeyboard sendButtonReleased:theEvent];
+  }
 }
 @end
