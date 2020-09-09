@@ -22,5 +22,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class OSXLibInputHandler;
+//@class XBMCController
+
 @interface XBMCDelegate : NSObject<NSApplicationDelegate>
+
+//@property(nullable, nonatomic, strong) UIWindow* window;
+@property(nonatomic, strong) OSXLibInputHandler* inputHandler;
+
 @end
+
+extern XBMCDelegate* g_xbmcApplication;

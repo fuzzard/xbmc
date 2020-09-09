@@ -71,10 +71,10 @@
 // old
 @interface OSXGLView : NSOpenGLView
 {
-  NSOpenGLContext     *m_glcontext;
-  NSOpenGLPixelFormat *m_pixFmt;
-  NSTrackingArea      *m_trackingArea;
-    BOOL pause;
+  NSOpenGLContext* m_glcontext;
+  NSOpenGLPixelFormat* m_pixFmt;
+  NSTrackingArea* m_trackingArea;
+  BOOL pause;
 }
 
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
