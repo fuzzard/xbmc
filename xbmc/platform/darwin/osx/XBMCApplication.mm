@@ -23,15 +23,21 @@
 #include "ServiceBroker.h"
 #import "windowing/osx/WinSystemOSX.h"
 
+//#import "platform/darwin/osx/XBMCController.h"
+
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>
 
 #import "PlatformDefs.h"
 
+#import "platform/darwin/osx/input/LibInputHandler.h"
+
+XBMCDelegate* g_xbmcApplication;
+
 // For some reason, Apple removed setAppleMenu from the headers in 10.4,
 // but the method still is there and works. To avoid warnings, we declare
 // it ourselves here.
-@interface NSApplication(SDL_Missing_Methods)
+@interface NSApplication(Missing_Methods)
 - (void)setAppleMenu:(NSMenu *)menu;
 @end
 
@@ -146,6 +152,8 @@ static void setupWindowMenu(void)
 // The main class of the application, the application's delegate
 @implementation XBMCDelegate
 
+@synthesize inputHandler;
+
 // Set the working directory to the .app's parent directory
 - (void) setupWorkingDirectory
 {
@@ -210,19 +218,16 @@ static void setupWindowMenu(void)
   //this can't be set from CAdvancedSettings::Initialize() because it will overwrite
   //the loglevel set with the --debug flag
 
-//dispatch_sync(dispatch_get_main_queue(), ^{
   CAppParamParser appParamParser;
   appParamParser.Parse((const char **)gArgv, (int)gArgc);
   
-    XBMC_Run(true, appParamParser);
-//  });
+  XBMC_Run(true, appParamParser);
 
-    #ifdef _DEBUG
-      CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_DEBUG);
-    #else
-    //  CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_NORMAL);
-      CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_DEBUG);
-    #endif
+  #ifdef _DEBUG
+    CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_DEBUG);
+  #else
+    CServiceBroker::GetLogging().SetLogLevel(LOG_LEVEL_DEBUG);
+  #endif
     
   std::shared_ptr<CAppInboundProtocol> appPort = CServiceBroker::GetAppPort();
   if (appPort)
@@ -242,7 +247,8 @@ static void setupWindowMenu(void)
 }
 
 // Called after the internal event loop has started running.
-- (void) applicationDidFinishLaunching: (NSNotification *) note
+// Is also executed prior to application:openFile:
+- (void)applicationWillFinishLaunching:(NSNotification *)notification;
 {
   // enable multithreading, we should NOT have to do this but as we are mixing NSThreads/pthreads...
   if (![NSThread isMultiThreaded])
@@ -263,8 +269,9 @@ static void setupWindowMenu(void)
 
   // Hand off to main application code
   gCalledAppMainline = TRUE;
-
-//  window.acceptsMouseMovedEvents = true
+  
+  g_xbmcApplication = self;
+  inputHandler = [OSXLibInputHandler new];
 
   // kick our mainloop into an extra thread
   [NSThread detachNewThreadSelector:@selector(mainLoopThread:) toTarget:self withObject:nil];
@@ -382,6 +389,7 @@ static void setupWindowMenu(void)
 
 - (void)fullScreenToggle:(id)sender
 {
+  KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_TOGGLEFULLSCREEN);
 }
 
 - (void)floatOnTopToggle:(id)sender
