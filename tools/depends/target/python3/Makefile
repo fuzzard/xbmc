@@ -1,6 +1,7 @@
 include ../../Makefile.include
 DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch android.patch \
-       modules.setup darwin_embedded.patch
+       modules.setup darwin_embedded.patch \
+       osxarm-configure.patch osxarm-setup-py.patch
 
 # lib name, version
 LIBNAME=Python
@@ -47,6 +48,8 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../darwin_embedded.patch
 endif
+	cd $(PLATFORM); patch -p1 -i ../osxarm-configure.patch
+	cd $(PLATFORM); patch -p1 -i ../osxarm-setup-py.patch
 	cp modules.setup $(PLATFORM)/Modules/Setup
 
 #Add -liconv as needed, and add the _scproxy module for darwin

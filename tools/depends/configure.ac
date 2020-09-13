@@ -659,6 +659,7 @@ cp -vf native/config.site.native $prefix/$tool_dir/share/config.site
 
 
 echo -e "\n\n#------- configuration -------#"
+echo -e "native_min_platform:\t\t $native_platform_min_version"
 echo -e "ccache:\t\t $use_ccache"
 echo -e "build type:\t $build_type"
 echo -e "toolchain:\t $use_toolchain"
