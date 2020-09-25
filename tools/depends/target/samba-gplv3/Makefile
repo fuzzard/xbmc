@@ -1,11 +1,13 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile 01-fix-dependencies.patch 02-cross_compile.patch 03-builtin-heimdal.patch 04-built-static.patch samba_android.patch no_fork_and_exec.patch crt_extensions.patch
+DEPS= ../../Makefile.include Makefile 01-fix-dependencies.patch 02-cross_compile.patch 03-builtin-heimdal.patch 04-built-static.patch samba_android.patch no_fork_and_exec.patch crt_extensions.patch 05-apple-disable-zlib-pkgconfig.patch
 
 # lib name, version
 LIBNAME=samba
-VERSION=4.11.6
+VERSION=4.12.7
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+
+BASE_URL=https://download.samba.org/pub/samba
 
 CONFIGURE=./configure --prefix=$(PREFIX) \
           --cross-compile --cross-answers=cross-answers.txt \
@@ -49,6 +51,7 @@ endif
 ifeq ($(OS), darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../no_fork_and_exec.patch
 	cd $(PLATFORM); patch -p1 -i ../crt_extensions.patch
+	cd $(PLATFORM); patch -p1 -i ../05-apple-disable-zlib-pkgconfig.patch
 endif
 	cd $(PLATFORM); $(CONFIGURE)
 

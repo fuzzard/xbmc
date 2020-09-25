@@ -5,7 +5,8 @@ This guide has been tested with macOS 10.13.4()17E199 High Sierra and Xcode 9.3(
 
 ## Table of Contents
 1. **[Document conventions](#1-document-conventions)**
-2. **[Prerequisites](#2-prerequisites)**
+2. **[Prerequisites](#2-prerequisites)**  
+  2.1. **[Install Perl Module Parse::Yapp::Driver](#21-install-perl-module-parseyappdriver)**
 3. **[Get the source code](#3-get-the-source-code)**
 4. **[Configure and build tools and dependencies](#4-configure-and-build-tools-and-dependencies)**
 5. **[Build binary add-ons](#5-build-binary-add-ons)**
@@ -61,6 +62,51 @@ Building for OSX/macOS should work with the following constellations of Xcode an
   * Xcode 9.x on macOS 10.13.x (High Sierra)
 
 **WARNING:** Start Xcode after installation finishes. You need to accept the licenses and install missing components.
+
+## 2.1. Install Perl Module Parse::Yapp::Driver
+
+The following only needs to be execute once on a device. This will install the Parse::Yapp:Driver perl module to the System perl library.
+
+## 2.1.1. Setup cpan
+
+Parse::Yapp:Driver is now a build requirement for Samba 4.12+. It is a perl module that can be installed via cpan.
+If cpan has not be run before, executing the following will step you through an automated config of cpan.
+
+```
+cpan
+```
+
+When prompted with the following prompts (abbreviated output shown), press enter to select the defaults
+
+```
+Would you like to configure as much as possible automatically? [yes]
+
+What approach do you want?  (Choose 'local::lib', 'sudo' or 'manual')
+ [local::lib] 
+
+Would you like me to automatically choose some CPAN mirror
+sites for you? (This means connecting to the Internet) [yes] 
+```
+
+Once this is complete, you will be at a cpan prompt like the below. Type quit to exit
+
+```
+You can re-run configuration any time with 'o conf init' in the CPAN shell
+Terminal does not support AddHistory.
+
+cpan shell -- CPAN exploration and modules installation (v2.00)
+Enter 'h' for help.
+
+cpan[1]> 
+```
+
+## 2.1.2. Install Parse::Yapp:Driver module via cpan
+
+From a terminal prompt, type the following to install the Perl module via cpan
+
+```
+sudo cpan Parse::Yapp::Driver
+```
 
 **[back to top](#table-of-contents)**
 

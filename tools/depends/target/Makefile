@@ -116,7 +116,7 @@ waylandpp: wayland $(WAYLANDPP_DEPS)
 dbus: expat
 libinput: mtdev libevdev meson-cross-file
 libevdev: libudev
-samba-gplv3: gnutls
+samba-gplv3: gnutls $(ZLIB)
 taglib: $(ZLIB)
 dav1d: meson-cross-file
 fribidi: meson-cross-file
