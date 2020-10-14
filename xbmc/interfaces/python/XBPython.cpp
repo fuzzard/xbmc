@@ -505,6 +505,8 @@ bool XBPython::OnScriptInitialized(ILanguageInvoker* invoker)
     CEnvironment::putenv(buf);
     buf = "OS=win32";
     CEnvironment::putenv(buf);
+    buf = "PYTHONUTF8=1";
+    CEnvironment::putenv(buf);
 #ifdef _DEBUG
     if (CSysInfo::GetWindowsDeviceFamily() == CSysInfo::Xbox)
       CEnvironment::putenv("PYTHONCASEOK=1");
