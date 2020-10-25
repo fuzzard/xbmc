@@ -166,7 +166,9 @@ bool CPythonInvoker::execute(const std::string& script, const std::vector<std::w
   m_pythonPath.clear();
 
   // copy the arguments into a local buffer
-  unsigned int argc = arguments.size();
+  size_t argc = arguments.size();
+  assert(argc >= 0);
+
   std::vector<std::vector<wchar_t>> argvStorage = storeArgumentsCCompatible(arguments);
   std::vector<wchar_t*> argv = getCPointersToArguments(argvStorage);
 
@@ -290,7 +292,7 @@ bool CPythonInvoker::execute(const std::string& script, const std::vector<std::w
     PyThreadState_Swap(m_threadState);
 
   // set current directory and python's path.
-  PySys_SetArgv(argc, &argv[0]);
+  PySys_SetArgv(static_cast<int>(argc), &argv[0]);
 
   CLog::Log(LOGDEBUG, "CPythonInvoker(%d, %s): entering source directory %s", GetId(),
             m_sourceFile.c_str(), scriptDir.c_str());
