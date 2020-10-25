@@ -517,7 +517,7 @@ public:
       CGenericTouchActionHandler::GetInstance().OnSwipe(direction,
                                                 0.0, 0.0,
                                                 point.x, point.y, 0, 0,
-                                                [sender numberOfTouches]);
+                                                static_cast<int32_t>([sender numberOfTouches]));
     }
   }
 }
@@ -532,7 +532,7 @@ public:
     point.x *= screenScale;
     point.y *= screenScale;
     //NSLog(@"%s singleTap", __PRETTY_FUNCTION__);
-    CGenericTouchActionHandler::GetInstance().OnTap((float)point.x, (float)point.y, [sender numberOfTouches]);
+    CGenericTouchActionHandler::GetInstance().OnTap((float)point.x, (float)point.y, static_cast<int32_t>([sender numberOfTouches]));
   }
 }
 //--------------------------------------------------------------
