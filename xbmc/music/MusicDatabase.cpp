@@ -2858,7 +2858,7 @@ void CMusicDatabase::GetFileItemFromArtistCredits(VECARTISTCREDITS& artistCredit
   // When "missing tag" artist, it is the only artist when present.
   if (artistCredits.begin()->GetArtistId() == BLANKARTIST_ID)
   {
-    artistidObj.push_back((int)BLANKARTIST_ID);
+    artistidObj.push_back(BLANKARTIST_ID);
     songartists.push_back(StringUtils::Empty);
   }
   else

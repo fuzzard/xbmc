@@ -72,6 +72,28 @@ int64_t str2int64(const std::wstring &str, int64_t fallback /* = 0 */)
   return fallback;
 }
 
+long str2long(const std::string &str, long fallback /* = 0 */)
+{
+  char *end = NULL;
+  std::string tmp = trimRight(str);
+  long result = strtol(tmp.c_str(), &end, 0);
+  if (end == NULL || *end == '\0')
+    return result;
+
+  return fallback;
+}
+
+long str2long(const std::wstring &str, long fallback /* = 0 */)
+{
+  wchar_t *end = NULL;
+  std::wstring tmp = trimRight(str);
+  long result = wcstol(tmp.c_str(), &end, 0);
+  if (end == NULL || *end == '\0')
+    return result;
+
+  return fallback;
+}
+
 uint64_t str2uint64(const std::string &str, uint64_t fallback /* = 0 */)
 {
   char *end = NULL;
@@ -143,6 +165,9 @@ CVariant::CVariant(VariantType type)
     case VariantTypeDouble:
       m_data.dvalue = 0.0;
       break;
+    case VariantTypeLong:
+      m_data.lvalue = 0;
+      break;
     case VariantTypeString:
       m_data.string = new std::string();
       break;
@@ -167,6 +192,12 @@ CVariant::CVariant(int integer)
 {
   m_type = VariantTypeInteger;
   m_data.integer = integer;
+}
+
+CVariant::CVariant(long longint)
+{
+  m_type = VariantTypeLong;
+  m_data.lvalue = longint;
 }
 
 CVariant::CVariant(int64_t integer)
@@ -350,6 +381,11 @@ bool CVariant::isDouble() const
   return m_type == VariantTypeDouble;
 }
 
+bool CVariant::isLong() const
+{
+  return m_type == VariantTypeLong;
+}
+
 bool CVariant::isString() const
 {
   return m_type == VariantTypeString;
@@ -388,6 +424,8 @@ int64_t CVariant::asInteger(int64_t fallback) const
       return m_data.integer;
     case VariantTypeUnsignedInteger:
       return (int64_t)m_data.unsignedinteger;
+    case VariantTypeLong:
+      return (int64_t)m_data.lvalue;
     case VariantTypeDouble:
       return (int64_t)m_data.dvalue;
     case VariantTypeString:
@@ -414,6 +452,8 @@ uint64_t CVariant::asUnsignedInteger(uint64_t fallback) const
       return m_data.unsignedinteger;
     case VariantTypeInteger:
       return (uint64_t)m_data.integer;
+    case VariantTypeLong:
+      return (int64_t)m_data.lvalue;
     case VariantTypeDouble:
       return (uint64_t)m_data.dvalue;
     case VariantTypeString:
@@ -440,8 +480,31 @@ double CVariant::asDouble(double fallback) const
       return m_data.dvalue;
     case VariantTypeInteger:
       return (double)m_data.integer;
+    case VariantTypeLong:
+      return (double)m_data.lvalue;
     case VariantTypeUnsignedInteger:
       return (double)m_data.unsignedinteger;
+    case VariantTypeString:
+      return str2double(*m_data.string, fallback);
+    case VariantTypeWideString:
+      return str2double(*m_data.wstring, fallback);
+    default:
+      return fallback;
+  }
+
+  return fallback;
+}
+
+long CVariant::asLong(long fallback) const
+{
+  switch (m_type)
+  {
+    case VariantTypeDouble:
+      return (long)m_data.dvalue;
+    case VariantTypeInteger:
+      return (long)m_data.integer;
+    case VariantTypeUnsignedInteger:
+      return (long)m_data.unsignedinteger;
     case VariantTypeString:
       return str2double(*m_data.string, fallback);
     case VariantTypeWideString:
@@ -461,6 +524,8 @@ float CVariant::asFloat(float fallback) const
       return (float)m_data.dvalue;
     case VariantTypeInteger:
       return (float)m_data.integer;
+    case VariantTypeLong:
+      return (float)m_data.lvalue;
     case VariantTypeUnsignedInteger:
       return (float)m_data.unsignedinteger;
     case VariantTypeString:
@@ -482,6 +547,8 @@ bool CVariant::asBoolean(bool fallback) const
       return m_data.boolean;
     case VariantTypeInteger:
       return (m_data.integer != 0);
+    case VariantTypeLong:
+      return (m_data.lvalue != 0);
     case VariantTypeUnsignedInteger:
       return (m_data.unsignedinteger != 0);
     case VariantTypeDouble:
@@ -511,6 +578,8 @@ std::string CVariant::asString(const std::string &fallback /* = "" */) const
       return m_data.boolean ? "true" : "false";
     case VariantTypeInteger:
       return std::to_string(m_data.integer);
+    case VariantTypeLong:
+      return std::to_string(m_data.lvalue);
     case VariantTypeUnsignedInteger:
       return std::to_string(m_data.unsignedinteger);
     case VariantTypeDouble:
@@ -532,6 +601,8 @@ std::wstring CVariant::asWideString(const std::wstring &fallback /* = L"" */) co
       return m_data.boolean ? L"true" : L"false";
     case VariantTypeInteger:
       return std::to_wstring(m_data.integer);
+    case VariantTypeLong:
+      return std::to_wstring(m_data.lvalue);
     case VariantTypeUnsignedInteger:
       return std::to_wstring(m_data.unsignedinteger);
     case VariantTypeDouble:
@@ -602,6 +673,8 @@ CVariant &CVariant::operator=(const CVariant &rhs)
   case VariantTypeBoolean:
     m_data.boolean = rhs.m_data.boolean;
     break;
+  case VariantTypeLong:
+    m_data.lvalue = rhs.m_data.lvalue;
   case VariantTypeDouble:
     m_data.dvalue = rhs.m_data.dvalue;
     break;
@@ -666,6 +739,8 @@ bool CVariant::operator==(const CVariant &rhs) const
       return m_data.boolean == rhs.m_data.boolean;
     case VariantTypeDouble:
       return m_data.dvalue == rhs.m_data.dvalue;
+    case VariantTypeLong:
+      return m_data.lvalue == rhs.m_data.lvalue;
     case VariantTypeString:
       return *m_data.string == *rhs.m_data.string;
     case VariantTypeWideString:

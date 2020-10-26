@@ -149,7 +149,7 @@ public:
   std::string GetArtist() const                { return m_strArtist; }
   std::string GetSortName() const              { return m_strSortName; }
   std::string GetMusicBrainzArtistID() const   { return m_strMusicBrainzArtistID; }
-  int         GetArtistId() const              { return idArtist; }
+  long GetArtistId() const { return idArtist; }
   bool HasScrapedMBID() const { return m_bScrapedMBID; }
   void SetArtist(const std::string &strArtist) { m_strArtist = strArtist; }
   void SetSortName(const std::string &strSortName) { m_strSortName = strSortName; }

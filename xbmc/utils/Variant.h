@@ -20,6 +20,8 @@ uint64_t str2uint64(const std::string &str, uint64_t fallback = 0);
 uint64_t str2uint64(const std::wstring &str, uint64_t fallback = 0);
 double str2double(const std::string &str, double fallback = 0.0);
 double str2double(const std::wstring &str, double fallback = 0.0);
+long str2long(const std::string &str, double fallback = 0);
+long str2long(const std::wstring &str, double fallback = 0);
 
 #ifdef TARGET_WINDOWS_STORE
 #pragma pack(push)
@@ -37,6 +39,7 @@ public:
     VariantTypeString,
     VariantTypeWideString,
     VariantTypeDouble,
+    VariantTypeLong,
     VariantTypeArray,
     VariantTypeObject,
     VariantTypeNull,
@@ -51,6 +54,7 @@ public:
   CVariant(uint64_t unsignedinteger);
   CVariant(double value);
   CVariant(float value);
+  CVariant(long value);
   CVariant(bool boolean);
   CVariant(const char *str);
   CVariant(const char *str, unsigned int length);
@@ -76,6 +80,7 @@ public:
   bool isString() const;
   bool isWideString() const;
   bool isDouble() const;
+  bool isLong() const;
   bool isArray() const;
   bool isObject() const;
   bool isNull() const;
@@ -90,6 +95,7 @@ public:
   std::string asString(const std::string &fallback = "") const;
   std::wstring asWideString(const std::wstring &fallback = L"") const;
   double asDouble(double fallback = 0.0) const;
+  long asLong(long fallback = 0) const;
   float asFloat(float fallback = 0.0f) const;
 
   CVariant &operator[](const std::string &key);
@@ -151,6 +157,7 @@ private:
     uint64_t unsignedinteger;
     bool boolean;
     double dvalue;
+    long lvalue;
     std::string *string;
     std::wstring *wstring;
     VariantArray *array;
