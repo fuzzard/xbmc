@@ -478,7 +478,7 @@ bool CGUIDialogNumeric::ShowAndGetSeconds(std::string &timeString, const std::st
 {
   CGUIDialogNumeric *pDialog = CServiceBroker::GetGUI()->GetWindowManager().GetWindow<CGUIDialogNumeric>(WINDOW_DIALOG_NUMERIC);
   if (!pDialog) return false;
-  int seconds = StringUtils::TimeStringToSeconds(timeString);
+  long seconds = StringUtils::TimeStringToSeconds(timeString);
   KODI::TIME::SystemTime time = {0};
   time.hour = seconds / 3600;
   time.minute = (seconds - time.hour * 3600) / 60;
