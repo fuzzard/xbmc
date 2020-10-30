@@ -86,6 +86,8 @@ void CGUIBaseContainer::Process(unsigned int currentTime, CDirtyRegionList &dirt
   // update our auto-scrolling as necessary
   UpdateAutoScrolling(currentTime);
 
+  ValidateOffset();
+
   if (m_bInvalidated)
     UpdateLayout();
 
