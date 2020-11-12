@@ -4,12 +4,15 @@ DEPS= ../../Makefile.include Makefile
 
 # lib name, version
 LIBNAME=Python
-VERSION=3.8.5
+VERSION=3.10.0
 SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.xz
+#ARCHIVE=$(SOURCE).tar.xz
 CWD=$(shell pwd)
 HOSTPYTHONDIR=$(CWD)/$(PLATFORM)/hostpython
-BASE_URL=https://www.python.org/ftp/python/$(VERSION)
+#BASE_URL=https://www.python.org/ftp/python/$(VERSION)
+
+BASE_URL=https://github.com/python/cpython/archive
+ARCHIVE=cda99b4022daa08ac74b0420e9903cce883d91c6.tar.gz
 
 CONFIGURE=./configure --prefix=$(NATIVEPREFIX) --disable-shared --disable-framework --without-pymalloc --with-system-ffi
 ifeq ($(OS),linux)

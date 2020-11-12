@@ -4,10 +4,12 @@ DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch android.pat
 
 # lib name, version
 LIBNAME=Python
-VERSION=3.8.5
+VERSION=3.10.0
 SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.xz
-BASE_URL=https://www.python.org/ftp/python/$(VERSION)
+#ARCHIVE=$(SOURCE).tar.xz
+#BASE_URL=https://www.python.org/ftp/python/$(VERSION)
+BASE_URL=https://github.com/python/cpython/archive
+ARCHIVE=cda99b4022daa08ac74b0420e9903cce883d91c6.tar.gz
 
 ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   HOSTPLATFORM=_PYTHON_HOST_PLATFORM="darwin"
@@ -31,7 +33,7 @@ CONFIGURE=./configure --prefix=$(PREFIX) \
   $(EXTRA_CONFIGURE)
 
 
-LIBDYLIB=$(PLATFORM)/libpython3.8.a
+LIBDYLIB=$(PLATFORM)/libpython3.10.a
 
 all: .installed-$(PLATFORM)
 
@@ -64,12 +66,12 @@ endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes libpython3.8.a
+	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes libpython3.10.a
 	touch $@
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes install
-	find $(PREFIX)/lib/python3.8 -type f -name "*.pyc" -delete
+	find $(PREFIX)/lib/python3.10 -type f -name "*.pyc" -delete
 	touch $(LIBDYLIB)
 	touch $@
 
