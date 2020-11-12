@@ -8,7 +8,7 @@ endif()
 set(CORE_MAIN_SOURCE ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/${CORE_PLATFORM_NAME_LC}/XBMCApplication.mm)
 
 set(ARCH_DEFINES -DTARGET_POSIX -DTARGET_DARWIN -DTARGET_DARWIN_OSX)
-set(SYSTEM_DEFINES -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE)
+set(SYSTEM_DEFINES -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D__STDC_CONSTANT_MACROS)
 set(PLATFORM_DIR platform/darwin)
 set(PLATFORMDEFS_DIR platform/posix)
 set(CMAKE_SYSTEM_NAME Darwin)
@@ -41,7 +41,7 @@ list(APPEND DEPLIBS "-framework DiskArbitration" "-framework IOKit"
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13)
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME OFF)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/system/shaders)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/system/shaders)
 
 include(cmake/scripts/darwin/Macros.cmake)
 enable_arc()
