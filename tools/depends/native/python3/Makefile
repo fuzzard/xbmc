@@ -1,6 +1,6 @@
 include ../../Makefile.include
 PLATFORM=$(NATIVEPLATFORM)
-DEPS= ../../Makefile.include Makefile osxarm-configure.patch osxarm-Modules-Ctypes.patch osxarm-setup-py.patch osxarm-Modules-getpath.patch
+DEPS= ../../Makefile.include Makefile
 
 # lib name, version
 LIBNAME=Python
@@ -33,10 +33,6 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../osxarm-configure.patch
-	cd $(PLATFORM); patch -p1 -i ../osxarm-Modules-Ctypes.patch
-	cd $(PLATFORM); patch -p1 -i ../osxarm-Modules-getpath.patch
-	cd $(PLATFORM); patch -p1 -i ../osxarm-setup-py.patch
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
