@@ -21,6 +21,7 @@
 @interface CBPeripheralBusGCControllerManager : NSObject
 
 @property(nonatomic, strong) Input_GCController* input_GC;
+@property(nonatomic, strong) Input_GCMouse* input_GCMouse;
 
 - (instancetype)initWithName:(PERIPHERALS::CPeripheralBusGCController*)parentClass;
 - (PERIPHERALS::PeripheralScanResults)GetInputDevices;

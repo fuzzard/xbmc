@@ -54,11 +54,36 @@ enum class GCCONTROLLER_MICRO_GAMEPAD_BUTTON
   UNUSED = 99
 };
 
+enum class GCCONTROLLER_MOUSE_BUTTON
+{
+  LEFT = 0,
+  MIDDLE = 1,
+  RIGHT = 2,
+  AUX1 = 3,
+  AUX2 = 4,
+  AUX3 = 5,
+  AUX4 = 6,
+  AUX5 = 7,
+  UNUSED = 99
+};
+
+enum class GCCONTROLLER_MOUSE_AXIS
+{
+  // Mouse Axis
+  X = 0,
+  Y = 1,
+  // Scroll Wheel
+//  LEFT = 90,
+//  RIGHT = 91,
+  UNUSED = 99
+};
+
 enum class GCCONTROLLER_TYPE
 {
   UNKNOWN = 0,
   EXTENDED = 1,
   MICRO = 2,
+  MOUSE = 3,
   NOTFOUND = 98,
   UNUSED = 99
 };

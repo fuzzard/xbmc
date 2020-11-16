@@ -40,11 +40,12 @@ struct PlayerControllerState
 @implementation Input_GCController
 {
   NSMutableArray* controllerArray;
+  NSMutableArray* mouseArray;
   // State for each controller
   struct PlayerControllerState controllerState[4];
   CBPeripheralBusGCControllerManager* cbmanager;
   CCriticalSection m_GCMutex;
-  CCriticalSection m_controllerMutex;
+  CCriticalSection m_deviceMutex;
 }
 
 #pragma mark - Notificaton Observer
@@ -60,15 +61,113 @@ struct PlayerControllerState
                                            selector:@selector(controllerWasDisconnected:)
                                                name:GCControllerDidDisconnectNotification
                                              object:nil];
+
+  if (@available(iOS 14.0, tvOS 14.0, macOS 11.0, *))
+  {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(mouseWasConnected:)
+                                                 name:GCMouseDidConnectNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(mouseWasDisconnected:)
+                                                 name:GCMouseDidDisconnectNotification
+                                               object:nil];
+  }
 }
 
-#pragma mark - Controller connection
+- (void)removeModeSwitchObserver
+{
+  // notifications for controller (dis)connect
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:GCControllerDidConnectNotification
+                                                object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:GCControllerDidDisconnectNotification
+                                                object:nil];
+
+  if (@available(iOS 14.0, tvOS 14.0, macOS 11.0, *))
+  {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:GCMouseDidConnectNotification
+                                                  object:nil];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                 name:GCMouseDidDisconnectNotification
+                                               object:nil];
+  }
+}
+
+#pragma mark - Mouse State
+
+- (void)mouseWasConnected:(NSNotification*)notification
+{
+  GCMouse* mouse = (GCMouse*)notification.object;
+
+  [self mouseConnection:mouse];
+}
+
+- (void)mouseWasDisconnected:(NSNotification*)notification
+{
+  // Lock so add/remove events are serialised
+  CSingleLock lock(m_deviceMutex);
+  // a mouse was disconnected
+  GCMouse* controller = (GCMouse*)notification.object;
+  if (!mouseArray)
+    return;
+
+  CLog::Log(LOGINFO, "INPUT - GAMECONTROLLER: mouse disconnected");
+
+  auto i = [mouseArray indexOfObject:mouse];
+
+  if (i == NSNotFound)
+  {
+    CLog::Log(LOGWARNING, "INPUT - GAMECONTROLLER: failed to remove mouse. Not Found ");
+    return;
+  }
+
+  CLog::Log(LOGINFO, "INPUT - GAMECONTROLLER: mouse removed");
+
+  [mouseArray removeObjectAtIndex:i];
+//  [cbmanager DeviceRemoved:static_cast<int>(controller.playerIndex)];  
+
+}
+
+#pragma mark - Controller State
 
 - (void)controllerWasConnected:(NSNotification*)notification
 {
   GCController* controller = (GCController*)notification.object;
 
   [self controllerConnection:controller];
+}
+
+- (void)controllerWasDisconnected:(NSNotification*)notification
+{
+  // Lock so add/remove events are serialised
+  CSingleLock lock(m_deviceMutex);
+  // a controller was disconnected
+  GCController* controller = (GCController*)notification.object;
+  if (!controllerArray)
+    return;
+
+  // Reset controller state to ensure default state for next time playerIndex
+  controllerState[static_cast<int>(controller.playerIndex)] = {};
+
+  auto i = [controllerArray indexOfObject:controller];
+
+  if (i == NSNotFound)
+  {
+    CLog::Log(LOGWARNING, "INPUT - GAMECONTROLLER: failed to remove input device {} Not Found ",
+              [controller.vendorName UTF8String]);
+    return;
+  }
+
+  CLog::Log(LOGINFO, "INPUT - GAMECONTROLLER: input device \"{}\" removed",
+            [controller.vendorName UTF8String]);
+
+  [controllerArray removeObjectAtIndex:i];
+  [cbmanager DeviceRemoved:static_cast<int>(controller.playerIndex)];
 }
 
 - (GCControllerPlayerIndex)getAvailablePlayerIndex
@@ -115,10 +214,26 @@ struct PlayerControllerState
     return GCControllerPlayerIndexUnset;
 }
 
+
+- (void)mouseConnection:(GCMouse*)mouse
+{
+  // Lock so add/remove events are serialised
+  CSingleLock lock(m_deviceMutex);
+
+  CLog::Log(LOGDEBUG, "INPUT - GAMECONTROLLER: mouse connected");
+  mouseDevice = mouse;
+
+  [mouseArray addObject:mouse];
+//  [cbmanager DeviceAdded:static_cast<int>(controller.playerIndex)];
+
+  [self registerChangeHandler:mouse];
+}
+
+
 - (void)controllerConnection:(GCController*)controller
 {
   // Lock so add/remove events are serialised
-  CSingleLock lock(m_controllerMutex);
+  CSingleLock lock(m_deviceMutex);
 
   if ([controllerArray containsObject:controller])
   {
@@ -140,6 +255,58 @@ struct PlayerControllerState
   [cbmanager DeviceAdded:static_cast<int>(controller.playerIndex)];
 
   [self registerChangeHandler:controller];
+}
+
+- (void)registerChangeHandler:(GCMouse*)mouse
+{
+
+
+    mouse.mouseInput.leftButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+    {
+       [self mouseValueChangeHandler:mouse
+                              button:GCCONTROLLER_MOUSE_BUTTON::LEFT
+                               state:pressed];
+    };
+    mouse.mouseInput.middleButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+    {
+       [self mouseValueChangeHandler:mouse
+                              button:GCCONTROLLER_MOUSE_BUTTON::MIDDLE
+                               state:pressed];
+    };
+    mouse.mouseInput.rightButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+    {
+       [self mouseValueChangeHandler:mouse
+                              button:GCCONTROLLER_MOUSE_BUTTON::RIGHT
+                               state:pressed];
+    };
+
+//    int auxiliary_button = SDL_BUTTON_X1;
+//    for (GCControllerButtonInput *button in mouse.mouseInput.auxiliaryButtons) {
+//        button.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+//        {
+//            OnGCMouseButtonChanged(mouseID, auxiliary_button, pressed);
+//        };
+//        ++auxiliary_button;
+//    }
+
+//    mouse.mouseInput.mouseMovedHandler = ^(GCMouseInput *mouse, float deltaX, float deltaY)
+//    {
+//	  SDL_SendMouseMotion(mouse, (int)deltaX, -(int)deltaY);
+//    };
+
+
+}
+
+#pragma mark - GCMouse valueChangeHandler
+
+- (void)mouseValueChangeHandler:(GCMouse*)mouse
+                         button:(GCCONTROLLER_MOUSE_BUTTON)buttonPressed
+                          state:(BOOL)state
+{
+  kodi::addon::PeripheralEvent newEvent;
+  newEvent.SetPeripheralIndex(1);
+
+  [cbmanager SetDigitalEvent:newEvent];
 }
 
 - (void)registerChangeHandler:(GCController*)controller
@@ -167,35 +334,7 @@ struct PlayerControllerState
   }
 }
 
-#pragma mark - Controller disconnection
 
-- (void)controllerWasDisconnected:(NSNotification*)notification
-{
-  // Lock so add/remove events are serialised
-  CSingleLock lock(m_controllerMutex);
-  // a controller was disconnected
-  GCController* controller = (GCController*)notification.object;
-  if (!controllerArray)
-    return;
-
-  // Reset controller state to ensure default state for next time playerIndex
-  controllerState[static_cast<int>(controller.playerIndex)] = {};
-
-  auto i = [controllerArray indexOfObject:controller];
-
-  if (i == NSNotFound)
-  {
-    CLog::Log(LOGWARNING, "INPUT - GAMECONTROLLER: failed to remove input device {} Not Found ",
-              [controller.vendorName UTF8String]);
-    return;
-  }
-
-  CLog::Log(LOGINFO, "INPUT - GAMECONTROLLER: input device \"{}\" removed",
-            [controller.vendorName UTF8String]);
-
-  [controllerArray removeObjectAtIndex:i];
-  [cbmanager DeviceRemoved:static_cast<int>(controller.playerIndex)];
-}
 
 #pragma mark - GCMicroGamepad valueChangeHandler
 
@@ -501,7 +640,8 @@ struct PlayerControllerState
 {
   PERIPHERALS::PeripheralScanResults scanresults;
 
-  if (controllerArray.count == 0)
+  if ((controllerArray.count == 0) &&
+      (mouseArray.count == 0))
     return scanresults;
 
   for (GCController* controller in controllerArray)
@@ -520,6 +660,23 @@ struct PlayerControllerState
       peripheralScanResult.m_strDeviceName = "Micro Gamepad";
     else
       peripheralScanResult.m_strDeviceName = "Unknown Gamepad";
+
+    peripheralScanResult.m_busType = PERIPHERALS::PERIPHERAL_BUS_GCCONTROLLER;
+    peripheralScanResult.m_mappedBusType = PERIPHERALS::PERIPHERAL_BUS_GCCONTROLLER;
+    peripheralScanResult.m_iSequence = 0;
+    scanresults.m_results.push_back(peripheralScanResult);
+  }
+
+  for (GCMouse* mouse in mouseArray)
+  {
+    PERIPHERALS::PeripheralScanResult peripheralScanResult;
+    peripheralScanResult.m_type = PERIPHERALS::PERIPHERAL_MOUSE;
+    peripheralScanResult.m_strLocation = "mouse";
+    peripheralScanResult.m_iVendorId = 0;
+    peripheralScanResult.m_iProductId = 0;
+    peripheralScanResult.m_mappedType = PERIPHERALS::PERIPHERAL_MOUSE;
+
+    peripheralScanResult.m_strDeviceName = "Mouse";
 
     peripheralScanResult.m_busType = PERIPHERALS::PERIPHERAL_BUS_GCCONTROLLER;
     peripheralScanResult.m_mappedBusType = PERIPHERALS::PERIPHERAL_BUS_GCCONTROLLER;
@@ -575,26 +732,6 @@ struct PlayerControllerState
     }
   }
   return optionalButtonCount;
-}
-
-- (instancetype)initWithName:(CBPeripheralBusGCControllerManager*)callbackManager
-{
-  self = [super init];
-  if (!self)
-    return nil;
-
-  cbmanager = callbackManager;
-
-  [self addModeSwitchObserver];
-
-  controllerArray = [[NSMutableArray alloc] initWithCapacity:4];
-
-  auto controllers = [GCController controllers];
-  // Iterate through any pre-existing controller connections at startup to enable value handlers
-  for (GCController* controller in controllers)
-    [self controllerConnection:controller];
-
-  return self;
 }
 
 - (NSString*)checkthumbstick:(GCControllerDirectionPad*)thumbstick
@@ -977,6 +1114,37 @@ struct PlayerControllerState
     controllerState[playerIndex].dpadRightPressed = !controllerState[playerIndex].dpadRightPressed;
   }
   return message;
+}
+
+#pragma mark - Init/Dealloc
+
+- (instancetype)initWithName:(CBPeripheralBusGCControllerManager*)callbackManager
+{
+  self = [super init];
+  if (!self)
+    return nil;
+
+  cbmanager = callbackManager;
+
+  [self addModeSwitchObserver];
+
+  controllerArray = [[NSMutableArray alloc] initWithCapacity:4];
+
+  auto controllers = [GCController controllers];
+  // Iterate through any pre-existing controller connections at startup to enable value handlers
+  for (GCController* controller in controllers)
+    [self controllerConnection:controller];
+
+  for (GCMouse* mouse in [GCMouse mice])
+    [self mouseConnection:mouse];
+
+
+  return self;
+}
+
+- (void)dealloc
+{
+  [self removeModeSwitchObserver];
 }
 
 @end

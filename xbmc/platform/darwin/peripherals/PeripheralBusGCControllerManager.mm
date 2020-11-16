@@ -59,6 +59,7 @@
   parentClass = initClass;
 
   _input_GC = [[Input_GCController alloc] initWithName:self];
+  _input_GCMouse = [[Input_GCMouse alloc] initWithName:self];
 
   return self;
 }
