@@ -29,6 +29,48 @@
        ;;
    esac
  
+@@ -2485,19 +2476,19 @@
+     }
+     ]])],[ac_osx_32bit=yes],[ac_osx_32bit=no],[ac_osx_32bit=yes])
+ 
+-    if test "${ac_osx_32bit}" = "yes"; then
+-    	case `/usr/bin/arch` in
+-    	i386)
+-    		MACOSX_DEFAULT_ARCH="i386"
+-    		;;
+-    	ppc)
+-    		MACOSX_DEFAULT_ARCH="ppc"
+-    		;;
+-    	*)
+-    		AC_MSG_ERROR([Unexpected output of 'arch' on macOS])
+-    		;;
+-    	esac
+-    else
++#    if test "${ac_osx_32bit}" = "yes"; then
++#    	case `/usr/bin/arch` in
++#    	i386)
++#    		MACOSX_DEFAULT_ARCH="i386"
++#    		;;
++#    	ppc)
++#    		MACOSX_DEFAULT_ARCH="ppc"
++#    		;;
++#    	*)
++#    		AC_MSG_ERROR([Unexpected output of 'arch' on macOS])
++#    		;;
++#    	esac
++#    else
+     	case `/usr/bin/arch` in
+     	i386)
+     		MACOSX_DEFAULT_ARCH="x86_64"
+@@ -2513,7 +2504,7 @@
+     		;;
+     	esac
+ 
+-    fi
++#    fi
+ 
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT" -lSystem -lSystemStubs -arch_only ${MACOSX_DEFAULT_ARCH}"
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -38,7 +38,6 @@
