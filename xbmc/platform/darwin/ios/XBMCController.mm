@@ -36,6 +36,7 @@
 #import "windowing/ios/WinSystemIOS.h"
 
 #import "platform/darwin/NSLogDebugHelpers.h"
+#import "platform/darwin/input/LibInputHandler.h"
 #import "platform/darwin/ios-common/DarwinEmbedNowPlayingInfoManager.h"
 #import "platform/darwin/ios/IOSEAGLView.h"
 #import "platform/darwin/ios/IOSScreenManager.h"
@@ -144,6 +145,7 @@ public:
 @synthesize m_networkAutoSuspendTimer;
 @synthesize MPNPInfoManager;
 @synthesize nativeKeyboardActive;
+@synthesize InputManager;
 //--------------------------------------------------------------
 - (void) sendKeypressEvent: (XBMC_Event) event
 {
@@ -595,6 +597,7 @@ public:
   [m_window makeKeyAndVisible];
   g_xbmcController = self;
   MPNPInfoManager = [DarwinEmbedNowPlayingInfoManager new];
+  InputManager = [DarwinLibInputHandler new];
 
   return self;
 }

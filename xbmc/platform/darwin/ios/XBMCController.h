@@ -17,6 +17,7 @@
 #import <UIKit/UIKit.h>
 
 @class IOSEAGLView;
+@class DarwinLibInputHandler;
 
 @interface XBMCController : UIViewController <UIGestureRecognizerDelegate, UIKeyInput>
 {
@@ -46,6 +47,7 @@
 @property CGSize screensize;
 @property(nonatomic, strong) NSTimer* m_networkAutoSuspendTimer;
 @property(nonatomic, strong) DarwinEmbedNowPlayingInfoManager* MPNPInfoManager;
+@property(nonatomic, strong) DarwinLibInputHandler* InputManager;
 @property bool nativeKeyboardActive;
 
 // message from which our instance is obtained
