@@ -15,9 +15,10 @@ DEPENDS = \
 	taglib libusb libnfs meson-cross-file \
 	libxslt ffmpeg crossguid libudfread \
 	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d \
-	pythonmodule-setuptools
+	pythonmodule-setuptools \
+	pythonmodule-crossenv
 #	pythonmodule-pil pythonmodule-pycryptodome \
-#	pythonmodule-crossenv pythonmodile-numpy pythonmodule-lxml 
+#	pythonmodile-numpy pythonmodule-lxml \
 
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3
