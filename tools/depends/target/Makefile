@@ -12,11 +12,12 @@ DEPENDS = \
 	libxml2 rapidjson libmicrohttpd mariadb libffi \
 	python3 libshairplay libfmt libspdlog \
 	libplist libcec libbluray tinyxml \
-	taglib libusb libnfs \
-	pythonmodule-pil pythonmodule-pycryptodome pythonmodule-setuptools \
-	pythonmodile-numpy pythonmodule-lxml \
+	taglib libusb libnfs meson-cross-file \
 	libxslt ffmpeg crossguid libudfread \
-	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d
+	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d \
+	pythonmodule-setuptools
+#	pythonmodule-pil pythonmodule-pycryptodome \
+#	pythonmodule-crossenv pythonmodile-numpy pythonmodule-lxml 
 
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3
