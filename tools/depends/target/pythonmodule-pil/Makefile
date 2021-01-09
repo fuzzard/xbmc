@@ -62,7 +62,10 @@ endif
 .installed-$(PLATFORM): $(PLATFORM) $(PILPATHLIB)
 #	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
 #	cd $(PLATFORM); _PYTHON_HOST_PLATFORM="$(OS)-$(CPU)" PYTHONPATH="$(PYTHONPATH)" LDFLAGS="$(EXTRALDFLAGS)" source $(PREFIX)/bin/$(TARGETENV)/bin/cross-python setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
-	cd $(PLATFORM); LDFLAGS="$(EXTRALDFLAGS)" source $(PREFIX)/bin/$(TARGETENV)/bin/cross-python setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/activate; \
+	which python; \
+	python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+#	cd $(PLATFORM); LDFLAGS="$(EXTRALDFLAGS)" source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/cross-python setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
 #ifeq ($(OS),android)
 #	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
 #	cd $(PILPATHLIB)/PIL && \
@@ -74,6 +77,7 @@ endif
 #	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
 #	cd $(PILPATH) && rm -rf Pillow-*.egg
 #endif
+#	cd $(PLATFORM); source deactivate
 	touch $@
 
 clean:
