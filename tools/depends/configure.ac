@@ -142,6 +142,8 @@ fi
 
 use_host=$host_alias
 
+native_buildtriplet=$build
+
 cross_compiling="yes"
 if test "x$host" = "x$build"; then
   use_host=$build_cpu-$build_os
@@ -640,6 +642,7 @@ AC_SUBST(use_debug)
 AC_SUBST(use_host)
 AC_SUBST(deps_dir)
 AC_SUBST(tool_dir)
+AC_SUBST(native_buildtriplet)
 AC_SUBST(use_cpu)
 AC_SUBST(use_toolchain)
 AC_SUBST(use_build_toolchain)
