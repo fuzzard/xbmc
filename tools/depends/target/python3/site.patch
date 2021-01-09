@@ -1,0 +1,22 @@
+--- a/Lib/site.py
++++ b/Lib/site.py
+@@ -460,7 +460,8 @@
+     if sys.platform == 'darwin' and '__PYVENV_LAUNCHER__' in env:
+         executable = sys._base_executable = os.environ['__PYVENV_LAUNCHER__']
+     else:
+-        executable = sys.executable
++        print("Ignoring __PYVENV_LAUNCHER__")
++    executable = sys.executable
+     exe_dir, _ = os.path.split(os.path.abspath(executable))
+     site_prefix = os.path.dirname(exe_dir)
+     sys._home = None
+@@ -487,7 +488,8 @@
+                     if key == 'include-system-site-packages':
+                         system_site = value.lower()
+                     elif key == 'home':
+-                        sys._home = value
++                        # this is breaking pyconfig.h path detection with venv
++                        print('Ignoring "sys._home = value" override')
+ 
+         sys.prefix = sys.exec_prefix = site_prefix
+ 

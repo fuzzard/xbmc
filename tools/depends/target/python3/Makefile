@@ -1,6 +1,10 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch android.patch \
-       modules.setup darwin_embedded.patch
+DEPS= ../../Makefile.include Makefile modules.setup \
+    crosscompile.patch darwinembed_posixmodule.patch \
+    darwinembed_config_sub.patch \
+    darwinembed_configure_ac.patch \
+    site.patch \
+    android.patch
 
 # lib name, version
 LIBNAME=Python
@@ -15,6 +19,9 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
 endif
 
 ifeq ($(OS), darwin_embedded)
+  machdep=arm64-apple-ios
+  pyplatform=ios-aarch64
+  sysconfigdata=_sysconfigdata__$(machdep)_darwin
   EXTRA_CONFIGURE=ac_cv_func_wait3=no ac_cv_func_wait4=no ac_cv_func_waitpid=no \
                   ac_cv_func_execv=no ac_cv_func_fexecv=no ac_cv_func_getentropy=no \
                   ac_cv_func_setpriority=no ac_cv_func_sendfile=no ac_cv_header_sched_h=no \
@@ -23,13 +30,21 @@ ifeq ($(OS), darwin_embedded)
                   ac_cv_func_getgroups=no
 endif
 
-# configuration settings
-CONFIGURE=./configure --prefix=$(PREFIX) \
-  --disable-shared \
-  --without-ensurepip \
-  --disable-framework --with-system-expat --with-system-ffi --without-pymalloc --enable-ipv6 \
-  $(EXTRA_CONFIGURE)
+CONFIG_OPT=--host="$(HOST)" \
+           --build="$(BUILD)" \
+           PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(CURDIR)/$(PLATFORM) _PYTHON_HOST_PLATFORM=$(pyplatform) PYTHONPATH=$(CURDIR)/$(PLATFORM)/build/lib.$(pyplatform)-$(PYTHON_VERSION):$(CURDIR)/$(PLATFORM)/Lib _PYTHON_SYSCONFIGDATA_NAME=$(sysconfigdata) '$(NATIVEPREFIX)/bin/python3 \
+           MACHDEP=$(machdep)
 
+# configuration settings
+CONFIGURE=./configure $(CONFIG_OPT) --prefix=$(PREFIX) \
+           --disable-shared \
+           --without-ensurepip \
+           --disable-framework \
+           --with-system-expat \
+           --with-system-ffi \
+           --without-pymalloc \
+           --enable-ipv6 \
+           $(EXTRA_CONFIGURE)
 
 LIBDYLIB=$(PLATFORM)/libpython3.8.a
 
@@ -41,16 +56,17 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	cp modules.setup $(PLATFORM)/Modules/Setup
 	cd $(PLATFORM); patch -p1 -i ../crosscompile.patch
 	cd $(PLATFORM); patch -p1 -i ../android.patch
-	cd $(PLATFORM); patch -p1 -i ../apple.patch
-ifeq ($(OS),darwin_embedded)
-	cd $(PLATFORM); patch -p1 -i ../darwin_embedded.patch
+#	cd $(PLATFORM); patch -p1 -i ../site.patch
+ifeq ($(OS), darwin_embedded)
+	cd $(PLATFORM); patch -p1 -i ../darwinembed_posixmodule.patch
+	cd $(PLATFORM); patch -p1 -i ../darwinembed_config_sub.patch
+	cd $(PLATFORM); patch -p1 -i ../darwinembed_configure_ac.patch
 endif
-	cp modules.setup $(PLATFORM)/Modules/Setup
-
-#Add -liconv as needed, and add the _scproxy module for darwin
-#  disable locale altogether for Android
+# Add -liconv as needed, and add the _scproxy module for darwin
+# disable locale altogether for Android
 ifeq ($(OS),android)
 	cd $(PLATFORM); sed -ie 's|_locale -DPy_BUILD_CORE_BUILTIN _localemodule.c  # -lintl|#_locale -DPy_BUILD_CORE_BUILTIN _localemodule.c  # -lintl|' Modules/Setup
 else
@@ -59,17 +75,15 @@ endif
 ifeq ($(OS),osx)
 	echo "_scproxy \$$(srcdir)/Modules/_scproxy.c -framework SystemConfiguration -framework CoreFoundation" >> $(PLATFORM)/Modules/Setup
 endif
-
 	cd $(PLATFORM); $(AUTORECONF)
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes libpython3.8.a
+	$(MAKE) -C $(PLATFORM) libpython3.8.a
 	touch $@
 
 .installed-$(PLATFORM): $(LIBDYLIB)
-	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes install
-	find $(PREFIX)/lib/python3.8 -type f -name "*.pyc" -delete
+	$(MAKE) -C $(PLATFORM) install
 	touch $(LIBDYLIB)
 	touch $@
 

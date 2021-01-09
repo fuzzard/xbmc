@@ -1,0 +1,71 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -379,6 +379,12 @@
+ 	*-*-cygwin*)
+ 		ac_sys_system=Cygwin
+ 		;;
++	*-apple-ios)
++	    ac_sys_system=iOS
++	    ;;
++	*-apple-tvos)
++	    ac_sys_system=tvOS
++	    ;;
+ 	*-*-vxworks*)
+ 	    ac_sys_system=VxWorks
+ 	    ;;
+@@ -425,6 +431,15 @@
+ 			_host_cpu=$host_cpu
+ 		esac
+ 		;;
++	*-apple-*)
++		case "$host_cpu" in
++		arm*)
++			_host_cpu=arm
++			;;
++		*)
++			_host_cpu=$host_cpu
++		esac
++		;;
+ 	*-*-cygwin*)
+ 		_host_cpu=
+ 		;;
+@@ -500,6 +515,11 @@
+     define_xopen_source=no;;
+   Darwin/@<:@[12]@:>@@<:@0-9@:>@.*)
+     define_xopen_source=no;;
++  # On iOS, defining _POSIX_C_SOURCE also disables platform specific features.
++  iOS/*)
++    define_xopen_source=no;;
++  tvOS/*)
++    define_xopen_source=no;;
+   # On AIX 4 and 5.1, mbstate_t is defined only when _XOPEN_SOURCE == 500 but
+   # used in wcsnrtombs() and mbsnrtowcs() even if _XOPEN_SOURCE is not defined
+   # or has another value. By not (re)defining it, the defaults come in place.
+@@ -1184,17 +1204,6 @@
+         ARFLAGS="rcs"
+ fi
+ 
+-AC_CHECK_TOOLS([READELF], [readelf], [:])
+-if test "$cross_compiling" = yes; then
+-    case "$READELF" in
+-	readelf|:)
+-	AC_MSG_ERROR([readelf for the host is required for cross builds])
+-	;;
+-    esac
+-fi
+-AC_SUBST(READELF)
+-
+-
+ case $MACHDEP in
+ hp*|HP*)
+ 	# install -d does not work on HP-UX
+@@ -3525,6 +3534,9 @@
+ 	fi
+ 	;;
+ 	hp*|HP*) DYNLOADFILE="dynload_hpux.o";;
++	# Dynamic loading on iOS
++	iOS/*) DYNLOADFILE="dynload_shlib.o";;
++	tvOS/*) DYNLOADFILE="dynload_shlib.o";;
+ 	*)
+ 	# use dynload_shlib.c and dlopen() if we have it; otherwise stub
+ 	# out any dynamic loading

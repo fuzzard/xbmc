@@ -1,0 +1,13 @@
+--- a/config.sub
++++ b/config.sub
+@@ -1524,7 +1524,9 @@
+ 		;;
+ 	-nacl*)
+ 		;;
+-	-ios)
++	-ios*)
++		;;
++	-tvos*)
+ 		;;
+ 	-none)
+ 		;;
