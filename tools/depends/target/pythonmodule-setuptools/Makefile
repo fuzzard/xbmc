@@ -20,7 +20,7 @@ CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC)" LDSHARED="$(CC) -shared" LDFLAG
 endif
 ifeq ($(OS),darwin_embedded)
 PYTHON_O=$(abs_top_srcdir)/target/python3/$(PLATFORM)/Programs/python.o
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python3.8/site-packages/"
+CROSSFLAGS=PYTHONHOME="$(PREFIX)/lib/python3.8" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python3.8/site-packages/"
 endif
 
 LIBDYLIB=$(PLATFORM)/dist/$(LIBNAME)-$(VERSION)-py3.8.egg
