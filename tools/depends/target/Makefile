@@ -10,13 +10,13 @@ DEPENDS = \
 	openssl gmp nettle gnutls googletest curl nghttp2 \
 	libjpeg-turbo libpng fribidi libass \
 	libxml2 rapidjson libmicrohttpd mariadb libffi \
-	python3 libshairplay libfmt libspdlog \
+	libshairplay libfmt libspdlog \
 	libplist libcec libbluray tinyxml \
 	taglib libusb libnfs meson-cross-file \
 	libxslt ffmpeg crossguid libudfread \
 	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d \
-	pythonmodule-setuptools \
-	pythonmodule-crossenv
+	python3 pythonmodule-setuptools
+#	pythonmodule-crossenv
 #	pythonmodule-pil pythonmodule-pycryptodome \
 #	pythonmodile-numpy pythonmodule-lxml \
 
