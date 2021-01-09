@@ -3,8 +3,13 @@ DEPS= ../../Makefile.include Makefile modules.setup \
     crosscompile.patch darwinembed_posixmodule.patch \
     darwinembed_config_sub.patch \
     darwinembed_configure_ac.patch \
+    darwinembed_dynloadshlib.patch \
     site.patch \
-    android.patch
+    android.patch \
+    Modules.new
+
+VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
+APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 
 # lib name, version
 LIBNAME=Python
@@ -17,6 +22,22 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   HOSTPLATFORM=_PYTHON_HOST_PLATFORM="darwin"
   LINK_ICONV=-framework CoreFoundation -liconv
 endif
+
+LDFLAGS+= -lpython3.8 -lintl -liconv -lssl -lcrypto -lz -lbz2 -lsqlite3 -lffi -framework Foundation
+#  -static
+#-L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME)
+export LDFLAGS
+#export LDSHARED="$(CC) -undefined dynamic_lookup"
+export LDSHARED="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+#export LDSHARED='ld -arch arm64 -L/Users/brent/kivy-ios/dist/lib -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.3.sdk/usr/lib -miphoneos-version-min=11.0'
+#export LD=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+#export LDFLAGS=-syslibroot $(SDKROOT) -arch arm64  -ios_version_min 11.0 -L/Users/Shared/xbmc-depends/iphoneos14.3_arm64-target-debug/lib -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.3.sdk/usr/lib -stdlib=libc++  -liconv
+#export LDFLAGS=-arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.3.sdk -L/Users/Shared/xbmc-depends/iphoneos14.3_arm64-target-debug/lib -stdlib=libc++ -liconv -lintl -lc -ldl -lm -lexpat -lffi -lintl -lssl
+#export OTHER_LDFLAGS=-search_dylibs_first -syslibroot $(SDKROOT) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.3.sdk -ios_version_min 11.0
+
+#export LDSHARED="ld -arch arm64 -L/Users/Shared/xbmc-depends/iphoneos14.3_arm64-target-debug/lib -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.3.sdk/usr/lib -miphoneos-version-min=11.0"
+#export LDFLAGS=-arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.3.sdk -L/Users/Shared/xbmc-depends/iphoneos14.3_arm64-target-debug/lib -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.3.sdk/usr/lib
+#export OTHER_LDFLAGS=-search_dylibs_first -L/Users/Shared/xbmc-depends/iphoneos14.3_arm64-target-debug/lib
 
 ifeq ($(OS), darwin_embedded)
   machdep=arm64-apple-ios
@@ -56,7 +77,8 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cp modules.setup $(PLATFORM)/Modules/Setup
+	cp modules.setup $(PLATFORM)/Modules/Setup.local
+#	cp Modules.new $(PLATFORM)/Modules/Setup.local
 	cd $(PLATFORM); patch -p1 -i ../crosscompile.patch
 	cd $(PLATFORM); patch -p1 -i ../android.patch
 #	cd $(PLATFORM); patch -p1 -i ../site.patch
@@ -64,6 +86,7 @@ ifeq ($(OS), darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../darwinembed_posixmodule.patch
 	cd $(PLATFORM); patch -p1 -i ../darwinembed_config_sub.patch
 	cd $(PLATFORM); patch -p1 -i ../darwinembed_configure_ac.patch
+	cd $(PLATFORM); patch -p1 -i ../darwinembed_dynloadshlib.patch
 endif
 # Add -liconv as needed, and add the _scproxy module for darwin
 # disable locale altogether for Android

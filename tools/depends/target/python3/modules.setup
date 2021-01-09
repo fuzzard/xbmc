@@ -101,6 +101,7 @@ PYTHONPATH=$(COREPYTHONPATH)
 # This only contains the minimal set of modules required to run the
 # setup.py script in the root of the Python source tree.
 
+*static*
 posix -DPy_BUILD_CORE_BUILTIN -I$(srcdir)/Include/internal posixmodule.c # posix (UNIX) system calls
 errno errnomodule.c			# posix (UNIX) errno values
 pwd pwdmodule.c				# this is needed to find out the user's home dir
@@ -193,7 +194,7 @@ unicodedata unicodedata.c    # static Unicode character database
 
 fcntl fcntlmodule.c	# fcntl(2) and ioctl(2)
 #spwd spwdmodule.c		# spwd(3)
-#grp grpmodule.c		# grp(3)
+grp grpmodule.c		# grp(3)
 select selectmodule.c	# select(2); not on ancient System V
 
 # Memory-mapped files (also works on Win32).
@@ -374,6 +375,7 @@ _ctypes _ctypes/callbacks.c  _ctypes/callproc.c  _ctypes/cfield.c  _ctypes/_ctyp
 _queue _queuemodule.c
 
 _bz2 _bz2module.c -I$(prefix)/include -L$(prefix)/lib -lbz2
+zlib zlibmodule.c -I$(SDKROOT)/usr/include -lz
 
 # Uncommenting the following line tells makesetup that all following modules
 # are not built (see above for more detail).
