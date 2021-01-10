@@ -17,22 +17,28 @@ export PKG_CONFIG_LIBDIR=${PREFIX}/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=${SDKROOT}
 endif
 
+PILPATH=$(PYTHON_SITE_PKG)
 ifeq ($(OS),android)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-export PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python3.8/site-packages/
+export PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
 LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
-export LDFLAGS
 else ifeq ($(OS),darwin_embedded)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-export PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python$(PYTHON_VERSION)/site-packages/
+export PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
 endif
+
+CCSHARED=$(CC) $(CFLAGS)
+LDSHARED=$(CC) $(LDFLAGS)
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
 export ZLIB_ROOT="$(SDKROOT)/usr"
+LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
 endif
 
+export LDSHARED CCSHARED
+export _PYTHON_SYSCONFIGDATA_NAME=$(TARGET_PYTHON_SYSCONFIGDATA_NAME)
+
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
-#CROSSFLAGS=$(ZLIB_ROOT) PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
 
 all: .installed-$(PLATFORM)
 
@@ -42,7 +48,6 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-#	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
 
 $(PILPATH)/lib:
 ifeq ($(OS),android)
@@ -52,11 +57,7 @@ else ifeq ($(OS),darwin_embedded)
 endif
 
 .installed-$(PLATFORM): $(PLATFORM) $(PILPATH)/lib
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
-
-#	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/activate; \
-#	                python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH) \
-#	                deactivate
+	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
 
 ifeq ($(OS),android)
 	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
