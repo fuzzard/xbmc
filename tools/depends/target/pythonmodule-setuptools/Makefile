@@ -3,6 +3,7 @@ DEPS= ../../Makefile.include Makefile
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
+TARGETENV=$(APP_NAME)targetenv
 
 # lib name, version
 LIBNAME=setuptools
@@ -10,18 +11,22 @@ VERSION=18.4
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python3.8/site-packages/"
+PYTHONPATH=$(PYTHON_SITE_PKG)
+
+# TODO - remove for android/osx
 ifeq ($(OS),android)
 #PYTHONPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm" PYTHONPATH="$(PREFIX)/lib/python3.8/site-packages/"
+LDSHARED="$(CC) -shared"
+CC="$(CC) $(CFLAGS)"
+#CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)"  LDFLAGS="$(LDFLAGS) -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm" PYTHONPATH="$(PYTHON_SITE_PKG)"
 endif
 ifeq ($(OS),osx)
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -lpython" PYTHONPATH="$(PREFIX)/lib/python3.8/site-packages/"
+LDSHARED="$(CC) -shared"
+LDFLAGS="$(LDFLAGS) -lpython"
+#CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -lpython" PYTHONPATH="$(PYTHON_SITE_PKG)"
 endif
-ifeq ($(OS),darwin_embedded)
-PYTHON_O=$(abs_top_srcdir)/target/python3/$(PLATFORM)/Programs/python.o
-CROSSFLAGS=PYTHONHOME="$(PREFIX)/lib/python3.8" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PREFIX)/lib/python3.8/site-packages/"
-endif
+
+export LDSHARED LDFLAGS CC PYTHONPATH
 
 LIBDYLIB=$(PLATFORM)/dist/$(LIBNAME)-$(VERSION)-py3.8.egg
 
