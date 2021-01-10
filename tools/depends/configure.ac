@@ -435,6 +435,8 @@ case $host in
       ;;
     esac
 
+    PYSYSCONFIGNAME=$use_cpu-apple-$use_platform_darwin
+
     AX_COMPARE_VERSION([$use_sdk], [ge], [$target_minver], , AC_MSG_ERROR("invalid SDK version provided (--with-sdk=$use_sdk) less than minimum supported ($target_minver)"))
 
     platform_min_version="$target_platform-version-min=$target_minver"
@@ -667,6 +669,7 @@ AC_SUBST(use_gplv3)
 AC_SUBST(use_ccache)
 AC_SUBST(host_includes)
 AC_SUBST(app_rendersystem)
+AC_SUBST(PYSYSCONFIGNAME)
 AC_SUBST(ffmpeg_options)
 
 AC_OUTPUT

@@ -42,7 +42,6 @@ export LDSHARED="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefa
 ifeq ($(OS), darwin_embedded)
   machdep=arm64-apple-ios
   pyplatform=ios-aarch64
-  sysconfigdata=_sysconfigdata__$(machdep)_darwin
   EXTRA_CONFIGURE=ac_cv_func_wait3=no ac_cv_func_wait4=no ac_cv_func_waitpid=no \
                   ac_cv_func_execv=no ac_cv_func_fexecv=no ac_cv_func_getentropy=no \
                   ac_cv_func_setpriority=no ac_cv_func_sendfile=no ac_cv_header_sched_h=no \
@@ -53,12 +52,13 @@ endif
 
 CONFIG_OPT=--host="$(HOST)" \
            --build="$(BUILD)" \
-           PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(CURDIR)/$(PLATFORM) _PYTHON_HOST_PLATFORM=$(pyplatform) PYTHONPATH=$(CURDIR)/$(PLATFORM)/build/lib.$(pyplatform)-$(PYTHON_VERSION):$(CURDIR)/$(PLATFORM)/Lib _PYTHON_SYSCONFIGDATA_NAME=$(sysconfigdata) '$(NATIVEPREFIX)/bin/python3 \
+           PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(CURDIR)/$(PLATFORM) _PYTHON_HOST_PLATFORM=$(pyplatform) PYTHONPATH=$(CURDIR)/$(PLATFORM)/build/lib.$(pyplatform)-$(PYTHON_VERSION):$(CURDIR)/$(PLATFORM)/Lib _PYTHON_SYSCONFIGDATA_NAME=$(TARGET_PYTHON_SYSCONFIGDATA_NAME) '$(NATIVEPREFIX)/bin/python3 \
            MACHDEP=$(machdep)
 
 # configuration settings
 CONFIGURE=./configure $(CONFIG_OPT) --prefix=$(PREFIX) \
            --disable-shared \
+           --enable-static \
            --without-ensurepip \
            --disable-framework \
            --with-system-expat \
@@ -102,11 +102,13 @@ endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) libpython3.8.a
+#	$(MAKE) -C $(PLATFORM) libpython3.8.a
 	touch $@
 
 .installed-$(PLATFORM): $(LIBDYLIB)
-	$(MAKE) -C $(PLATFORM) install
+	$(MAKE) -C $(PLATFORM) install prefix=$(PREFIX)
+#	copy _PYTHON_SYSCONFIGDATA to host. This allows host distutils to load target sysconfig for CCompiler info
+	cp $(PLATFORM)/build/lib.$(pyplatform)-$(PYTHON_VERSION)/$(TARGET_PYTHON_SYSCONFIGDATA_NAME) $(NATIVEPREFIX)/lib/python$(PYTHON_VERSION)/
 	touch $(LIBDYLIB)
 	touch $@
 
@@ -114,4 +116,4 @@ clean:
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
 
 distclean::
-	rm -rf $(PLATFORM) .installed-$(PLATFORM)
+	rm -rf $(PLATFORM) .installed-$(PLATFORM) $(NATIVEPREFIX)/lib/python$(PYTHON_VERSION)/$(TARGET_PYTHON_SYSCONFIGDATA_NAME)
