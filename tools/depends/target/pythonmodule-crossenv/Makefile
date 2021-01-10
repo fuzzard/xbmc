@@ -37,16 +37,16 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 				                                --env PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig \
 				                                --env PKG_CONFIG_LIBDIR=${PREFIX}/lib/pkgconfig \
 				                                --env PKG_CONFIG_SYSROOT_DIR=${SDKROOT}} \
-				                                --env PYTHONPATH=$(PYTHON_SITE_PKG) \
+				                                --env PYTHONPATH=$(PREFIX)/lib/python${PYTHON_VERSION}/site-packages \
 				                                --cc "$(CC)" \
 				                                --cxx "$(CXX)" \
 				                                --ar "$(AR)" \
 				                                $(PREFIX)/bin/python3 \
 				                                $(NATIVEPREFIX)/bin/$(TARGETENV)
 #	example execution and read from environment var
-	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/cross-python -c 'import os; print(os.environ["CFLAGS"])'
+#	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/cross-python -c 'import os; print(os.environ["CFLAGS"])'
 #	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/build-python -c 'import os; print(os.environ["CFLAGS"])'
-	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/cross-python -c 'import sysconfig; print(sysconfig.get_config_vars())'
+#	cd $(PLATFORM); source $(NATIVEPREFIX)/bin/$(TARGETENV)/bin/cross-python -c 'import sysconfig; print(sysconfig.get_config_vars())'
 	touch $@
 
 clean:
