@@ -1,18 +1,16 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile pillow-crosscompile.patch
+DEPS= ../../Makefile.include Makefile
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 
 # lib name, version
 LIBNAME=Pillow
-VERSION=7.1.2
+VERSION=8.1.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
-PYTHONPATH=$(PREFIX)/lib/python3.8/site-packages/
-PILPATH=$(PYTHONPATH)
-LDSHARED=$(CC) -shared
+BASE_URL=https://files.pythonhosted.org/packages/73/59/3192bb3bc554ccbd678bdb32993928cb566dccf32f65dac65ac7e89eb311
 
 # Clear pkg-config data, as it will pull from Native pkg-config incorrectly
 ifeq ($(CROSS_COMPILING), yes)
@@ -21,25 +19,26 @@ export PKG_CONFIG_LIBDIR=${PREFIX}/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=${SDKROOT}
 endif
 
+PILPATH=$(PYTHON_SITE_PKG)
+PYTHONPATH=$(PYTHON_SITE_PKG)
 ifeq ($(OS),android)
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-PILPATHLIB=$(PILPATH)/lib
-PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python3.8/site-packages/
-EXTRALDFLAGS=-L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
+  PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
+  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+  LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 else ifeq ($(OS),darwin_embedded)
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-PILPATHLIB=$(PILPATH)/lib
-PYTHONPATH=$(PILPATH):$(PREFIX)/lib/python3.8/site-packages/
+  PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
+  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+  export _PYTHON_HOST_PLATFORM=ios-aarch64
 endif
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
-#ensure that only our target ldflags are passed to the python build
-LDSHARED=$(CC) -bundle -undefined dynamic_lookup
-ZLIB_ROOT=ZLIB_ROOT="$(SDKROOT)/usr"
+  export ZLIB_ROOT="$(SDKROOT)/usr"
+  LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
 endif
 
+export CC CFLAGS LDSHARED LDFLAGS PYTHONPATH
+
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
-CROSSFLAGS=$(ZLIB_ROOT) PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
 
 all: .installed-$(PLATFORM)
 
@@ -49,26 +48,26 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
 
-$(PILPATHLIB):
+$(PILPATH)/lib:
 ifeq ($(OS),android)
-	mkdir -p $(PILPATHLIB)
+	mkdir -p $(PILPATH)/lib
 else ifeq ($(OS),darwin_embedded)
-	mkdir -p $(PILPATHLIB)
+	mkdir -p $(PILPATH)/lib
 endif
 
-.installed-$(PLATFORM): $(PLATFORM) $(PILPATHLIB)
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+.installed-$(PLATFORM): $(PLATFORM) $(PILPATH)/lib
+	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+
 ifeq ($(OS),android)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATHLIB)/PIL && \
-          sed -i -e 's/import sys/import os, sys /' \
+	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
+	cd $(PILPATH)/lib/PIL && \
+         sed -i -e 's/import sys/import os, sys /' \
                  -e '/__file__/ s/_imaging/lib_imaging/g' \
                  -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
 	cd $(PILPATH) && rm -rf Pillow-*.egg
 else ifeq ($(OS),darwin_embedded)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
+	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
 	cd $(PILPATH) && rm -rf Pillow-*.egg
 endif
 	touch $@
