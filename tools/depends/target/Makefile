@@ -12,12 +12,13 @@ DEPENDS = \
 	libxml2 rapidjson libmicrohttpd mariadb libffi \
 	libshairplay libfmt libspdlog \
 	libplist libcec libbluray tinyxml \
-	taglib libusb libnfs meson-cross-file \
+	taglib libusb libnfs \
 	libxslt ffmpeg crossguid libudfread \
 	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d \
-	python3 pythonmodule-setuptools
-#	pythonmodule-crossenv
-#	pythonmodule-pil pythonmodule-pycryptodome \
+	python3 pythonmodule-setuptools \
+	pythonmodule-crossenv \
+	pythonmodule-pil pythonmodule-pycryptodome \
+	meson-cross-file
 #	pythonmodile-numpy pythonmodule-lxml \
 
 ifeq ($(ENABLE_GPLV3),yes)
