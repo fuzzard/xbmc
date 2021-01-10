@@ -23,10 +23,11 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   LINK_ICONV=-framework CoreFoundation -liconv
 endif
 
-LDFLAGS+= -lpython3.8 -lintl -liconv -lssl -lcrypto -lz -lbz2 -lsqlite3 -lffi -framework Foundation
+LDFLAGS+= -lintl -liconv -lssl -lcrypto -lz -lbz2 -lsqlite3 -lffi -framework Foundation
+LD=
 #  -static
 #-L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME)
-export LDFLAGS
+export LDFLAGS LD
 #export LDSHARED="$(CC) -undefined dynamic_lookup"
 export LDSHARED="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
 #export LDSHARED='ld -arch arm64 -L/Users/brent/kivy-ios/dist/lib -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.3.sdk/usr/lib -miphoneos-version-min=11.0'
