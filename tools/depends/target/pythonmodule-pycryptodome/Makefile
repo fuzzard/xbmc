@@ -6,31 +6,21 @@ APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 
 # lib name, version
 LIBNAME=pycryptodome
-#VERSION=3.9.9
 VERSION=3.4.3
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
-#BASE_URL=https://files.pythonhosted.org/packages/c4/3a/5bca2cb1648b171afd6b7d29a11c6bca8b305bb75b7e2d78a0f5c61ff95e
-
-export PYTHONPATH=$(PREFIX)/lib/python3.8/site-packages/
+export PYTHONPATH=$(PYTHON_SITE_PKG)
 ifeq ($(OS),android)
 LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 endif
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
-LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
+LDSHARED:=$(CC) -bundle -undefined dynamic_lookup
 CC+= $(CFLAGS)
-export CC LDSHARED
 endif
 
-export _PYTHON_SYSCONFIGDATA_NAME="$(TARGET_PYTHON_SYSCONFIGDATA_NAME)"
-export LDFLAGS
-
-LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-$(PYTHON_VERSION)/Cryptodome
-ifeq ($(NATIVE_OS), osx)
-	LIBDYLIB=$(PLATFORM)/build/lib.macosx-10.4-x86_64-$(PYTHON_VERSION)/Cryptodome
-endif
+export CC LDSHARED LDFLAGS
 
 all: .installed-$(PLATFORM)
 
@@ -46,16 +36,11 @@ ifeq ($(OS),android)
 endif
 	cd $(PLATFORM); patch -p1 -i ../03-obey-crosscompileflags.patch
 
-$(LIBDYLIB): $(PLATFORM)
-	mkdir -p $(PLATFORM)/output
-	cd $(PLATFORM); touch .separate_namespace && $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU)
-
-.installed-$(PLATFORM): $(LIBDYLIB)
-	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(PREFIX)
+.installed-$(PLATFORM): $(PLATFORM)
+	cd $(PLATFORM); touch .separate_namespace && $(NATIVEPREFIX)/bin/python3 setup.py build install --prefix=$(PREFIX)
 	touch $@
 
 clean:
-	$(MAKE) -C $(PLATFORM) clean
 	rm -f .installed-$(PLATFORM)
 
 distclean::

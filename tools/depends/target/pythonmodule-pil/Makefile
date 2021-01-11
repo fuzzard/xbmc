@@ -6,9 +6,11 @@ APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 
 # lib name, version
 LIBNAME=Pillow
-VERSION=7.1.2
+VERSION=8.1.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+
+BASE_URL=https://files.pythonhosted.org/packages/73/59/3192bb3bc554ccbd678bdb32993928cb566dccf32f65dac65ac7e89eb311
 
 # Clear pkg-config data, as it will pull from Native pkg-config incorrectly
 ifeq ($(CROSS_COMPILING), yes)
@@ -18,13 +20,14 @@ export PKG_CONFIG_SYSROOT_DIR=${SDKROOT}
 endif
 
 PILPATH=$(PYTHON_SITE_PKG)
+PYTHONPATH=$(PYTHON_SITE_PKG)
 ifeq ($(OS),android)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
 export PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
 LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 else ifeq ($(OS),darwin_embedded)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-export PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
 endif
 
 CCSHARED=$(CC) $(CFLAGS)
@@ -35,8 +38,9 @@ export ZLIB_ROOT="$(SDKROOT)/usr"
 LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
 endif
 
-export LDSHARED CCSHARED
+export LDSHARED CCSHARED PYTHONPATH
 export _PYTHON_SYSCONFIGDATA_NAME=$(TARGET_PYTHON_SYSCONFIGDATA_NAME)
+export _PYTHON_HOST_PLATFORM=darwin
 
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
 
