@@ -23,6 +23,11 @@ else
   DEPENDS+=samba libcdio
 endif
 
+ifeq ($(CROSS_COMPILING), yes)
+  DEPENDS+= pythonmodule-crossenv
+  PYMODULE_CROSS = pythonmodule-crossenv
+endif
+
 ifeq ($(OS),darwin_embedded)
   EXCLUDED_DEPENDS = libcec libusb
   ifeq ($(TARGET_PLATFORM),appletvos)
@@ -35,6 +40,11 @@ endif
 ifeq ($(OS),osx)
   DEPENDS += libsdl
   EXCLUDED_DEPENDS = libusb
+endif
+
+ifeq ($(TARGET_PLATFORM),appletvos)
+  DEPENDS += dummy-libxbmc
+  PYMODULE_DEPS = dummy-libxbmc
 endif
 
 ifeq ($(OS),android)
@@ -103,8 +113,9 @@ libpng: $(ZLIB)
 openssl: $(ZLIB)
 gnutls: nettle $(ZLIB)
 nettle: gmp
-pythonmodule-pycryptodome: $(PYMODULE_DEPS) python3 pythonmodule-setuptools
-pythonmodule-pil: bzip2 $(PYMODULE_DEPS) $(ZLIB) libjpeg-turbo libpng freetype2 python3 pythonmodule-setuptools
+pythonmodule-crossenv: python3 pythonmodule-setuptools
+pythonmodule-pycryptodome: $(PYMODULE_DEPS) $(PYMODULE_CROSS) python3 pythonmodule-setuptools
+pythonmodule-pil: bzip2 $(PYMODULE_DEPS) $(PYMODULE_CROSS) $(ZLIB) libjpeg-turbo libpng freetype2 python3 pythonmodule-setuptools
 pythonmodule-setuptools: $(PYMODULE_DEPS) python3
 libxslt: libgcrypt libxml2
 ffmpeg: $(ICONV) $(ZLIB) bzip2 gnutls dav1d $(LIBVA)
@@ -147,6 +158,7 @@ test-dependencies:
 
 
 distclean::
+	rm $(PREFIX)/share/cross-file.meson
 	for d in $(DEPENDS); do $(MAKE) -C $$d distclean; done
 
 HOST_LIB_PKGCONFIG := $(firstword $(wildcard /usr/lib64/pkgconfig /usr/lib/$(HOST)/pkgconfig))
