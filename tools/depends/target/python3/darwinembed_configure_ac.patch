@@ -59,13 +59,3 @@
  case $MACHDEP in
  hp*|HP*)
  	# install -d does not work on HP-UX
-@@ -3525,6 +3534,9 @@
- 	fi
- 	;;
- 	hp*|HP*) DYNLOADFILE="dynload_hpux.o";;
-+	# Dynamic loading on iOS
-+	iOS/*) DYNLOADFILE="dynload_shlib.o";;
-+	tvOS/*) DYNLOADFILE="dynload_shlib.o";;
- 	*)
- 	# use dynload_shlib.c and dlopen() if we have it; otherwise stub
- 	# out any dynamic loading

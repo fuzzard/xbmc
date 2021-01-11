@@ -435,7 +435,8 @@ case $host in
       ;;
     esac
 
-    PYSYSCONFIGNAME=$use_cpu-apple-$use_platform_darwin
+    PYSYSCONFIGNAME=$use_cpu-apple-$use_platform
+    PYSYSCONFIGNAME+=_darwin
 
     AX_COMPARE_VERSION([$use_sdk], [ge], [$target_minver], , AC_MSG_ERROR("invalid SDK version provided (--with-sdk=$use_sdk) less than minimum supported ($target_minver)"))
 
@@ -699,6 +700,7 @@ echo -e "cxxflags:\t\t $platform_cxxflags"
 echo -e "ldflags:\t\t $platform_ldflags"
 echo -e "platform_includes:\t $platform_includes"
 echo -e "ffmpeg options:\t $ffmpeg_options"
+echo -e "Python Sysconfigdata: $PYSYSCONFIGNAME"
 echo -e "prefix:\t\t $prefix"
 echo -e "depends:\t\t $prefix/$deps_dir"
 if test "$platform_os" == "android"; then

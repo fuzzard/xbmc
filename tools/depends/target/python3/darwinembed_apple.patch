@@ -1,0 +1,98 @@
+--- a/Lib/os.py
++++ b/Lib/os.py
+@@ -599,6 +599,7 @@
+         fullname = path.join(dir, file)
+         try:
+             exec_func(fullname, *argrest)
++            return
+         except (FileNotFoundError, NotADirectoryError) as e:
+             last_exc = e
+         except OSError as e:
+--- a/Lib/platform.py
++++ b/Lib/platform.py
+@@ -604,7 +604,7 @@
+ 
+     """ Interface to the system's uname command.
+     """
+-    if sys.platform in ('dos', 'win32', 'win16'):
++    if sys.platform in ('dos', 'win32', 'win16', 'darwin', ios'):
+         # XXX Others too ?
+         return default
+ 
+@@ -626,7 +626,7 @@
+         default in case the command should fail.
+ 
+     """
+-    if sys.platform in ('dos', 'win32', 'win16'):
++    if sys.platform in ('dos', 'win32', 'win16', 'darwin', 'ios'):
+         # XXX Others too ?
+         return default
+ 
+--- a/Lib/urllib/request.py
++++ b/Lib/urllib/request.py
+@@ -2616,11 +2616,9 @@
+ 
+ 
+ if sys.platform == 'darwin':
+-    from _scproxy import _get_proxy_settings, _get_proxies
+ 
+     def proxy_bypass_macosx_sysconf(host):
+-        proxy_settings = _get_proxy_settings()
+-        return _proxy_bypass_macosx_sysconf(host, proxy_settings)
++        return False
+ 
+     def getproxies_macosx_sysconf():
+         """Return a dictionary of scheme -> proxy server URL mappings.
+@@ -2628,7 +2628,7 @@
+         This function uses the MacOSX framework SystemConfiguration
+         to fetch the proxy information.
+         """
+-        return _get_proxies()
++        return {}
+ 
+ 
+ 
+@@ -2641,9 +2641,9 @@
+         """
+         proxies = getproxies_environment()
+         if proxies:
+-            return proxy_bypass_environment(host, proxies)
++            return False
+         else:
+-            return proxy_bypass_macosx_sysconf(host)
++            return False
+ 
+     def getproxies():
+         return getproxies_environment() or getproxies_macosx_sysconf()
+--- a/Modules/getpath.c
++++ b/Modules/getpath.c
+@@ -806,8 +806,10 @@
+       * will fail if a relative path was used. but in that case,
+       * absolutize() should help us out below
+       */
+-    else if(0 == _NSGetExecutablePath(execpath, &nsexeclength) &&
+-            execpath[0] == SEP)
++    char *iospath = Py_GETENV("PYTHONHOME");
++    char *prog = Py_GETENV("PYTHONEXECUTABLE");
++    sprintf(execpath, "%s/bin/%s", iospath, prog);
++    if (execpath[0] == SEP)
+     {
+         size_t len;
+         wchar_t *path = Py_DecodeLocale(execpath, &len);
+--- a/Include/intrcheck.h
++++ b/Include/intrcheck.h
+@@ -7,13 +7,13 @@
+ 
+ PyAPI_FUNC(int) PyOS_InterruptOccurred(void);
+ PyAPI_FUNC(void) PyOS_InitInterrupts(void);
+-#ifdef HAVE_FORK
++//#ifdef HAVE_FORK
+ #if !defined(Py_LIMITED_API) || Py_LIMITED_API+0 >= 0x03070000
+ PyAPI_FUNC(void) PyOS_BeforeFork(void);
+ PyAPI_FUNC(void) PyOS_AfterFork_Parent(void);
+ PyAPI_FUNC(void) PyOS_AfterFork_Child(void);
+ #endif
+-#endif
++//#endif
+ /* Deprecated, please use PyOS_AfterFork_Child() instead */
+ Py_DEPRECATED(3.7) PyAPI_FUNC(void) PyOS_AfterFork(void);
