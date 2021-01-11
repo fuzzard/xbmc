@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile test.patch
+DEPS= ../../Makefile.include Makefile
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
@@ -19,7 +19,6 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-#	cd $(PLATFORM); patch -p1 -i ../test.patch
 
 .installed-$(PLATFORM): $(PLATFORM)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(NATIVEPREFIX)
@@ -27,6 +26,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 				                                --sysroot $(SDKROOT) \
 				                                --without-cross-pip \
 				                                --clear-both \
+				                                --sysconfigdata-file $(TARGET_PYTHON_SYSCONFIGDATA_NAME) \
 				                                --env CPATH:=$(PREFIX)/include \
 				                                --env LIBRARY_PATH:=$(PREFIX)/lib \
 				                                --env PATH:=$(PREFIX)/bin \
@@ -37,7 +37,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 				                                --env PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig \
 				                                --env PKG_CONFIG_LIBDIR=${PREFIX}/lib/pkgconfig \
 				                                --env PKG_CONFIG_SYSROOT_DIR=${SDKROOT}} \
-				                                --env PYTHONPATH=$(PREFIX)/lib/python${PYTHON_VERSION}/site-packages \
+				                                --env PYTHONPATH=$(PYTHON_SITE_PKG) \
 				                                --cc "$(CC)" \
 				                                --cxx "$(CXX)" \
 				                                --ar "$(AR)" \
