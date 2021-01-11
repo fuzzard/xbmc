@@ -17,8 +17,7 @@ DEPENDS = \
 	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d \
 	python3 pythonmodule-setuptools \
 	pythonmodule-crossenv \
-	pythonmodule-pil pythonmodule-pycryptodome \
-	meson-cross-file
+	pythonmodule-pil pythonmodule-pycryptodome
 #	pythonmodile-numpy pythonmodule-lxml \
 
 ifeq ($(ENABLE_GPLV3),yes)
@@ -154,6 +153,7 @@ test-dependencies:
 
 
 distclean::
+	rm $(PREFIX)/share/cross-file.meson
 	for d in $(DEPENDS); do $(MAKE) -C $$d distclean; done
 
 HOST_LIB_PKGCONFIG := $(firstword $(wildcard /usr/lib64/pkgconfig /usr/lib/$(HOST)/pkgconfig))
