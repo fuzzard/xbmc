@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile 01-nosetuptool.patch 02-android-dlopen.patch 03-obey-crosscompileflags.patch
+DEPS= ../../Makefile.include Makefile 01-nosetuptool.patch 02-android-dlopen.patch
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
@@ -10,17 +10,14 @@ VERSION=3.4.3
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
-export PYTHONPATH=$(PYTHON_SITE_PKG)
 ifeq ($(OS),android)
 LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 endif
 
-ifeq (darwin, $(findstring darwin, $(HOST)))
-LDSHARED:=$(CC) -bundle -undefined dynamic_lookup
-CC+= $(CFLAGS)
-endif
+export PYTHONPATH=$(PYTHON_SITE_PKG)
+#export _PYTHON_HOST_PLATFORM=ios-aarch64
 
-export CC LDSHARED LDFLAGS
+export CC CFLAGS LDFLAGS PYTHONPATH
 
 all: .installed-$(PLATFORM)
 
@@ -34,7 +31,6 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../02-android-dlopen.patch
 endif
-	cd $(PLATFORM); patch -p1 -i ../03-obey-crosscompileflags.patch
 
 .installed-$(PLATFORM): $(PLATFORM)
 	cd $(PLATFORM); touch .separate_namespace && $(NATIVEPREFIX)/bin/python3 setup.py build install --prefix=$(PREFIX)
