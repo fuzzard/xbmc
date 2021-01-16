@@ -22,25 +22,21 @@ endif
 PILPATH=$(PYTHON_SITE_PKG)
 PYTHONPATH=$(PYTHON_SITE_PKG)
 ifeq ($(OS),android)
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-export PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
-LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
+  PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
+  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+  LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 else ifeq ($(OS),darwin_embedded)
-PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+  PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
+  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+  export _PYTHON_HOST_PLATFORM=ios-aarch64
 endif
-
-CCSHARED=$(CC) $(CFLAGS)
-LDSHARED=$(CC) $(LDFLAGS)
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
 export ZLIB_ROOT="$(SDKROOT)/usr"
 LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
 endif
 
-export LDSHARED CCSHARED PYTHONPATH
-export _PYTHON_SYSCONFIGDATA_NAME=$(TARGET_PYTHON_SYSCONFIGDATA_NAME)
-export _PYTHON_HOST_PLATFORM=darwin
+export CC CFLAGS LDFLAGS PYTHONPATH
 
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
 
