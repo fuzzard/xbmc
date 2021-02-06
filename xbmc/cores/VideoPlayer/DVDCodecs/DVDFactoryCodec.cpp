@@ -246,6 +246,7 @@ CDVDOverlayCodec* CDVDFactoryCodec::CreateOverlayCodec( CDVDStreamInfo &hint )
   {
     case AV_CODEC_ID_TEXT:
     case AV_CODEC_ID_SUBRIP:
+    case AV_CODEC_ID_WEBVTT:
       pCodec.reset(new CDVDOverlayCodecText());
       if (pCodec->Open(hint, options))
       {

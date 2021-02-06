@@ -36,6 +36,8 @@ bool CDVDOverlayCodecText::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options
     return true;
   if(hints.codec == AV_CODEC_ID_SUBRIP)
     return true;
+  if(hints.codec == AV_CODEC_ID_WEBVTT)
+    return true;
   return false;
 }
 
