@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile crosscompile-systeminfo.patch crosscompile-unixcompiler.patch
+DEPS= ../../Makefile.include Makefile
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
 APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
@@ -11,24 +11,25 @@ BASE_URL=https://files.pythonhosted.org/packages/01/1b/d3ddcabd5817be02df0e6ee20
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).zip
 
+BUILD_CONFIG=BLAS=None LAPACK=None ATLAS=None
+
 ifeq (darwin, $(findstring darwin, $(HOST)))
-  LDSHARED:="$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)"
   ifeq ($(OS),darwin_embedded)
+    _PYTHON_HOST_PLATFORM=ios-aarch64
     ADDONPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.numpy
     PYTHONPATH="$(ADDONPATH):$(PYTHON_SITE_PKG)"
     LIBDYLIB=$(ADDONPATH)/lib/numpy/core/lib/libnumpy.a
-    # native_cflags are somehow being picked up by distutils. explicitly remove them using this env var and crosscompiler-unixcompiler.patch
-#    REMOVECFLAG="$(NATIVE_CFLAGS)"
-    # required for distutils to allow a cross compile build and not enforce host info
-    PYTHONHOSTPLATFORM=_PYTHON_HOST_PLATFORM="$(OS)-$(CPU)"
   else ifeq ($(OS),osx)
-    PYTHONHOSTPLATFORM=_PYTHON_HOST_PLATFORM="$(OS)-$(CPU)"
-    ADDONPATH="$(PYTHON_SITE_PKG)"
-    PYTHONPATH=$(ADDONPATH)
-    LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-3.7/numpy
+    _PYTHON_HOST_PLATFORM=darwin
+    PYTHONPATH"$(PYTHON_SITE_PKG)"
+    LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-$(PYTHON_VERSION)/numpy
   endif
-  CROSSFLAGS=REMOVECFLAG=$(REMOVECFLAG) $(PYTHONHOSTPLATFORM) PYTHONXCPREFIX="$(PREFIX)" BLAS=None LAPACK=None ATLAS=None CC="$(CC) -arch $(CPU) --sysroot=$(SDKROOT)" OPT="$(CFLAGS)" LDSHARED=$(LDSHARED) PYTHONPATH=$(PYTHONPATH)
+  CC+= -arch $(CPU) --sysroot=$(SDKROOT)
 endif
+
+# undefined dynamic_lookup required so we dont have to explicitly link python and its dependencies at compiletime
+export LDSHARED=$(CC) -bundle -undefined dynamic_lookup
+export CC LDFLAGS PYTHONPATH
 
 all: .installed-$(PLATFORM)
 
@@ -38,11 +39,9 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../crosscompile-systeminfo.patch
-	cd $(PLATFORM); patch -p1 -i ../crosscompile-unixcompiler.patch
 
 $(LIBDYLIB): $(PLATFORM)
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU)
+	cd $(PLATFORM); $(BUILD_CONFIG) $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 ifeq ($(OS),darwin_embedded)
@@ -61,3 +60,6 @@ clean:
 
 distclean::
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
+ifeq ($(OS),darwin_embedded)
+	rm -rf $(ADDONPATH)
+endif
