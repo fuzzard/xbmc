@@ -13,10 +13,8 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   pyplatform=darwin
   LINK_ICONV=-framework CoreFoundation -liconv
   LDFLAGS+= -framework Foundation
-  TARGET_PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__darwin_darwin
   ifeq ($(OS), darwin_embedded)
     pyplatform=ios-aarch64
-    TARGET_PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__arm64-apple-ios_darwin
     EXTRA_CONFIGURE=ac_cv_func_wait3=no ac_cv_func_wait4=no ac_cv_func_waitpid=no \
                     ac_cv_func_execv=no ac_cv_func_fexecv=no ac_cv_func_getentropy=no \
                     ac_cv_func_setpriority=no ac_cv_func_sendfile=no ac_cv_header_sched_h=no \
@@ -24,7 +22,12 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
                     ac_cv_func_forkpty=no ac_cv_lib_util_forkpty=no \
                     ac_cv_func_getgroups=no
   endif
+endif
+ifeq ($(OS),android)
+  pyplatform=android
+endif
 
+ifeq ($(CROSS_COMPILING), yes)
   CONFIG_OPT=--host="$(HOST)" \
              --build="$(BUILD)" \
              PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(CURDIR)/$(PLATFORM) \
