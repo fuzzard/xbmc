@@ -26,7 +26,9 @@
 #include "platform/posix/filesystem/SMBFile.h"
 #endif
 #endif
+#ifdef HAS_DVD_DRIVE
 #include "CDDAFile.h"
+#endif // HAS_DVD_DRIVE
 #if defined(HAS_ISO9660PP)
 #include "ISO9660File.h"
 #endif

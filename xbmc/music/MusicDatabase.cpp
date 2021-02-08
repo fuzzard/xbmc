@@ -46,7 +46,9 @@
 #include "music/MusicLibraryQueue.h"
 #include "music/tags/MusicInfoTag.h"
 #include "network/Network.h"
+#ifdef HAS_DVD_DRIVE
 #include "network/cddb.h"
+#endif // HAS_DVD_DRIVE
 #include "playlists/SmartPlayList.h"
 #include "profiles/ProfileManager.h"
 #include "settings/AdvancedSettings.h"
