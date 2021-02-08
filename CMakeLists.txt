@@ -312,6 +312,7 @@ if(ENABLE_UPNP)
 endif()
 
 if(ENABLE_OPTICAL)
+  core_require_dep(Cdio)
   list(APPEND DEP_DEFINES -DHAS_OPTICAL_DRIVE -DHAS_CDDA_RIPPER)
 endif()
 
