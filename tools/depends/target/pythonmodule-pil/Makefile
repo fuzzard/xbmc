@@ -1,9 +1,6 @@
 include ../../Makefile.include
 DEPS= ../../Makefile.include Makefile
 
-VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
-APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
-
 # lib name, version
 LIBNAME=Pillow
 VERSION=8.1.0
@@ -33,7 +30,13 @@ endif
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
   export ZLIB_ROOT="$(SDKROOT)/usr"
-  LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
+  ifeq ($(TARGET_PLATFORM),appletvos)
+    # -fembedbitcode means we cannot do any undefined things like -undefined, -U<symbol>
+    # At linktime, have to supply static link flags
+    LDSHARED=$(CC) $(PYTHON_MODULELDFLAGS) $(LDFLAGS)
+  else
+    LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
+  endif
 endif
 
 export CC CFLAGS LDSHARED LDFLAGS PYTHONPATH
