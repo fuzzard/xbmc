@@ -1,9 +1,6 @@
 include ../../Makefile.include
 DEPS= ../../Makefile.include Makefile 01-nosetuptool.patch 02-android-dlopen.patch
 
-VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
-APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
-
 # lib name, version
 LIBNAME=pycryptodome
 VERSION=3.4.3
@@ -12,6 +9,12 @@ ARCHIVE=$(SOURCE).tar.gz
 
 ifeq ($(OS),android)
   LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
+endif
+
+ifeq ($(TARGET_PLATFORM),appletvos)
+  # -fembedbitcode means we cannot do any undefined things like -undefined, -U<symbol>
+  # At linktime, have to supply static link flags
+  export LDSHARED=$(CC) $(PYTHON_MODULELDFLAGS) $(LDFLAGS)
 endif
 
 export PYTHONPATH=$(PYTHON_SITE_PKG)
