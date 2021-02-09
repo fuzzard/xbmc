@@ -37,6 +37,11 @@ ifeq ($(OS),osx)
   EXCLUDED_DEPENDS = libusb
 endif
 
+ifeq ($(TARGET_PLATFORM),appletvos)
+  DEPENDS =+ dummy-libxbmc
+  PYMODULE_DEPS = dummy-libxbmc
+endif
+
 ifeq ($(OS),android)
   EXCLUDED_DEPENDS = libcec libusb
   DEPENDS += dummy-libxbmc libuuid libandroidjni libzip
