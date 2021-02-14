@@ -9,37 +9,13 @@ ARCHIVE=$(SOURCE).tar.gz
 
 BASE_URL=https://files.pythonhosted.org/packages/73/59/3192bb3bc554ccbd678bdb32993928cb566dccf32f65dac65ac7e89eb311
 
-# Clear pkg-config data, as it will pull from Native pkg-config incorrectly
-ifeq ($(CROSS_COMPILING), yes)
-export PKG_CONFIG_PATH=
-export PKG_CONFIG_LIBDIR=${PREFIX}/lib/pkgconfig
-export PKG_CONFIG_SYSROOT_DIR=${SDKROOT}
-endif
-
 PILPATH=$(PYTHON_SITE_PKG)
-PYTHONPATH=$(PYTHON_SITE_PKG)
+PYTHONPATH=PYTHONPATH="$(PYTHON_SITE_PKG)"
 ifeq ($(OS),android)
   PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
-  LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 else ifeq ($(OS),darwin_embedded)
   PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
-  export _PYTHON_HOST_PLATFORM=ios-aarch64
 endif
-
-ifeq (darwin, $(findstring darwin, $(HOST)))
-  export ZLIB_ROOT="$(SDKROOT)/usr"
-  ifeq ($(TARGET_PLATFORM),appletvos)
-    # -fembedbitcode means we cannot do any undefined things like -undefined, -U<symbol>
-    # At linktime, have to supply static link flags
-    LDSHARED=$(CC) $(PYTHON_MODULELDFLAGS) $(LDFLAGS)
-  else
-    LDSHARED=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-  endif
-endif
-
-export CC CFLAGS LDSHARED LDFLAGS PYTHONPATH
 
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
 
@@ -60,12 +36,13 @@ else ifeq ($(OS),darwin_embedded)
 endif
 
 .installed-$(PLATFORM): $(PLATFORM) $(PILPATH)/lib
-	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
-
+	. $(NATIVEPREFIX)/bin/$(PYTHON_TARGETENV)/bin/activate \
+	&& cd $(PLATFORM) && $(PYTHONPATH) cross-python setup.py \
+		build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
 ifeq ($(OS),android)
 	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
 	cd $(PILPATH)/lib/PIL && \
-         sed -i -e 's/import sys/import os, sys /' \
+          sed -i -e 's/import sys/import os, sys /' \
                  -e '/__file__/ s/_imaging/lib_imaging/g' \
                  -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
 	cd $(PILPATH) && rm -rf Pillow-*.egg

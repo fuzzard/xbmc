@@ -1,6 +1,6 @@
 include ../../Makefile.include
 DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch android.patch \
-       modules.setup darwin_embedded.patch
+       darwin_embedded.patch modules.setup
 
 # lib name, version
 LIBNAME=Python
@@ -10,11 +10,8 @@ ARCHIVE=$(SOURCE).tar.xz
 BASE_URL=https://www.python.org/ftp/python/$(VERSION)
 
 ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
-  pyplatform=darwin
-  LINK_ICONV=-framework CoreFoundation -liconv
   LDFLAGS+= -framework Foundation
   ifeq ($(OS), darwin_embedded)
-    pyplatform=ios-aarch64
     EXTRA_CONFIGURE=ac_cv_func_wait3=no ac_cv_func_wait4=no ac_cv_func_waitpid=no \
                     ac_cv_func_execv=no ac_cv_func_fexecv=no ac_cv_func_getentropy=no \
                     ac_cv_func_setpriority=no ac_cv_func_sendfile=no ac_cv_header_sched_h=no \
@@ -23,24 +20,33 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
                     ac_cv_func_getgroups=no
   endif
 endif
-ifeq ($(OS),android)
-  pyplatform=android
+
+ifeq ($(CROSS_COMPILING),yes)
+	CROSSBUILD=--host=$(HOST) \
+			   --build=$(BUILD)
 endif
 
-ifeq ($(CROSS_COMPILING), yes)
-  CONFIG_OPT=--host="$(HOST)" \
-             --build="$(BUILD)" \
-             PYTHON_FOR_BUILD='_PYTHON_PROJECT_BASE=$(CURDIR)/$(PLATFORM) \
-                               _PYTHON_HOST_PLATFORM=$(pyplatform) \
-                               PYTHONPATH=$(CURDIR)/$(PLATFORM)/build/lib.$(pyplatform)-$(PYTHON_VERSION):$(CURDIR)/$(PLATFORM)/Lib '$(NATIVEPREFIX)/bin/python3
-endif
+COMPILE_HOST_PATH := $(PATH)
 
-# configuration settings
-CONFIGURE=./configure $(CONFIG_OPT) --prefix=$(PREFIX) \
-  --disable-shared \
-  --without-ensurepip \
-  --disable-framework --with-system-expat --with-system-ffi --without-pymalloc --enable-ipv6 \
-  $(EXTRA_CONFIGURE)
+export PATH=$(NATIVEPREFIX)/bin:$(COMPILE_HOST_PATH)
+export LINK_ICONV:=$(LINK_ICONV)
+
+CONFIGURE=./configure \
+			--prefix=$(PREFIX) \
+			--disable-shared \
+			$(CROSSBUILD) \
+			--enable-ipv6 \
+			--without-ensurepip \
+			--with-system-ffi \
+			--with-system-expat \
+			--without-pymalloc \
+			CC="$(CC)" \
+			CXX="$(CXX)" \
+			PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \
+			LDFLAGS="$(LDFLAGS)" \
+			CFLAGS="$(CFLAGS)" \
+			CPPFLAGS="$(CPPFLAGS)" \
+			$(EXTRA_CONFIGURE)
 
 all: .installed-$(PLATFORM)
 
@@ -51,30 +57,30 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../crosscompile.patch
-	cd $(PLATFORM); patch -p1 -i ../android.patch
 	cd $(PLATFORM); patch -p1 -i ../apple.patch
 ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../darwin_embedded.patch
 endif
 	cp modules.setup $(PLATFORM)/Modules/Setup
+#  disable locale altogether for Android
 ifeq ($(OS),android)
-    # disable locale altogether for Android
-	cd $(PLATFORM); sed -ie 's|_locale -DPy_BUILD_CORE_BUILTIN _localemodule.c   -lintl $(LINK_ICONV)|#_locale -DPy_BUILD_CORE_BUILTIN _localemodule.c  # -lintl|' Modules/Setup
+	cd $(PLATFORM); sed -ie 's|_locale -DPy_BUILD_CORE_BUILTIN _localemodule.c -lintl $(LINK_ICONV)|#_locale -DPy_BUILD_CORE_BUILTIN _localemodule.c -lintl $(LINK_ICONV)|' Modules/Setup
 endif
+# add scproxy module for osx only
 ifeq ($(OS),osx)
-    # Add the _scproxy module for darwin
-	echo "_scproxy \$$(srcdir)/Modules/_scproxy.c -framework SystemConfiguration -framework CoreFoundation" >> $(PLATFORM)/Modules/Setup
+	cd $(PLATFORM); sed -ie 's|\$$(OSX_SCPROXY)|_scproxy \$$(srcdir)/Modules/_scproxy.c -framework SystemConfiguration -framework CoreFoundation|' Modules/Setup
 endif
 	cd $(PLATFORM); $(AUTORECONF)
 	cd $(PLATFORM); $(CONFIGURE)
 
 .installed-$(PLATFORM): $(PLATFORM)
+	$(MAKE) -C $(PLATFORM)
 	$(MAKE) -C $(PLATFORM) install prefix=$(PREFIX)
 	find $(PREFIX)/lib/python3.8 -type f -name "*.pyc" -delete
 	touch $@
 
 clean:
-	rm -rf $(PLATFORM) .installed-$(PLATFORM)
+	rm -rf .installed-$(PLATFORM)
 
 distclean::
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
