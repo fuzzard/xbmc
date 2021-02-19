@@ -26,6 +26,11 @@ ifeq (darwin, $(findstring darwin, $(HOST)))
   endif
 endif
 
+ifneq ($(SDKROOT),)
+  SYSROOTENV=--sysroot $(SDKROOT)
+  PKGCONFIGSYSROOT=--env=PKG_CONFIG_SYSROOT_DIR:=$(SDKROOT)
+endif
+
 all: .installed-$(PLATFORM)
 
 $(TARBALLS_LOCATION)/$(ARCHIVE):
@@ -38,7 +43,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 .installed-$(PLATFORM): $(PLATFORM)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 -m pip install git+https://github.com/benfogle/crossenv.git
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 -m crossenv \
-			                                       --sysroot $(SDKROOT) \
+			                                       $(SYSROOTENV) \
 			                                       --env=CPATH:=$(PREFIX)/include \
 			                                       --env=LIBRARY_PATH:=$(PREFIX)/lib \
 			                                       --env=PATH:=$(PREFIX)/bin \
@@ -46,10 +51,10 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 			                                       --env=CXXFLAGS:="$(CXXFLAGS)" \
 			                                       --env=LDFLAGS:="$(LDFLAGS)" \
 			                                       $(LDSHAREDCC) \
-			                                       --env=PKG_CONFIG:=${NATIVEPREFIX}/bin/pkg-config \
-			                                       --env=PKG_CONFIG_PATH:=${PREFIX}/lib/pkgconfig \
-			                                       --env=PKG_CONFIG_LIBDIR:=${PREFIX}/lib/pkgconfig \
-			                                       --env=PKG_CONFIG_SYSROOT_DIR:=${SDKROOT}} \
+			                                       --env=PKG_CONFIG:=$(NATIVEPREFIX)/bin/pkg-config \
+			                                       --env=PKG_CONFIG_PATH:=$(PREFIX)/lib/pkgconfig \
+			                                       --env=PKG_CONFIG_LIBDIR:=$(PREFIX)/lib/pkgconfig \
+			                                       $(PKGCONFIGSYSROOT) \
 			                                       --env=PYTHONPATH:=$(PYTHON_SITE_PKG) \
 			                                       $(ZLIBROOT) \
 			                                       --cc "$(CC) $(CROSS_CC_FLAGS)" \
