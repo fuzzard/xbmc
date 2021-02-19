@@ -1,4 +1,5 @@
 include ../../Makefile.include
+PLATFORM=$(NATIVEPLATFORM)
 DEPS= ../../Makefile.include Makefile
 
 # lib name, version
