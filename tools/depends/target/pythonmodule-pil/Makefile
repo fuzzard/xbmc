@@ -3,7 +3,7 @@ DEPS= ../../Makefile.include Makefile
 
 # lib name, version
 LIBNAME=Pillow
-VERSION=7.1.2
+VERSION=8.1.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
@@ -31,8 +31,6 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 $(PILPATH)/lib:
 ifeq ($(OS),android)
 	mkdir -p $(PILPATH)/lib
-else ifeq ($(OS),darwin_embedded)
-	mkdir -p $(PILPATH)/lib
 endif
 
 .installed-$(PLATFORM): $(PLATFORM) $(PILPATH)/lib
@@ -46,8 +44,9 @@ ifeq ($(OS),android)
                  -e '/__file__/ s/_imaging/lib_imaging/g' \
                  -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
 	cd $(PILPATH) && rm -rf Pillow-*.egg
-else ifeq ($(OS),darwin_embedded)
-	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
+else ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
+# All apple platforms require the egg to be extracted
+	cd $(PILPATH) && unzip -o ./Pillow-*.egg
 	cd $(PILPATH) && rm -rf Pillow-*.egg
 endif
 	touch $@
