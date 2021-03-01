@@ -3,9 +3,11 @@ DEPS= ../../Makefile.include Makefile 01-gcrypt-android-select.patch 02-fix-armv
 
 # lib name, version
 LIBNAME=libgcrypt
-VERSION=1.8.1
+VERSION=1.9.1
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.bz2
+
+BASE_URL=https://gnupg.org/ftp/gcrypt/libgcrypt
 
 ifeq ($(OS),osx)
   CONFIGURE_FLAGS+= --disable-asm --disable-avx-support --disable-avx2-support
@@ -33,13 +35,12 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../01-gcrypt-android-select.patch
-	cd $(PLATFORM); patch -p1 -i ../02-fix-armv7-neon.patch
+#	cd $(PLATFORM); patch -p1 -i ../02-fix-armv7-neon.patch
 ifneq ($(findstring arm64, $(CPU)), arm64)
-	cd $(PLATFORM); patch -p1 -i ../03-remove-cipher-gcm-armv8.patch
+#	cd $(PLATFORM); patch -p1 -i ../03-remove-cipher-gcm-armv8.patch
 endif
-	cd $(PLATFORM); patch -p1 -i ../04-fix-o-flag-munging.patch
+#	cd $(PLATFORM); patch -p1 -i ../04-fix-o-flag-munging.patch
 	# do not build the tests or docs
-	sed -ie "s|doc tests||" "$(PLATFORM)/Makefile.am"
 	sed -ie "s|\$$(doc) tests||" "$(PLATFORM)/Makefile.am"
 	cd $(PLATFORM); $(AUTORECONF) -vif
 	cd $(PLATFORM); $(CONFIGURE)
