@@ -229,7 +229,7 @@ bool CTagLoaderTagLib::ParseTag(ASF::Tag *asf, EmbeddedArt *art, CMusicInfoTag& 
   if (tag.GetArtist().empty())
     tag.SetArtist(asf->artist().toCString(true));
 
-  if (asf->comment() != String::null)
+  if (!asf->comment().isEmpty())
     tag.SetComment(asf->comment().toCString(true));
   tag.SetReplayGain(replayGainInfo);
   tag.SetLoaded(true);
@@ -479,7 +479,7 @@ bool CTagLoaderTagLib::ParseTag(ID3v2::Tag *id3v2, EmbeddedArt *art, MUSIC_INFO:
     }
 
 
-  if (id3v2->comment() != String::null)
+  if (!id3v2->comment().isEmpty())
     tag.SetComment(id3v2->comment().toCString(true));
 
   tag.SetReplayGain(replayGainInfo);
@@ -493,8 +493,8 @@ bool CTagLoaderTagLib::ParseTag(APE::Tag *ape, EmbeddedArt *art, CMusicInfoTag& 
     return false;
 
   ReplayGain replayGainInfo;
-  const APE::ItemListMap itemListMap = ape->itemListMap();
-  for (APE::ItemListMap::ConstIterator it = itemListMap.begin(); it != itemListMap.end(); ++it)
+  const APE::ItemMap itemMap = ape->itemMap();
+  for (auto it = itemMap.begin(); it != itemMap.end(); ++it)
   {
     if (it->first == "ARTIST")
       SetArtist(tag, StringListToVectorString(it->second.toStringList()));
@@ -817,7 +817,7 @@ bool CTagLoaderTagLib::ParseTag(Ogg::XiphComment *xiph, EmbeddedArt *art, CMusic
   }
 #endif
 
-  if (xiph->comment() != String::null)
+  if (!xiph->comment().isEmpty())
     tag.SetComment(xiph->comment().toCString(true));
 
   tag.SetReplayGain(replayGainInfo);
@@ -943,7 +943,7 @@ bool CTagLoaderTagLib::ParseTag(MP4::Tag *mp4, EmbeddedArt *art, CMusicInfoTag& 
     }
   }
 
-  if (mp4->comment() != String::null)
+  if (!mp4->comment().isEmpty())
     tag.SetComment(mp4->comment().toCString(true));
 
   tag.SetReplayGain(replayGainInfo);
