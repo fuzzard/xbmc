@@ -39,6 +39,7 @@ endif
 		build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
 ifeq ($(OS),android)
 	cd $(PILPATH)/lib && unzip -o ../Pillow-*.egg
+	cd $(PILPATH)/lib/PIL && for i in `find . -name \*.so` ; do FN=`echo $$i | sed -e 's/\.cpython-[0-9]\{2\}\./\./g'`; mv $$i $$FN; done
 	cd $(PILPATH)/lib/PIL && \
           sed -i -e 's/import sys/import os, sys /' \
                  -e '/__file__/ s/_imaging/lib_imaging/g' \
