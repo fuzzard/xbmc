@@ -27,7 +27,6 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(OS),android)
 	cd $(PYTHON_SITE_PKG) && unzip -o ./Pillow-*.egg
 	cd $(PYTHON_SITE_PKG) && rm -rf Pillow-*.egg
-	cd $(PYTHON_SITE_PKG)/PIL && for i in `find . -name \*.so` ; do FN=`echo $$i | sed -e 's/\.cpython-[0-9]\{2\}\./\./g'`; mv $$i $$FN; done
 	cd $(PYTHON_SITE_PKG)/PIL && \
           sed -i -e 's/import sys/import os, sys /' \
                  -e '/__file__/ s/_imaging/lib_imaging/g' \
