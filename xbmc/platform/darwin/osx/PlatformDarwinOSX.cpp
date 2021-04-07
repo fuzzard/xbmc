@@ -8,10 +8,13 @@
 
 #include "PlatformDarwinOSX.h"
 
+#include "Util.h"
 #include "windowing/osx/WinSystemOSXGL.h"
 
 #include "platform/darwin/osx/XBMCHelper.h"
 #include "platform/darwin/osx/powermanagement/CocoaPowerSyscall.h"
+
+#include <string>
 
 CPlatform* CPlatform::CreateInstance()
 {
@@ -26,6 +29,13 @@ bool CPlatformDarwinOSX::Init()
   CWinSystemOSXGL::Register();
 
   CCocoaPowerSyscall::Register();
+
+  std::string install_path;
+
+  install_path = CUtil::GetHomePath();
+  setenv("KODI_HOME", install_path.c_str(), 0);
+  install_path += "/tools/darwin/runtime/preflight";
+  system(install_path.c_str());
 
   return true;
 }
