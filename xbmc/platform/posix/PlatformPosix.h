@@ -16,6 +16,7 @@ class CPlatformPosix : public CPlatform
 {
 public:
   bool Init() override;
+  bool InitStageTwo() override;
 
   static bool TestQuitFlag();
   static void RequestQuit();

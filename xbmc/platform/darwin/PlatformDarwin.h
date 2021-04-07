@@ -20,4 +20,5 @@ class CPlatformDarwin : public CPlatformPosix
     ~CPlatformDarwin() override = default;
 
     bool Init() override;
+    bool InitStageTwo() override;
 };

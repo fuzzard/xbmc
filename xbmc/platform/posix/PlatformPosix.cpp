@@ -41,6 +41,11 @@ bool CPlatformPosix::Init()
   return true;
 }
 
+bool CPlatformPosix::InitStageTwo()
+{
+  return CPlatform::InitStageTwo();
+}
+
 bool CPlatformPosix::TestQuitFlag()
 {
   // Keep set, return true when it was cleared before

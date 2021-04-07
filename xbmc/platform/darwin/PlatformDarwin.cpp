@@ -22,3 +22,8 @@ bool CPlatformDarwin::Init()
 
   return true;
 }
+
+bool CPlatformDarwin::InitStageTwo()
+{
+  return CPlatformPosix::InitStageTwo();
+}
