@@ -1,0 +1,15 @@
+[
+    { ref: "iwyu-ass.imp" },
+    { ref: "iwyu-clang-6.0.0-stdlib.imp" },
+    { ref: "iwyu-curl.imp" },
+    { ref: "iwyu-flatbuffers.imp" },
+    { ref: "iwyu-freetype2.imp" },
+    { ref: "iwyu-fribidi.imp" },
+    { ref: "iwyu-libbluray.imp" },
+    { ref: "iwyu-libnfs.imp" },
+    { ref: "iwyu-libxslt.imp" },
+    { ref: "iwyu-mariadb.imp" },
+    { ref: "iwyu-spdlog.imp" },
+    { ref: "iwyu-taglib.imp" },
+    { ref: "iwyu/python3.8.imp" },
+]

@@ -1,0 +1,3 @@
+[
+    { include: ["@\"fribidi/.*\"", "private", "\"fribidi/fribidi.h\"", "public"] },
+]

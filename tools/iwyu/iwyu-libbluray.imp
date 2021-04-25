@@ -1,0 +1,3 @@
+[
+    { include: ["@<libbluray/.*>", "private", "<libbluray/bluray.h>", "public"] },
+]

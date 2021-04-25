@@ -1,0 +1,3 @@
+[
+    { include: ["@[\"<]freetype/.*[\">]", "private", "<ft2build.h>", "public"] },
+]

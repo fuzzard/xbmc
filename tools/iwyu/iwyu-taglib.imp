@@ -1,0 +1,3 @@
+[
+    { include: ["@<taglib/.*>", "private", "<taglib/tag.h>", "public"] },
+]

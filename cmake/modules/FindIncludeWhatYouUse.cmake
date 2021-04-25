@@ -19,6 +19,10 @@ find_package_handle_standard_args(IncludeWhatYouUse REQUIRED_VARS IWYU_EXECUTABL
 
 if(INCLUDEWHATYOUUSE_FOUND)
   # Supports Unix Makefiles and Ninja
+  set(IWYU_OPTIONS
+      -Xiwyu
+      --mapping_file=${CMAKE_SOURCE_DIR}/tools/iwyu/iwyu-kodi.imp)
+  list(APPEND IWYU_EXECUTABLE ${IWYU_OPTIONS})
   set(CMAKE_C_INCLUDE_WHAT_YOU_USE "${IWYU_EXECUTABLE}" PARENT_SCOPE)
   set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_EXECUTABLE}" PARENT_SCOPE)
 endif()

@@ -1,0 +1,4 @@
+[
+    { include: ["@<mariadb/errmsg.h>", "private", "<mariadb/errmsg.h>", "public"] },
+    { include: ["@<mariadb/*.h>", "private", "<mariadb/mysql.h>", "public"] },
+]

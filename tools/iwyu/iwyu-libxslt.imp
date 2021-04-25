@@ -1,0 +1,4 @@
+[
+    { include: ["@<libxslt/xslt.h>", "private", "<libxslt/xslt.h>", "public"] },
+    { include: ["@<libxslt/xslt*.h>", "private", "<libxslt/xsltutils.h>", "public"] },
+]

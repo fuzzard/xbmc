@@ -1,0 +1,3 @@
+[
+    { include: ["@<nfsc/.*>", "private", "<nfsc/libnfs.h>", "public"] },
+]

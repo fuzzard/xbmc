@@ -1,0 +1,3 @@
+[
+    { include: ["@<ass/.*>", "private", "<ass/ass.h>", "public"] },
+]

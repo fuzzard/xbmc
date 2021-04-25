@@ -1,0 +1,3 @@
+[
+    { include: ["@<curl/.*>", "private", "<curl/curl.h>", "public"] },
+]
