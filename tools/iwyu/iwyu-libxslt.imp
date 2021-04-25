@@ -1,4 +1,5 @@
 [
-    { include: ["@<libxslt/xslt.h>", "private", "<libxslt/xslt.h>", "public"] },
-    { include: ["@<libxslt/xslt*.h>", "private", "<libxslt/xsltutils.h>", "public"] },
+# Currently causes crash, work out better rule
+#    { include: ["@<libxslt/xslt.h>", "private", "<libxslt/xslt.h>", "public"] },
+#    { include: ["@<libxslt/xslt*.h>", "private", "<libxslt/xsltutils.h>", "public"] },
 ]
