@@ -22,6 +22,9 @@ ifeq ($(BUILD_DIR),)
   BUILD_DIR=$(CMAKE_SOURCE_DIR)/build
 endif
 
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+
 all:
 	mkdir -p $(BUILD_DIR)
 	cd $(BUILD_DIR); $(CMAKE) $(CMAKE_BUILD_ARGUMENTS) -DENABLE_INTERNAL_CROSSGUID=OFF -DENABLE_INTERNAL_FFMPEG=OFF $(CMAKE_EXTRA_ARGUMENTS) $(CMAKE_SOURCE_DIR)

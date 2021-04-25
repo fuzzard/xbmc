@@ -207,8 +207,8 @@ AC_PATH_PROG([CC_FOR_BUILD],[gcc llvm-gcc $platform_cc], gcc, $PATH_FOR_BUILD)
 AC_PATH_PROG([CXX_FOR_BUILD],[g++ llvm-g++ $platform_cxx], g++, $PATH_FOR_BUILD)
 
 
-platform_cc=gcc
-platform_cxx=g++
+platform_cc=clang
+platform_cxx=clang++
 
 case $host in
   *-*linux-android*)
