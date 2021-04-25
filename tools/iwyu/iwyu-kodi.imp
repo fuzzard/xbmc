@@ -1,4 +1,5 @@
 [
+# Library reference maps
     { ref: "iwyu-ass.imp" },
     { ref: "iwyu-clang-6.0.0-stdlib.imp" },
     { ref: "iwyu-curl.imp" },
@@ -12,4 +13,9 @@
     { ref: "iwyu-spdlog.imp" },
     { ref: "iwyu-taglib.imp" },
     { ref: "iwyu/python3.8.imp" },
+# Internal Symbol remaps
+    { symbol: ["CFileItemPtr", "public", "\"FileItem.h\"", "public"] },
+    { symbol: ["CGUIListItemPtr", "public", "\"listproviders/IListProvider.h\"", "public"] },
+
+    
 ]
