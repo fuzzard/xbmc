@@ -2,9 +2,9 @@
 
 set(PACKAGE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/build/${CORE_BUILD_CONFIG})
 
-configure_file(${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/Info.plist.in
-               ${CMAKE_BINARY_DIR}/xbmc/platform/darwin/osx/Info.plist @ONLY)
-execute_process(COMMAND perl -p -i -e "s/r####/${APP_SCMID}/" ${CMAKE_BINARY_DIR}/xbmc/platform/darwin/osx/Info.plist)
+#configure_file(${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/Info.plist.in
+#               ${CMAKE_BINARY_DIR}/xbmc/platform/darwin/osx/Info.plist @ONLY)
+#execute_process(COMMAND perl -p -i -e "s/r####/${APP_SCMID}/" ${CMAKE_BINARY_DIR}/xbmc/platform/darwin/osx/Info.plist)
 
 # Create xcode target that allows to build binary-addons.
 if(CMAKE_GENERATOR MATCHES "Xcode")
@@ -20,6 +20,17 @@ if(CMAKE_GENERATOR MATCHES "Xcode")
   endif()
   unset(_addons)
 endif()
+
+add_custom_target(generate-frameworks
+    COMMAND "XBMC_DEPENDS=${DEPENDS_PATH}"
+            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/generateframeworks.command)
+
+add_dependencies(${APP_NAME_LC} generate-frameworks)
+
+set_target_properties(${APP_NAME_LC} PROPERTIES XCODE_EMBED_FRAMEWORKS libcec
+                                                XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
+                                                # INSTALL_RPATH @executable_path/../Frameworks
+                                                # XCODE_EMBED_FRAMEWORKS_PATH "${DEPENDS_PATH}/Frameworks"
 
 add_custom_target(bundle
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${APP_NAME_LC}> ${PACKAGE_OUTPUT_DIR}/${APP_NAME}

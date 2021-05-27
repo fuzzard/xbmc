@@ -3,9 +3,11 @@ PLATFORM=$(NATIVEPLATFORM)
 DEPS= ../../Makefile.include Makefile
 
 APPNAME=cmake
-VERSION=3.18.4
-SOURCE=$(APPNAME)-$(VERSION)
+VERSION=3.20.0
+SOURCE=$(APPNAME)-v$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+
+BASE_URL=https://gitlab.kitware.com/cmake/cmake/-/archive/v$(VERSION)
 
 # configuration settings
 

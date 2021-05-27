@@ -290,6 +290,11 @@ static void setupWindowMenu(void)
 
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 
+  NSApplication *app = [NSApplication sharedApplication];
+  [center addObserver:self
+   selector:@selector(applicationWillTerminate:)
+   name:NSApplicationWillTerminateNotification object:app];
+  
   // create media key handler singleton
   [[HotKeyController sharedController] enableTap];
   // add media key notifications
@@ -558,7 +563,13 @@ int main(int argc, char *argv[])
     status = SDL_main(gArgc, gArgv);
     SDL_Quit();
 
-    [xbmc_delegate applicationWillTerminate:NULL];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+
+    //[xbmc_delegate applicationWillTerminate:NULL];
+    [[NSApplication sharedApplication] terminate:nil];
+
+#pragma clang diagnostic pop
 
     return status;
   }
