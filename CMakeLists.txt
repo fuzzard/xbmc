@@ -43,6 +43,7 @@ include(cmake/scripts/${CORE_SYSTEM_NAME}/PathSetup.cmake)
 include(cmake/scripts/common/CompilerSettings.cmake)
 include(ExternalProject)
 
+set(CMAKE_FIND_FRAMEWORK "FIRST")
 
 # general
 option(VERBOSE            "Enable verbose output?" OFF)

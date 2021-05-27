@@ -167,11 +167,15 @@ _symtable symtablemodule.c
 # Modules that should always be present (non UNIX dependent):
 
 array arraymodule.c	# array objects
+
+*shared*
 cmath cmathmodule.c _math.c # -lm # complex math library functions
 math mathmodule.c _math.c # -lm # math library functions, e.g. sin()
+
+*static*
 _contextvars _contextvarsmodule.c  # Context Variables
 _struct _struct.c	# binary structure packing/unpacking
-_weakref _weakref.c	# basic weak reference support
+#_weakref _weakref.c	# basic weak reference support
 #_testcapi _testcapimodule.c    # Python C API test module
 #_testinternalcapi _testinternalcapi.c -I$(srcdir)/Include/internal -DPy_BUILD_CORE_MODULE  # Python internal C API test module
 _random _randommodule.c	# Random number generator

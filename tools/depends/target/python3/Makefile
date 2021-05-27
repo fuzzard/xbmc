@@ -23,11 +23,22 @@ ifeq ($(OS), darwin_embedded)
                   ac_cv_func_getgroups=no
 endif
 
+CFLAGS+= -I"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi"
+CPPFLAGS+= -I"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi"
+
+LDFLAGS+= -L"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib" -L"$(PREFIX)/lib" -lbz2 -lffi -lsqlite3 -lz -lssl -lcrypto -lintl -liconv -framework SystemConfiguration
+
+export CFLAGS
+export CPPFLAGS
+export LDFLAGS
+
+#export LIBFFI_INCLUDEDIR=-I"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi"
+
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) \
   --disable-shared \
   --without-ensurepip \
-  --disable-framework --with-system-expat --with-system-ffi --without-pymalloc --enable-ipv6 \
+  --enable-framework=$(PREFIX)/lib --with-system-expat --with-system-ffi --without-pymalloc --enable-ipv6 \
   $(EXTRA_CONFIGURE)
 
 
