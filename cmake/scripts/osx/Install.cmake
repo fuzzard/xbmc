@@ -21,6 +21,17 @@ if(CMAKE_GENERATOR MATCHES "Xcode")
   unset(_addons)
 endif()
 
+add_custom_target(generate-frameworks
+    COMMAND "XBMC_DEPENDS=${DEPENDS_PATH}"
+            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/generateframeworks.command)
+
+add_dependencies(${APP_NAME_LC} generate-frameworks)
+
+#set_target_properties(${APP_NAME_LC} PROPERTIES XCODE_EMBED_FRAMEWORKS libcec
+#                                                XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
+                                                # INSTALL_RPATH @executable_path/../Frameworks
+                                                # XCODE_EMBED_FRAMEWORKS_PATH "${DEPENDS_PATH}/Frameworks"
+
 add_custom_target(bundle
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${APP_NAME_LC}> ${PACKAGE_OUTPUT_DIR}/${APP_NAME}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/DllPaths_generated.h
