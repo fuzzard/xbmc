@@ -13,18 +13,20 @@
 	<key>CFBundleIconFile</key>
 	<string>@APP_NAME_LC@.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.xbmc.@APP_NAME_LC@</string>
+	<string>@PLATFORM_BUNDLE_IDENTIFIER@</string>
 	<key>CFBundleName</key>
 	<string>@APP_NAME@</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@APP_VERSION_MAJOR@.@APP_VERSION_MINOR@.@APP_VERSION_TAG_LC@</string>
+	<string>@APP_VERSION@</string>
 	<key>CFBundleVersion</key>
-	<string>r####</string>
+	<string>@APP_SCMID@</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>@CMAKE_OSX_DEPLOYMENT_TARGET@</string>
 	<key>CFBundleSignature</key>
 	<string>@APP_NAME@</string>
+  <key>NSSupportsSuddenTermination</key>
+  <false/>
 </dict>
 </plist>

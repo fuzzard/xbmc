@@ -61,18 +61,10 @@ sub make_dmg {
     `hdiutil convert "$volname.dmg" -format UDZO -imagekey zlib-level=9 -o "$volname.udzo.dmg"`;
     `rm -f "$volname.dmg"`;
     `mv "$volname.udzo.dmg" "$volname.dmg"`;
-    `hdiutil internet-enable -yes "$volname.dmg"`;
 }
 
 if (! defined $ARGV[0]) {
-    die("Please specify the mpkg to make a DMG of as the first argument\n".
-	"or -c to create a package and use it.\n");
+    die("Please specify the mpkg to make a DMG of as the first argument");
 }
 
-if ( $ARGV[0] eq "-c" ) {
-    die("TODO: -c\n");
-    #make_dmg(make_mpkg(), "Kodi Atlantis - 8.10", "Kodi Media Center");
-    exit;
-}
-
-make_dmg($ARGV[0], $ARGV[1], "Kodi");
+make_dmg($ARGV[0], $ARGV[1], $ARGV[2]);

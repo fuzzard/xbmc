@@ -15,11 +15,9 @@ shopt -s nocasematch
 case "$SWITCH" in
   "debug" )
     echo "Packaging Debug target for OSX"
-    APP="$DIRNAME/../../../../build/Debug/@APP_NAME@.app"
   ;;
   "release" )
     echo "Packaging Release target for OSX"
-    APP="$DIRNAME/../../../../build/Release/@APP_NAME@.app"
     isReleaseBuild=1
   ;;
   *)
@@ -71,7 +69,7 @@ then
   iconutil -c icns --output "VolumeIcon.icns" "../media/osx/volumeIcon.iconset"
 fi
 
-$DIRNAME/dmgmaker.pl $APP $ARCHIVE
+$DIRNAME/dmgmaker.pl $APP $ARCHIVE @APP_NAME@
 
 echo "done"
 

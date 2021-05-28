@@ -364,8 +364,9 @@ if(WIN32)
   endif()
 elseif(CORE_SYSTEM_NAME STREQUAL android)
   # Nothing
-elseif(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+elseif(CORE_SYSTEM_NAME STREQUAL darwin_embedded OR CORE_SYSTEM_NAME STREQUAL osx)
   set_target_properties(${APP_NAME_LC} PROPERTIES OUTPUT_NAME ${APP_NAME}
+                                                  MACOSX_BUNDLE TRUE
                                                   MACOSX_BUNDLE_INFO_PLIST ${PLATFORM_BUNDLE_INFO_PLIST})
 else()
   set_target_properties(${APP_NAME_LC} PROPERTIES SUFFIX ${APP_BINARY_SUFFIX})

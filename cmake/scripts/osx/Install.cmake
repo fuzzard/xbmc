@@ -2,9 +2,7 @@
 
 set(PACKAGE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/build/${CORE_BUILD_CONFIG})
 
-configure_file(${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/Info.plist.in
-               ${CMAKE_BINARY_DIR}/xbmc/platform/darwin/osx/Info.plist @ONLY)
-execute_process(COMMAND perl -p -i -e "s/r####/${APP_SCMID}/" ${CMAKE_BINARY_DIR}/xbmc/platform/darwin/osx/Info.plist)
+set(PLATFORM_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/${CORE_PLATFORM_NAME_LC}/Info.plist.in)
 
 # Create xcode target that allows to build binary-addons.
 if(CMAKE_GENERATOR MATCHES "Xcode")
@@ -21,8 +19,19 @@ if(CMAKE_GENERATOR MATCHES "Xcode")
   unset(_addons)
 endif()
 
+# Generate and install App bundle icon
+add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${APP_NAME}.app/Contents/Resources"
+    COMMAND iconutil -c icns --output "${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${APP_NAME}.app/Contents/Resources/kodi.icns" "${CMAKE_BINARY_DIR}/tools/darwin/packaging/media/osx/icon.iconset"
+    COMMAND "XBMC_DEPENDS=${DEPENDS_PATH}"
+            "TARGET_CONTENTS_DIR=${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${APP_NAME}.app/Contents"
+            "APP_NAME=${APP_NAME}"
+            "PYTHON_VERSION=${PYTHON_VERSION}"
+            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copylibraries-osx.command)
+
 add_custom_target(bundle
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${APP_NAME_LC}> ${PACKAGE_OUTPUT_DIR}/${APP_NAME}
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_OUTPUT_DIR}/${APP_NAME}.app"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${APP_NAME}.app ${PACKAGE_OUTPUT_DIR}/${APP_NAME}.app/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/DllPaths_generated.h
                                      ${CMAKE_BINARY_DIR}/xbmc/DllPaths_generated.h
     COMMAND "ACTION=build"
@@ -68,6 +77,7 @@ add_custom_target(dmg
             "EXPANDED_CODE_SIGN_IDENTITY_NAME=${CODE_SIGN_IDENTITY}"
             "PLATFORM_NAME=${PLATFORM}"
             "XCODE_BUILDTYPE=${CMAKE_CFG_INTDIR}"
+            "APP=${PACKAGE_OUTPUT_DIR}/${APP_NAME}.app"
             ./mkdmg-osx.sh ${CORE_BUILD_CONFIG_LOWERCASED}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tools/darwin/packaging/osx)
 set_target_properties(dmg PROPERTIES FOLDER "Build Utilities")
