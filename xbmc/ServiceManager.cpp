@@ -246,6 +246,18 @@ void CServiceManager::DeinitStageOne()
 #endif
 }
 
+#if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
+WSDiscovery& CServiceManager::GetWSDiscovery()
+{
+  return *m_WSDiscovery;
+}
+
+void CServiceManager::InitWSDiscovery()
+{
+  m_WSDiscovery = std::make_unique<WSDiscovery>();
+}
+#endif
+
 ADDON::CAddonMgr &CServiceManager::GetAddonMgr()
 {
   return *m_addonMgr;

@@ -107,6 +107,7 @@ public:
 #endif
 #if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
   WSDiscovery& GetWSDiscovery();
+  void InitWSDiscovery();
 #endif
   PVR::CPVRManager& GetPVRManager();
   CContextMenuManager& GetContextMenuManager();

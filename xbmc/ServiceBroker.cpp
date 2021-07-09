@@ -89,6 +89,11 @@ CWSDiscovery& CServiceBroker::GetWSDiscovery()
 {
   return g_application.m_ServiceManager->GetWSDiscovery();
 }
+
+CWSDiscovery& CServiceBroker::InitWSDiscovery()
+{
+  return g_application.m_ServiceManager->InitWSDiscovery();
+}
 #endif
 
 #if !defined(TARGET_WINDOWS) && defined(HAS_DVD_DRIVE)
