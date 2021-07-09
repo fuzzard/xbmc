@@ -12,6 +12,8 @@
 #include "SMBFile.h"
 #include "filesystem/IDirectory.h"
 
+class CWSDiscovery;
+
 namespace XFILE
 {
 class CSMBDirectory : public IDirectory

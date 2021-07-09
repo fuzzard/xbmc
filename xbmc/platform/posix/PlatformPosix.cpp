@@ -8,7 +8,10 @@
 
 #include "PlatformPosix.h"
 
+#include "ServiceBroker.h"
 #include "filesystem/SpecialProtocol.h"
+
+#include "platform/posix/filesystem/SMBWSDiscovery.h"
 
 #include <cstdlib>
 #include <time.h>
@@ -46,6 +49,18 @@ bool CPlatformPosix::InitStageOne()
   // call 'dbus_threads_init_default' before any other dbus calls in order to
   // avoid race conditions with other threads using dbus connections
   dbus_threads_init_default();
+#endif
+
+  return true;
+}
+
+bool CPlatformPosix::InitStageThree()
+{
+  if (!CPlatform::InitStageThree())
+    return false;
+
+#if defined(HAS_FILESYSTEM_SMB)
+  CServiceBroker::InitWSDiscovery();
 #endif
 
   return true;

@@ -65,6 +65,11 @@ class CCPUInfo;
 class CLog;
 class CPlatform;
 
+namespace WSDiscovery
+{
+class CWSDiscovery;
+}
+
 namespace KODI
 {
 namespace GAME
@@ -102,6 +107,8 @@ public:
   static ADDON::CBinaryAddonCache &GetBinaryAddonCache();
   static ADDON::CVFSAddonCache &GetVFSAddonCache();
   static XBPython &GetXBPython();
+  static WSDiscovery::CWSDiscovery& GetWSDiscovery();
+  static void InitWSDiscovery();
   static MEDIA_DETECT::CDetectDVDMedia& GetDetectDVDMedia();
   static PVR::CPVRManager &GetPVRManager();
   static CContextMenuManager& GetContextMenuManager();

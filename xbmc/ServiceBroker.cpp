@@ -84,6 +84,18 @@ XBPython& CServiceBroker::GetXBPython()
 }
 #endif
 
+#if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
+WSDiscovery::CWSDiscovery& CServiceBroker::GetWSDiscovery()
+{
+  return g_application.m_ServiceManager->GetWSDiscovery();
+}
+
+void CServiceBroker::InitWSDiscovery()
+{
+  g_application.m_ServiceManager->InitWSDiscovery();
+}
+#endif
+
 #if !defined(TARGET_WINDOWS) && defined(HAS_DVD_DRIVE)
 MEDIA_DETECT::CDetectDVDMedia& CServiceBroker::GetDetectDVDMedia()
 {

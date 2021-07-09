@@ -38,6 +38,12 @@ class CContextMenuManager;
 #ifdef HAS_PYTHON
 class XBPython;
 #endif
+#if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
+namespace WSDiscovery
+{
+class CWSDiscovery;
+}
+#endif
 class CDataCacheCore;
 class CFavouritesService;
 class CNetworkBase;
@@ -102,6 +108,10 @@ public:
 #ifdef HAS_PYTHON
   XBPython& GetXBPython();
 #endif
+#if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
+  WSDiscovery::CWSDiscovery& GetWSDiscovery();
+  void InitWSDiscovery();
+#endif
   PVR::CPVRManager& GetPVRManager();
   CContextMenuManager& GetContextMenuManager();
   CDataCacheCore& GetDataCacheCore();
@@ -156,6 +166,9 @@ protected:
   std::unique_ptr<ADDON::CVFSAddonCache> m_vfsAddonCache;
   std::unique_ptr<ADDON::CServiceAddonManager> m_serviceAddons;
   std::unique_ptr<ADDON::CRepositoryUpdater> m_repositoryUpdater;
+#if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
+  std::unique_ptr<WSDiscovery::CWSDiscovery> m_WSDiscovery;
+#endif
 #ifdef HAS_PYTHON
   std::unique_ptr<XBPython> m_XBPython;
 #endif
