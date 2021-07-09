@@ -24,6 +24,7 @@
 #include "ServiceBroker.h"
 #include "Util.h"
 #include "guilib/LocalizeStrings.h"
+#include "platform/posix/filesystem/SMBWSDiscovery.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
 #include "threads/SingleLock.h"
@@ -45,6 +46,7 @@ using namespace XFILE;
 CSMBDirectory::CSMBDirectory(void)
 {
   smb.AddActiveConnection();
+  m_WSDiscovery = std::make_unique<CWSDiscovery>();
 }
 
 CSMBDirectory::~CSMBDirectory(void)
@@ -66,6 +68,17 @@ bool CSMBDirectory::GetDirectory(const CURL& url, CFileItemList &items)
   std::string strAuth;
 
   lock.Leave(); // OpenDir is locked
+
+  // if url provided does not having anything except smb protocol
+  // Do a WS-Discovery search to find possible smb servers to mimic smbv1
+  // behaviour
+  if (strRoot == "smb://")
+  {
+    // this isnt correct
+    if (m_WSDiscovery)
+      return m_WSDiscovery->GetServerList(items);
+  }
+
   int fd = OpenDir(url, strAuth);
   if (fd < 0)
     return false;

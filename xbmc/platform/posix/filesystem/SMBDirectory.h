@@ -12,6 +12,8 @@
 #include "SMBFile.h"
 #include "filesystem/IDirectory.h"
 
+class CWSDiscovery;
+
 namespace XFILE
 {
 class CSMBDirectory : public IDirectory
@@ -29,5 +31,7 @@ public:
 
 private:
   int OpenDir(const CURL &url, std::string& strAuth);
+
+  std::unique_ptr<CWSDiscovery> m_WSDiscovery;
 };
 }
