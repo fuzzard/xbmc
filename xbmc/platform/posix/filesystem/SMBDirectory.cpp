@@ -46,7 +46,6 @@ using namespace XFILE;
 CSMBDirectory::CSMBDirectory(void)
 {
   smb.AddActiveConnection();
-  m_WSDiscovery = std::make_unique<CWSDiscovery>();
 }
 
 CSMBDirectory::~CSMBDirectory(void)
@@ -75,8 +74,7 @@ bool CSMBDirectory::GetDirectory(const CURL& url, CFileItemList &items)
   if (strRoot == "smb://")
   {
     // this isnt correct
-    if (m_WSDiscovery)
-      return m_WSDiscovery->GetServerList(items);
+    return CServiceBroker::GetWSDiscovery().GetServerList(items);
   }
 
   int fd = OpenDir(url, strAuth);

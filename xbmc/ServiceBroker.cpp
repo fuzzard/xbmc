@@ -85,14 +85,14 @@ XBPython& CServiceBroker::GetXBPython()
 #endif
 
 #if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
-CWSDiscovery& CServiceBroker::GetWSDiscovery()
+WSDiscovery::CWSDiscovery& CServiceBroker::GetWSDiscovery()
 {
   return g_application.m_ServiceManager->GetWSDiscovery();
 }
 
-CWSDiscovery& CServiceBroker::InitWSDiscovery()
+void CServiceBroker::InitWSDiscovery()
 {
-  return g_application.m_ServiceManager->InitWSDiscovery();
+  g_application.m_ServiceManager->InitWSDiscovery();
 }
 #endif
 

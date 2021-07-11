@@ -18,9 +18,109 @@
 #include <sys/select.h>
 #include <unistd.h>
 
+#include <array>
+#include <chrono>
 #include <string>
+#include <utility>
 
 using namespace WSDiscovery;
+
+namespace WSDiscovery
+{
+
+static const char soap_msg_templ[] =
+	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+	"<soap:Envelope "
+	"xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" "
+	"xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/08/addressing\" "
+	"xmlns:wsd=\"http://schemas.xmlsoap.org/ws/2005/04/discovery\" "
+	"xmlns:wsx=\"http://schemas.xmlsoap.org/ws/2004/09/mex\" "
+	"xmlns:wsdp=\"http://schemas.xmlsoap.org/ws/2006/02/devprof\" "
+	"xmlns:un0=\"http://schemas.microsoft.com/windows/pnpx/2005/10\" "
+	"xmlns:pub=\"http://schemas.microsoft.com/windows/pub/2005/07\">\n"
+	"<soap:Header>\n"
+	"<wsa:To>urn:schemas-xmlsoap-org:ws:2005:04:discovery</wsa:To>\n"
+	"<wsa:Action>%s</wsa:Action>\n"
+	"<wsa:MessageID>urn:uuid:%s</wsa:MessageID>\n"
+	"<wsd:AppSequence InstanceId=\"%lld\" SequenceId=\"urn:uuid:%s\" "
+	"MessageNumber=\"%u\" />\n"
+	"%s"
+	"</soap:Header>\n"
+	"%s"
+	"</soap:Envelope>\n";
+	
+static const char hello_body[] =
+	"<soap:Body>\n"
+	"<wsd:Hello>\n"
+	"<wsa:EndpointReference>\n"
+	"<wsa:Address>urn:uuid:%s</wsa:Address>\n"
+	"</wsa:EndpointReference>\n"
+	"<wsd:Types>wsdp:Device pub:Computer</wsd:Types>\n"
+	"<wsd:MetadataVersion>2</wsd:MetadataVersion>\n"
+	"</wsd:Hello>\n"
+	"</soap:Body>\n";
+
+static const char bye_body[] =
+	"<soap:Body>\n"
+	"<wsd:Bye>\n"
+	"<wsa:EndpointReference>\n"
+	"<wsa:Address>urn:uuid:%s</wsa:Address>\n"
+	"</wsa:EndpointReference>\n"
+	"<wsd:Types>wsdp:Device pub:Computer</wsd:Types>\n"
+	"<wsd:MetadataVersion>2</wsd:MetadataVersion>\n"
+	"</wsd:Bye>\n"
+	"</soap:Body>\n";
+
+static const char probe_body[] =
+	"<soap:Body>\n"
+  "<wsd:Probe>\n"
+  "<wsd:Types>wsdp:Device</wsd:Types>\n"
+  "</wsd:Probe>\n"
+  "</soap:Body>\n";
+
+static const char resolve_body[] =
+	"<soap:Body>\n"
+	"<wsd:Resolve>\n"
+	"<wsa:EndpointReference>\n"
+	"<wsa:Address>"
+	"%s"
+	"</wsa:Address>\n"
+	"</wsa:EndpointReference>\n"
+	"</wsd:Resolve>\n"
+	"</soap:Body>\n";
+
+// These are the only actions we care for
+static const std::string WSD_ACT_HELLO = "http://schemas.xmlsoap.org/ws/2005/04/discovery/Hello";
+static const std::string WSD_ACT_BYE = "http://schemas.xmlsoap.org/ws/2005/04/discovery/Bye";
+static const std::string WSD_ACT_PROBEMATCH = "http://schemas.xmlsoap.org/ws/2005/04/discovery/ProbeMatches";
+static const std::string WSD_ACT_PROBE = "http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe";
+static const std::string WSD_ACT_RESOLVE = "https://schemas.xmlsoap.org/ws/2005/04/discovery/Resolve";
+static const std::string WSD_ACT_RESOLVEMATCHES = "https://schemas.xmlsoap.org/ws/2005/04/discovery/ResolveMatches";
+
+
+// These are the xml start/finish tags we need info from
+// An array of start/finish xml strings
+static const std::array<std::pair<std::string, std::string>, 2> action_tag {{
+	{"<wsa:Action>", "</wsa:Action>"},
+	{"<wsa:Action SOAP-ENV:mustUnderstand=\"true\">", "</wsa:Action>"}
+}};
+
+static const std::array<std::pair<std::string, std::string>, 2> msgid_tag {{
+	{"<wsa:MessageID>", "</wsa:MessageID>"},
+	{"<wsa:MessageID SOAP-ENV:mustUnderstand=\"true\">", "</wsa:MessageID>"}
+}};
+
+static const std::array<std::pair<std::string, std::string>, 1> xaddrs_tag {{
+	{"<wsd:XAddrs>", "</wsd:XAddrs>"}
+}};
+
+static const std::array<std::pair<std::string, std::string>, 1> address_tag {{
+	{"<wsa:Address>", "</wsa:Address>"}
+}};
+
+static const std::array<std::pair<std::string, std::string>, 1> types_tag {{
+	{"<wsd:Types>", "</wsd:Types>"}
+}};
 
 CWSDiscoveryListenerUDP::CWSDiscoveryListenerUDP() : CThread("WSDiscoveryListenerUDP")
 {
@@ -32,18 +132,19 @@ CWSDiscoveryListenerUDP::~CWSDiscoveryListenerUDP()
 
 void CWSDiscoveryListenerUDP::Stop()
 {
-  CThread::Stop(true);
+  CThread::StopThread(true);
 }
 
 void CWSDiscoveryListenerUDP::Start()
 {
-  if (!IsRunning())
-  {
-    CLog::Log(LOGINFO, "CWSDiscoveryListenerUDP::Start - Started");
+  if (!CThread::IsRunning())
+    return;
 
-    Create();
-    SetPriority(GetMinPriority());
-  }
+	CLog::Log(LOGINFO, "CWSDiscoveryListenerUDP::Start - Started");
+
+	CThread::Create();
+	CThread::SetPriority(GetMinPriority());
+
 }
 
 void CWSDiscoveryListenerUDP::Process()
@@ -90,10 +191,11 @@ void CWSDiscoveryListenerUDP::Process()
 
   // Disable receiving broadcast messages on loopback
   // So we dont receive messages we send.
+  int disable = 0;
   if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_LOOP, (char*)&disable, sizeof(disable)) < 0)
   {
 		// setsockopt - disable loopback error
-		return 1;
+		return;
   }
 
   std::string bufferoutput;
@@ -111,7 +213,7 @@ void CWSDiscoveryListenerUDP::Process()
 	DispatchCommand();
 
 
-	while (!m_bstop)
+	while (!m_bStop)
 	{
 	  FD_SET(fd, &rset);
 	  nready = select((fd + 1), &rset, NULL, NULL, NULL);
@@ -163,8 +265,9 @@ bool CWSDiscoveryListenerUDP::DispatchCommand()
 		{
 			ret = sendto(fd, sendCommand.commandMsg.c_str(), sendCommand.commandMsg.size(), 0, (struct sockaddr*)& sendCommand.address, sizeof(sendCommand.address));
 		}
-		while (ret == -1 && !m_bstop);
-    CThread::Sleep(1000ms);
+		while (ret == -1 && !m_bStop);
+    std::chrono::seconds sec(1);
+    CThread::Sleep(sec);
 	}
   
   CLog::Log(LOGDEBUG,"CWSDiscoveryListenerUDP::DispatchCommand - Command sent");
@@ -202,7 +305,7 @@ void CWSDiscoveryListenerUDP::AddCommand(const std::string message, const std::s
 void CWSDiscoveryListenerUDP::ParseBuffer(const std::string& buffer)
 {
   // MUST have an action tag
-  std::string action = CWSDiscoveryUtils::wsd_tag_find(buffer, action_tag);
+  std::string action = wsd_tag_find(buffer, action_tag);
   if (action.empty())
   {
     CLog::Log(LOGDEBUG,"CWSDiscoveryListenerUDP::ParseBuffer - No Action tag found");
@@ -220,16 +323,16 @@ void CWSDiscoveryListenerUDP::ParseBuffer(const std::string& buffer)
   }
 
   // MUST have a msgid tag
-	std::string msgid = CWSDiscoveryUtils::wsd_tag_find(buffer, msgid_tag);
+	std::string msgid = wsd_tag_find(buffer, msgid_tag);
   if (msgid.empty())
   {
     CLog::Log(LOGDEBUG,"CWSDiscoveryListenerUDP::ParseBuffer - No msgid tag found");
 		return;
 	}
 
-	std::string types = CWSDiscoveryUtils::wsd_tag_find(buffer, types_tag);
-	std::string address = CWSDiscoveryUtils::wsd_tag_find(buffer, address_tag);
-	std::string xaddrs = CWSDiscoveryUtils::wsd_tag_find(buffer, xaddrs_tag);
+	std::string types = wsd_tag_find(buffer, types_tag);
+	std::string address = wsd_tag_find(buffer, address_tag);
+	std::string xaddrs = wsd_tag_find(buffer, xaddrs_tag);
 
 	if (xaddrs.empty() && (action != WSD_ACT_BYE))
 	{
@@ -260,8 +363,8 @@ void CWSDiscoveryListenerUDP::ParseBuffer(const std::string& buffer)
 			{
 				CLog::Log(LOGDEBUG,"CWSDiscoveryListenerUDP::ParseBuffer - Actionable message");
 				m_vecWSDInfo.emplace_back(info);
-				CServiceBroker::GetWSDiscovery()->SetItems(m_vecWSDInfo);
-				CWSDiscoveryUtils::PrintWSDInfo(info);
+				CServiceBroker::GetWSDiscovery().SetItems(m_vecWSDInfo);
+				PrintWSDInfo(info);
 				return;
 			}
 			else
@@ -270,12 +373,12 @@ void CWSDiscoveryListenerUDP::ParseBuffer(const std::string& buffer)
 				// We only want to match the address when receiving a WSD_ACT_BYE message
 				auto searchbye = std::find_if(m_vecWSDInfo.begin(),
 																			m_vecWSDInfo.end(),
-																			[info](const wsd_req_info& item)
+																			[info, this](const wsd_req_info& item)
 																						{return equalsAddress(item, info);});
 				if(searchbye != m_vecWSDInfo.end())
 				{
 					m_vecWSDInfo.erase(searchbye);
-  				CServiceBroker::GetWSDiscovery()->SetItems(m_vecWSDInfo);
+  				CServiceBroker::GetWSDiscovery().SetItems(m_vecWSDInfo);
 					return;
 				}
 			}
@@ -293,6 +396,9 @@ int CWSDiscoveryListenerUDP::buildSoapMessage(const std::string& action, char** 
   std::string relatesTo;
   int bodylen = 0;
   int messagenumber = 0;
+  
+  // temp
+  long long wsd_instance_id = CServiceBroker::GetWSDiscovery().GetInstanceID();
 
   if (action == WSD_ACT_HELLO)
   {
@@ -329,4 +435,41 @@ int CWSDiscoveryListenerUDP::buildSoapMessage(const std::string& action, char** 
                   body);
 
   return size;
+}
+
+template<std::size_t SIZE>
+const std::string CWSDiscoveryListenerUDP::wsd_tag_find(const std::string& xml,
+                               const std::array<std::pair<std::string, std::string>, SIZE>& tag)
+{
+  for (auto tagpair : tag)
+  {
+    std::size_t found1 = xml.find(tagpair.first);
+    if (found1 != std::string::npos)
+    {
+      std::size_t found2 = xml.find(tagpair.second);
+      if (found2 != std::string::npos)
+      {
+        return xml.substr((found1 + tagpair.first.size()), (found2 - (found1 + tagpair.first.size())));
+      }
+    }
+  }
+  return "";
+}
+
+const bool CWSDiscoveryListenerUDP::equalsAddress(const wsd_req_info& lhs, const wsd_req_info& rhs)
+{
+	return lhs.address == rhs.address;
+}
+
+void CWSDiscoveryListenerUDP::PrintWSDInfo(const wsd_req_info& info)
+{
+	CLog::Log(LOGDEBUG,"CWSDiscoveryUtils::printstruct - message contents\n"
+                     "\tAction: {}\n"
+										 "\tMsgID: {}\n"
+										 "\tAddress: {}\n"
+										 "\tTypes: {}\n"
+										 "\tXAddrs: {}\n",
+										 info.action, info.msgid, info.address, info.types, info.xaddrs);
+}
+
 }

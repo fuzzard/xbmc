@@ -11,14 +11,16 @@
 #include "FileItem.h"
 #include "ServiceBroker.h"
 #include "network/Network.h"
-#include "platform/posix/filesystem/SMBWSUtils.h"
+#include "platform/posix/filesystem/SMBWSDiscoveryListener.h"
 #include "threads/SingleLock.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/log.h"
+#include "URL.h"
 
 #include <algorithm>
 #include <chrono>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,7 +30,10 @@
 #include <string.h>
 
 using namespace std::chrono;
+using namespace WSDiscovery;
 
+namespace WSDiscovery
+{
 CWSDiscovery::CWSDiscovery()
 {
   // Set our wsd_instance ID to seconds since epoch
@@ -76,21 +81,23 @@ bool CWSDiscovery::GetServerList(CFileItemList &items)
 			}
 			std::string host = tmpxaddrs.substr(0, found);
 
-			CFileItemPtr pItem(new CFileItem(strFile));
-			std::string path("smb://";
+/*			//CFileItemPtr pItem(new CFileItem(strFile));
+			std::string path("smb://");
 
-			/* create url with same options, user, pass.. but no filename or host*/
+			// create url with same options, user, pass.. but no filename or host
 			CURL rooturl("smb://");
 			rooturl.SetFileName("");
 			rooturl.SetHostName(host);
-			std::string path = smb.URLEncode(rooturl);
+			//std::string path = smb.URLEncode(rooturl);
 
 			URIUtils::AddSlashAtEnd(path);
 			pItem->SetPath(path);
 			pItem->m_bIsFolder = true;
 			items.Add(pItem);
+      */
 		}
   }
+  return false;
 }
 
 void CWSDiscovery::SetItems(std::vector<wsd_req_info> entries)
@@ -151,7 +158,7 @@ std::string CWSDiscovery::GetBroadcastIP()
   }
 
   unsigned int broadcast;
-  char* broadcast6;
+  //char* broadcast6;
   switch (resIP->ai_family)
   {
   case AF_INET:
@@ -162,11 +169,12 @@ std::string CWSDiscovery::GetBroadcastIP()
   case AF_INET6:
     // Todo: How do we handle this?
     // SSDP Broadcast address per https://www.iana.org/assignments/ipv6-multicast-addresses/ipv6-multicast-addresses.xhtml
-    broadcast_address = "FF02:0:0:0:0:0:0:C";
+    //broadcast_address = "FF02:0:0:0:0:0:0:C";
     // inet_ntop(AF_INET6, &broadcast6, broadcast_address, INET6_ADDRSTRLEN);
     break;
   }
   freeaddrinfo(resnetmask);
   freeaddrinfo(resIP);
   return broadcast_address;
+}
 }

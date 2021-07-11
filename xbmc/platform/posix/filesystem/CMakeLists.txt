@@ -8,8 +8,7 @@ if(SMBCLIENT_FOUND)
   list(APPEND SOURCES SMBDirectory.cpp
                       SMBFile.cpp
                       SMBWSDiscovery.cpp
-                      SMBWSDiscoveryListener.cpp
-                      SMBWSUtils.cpp)
+                      SMBWSDiscoveryListener.cpp)
   list(APPEND HEADERS SMBDirectory.h
                       SMBFile.h
                       SMBWSDiscovery.h

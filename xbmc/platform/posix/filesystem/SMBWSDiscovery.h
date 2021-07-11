@@ -6,11 +6,13 @@
  *  See LICENSES/README.md for more information.
  */
 
-#include "platform/posix/filesystem/SMBWSUtils.h"
+#pragma once
+
+#include "platform/posix/filesystem/SMBWSDiscoveryListener.h"
 #include "threads/CriticalSection.h"
 #include "threads/SingleLock.h"
 
-//#include <memory>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -18,21 +20,36 @@ class CFileItemList;
 
 namespace WSDiscovery
 {
-class WSDiscoveryUtils;
+ class CWSDiscoveryListenerUDP;
 }
 
 // Calculate broadcast address
 //static constexpr std::string WSDip4multicast "239.255.255.250"
 // Todo: ipv6
 // static constexpr std::string WSDip6multicast "FF02::C"
-using namespace WSDiscovery;
+//using namespace WSDiscovery;
+namespace WSDiscovery
+{
+struct wsd_req_info {
+	std::string action;
+	std::string msgid;
+	std::string types;
+	std::string address;
+	std::string xaddrs;
+
+	bool operator==(const wsd_req_info& item) const
+	{
+		return ((item.xaddrs == xaddrs) &&
+						(item.address == address));
+	}
+};
 
 class CWSDiscovery
 {
 public:
   CWSDiscovery();
-  ~CWSDiscovery() override;
-  
+  ~CWSDiscovery();
+
 	/*
 	 * Get List of smb servers found by WSD
 	 * out		(CFileItemList&) List of fileitems populated with smb addresses
@@ -43,9 +60,9 @@ public:
   void StartServices();
   void StopServices();
   
-  static long long GetInstanceID() { return wsd_instance_id };
+  long long GetInstanceID() { return wsd_instance_id; };
   
-  void SetItems(std::vector<wsd_req_info> entries);
+  void SetItems(std::vector<WSDiscovery::wsd_req_info> entries);
 
 private:
 	/*
@@ -56,16 +73,16 @@ private:
 
 private:
   CCriticalSection m_critWSD;
-  std::vector<SOCKET> m_ServerSockets = {};
-  static long long wsd_instance_id;
+
+  long long wsd_instance_id;
   
   std::string m_broadcast;
 
-//  CWSDiscoveryListenerTCP m_WSDListenerTCP;
-  CWSDiscoveryListenerUDP m_WSDListenerUDP;
+  std::unique_ptr<WSDiscovery::CWSDiscoveryListenerUDP> m_WSDListenerUDP;
   
   std::vector<std::string> vec_strbuffer;
 
-  std::vector<WSDiscoveryUtils::wsd_req_info> m_vecWSDInfo;
+  std::vector<WSDiscovery::wsd_req_info> m_vecWSDInfo;
   
 };
+}

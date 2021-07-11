@@ -26,6 +26,9 @@
 #include "interfaces/python/XBPython.h"
 #include "network/Network.h"
 #include "peripherals/Peripherals.h"
+#if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
+#include "platform/posix/filesystem/SMBWSDiscovery.h"
+#endif
 #include "powermanagement/PowerManager.h"
 #include "profiles/ProfileManager.h"
 #include "pvr/PVRManager.h"
@@ -36,6 +39,8 @@
 #include "utils/FileExtensionProvider.h"
 #include "utils/log.h"
 #include "weather/WeatherManager.h"
+
+#include <memory>
 
 using namespace KODI;
 
@@ -247,14 +252,14 @@ void CServiceManager::DeinitStageOne()
 }
 
 #if !defined(TARGET_WINDOWS) && defined(HAS_FILESYSTEM_SMB)
-WSDiscovery& CServiceManager::GetWSDiscovery()
+WSDiscovery::CWSDiscovery& CServiceManager::GetWSDiscovery()
 {
   return *m_WSDiscovery;
 }
 
 void CServiceManager::InitWSDiscovery()
 {
-  m_WSDiscovery = std::make_unique<WSDiscovery>();
+  m_WSDiscovery = std::make_unique<WSDiscovery::CWSDiscovery>();
 }
 #endif
 

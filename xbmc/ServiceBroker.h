@@ -64,6 +64,7 @@ class CMediaManager;
 class CCPUInfo;
 class CLog;
 class CPlatform;
+
 namespace WSDiscovery
 {
   class CWSDiscovery;
@@ -106,7 +107,8 @@ public:
   static ADDON::CBinaryAddonCache &GetBinaryAddonCache();
   static ADDON::CVFSAddonCache &GetVFSAddonCache();
   static XBPython &GetXBPython();
-  static CWSDiscovery& GetWSDiscovery();
+  static WSDiscovery::CWSDiscovery& GetWSDiscovery();
+  static void InitWSDiscovery();
   static MEDIA_DETECT::CDetectDVDMedia& GetDetectDVDMedia();
   static PVR::CPVRManager &GetPVRManager();
   static CContextMenuManager& GetContextMenuManager();
