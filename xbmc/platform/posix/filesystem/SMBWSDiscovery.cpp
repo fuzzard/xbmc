@@ -43,6 +43,7 @@ CWSDiscovery::CWSDiscovery()
   wsd_instance_id = epochduration.count() * system_clock::period::num / system_clock::period::den;
 
   m_WSDListenerUDP = std::make_unique<CWSDiscoveryListenerUDP>();
+  StartServices();
 }
 
 CWSDiscovery::~CWSDiscovery()
