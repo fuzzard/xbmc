@@ -482,17 +482,33 @@ bool XBPython::OnScriptInitialized(ILanguageInvoker* invoker)
     // at http://docs.python.org/using/cmdline.html#environment-variables
 
 #if !defined(TARGET_WINDOWS) && !defined(TARGET_ANDROID)
-    // check if we are running as real xbmc.app or just binary
-    if (!CUtil::GetFrameworksPath(true).empty())
+    if (getenv("KODIVENV"))
     {
-      // using external python, it's build looking for xxx/lib/python3.8
-      // so point it to frameworks which is where python3.8 is located
-      setenv("PYTHONHOME", CSpecialProtocol::TranslatePath("special://frameworks").c_str(), 1);
-      setenv("PYTHONPATH", CSpecialProtocol::TranslatePath("special://frameworks").c_str(), 1);
-      CLog::Log(LOGDEBUG, "PYTHONHOME -> {}",
-                CSpecialProtocol::TranslatePath("special://frameworks"));
-      CLog::Log(LOGDEBUG, "PYTHONPATH -> {}",
-                CSpecialProtocol::TranslatePath("special://frameworks"));
+      std::string pythonhome = getenv("KODIVENV");
+      setenv("PYTHONHOME", pythonhome.c_str(), 1);
+      if (!CUtil::GetFrameworksPath(true).empty())
+      {
+        // OSX include frameworks folder for builtin modules
+        std::string pythonpath = pythonhome + ":" +
+                                 CSpecialProtocol::TranslatePath("special://frameworks") +
+                                 "python3.8";
+        setenv("PYTHONPATH", pythonpath.c_str(), 1);
+      }
+    }
+    else
+    {
+      // check if we are running as real xbmc.app or just binary
+      if (!CUtil::GetFrameworksPath(true).empty())
+      {
+        // using external python, it's build looking for xxx/lib/python3.8
+        // so point it to frameworks which is where python3.8 is located
+        setenv("PYTHONHOME", CSpecialProtocol::TranslatePath("special://frameworks").c_str(), 1);
+        setenv("PYTHONPATH", CSpecialProtocol::TranslatePath("special://frameworks").c_str(), 1);
+        CLog::Log(LOGDEBUG, "PYTHONHOME -> {}",
+                  CSpecialProtocol::TranslatePath("special://frameworks"));
+        CLog::Log(LOGDEBUG, "PYTHONPATH -> {}",
+                  CSpecialProtocol::TranslatePath("special://frameworks"));
+      }
     }
 #elif defined(TARGET_WINDOWS)
     // because the third party build of python is compiled with vs2008 we need
