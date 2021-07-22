@@ -482,13 +482,32 @@ bool XBPython::OnScriptInitialized(ILanguageInvoker* invoker)
     // at http://docs.python.org/using/cmdline.html#environment-variables
 
 #if !defined(TARGET_WINDOWS) && !defined(TARGET_ANDROID)
+    // Use a venv environment provided by env vars
+    // 1. create venv prior
+    //     python3 -m venv kodivenv
+    // 2. execute kodi setting KODIVENV and PYTHONPATH env vars
+    //     KODIVENV=/home/user/kodivenv/ PYTHONPATH=/usr/lib/python3.6/ ./kodi.bin
     if (getenv("KODIVENV"))
     {
       std::string pythonhome = getenv("KODIVENV");
       setenv("PYTHONHOME", pythonhome.c_str(), 1);
+      Py_NoUserSiteDirectory = 1;
+#if defined(TARGET_LINUX)
+      // We need PYTHONPATH to point to builtin modules as they
+      // arent added to a venv folder structure otherwise loading of things like encoding
+      // will cause crash.
+      // eg. /usr/lib/python3.6/
+      if (getenv("PYTHONPATH"))
+      {
+        std::string envpythonpath = getenv("PYTHONPATH");
+        std::string pythonpath = pythonhome + ":" + envpythonpath;
+        setenv("PYTHONPATH", pythonpath.c_str(), 1);
+      }
+#endif
       if (!CUtil::GetFrameworksPath(true).empty())
       {
-        // OSX include frameworks folder for builtin modules
+        // OSX doesnt use "system" shared lib for python, so we always know location
+        // of our bundled builtin modules in our app framework path
         std::string pythonpath = pythonhome + ":" +
                                  CSpecialProtocol::TranslatePath("special://frameworks") +
                                  "python3.8";
