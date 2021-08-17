@@ -51,7 +51,7 @@ meson: python3 setuptools
 ninja: meson
 swig: pcre
 tar: xz automake
-python3: $(EXPAT) $(LIBFFI) pkg-config zlib
+python3: $(EXPAT) $(LIBFFI) pkg-config zlib autoconf-archive
 setuptools: python3
 wayland-scanner: expat pkg-config
 waylandpp-scanner: cmake pugixml

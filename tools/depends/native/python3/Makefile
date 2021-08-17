@@ -1,10 +1,10 @@
 include ../../Makefile.include
 PLATFORM=$(NATIVEPLATFORM)
-DEPS= ../../Makefile.include Makefile
+DEPS= ../../Makefile.include Makefile distutil.patch
 
 # lib name, version
 LIBNAME=Python
-VERSION=3.8.5
+VERSION=3.9.6
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.xz
 CWD=$(shell pwd)
@@ -36,6 +36,7 @@ $(LIBDYLIB): $(PLATFORM)
 	cd $(PLATFORM); $(MAKE)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
+	cd $(PLATFORM); patch -p1 -i ../distutil.patch
 	cd $(PLATFORM); $(MAKE) install
 	touch $(LIBDYLIB)
 	touch $@
