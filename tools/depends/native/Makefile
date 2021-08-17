@@ -34,7 +34,7 @@ endif
 .PHONY: $(NATIVE) native
 
 all: native
-	@echo "Dependencies built successfully."
+	@echo "${GREEN}Dependencies built successfully.${NC}"
 
 # Dependency layout for parallel builds
 autoconf: m4
@@ -80,7 +80,7 @@ test-dependencies:
         mkdir -p $(NATIVEPREFIX)/include $(NATIVEPREFIX)/share $(NATIVEPREFIX)/bin; \
 	cp -f config.site $(NATIVEPREFIX)/share/; \
 	$(MAKE) distclean; \
-	$(MAKE) $$d; done ) && echo "$@ built successfully"
+	$(MAKE) $$d; done ) && echo "${GREEN}$@ built successfully${NC}"
 
 distclean::
 	for d in $(NATIVE); do $(MAKE) -C $$d distclean; done

@@ -135,7 +135,7 @@ libva: libdrm $(LIBVA_DEPS)
 
 .installed-$(PLATFORM): $(DEPENDS)
 	touch $@
-	@echo "Dependencies built successfully."
+	@echo "${GREEN}Dependencies built successfully.${NC}"
 
 $(DEPENDS):
 	$(MAKE) -C $@
@@ -150,7 +150,7 @@ test-dependencies:
 	mkdir -p $(PREFIX)/include $(PREFIX)/share $(PREFIX)/bin; \
 	cp -f config.site Toolchain.cmake $(PREFIX)/share/; \
 	$(MAKE) distclean; \
-	$(MAKE) $$d; done ) && echo "$@ built successfully"
+	$(MAKE) $$d; done ) && echo "${GREEN}$@ built successfully${NC}"
 
 
 distclean::

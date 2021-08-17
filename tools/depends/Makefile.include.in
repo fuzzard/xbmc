@@ -115,3 +115,8 @@ export LIBTOOLIZE=@prefix@/@tool_dir@/bin/libtoolize
 export AUTORECONF=@prefix@/@tool_dir@/bin/autoreconf
 export JSON_BUILDER=$(NATIVEPREFIX)/bin/JsonSchemaBuilder
 
+# Terminal color utilities
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
