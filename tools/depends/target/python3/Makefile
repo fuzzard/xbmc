@@ -4,7 +4,7 @@ DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch android.pat
 
 # lib name, version
 LIBNAME=Python
-VERSION=3.8.5
+VERSION=3.9.6
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.xz
 BASE_URL=https://www.python.org/ftp/python/$(VERSION)
@@ -35,7 +35,7 @@ CONFIGURE=./configure --prefix=$(PREFIX) \
   $(EXTRA_CONFIGURE)
 
 
-LIBDYLIB=$(PLATFORM)/libpython3.8.a
+LIBDYLIB=$(PLATFORM)/libpython$(PYTHON_VERSION).a
 
 all: .installed-$(PLATFORM)
 
@@ -72,12 +72,12 @@ endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes libpython3.8.a
+	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes libpython$(PYTHON_VERSION).a
 	touch $@
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes install
-	find $(PREFIX)/lib/python3.8 -type f -name "*.pyc" -delete
+	find $(PREFIX)/lib/python$(PYTHON_VERSION) -type f -name "*.pyc" -delete
 	touch $(LIBDYLIB)
 	touch $@
 
