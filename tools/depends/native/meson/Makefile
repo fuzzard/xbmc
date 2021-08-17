@@ -8,6 +8,8 @@ VERSION=0.59.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
+BASE_URL=https://github.com/mesonbuild/$(LIBNAME)/releases/download/$(VERSION)/
+
 LIBDYLIB=$(PLATFORM)/build
 
 all: .installed-$(PLATFORM)
