@@ -1,11 +1,13 @@
 --- a/setup.py
 +++ b/setup.py
-@@ -266,6 +266,16 @@
+@@ -266,6 +266,18 @@
          # Disable any assembly in libtomcrypt files
          self.compiler.define_macro("LTC_NO_ASM")
  
 +        compiler = os.environ.get('CC')
 +        args = {}
++        self.compiler.include_dirs.clear()
++        self.compiler.include_dirs.append(os.environ.get('PYTHONXINCLUDE'))
 +        # unfortunately, distutils doesn't let us provide separate C and C++
 +        # compilers
 +        if compiler is not None:

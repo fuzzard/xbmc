@@ -23,13 +23,14 @@ endif
 
 ifeq ($(OS),android)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-PILPATHLIB=$(PILPATH)/lib
 PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
 EXTRALDFLAGS=-L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
 else ifeq ($(OS),darwin_embedded)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-PILPATHLIB=$(PILPATH)/lib
 PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
+ifeq ($(OS),darwin_embedded)
+CFLAGS:=$(CFLAGS) -target arm64-apple-darwin
+endif
 endif
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
@@ -39,7 +40,7 @@ ZLIB_ROOT=ZLIB_ROOT="$(SDKROOT)/usr"
 endif
 
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
-CROSSFLAGS=$(ZLIB_ROOT) PYTHONXINCLUDE="$(PREFIX)/include/python$(PYTHON_VERSION)" PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
+CROSSFLAGS=$(ZLIB_ROOT) PYTHONXINCLUDE="$(PREFIX)/include/python$(PYTHON_VERSION)" PYTHONXCPREFIX="$(PREFIX)" CC="$(CC)" CFLAGS="$(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
 
 all: .installed-$(PLATFORM)
 
@@ -51,31 +52,21 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
 
-$(PILPATHLIB):
+.installed-$(PLATFORM): $(PLATFORM)
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) build --build-platlib $(PILPATH)
 ifeq ($(OS),android)
-	mkdir -p $(PILPATHLIB)
-else ifeq ($(OS),darwin_embedded)
-	mkdir -p $(PILPATHLIB)
-endif
-
-.installed-$(PLATFORM): $(PLATFORM) $(PILPATHLIB)
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
-ifeq ($(OS),android)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATHLIB)/PIL && \
+	cd $(PILPATH)/PIL && \
           sed -i -e 's/import sys/import os, sys /' \
                  -e '/__file__/ s/_imaging/lib_imaging/g' \
                  -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /'  _imaging*.py
-	cd $(PILPATH) && rm -rf Pillow-*.egg
-else ifeq ($(OS),darwin_embedded)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATH) && rm -rf Pillow-*.egg
 endif
 	touch $@
 
 clean:
 	$(MAKE) -C $(PLATFORM) clean
 	rm -f .installed-$(PLATFORM)
+	rm -rf $(PILPATH)/PIL
 
 distclean::
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
+	rm -rf $(PILPATH)/PIL
