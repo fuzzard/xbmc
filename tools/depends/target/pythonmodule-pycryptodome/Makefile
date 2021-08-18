@@ -17,11 +17,13 @@ endif
 
 ifeq (darwin, $(findstring darwin, $(HOST)))
 ifeq ($(OS),darwin_embedded)
-PYTHON_O=$(abs_top_srcdir)/target/python3/$(PLATFORM)/Programs/python.o
+CCSHARED:=$(CFLAGS) -target arm64-apple-darwin
+else
+CCSHARED:=$(CFLAGS)
 endif
 #ensure that only our target ldflags are passed to the python build
 LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)" LDSHARED="$(LDSHARED)"
+CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC)" CCSHARED="$(CCSHARED)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)"
 endif
 
 LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-$(PYTHON_VERSION)/Cryptodome
