@@ -38,7 +38,7 @@ LDSHARED=$(CC) -bundle -undefined dynamic_lookup
 ZLIB_ROOT=ZLIB_ROOT="$(SDKROOT)/usr"
 endif
 
-BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
+BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-imagequant --disable-tiff --enable-webp --disable-xcb --disable-lcms --disable-platform-guessing
 CROSSFLAGS=$(ZLIB_ROOT) PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
 
 all: .installed-$(PLATFORM)
