@@ -43,9 +43,9 @@ static float currentRefreshRate()
   if (window)
   {
     float preferredRate = window.getAttributes().getpreferredRefreshRate();
-    if (preferredRate > 20.0f && preferredRate < 70.0f)
+    CLog::Log(LOGDEBUG, "CAndroidUtils:currentRefreshRate - Preferred refresh rate: {:f}", preferredRate);
+    if (preferredRate > 20.0f && preferredRate < 130.0f)
     {
-      CLog::Log(LOGINFO, "CAndroidUtils: Preferred refresh rate: {:f}", preferredRate);
       return preferredRate;
     }
     CJNIView view(window.getDecorView());
@@ -54,15 +54,15 @@ static float currentRefreshRate()
       if (display)
       {
         float reportedRate = display.getRefreshRate();
-        if (reportedRate > 20.0f && reportedRate < 70.0f)
+        CLog::Log(LOGDEBUG, "CAndroidUtils:currentRefreshRate - Current display refresh rate: {:f}", reportedRate);
+        if (reportedRate > 20.0f && reportedRate < 130.0f)
         {
-          CLog::Log(LOGINFO, "CAndroidUtils: Current display refresh rate: {:f}", reportedRate);
           return reportedRate;
         }
       }
     }
   }
-  CLog::Log(LOGDEBUG, "found no refresh rate");
+  CLog::Log(LOGDEBUG, "CAndroidUtils:currentRefreshRate - found no refresh rate - Returning default 60.0");
   return 60.0;
 }
 
