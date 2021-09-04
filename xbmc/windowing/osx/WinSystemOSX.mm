@@ -13,7 +13,11 @@
 #include "OSScreenSaverOSX.h"
 #include "ServiceBroker.h"
 #include "VideoSyncOsx.h"
+#if defined(SDL_FOUND)
+#include "WinEventsSDL.h"
+#else
 #include "WinEventsOSX.h"
+#endif
 #include "cores/AudioEngine/AESinkFactory.h"
 #include "cores/AudioEngine/Sinks/AESinkDARWINOSX.h"
 #include "cores/RetroPlayer/process/osx/RPProcessInfoOSX.h"
