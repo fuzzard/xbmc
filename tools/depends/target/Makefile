@@ -13,9 +13,10 @@ DEPENDS = \
 	python3 libshairplay libfmt libspdlog \
 	libplist libcec libbluray tinyxml \
 	taglib libusb libnfs \
-	pythonmodule-pil pythonmodule-pycryptodome pythonmodule-setuptools \
+  pythonmodule-pycryptodome pythonmodule-setuptools \
 	libxslt ffmpeg crossguid libudfread \
 	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d xz
+#	pythonmodule-pil 
 
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3

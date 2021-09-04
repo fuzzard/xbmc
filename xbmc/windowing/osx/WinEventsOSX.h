@@ -8,11 +8,27 @@
 
 #pragma once
 
-#include "windowing/osx/WinEventsSDL.h"
+#include "threads/Thread.h"
+#include "windowing/WinEvents.h"
+#include "windowing/XBMC_events.h"
 
-class CWinEventsOSX : public CWinEventsSDL
+#include <memory>
+
+struct CWinEventsOSXImplWrapper;
+
+class CWinEventsOSX : public IWinEvents, public CThread
 {
 public:
-  CWinEventsOSX() = default;
-  ~CWinEventsOSX() override = default;
+  CWinEventsOSX();
+  ~CWinEventsOSX();
+
+  void MessagePush(XBMC_Event *newEvent);
+  bool MessagePump();
+  size_t GetQueueSize();
+
+  void enableInputEvents();
+  void disableInputEvents();
+
+private:
+  std::unique_ptr<CWinEventsOSXImplWrapper> m_eventsImplWrapper;
 };
