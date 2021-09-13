@@ -9,25 +9,21 @@
 #pragma once
 
 #include "threads/CriticalSection.h"
+#include "threads/SystemClock.h"
 #include "threads/Timer.h"
 #include "windowing/WinSystem.h"
-#include "threads/SystemClock.h"
 
+#include <chrono>
 #include <string>
 #include <vector>
 
-typedef struct _CGLContextObject *CGLContextObj;
+typedef struct SDL_Surface SDL_Surface;
 
 class IDispResource;
 class CWinEventsOSX;
 class CWinSystemOSXImpl;
 #ifdef __OBJC__
-  @class NSOpenGLContext;
-  @class NSWindow;
-  @class OSXGLView;
-#else
-  class NSWindow;
-  class OSXGLView;
+@class NSOpenGLContext;
 #endif
 
 class CWinSystemOSX : public CWinSystemBase, public ITimerCallback
@@ -56,8 +52,6 @@ public:
   bool Show(bool raise = true) override;
   void OnMove(int x, int y) override;
 
-  void SetOcclusionState(bool occluded);
-
   std::string GetClipboardText() override;
 
   void Register(IDispResource *resource) override;
@@ -73,13 +67,12 @@ public:
   void        StartLostDeviceTimer();
   void        StopLostDeviceTimer();
 
-  void         SetMovedToOtherScreen(bool moved) { m_movedToOtherScreen = moved; }
-  int          CheckDisplayChanging(uint32_t flags);
-  void         SetFullscreenWillToggle(bool toggle){ m_fullscreenWillToggle = toggle; }
-  bool         GetFullscreenWillToggle(){ return m_fullscreenWillToggle; }
-
-  CGLContextObj GetCGLContextObj();
-
+  void* GetCGLContextObj();
+#ifdef __OBJC__
+  NSOpenGLContext* GetNSOpenGLContext();
+#else
+  void* GetNSOpenGLContext();
+#endif
   void GetConnectedOutputs(std::vector<std::string> *outputs);
 
   // winevents override
@@ -99,11 +92,11 @@ protected:
   void  StopTextInput();
 
   std::unique_ptr<CWinSystemOSXImpl> m_impl;
-  static void                 *m_lastOwnedContext;
-  std::string                  m_name;
+  SDL_Surface* m_SDLSurface;
+  CWinEventsOSX *m_osx_events;
   bool                         m_obscured;
-  NSWindow                    *m_appWindow;
-  OSXGLView                   *m_glView;
+  std::chrono::time_point<std::chrono::steady_clock> m_obscured_timecheck;
+
   bool                         m_movedToOtherScreen;
   int                          m_lastDisplayNr;
   double                       m_refreshRate;
@@ -114,6 +107,4 @@ protected:
   bool                         m_delayDispReset;
   XbmcThreads::EndTime         m_dispResetTimer;
   int m_updateGLContext = 0;
-  bool                         m_fullscreenWillToggle;
-  CCriticalSection             m_critSection;
 };

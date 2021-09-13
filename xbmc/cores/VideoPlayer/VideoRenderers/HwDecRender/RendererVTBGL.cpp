@@ -14,7 +14,11 @@
 #include "cores/VideoPlayer/DVDCodecs/Video/VTB.h"
 #include "utils/log.h"
 #include "windowing/WinSystem.h"
+#if defined(SDL_FOUND)
+#include "windowing/osx/WinSystemOSXSDL.h"
+#else
 #include "windowing/osx/WinSystemOSX.h"
+#endif
 
 #include "platform/darwin/osx/CocoaInterface.h"
 

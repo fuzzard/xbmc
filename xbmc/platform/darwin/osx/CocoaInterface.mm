@@ -11,7 +11,11 @@
 #import "DllPaths_generated.h"
 #include "ServiceBroker.h"
 #include "utils/log.h"
+#if defined(SDL_FOUND)
+#include "windowing/osx/WinSystemOSXSDL.h"
+#else
 #include "windowing/osx/WinSystemOSX.h"
+#endif
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AudioUnit/AudioUnit.h>
@@ -31,8 +35,12 @@ CGDirectDisplayID Cocoa_GetDisplayIDFromScreen(NSScreen *screen);
 
 NSOpenGLContext* Cocoa_GL_GetCurrentContext(void)
 {
+#if defined(HAS_SDL)
   CWinSystemOSX *winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
   return winSystem->GetNSOpenGLContext();
+#else
+  return [NSOpenGLContext currentContext];
+#endif
 }
 
 uint32_t Cocoa_GL_GetCurrentDisplayID(void)
@@ -236,6 +244,11 @@ void Cocoa_HideMouse()
 void Cocoa_ShowMouse()
 {
   [NSCursor unhide];
+}
+
+bool Cocoa_IsMouseHidden()
+{
+  //return hidden;
 }
 
 //---------------------------------------------------------------------------------
