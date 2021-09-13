@@ -48,6 +48,7 @@
 #include <signal.h>
 
 #import <Cocoa/Cocoa.h>
+#import <CoreVideo/CVBase.h>
 #import <IOKit/graphics/IOGraphicsLib.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
 #import <QuartzCore/QuartzCore.h>
@@ -552,6 +553,9 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
   if (!displayModes)
     return NULL;
 
+  CVDisplayLinkRef link;
+  CVDisplayLinkCreateWithCGDisplay(GetDisplayID(screenIdx), &link);
+
   for (int i=0; i < CFArrayGetCount(displayModes); ++i)
   {
     CGDisplayModeRef displayMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(displayModes, i);
@@ -565,6 +569,15 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
     h = CGDisplayModeGetHeight(displayMode);
     rate = CGDisplayModeGetRefreshRate(displayMode);
 
+    if (rate == 0)
+    {
+      // NOTE: The refresh rate will be REPORTED AS 0 for many DVI and notebook displays.
+      // when using CGDisplayModeGetRefreshRate. Calculate refresh rate instead of
+      // hard coding 60.0hz
+      const CVTime time = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
+      if (!(time.flags & kCVTimeIsIndefinite))
+        rate = static_cast<double>(time.timeScale / time.timeValue);
+    }
 
     if ((bitsperpixel == 32)      &&
         (safeForHardware == YES)  &&
@@ -575,11 +588,13 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
         (rate == refreshrate || rate == 0))
     {
       CLog::Log(LOGDEBUG, "GetMode found a match!");
+      CVDisplayLinkRelease(link);
       return displayMode;
     }
   }
 
   CFRelease(displayModes);
+  CVDisplayLinkRelease(link);
   CLog::Log(LOGERROR, "GetMode - no match found!");
   return NULL;
 }
@@ -1279,7 +1294,15 @@ void CWinSystemOSX::GetScreenResolution(int* w, int* h, double* fps, int screenI
   if ((int)*fps == 0)
   {
     // NOTE: The refresh rate will be REPORTED AS 0 for many DVI and notebook displays.
-    *fps = 60.0;
+    // when using CGDisplayModeGetRefreshRate. Calculate refresh rate instead of
+    // hard coding 60.0hz
+    CVDisplayLinkRef link;
+    CVDisplayLinkCreateWithCGDisplay(display_id, &link);
+    const CVTime time = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
+    if (!(time.flags & kCVTimeIsIndefinite))
+      *fps = static_cast<double>(time.timeScale / time.timeValue);
+
+    CVDisplayLinkRelease(link);
   }
 }
 
@@ -1341,6 +1364,20 @@ bool CWinSystemOSX::SwitchToVideoMode(int width, int height, double refreshrate)
 
   m_refreshRate = CGDisplayModeGetRefreshRate(dispMode);
 
+  if (m_refreshRate == 0)
+  {
+    // NOTE: The refresh rate will be REPORTED AS 0 for many DVI and notebook displays.
+    // when using CGDisplayModeGetRefreshRate. Calculate refresh rate instead of
+    // hard coding 60.0hz
+    CVDisplayLinkRef link;
+    CVDisplayLinkCreateWithCGDisplay(display_id, &link);
+    const CVTime time = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
+    if (!(time.flags & kCVTimeIsIndefinite))
+      m_refreshRate = static_cast<double>(time.timeScale / time.timeValue);
+
+    CVDisplayLinkRelease(link);
+  }
+
   Cocoa_CVDisplayLinkUpdate();
 
   return (err == kCGErrorSuccess);
@@ -1371,6 +1408,9 @@ void CWinSystemOSX::FillInVideoModes()
     if (NULL == displayModes)
       continue;
 
+    CVDisplayLinkRef link;
+    CVDisplayLinkCreateWithCGDisplay(GetDisplayID(disp), &link);
+
     for (int i=0; i < CFArrayGetCount(displayModes); ++i)
     {
       CGDisplayModeRef displayMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(displayModes, i);
@@ -1393,7 +1433,11 @@ void CWinSystemOSX::FillInVideoModes()
         if ((int)refreshrate == 0)  // LCD display?
         {
           // NOTE: The refresh rate will be REPORTED AS 0 for many DVI and notebook displays.
-          refreshrate = 60.0;
+          // when using CGDisplayModeGetRefreshRate. Calculate refresh rate instead of
+          // hard coding 60.0hz
+          const CVTime time = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
+          if (!(time.flags & kCVTimeIsIndefinite))
+            refreshrate = time.timeScale / time.timeValue;
         }
         CLog::Log(LOGINFO, "Found possible resolution for display {} with {} x {} @ {:f} Hz", disp,
                   w, h, refreshrate);
@@ -1408,6 +1452,7 @@ void CWinSystemOSX::FillInVideoModes()
         }
       }
     }
+    CVDisplayLinkRelease(link);
     CFRelease(displayModes);
   }
 }
