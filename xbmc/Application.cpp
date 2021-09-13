@@ -4116,6 +4116,7 @@ void CApplication::ProcessSlow()
   CServiceBroker::GetPowerManager().ProcessEvents();
 
 #if defined(TARGET_DARWIN_OSX)
+#if defined(SDL_FOUND)
   // There is an issue on OS X that several system services ask the cursor to become visible
   // during their startup routines.  Given that we can't control this, we hack it in by
   // forcing the
@@ -4123,6 +4124,7 @@ void CApplication::ProcessSlow()
   { // SDL thinks it's hidden
     Cocoa_HideMouse();
   }
+#endif
 #endif
 
   // Temporarily pause pausable jobs when viewing video/picture

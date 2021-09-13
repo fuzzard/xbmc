@@ -44,6 +44,8 @@
 #define WIN_SYSTEM_CLASS CWinSystemOSX
 #if defined(HAS_SDL)
 #include "windowing/osx/SDL/WinSystemOSXSDL.h"
+#else
+#include "windowing/osx/WinSystemOSX.h"
 #endif
 #elif defined(TARGET_ANDROID)
 #elif defined(TARGET_DARWIN_IOS)
