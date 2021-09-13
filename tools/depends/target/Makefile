@@ -39,7 +39,9 @@ ifeq ($(OS),osx)
     # ToDo: support all regular depends for apple silicon
     EXCLUDED_DEPENDS += pythonmodule-pil pythonmodule-pycryptodome pythonmodule-setuptools
   else
-    DEPENDS += libsdl
+    ifeq ($(WINDOW_SYSTEM),sdl)
+      DEPENDS += libsdl
+    endif
   endif
 endif
 
