@@ -9,9 +9,9 @@
 #pragma once
 
 #if defined(SDL_FOUND)
-#include "WinSystemOSXSDL.h"
+#include "windowing/osx/SDL/WinSystemOSXSDL.h"
 #else
-#include "WinSystemOSX.h"
+#include "windowing/osx/WinSystemOSX.h"
 #endif
 #include "rendering/gl/RenderSystemGL.h"
 

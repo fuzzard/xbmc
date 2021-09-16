@@ -10,7 +10,7 @@ if(NOT APP_WINDOW_SYSTEM OR APP_WINDOW_SYSTEM STREQUAL sdl)
   list(APPEND SYSTEM_DEFINES -DHAS_SDL)
   list(APPEND PLATFORM_REQUIRED_DEPS Sdl)
 
-  list(APPEND CORE_MAIN_SOURCE ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/SDLMain.mm
+  list(APPEND CORE_MAIN_SOURCE ${CMAKE_SOURCE_DIR}/xbmc/platform/darwin/osx/SDL/SDLMain.mm
                                ${CMAKE_SOURCE_DIR}/xbmc/platform/posix/main.cpp)
 elseif(APP_WINDOW_SYSTEM STREQUAL native)
   # native windowing and input

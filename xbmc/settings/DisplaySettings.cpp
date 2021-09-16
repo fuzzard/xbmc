@@ -43,7 +43,7 @@
 #elif defined(TARGET_DARWIN_OSX)
 #define WIN_SYSTEM_CLASS CWinSystemOSX
 #if defined(SDL_FOUND)
-#include "windowing/osx/WinSystemOSXSDL.h"
+#include "windowing/osx/SDL/WinSystemOSXSDL.h"
 #else
 #include "windowing/osx/WinSystemOSX.h"
 #endif

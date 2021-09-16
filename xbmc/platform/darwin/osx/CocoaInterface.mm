@@ -12,7 +12,7 @@
 #include "ServiceBroker.h"
 #include "utils/log.h"
 #if defined(SDL_FOUND)
-#include "windowing/osx/WinSystemOSXSDL.h"
+#include "windowing/osx/SDL/WinSystemOSXSDL.h"
 #else
 #include "windowing/osx/WinSystemOSX.h"
 #endif

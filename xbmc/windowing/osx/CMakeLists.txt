@@ -5,12 +5,7 @@ set(HEADERS CocoaDPMSSupport.h
             OSScreenSaverOSX.h
             VideoSyncOsx.h)
 
-if(SDL_FOUND)
-  list(APPEND SOURCES WinEventsSDL.cpp
-                      WinSystemOSXSDL.mm)
-  list(APPEND HEADERS WinEventsSDL.h
-                      WinSystemOSXSDL.h)
-else()
+if(NOT SDL_FOUND)
   list(APPEND SOURCES WinEventsOSX.mm
                       WinEventsOSXImpl.mm
                       WinSystemOSX.mm)

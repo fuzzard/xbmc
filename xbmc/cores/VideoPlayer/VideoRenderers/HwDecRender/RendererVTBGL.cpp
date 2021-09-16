@@ -15,7 +15,7 @@
 #include "utils/log.h"
 #include "windowing/WinSystem.h"
 #if defined(SDL_FOUND)
-#include "windowing/osx/WinSystemOSXSDL.h"
+#include "windowing/osx/SDL/WinSystemOSXSDL.h"
 #else
 #include "windowing/osx/WinSystemOSX.h"
 #endif

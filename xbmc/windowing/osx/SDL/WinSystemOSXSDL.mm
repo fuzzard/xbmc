@@ -10,14 +10,7 @@
 
 #include "AppInboundProtocol.h"
 #include "CompileInfo.h"
-#include "OSScreenSaverOSX.h"
 #include "ServiceBroker.h"
-#include "VideoSyncOsx.h"
-#if defined(SDL_FOUND)
-#include "WinEventsSDL.h"
-#else
-#include "WinEventsOSX.h"
-#endif
 #include "cores/AudioEngine/AESinkFactory.h"
 #include "cores/AudioEngine/Sinks/AESinkDARWINOSX.h"
 #include "cores/RetroPlayer/process/osx/RPProcessInfoOSX.h"
@@ -41,6 +34,9 @@
 #include "utils/SystemInfo.h"
 #include "utils/log.h"
 #include "windowing/osx/CocoaDPMSSupport.h"
+#include "windowing/osx/OSScreenSaverOSX.h"
+#include "windowing/osx/SDL/WinEventsSDL.h"
+#include "windowing/osx/VideoSyncOsx.h"
 
 #include "platform/darwin/DarwinUtils.h"
 #include "platform/darwin/DictionaryUtils.h"
