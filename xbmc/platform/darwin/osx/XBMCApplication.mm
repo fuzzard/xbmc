@@ -401,11 +401,7 @@ static void setupWindowMenu(void)
 
 @end
 
-#ifdef main
-#  undef main
-#endif
-/* Main entry point to executable - should *not* be SDL_main! */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   @autoreleasepool
   {

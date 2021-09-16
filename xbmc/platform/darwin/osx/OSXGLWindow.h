@@ -35,17 +35,4 @@
 -(void) windowDidExitFullScreen: (NSNotification*)pNotification;
 -(void) windowWillExitFullScreen: (NSNotification*)pNotification;
 -(void) windowDidChangeScreen:(NSNotification *)notification;
-
-/* Window event handling */
--(void) mouseDown:(NSEvent *) theEvent;
--(void) rightMouseDown:(NSEvent *) theEvent;
--(void) otherMouseDown:(NSEvent *) theEvent;
--(void) mouseUp:(NSEvent *) theEvent;
--(void) rightMouseUp:(NSEvent *) theEvent;
--(void) otherMouseUp:(NSEvent *) theEvent;
--(void) mouseMoved:(NSEvent *) theEvent;
--(void) mouseDragged:(NSEvent *) theEvent;
--(void) rightMouseDragged:(NSEvent *) theEvent;
--(void) otherMouseDragged:(NSEvent *) theEvent;
--(void) scrollWheel:(NSEvent *) theEvent;
 @end
