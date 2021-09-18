@@ -34,7 +34,6 @@ extern "C"
   //
   void Cocoa_HideMouse();
   void Cocoa_ShowMouse();
-  bool Cocoa_IsMouseHidden();
 
   const char *Cocoa_Paste() ;
 

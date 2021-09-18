@@ -246,11 +246,6 @@ void Cocoa_ShowMouse()
   [NSCursor unhide];
 }
 
-bool Cocoa_IsMouseHidden()
-{
-  //return hidden;
-}
-
 //---------------------------------------------------------------------------------
 const char *Cocoa_Paste()
 {

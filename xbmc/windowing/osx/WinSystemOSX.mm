@@ -799,7 +799,7 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
   if (m_bFullScreen)
   {
     // switch videomode
-    SwitchToVideoMode(res.iWidth, res.iHeight, res.fRefreshRate);
+    SwitchToVideoMode(res.iWidth, res.iHeight, static_cast<double>(res.fRefreshRate));
     // hide the OS mouse
     Cocoa_HideMouse();
   }

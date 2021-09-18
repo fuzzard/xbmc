@@ -208,10 +208,10 @@
   [self disableInputEvents]; // allow only one registration at a time
 
   // Create an event tap. We are interested in mouse and keyboard events.
-  eventMask = NSLeftMouseDownMask | NSLeftMouseUpMask | NSRightMouseDownMask | NSRightMouseUpMask |
-              NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSOtherMouseDownMask |
-              NSOtherMouseUpMask | NSOtherMouseDraggedMask | NSMouseMovedMask | NSScrollWheelMask |
-              NSKeyDownMask | NSKeyUpMask;
+  eventMask = NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp | NSEventMaskRightMouseDown | NSEventMaskRightMouseUp |
+              NSEventMaskLeftMouseDragged | NSEventMaskRightMouseDragged | NSEventMaskOtherMouseDown |
+              NSEventMaskOtherMouseUp | NSEventMaskOtherMouseDragged | NSEventMaskMouseMoved | NSEventMaskScrollWheel |
+              NSEventMaskKeyDown | NSEventMaskKeyUp;
 
   mLocalMonitorId = [NSEvent addLocalMonitorForEventsMatchingMask:eventMask
                                                           handler:^(NSEvent* event) {

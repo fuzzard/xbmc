@@ -26,7 +26,7 @@
 - (id)initWithFrame:(NSRect)frameRect
 {
   NSOpenGLPixelFormatAttribute wattrs[] = {
-      NSOpenGLPFADoubleBuffer,        NSOpenGLPFAWindow,
+      NSOpenGLPFADoubleBuffer,
       NSOpenGLPFANoRecovery,          NSOpenGLPFAAccelerated,
       NSOpenGLPFAColorSize,           (NSOpenGLPixelFormatAttribute)32,
       NSOpenGLPFAAlphaSize,           (NSOpenGLPixelFormatAttribute)8,
@@ -91,18 +91,15 @@
 - (void)mouseEntered:(NSEvent*)theEvent
 {
   Cocoa_HideMouse();
-  [self displayIfNeeded];
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent
 {
-  [self displayIfNeeded];
 }
 
 - (void)mouseExited:(NSEvent*)theEvent
 {
   Cocoa_ShowMouse();
-  [self displayIfNeeded];
 }
 
 - (NSOpenGLContext*)getGLContext

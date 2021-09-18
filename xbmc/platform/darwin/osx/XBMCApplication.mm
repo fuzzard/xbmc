@@ -170,7 +170,7 @@ static void setupWindowMenu(void)
 
   //post a NOP event, so the run loop actually stops
   //see http://www.cocoabuilder.com/archive/cocoa/219842-nsapp-stop.html
-  NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
+  NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                       location: NSMakePoint(0,0)
                                  modifierFlags: 0
                                      timestamp: 0.0

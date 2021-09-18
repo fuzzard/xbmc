@@ -28,11 +28,7 @@
 - (void)windowDidBecomeKey:(NSNotification*)aNotification;
 - (void)windowDidResignKey:(NSNotification*)aNotification;
 - (NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize;
-- (void)windowWillStartLiveResize:(NSNotification*)aNotification;
-- (void)windowDidEndLiveResize:(NSNotification*)aNotification;
-- (void)windowDidEnterFullScreen:(NSNotification*)pNotification;
 - (void)windowWillEnterFullScreen:(NSNotification*)pNotification;
 - (void)windowDidExitFullScreen:(NSNotification*)pNotification;
-- (void)windowWillExitFullScreen:(NSNotification*)pNotification;
 - (void)windowDidChangeScreen:(NSNotification*)notification;
 @end
