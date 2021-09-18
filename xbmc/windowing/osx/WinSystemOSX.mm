@@ -48,6 +48,7 @@
 #include "platform/darwin/osx/powermanagement/CocoaPowerSyscall.h"
 
 #include <cstdlib>
+#include <chrono>
 #include <signal.h>
 
 #import <Cocoa/Cocoa.h>
@@ -68,11 +69,6 @@ class CWinSystemOSXImpl
 };
 
 #define MAX_DISPLAYS 32
-// if there was a devicelost callback
-// but no device reset for 3 secs
-// a timeout fires the reset callback
-// (for ensuring that e.x. AE isn't stuck)
-#define LOST_DEVICE_TIMEOUT_MS 3000
 static NSWindow* blankingWindows[MAX_DISPLAYS];
 
 //------------------------------------------------------------------------------------------
@@ -569,8 +565,8 @@ void CWinSystemOSX::StartLostDeviceTimer()
 {
   if (m_lostDeviceTimer.IsRunning())
     m_lostDeviceTimer.Restart();
-  //else
-  //m_lostDeviceTimer.Start(LOST_DEVICE_TIMEOUT_MS, false);
+  else
+    m_lostDeviceTimer.Start(std::chrono::milliseconds(3000), false);
 }
 
 void CWinSystemOSX::StopLostDeviceTimer()
@@ -597,7 +593,7 @@ bool CWinSystemOSX::DestroyWindowSystem()
 {
   CGDisplayRemoveReconfigurationCallback(DisplayReconfigured, (void*)this);
 
-  //  DestroyWindowInternal();
+  DestroyWindowInternal();
 
   if (m_glView)
   {
@@ -705,7 +701,7 @@ bool CWinSystemOSX::CreateNewWindow(const std::string& name, bool fullScreen, RE
   return true;
 }
 
-/*bool CWinSystemOSX::DestroyWindowInternal()
+bool CWinSystemOSX::DestroyWindowInternal()
 {
   // set this 1st, we should really mutex protext m_appWindow in this class
   m_bWindowCreated = false;
@@ -719,7 +715,7 @@ bool CWinSystemOSX::CreateNewWindow(const std::string& name, bool fullScreen, RE
   }
 
   return true;
-}*/
+}
 
 bool CWinSystemOSX::DestroyWindow()
 {
@@ -1155,8 +1151,7 @@ void CWinSystemOSX::HandlePossibleRefreshrateChange()
   if (oldRefreshRate != m_refreshRate)
   {
     oldRefreshRate = m_refreshRate;
-    // send a message so that videoresolution (and refreshrate)
-    // is changed
+
     // send a message so that videoresolution (and refreshrate) is changed
     NSWindow* win = m_appWindow;
     NSRect frame = [[win contentView] frame];
@@ -1194,7 +1189,6 @@ void CWinSystemOSX::StartTextInput()
 
   if (![[g_textInputResponder superview] isEqual:parentView])
   {
-    //    DLOG(@"add fieldEdit to window contentView");
     [g_textInputResponder removeFromSuperview];
     [parentView addSubview:g_textInputResponder];
     [[NSApp keyWindow] makeFirstResponder:g_textInputResponder];
@@ -1369,4 +1363,14 @@ NSRect CWinSystemOSX::GetWindowDimensions()
     NSRect frame = [[win contentView] frame];
     return frame;
   }
+}
+
+void CWinSystemOSX::enableInputEvents()
+{
+  m_winEvents->enableInputEvents();
+}
+
+void CWinSystemOSX::disableInputEvents()
+{
+  m_winEvents->disableInputEvents();
 }

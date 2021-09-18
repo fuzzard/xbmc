@@ -86,6 +86,8 @@ public:
   bool MessagePump() override;
 
   NSRect GetWindowDimensions();
+  void enableInputEvents();
+  void disableInputEvents();
 
 protected:
   std::unique_ptr<KODI::WINDOWING::IOSScreenSaver> GetOSScreenSaverImpl() override;
@@ -100,7 +102,10 @@ protected:
   void StartTextInput();
   void StopTextInput();
 
+  bool DestroyWindowInternal();
+
   std::unique_ptr<CWinSystemOSXImpl> m_impl;
+  std::unique_ptr<CWinEventsOSX> m_winEvents;
   static void* m_lastOwnedContext;
   std::string m_name;
   bool m_obscured;

@@ -76,7 +76,7 @@
   {
     // Pop up only one event per time since in App::OnEvent it may init modal dialog which init
     // deeper message loop and call the deeper MessagePump from there.
-    XBMC_Event pumpEvent;
+    XBMC_Event pumpEvent = {};
     {
       CSingleLock lock(g_inputCond);
       if (events.size() == 0)

@@ -94,20 +94,19 @@
 
 - (void)windowDidResize:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidResize");
   NSRect rect = [self contentRectForFrameRect:[self frame]];
 
   if(!CServiceBroker::GetWinSystem()->IsFullScreen())
   {
     RESOLUTION res_index  = RES_DESKTOP;
-    if(((int)rect.size.width == CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iWidth) &&
-       ((int)rect.size.height == CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iHeight))
+    if((static_cast<int>(rect.size.width) == CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iWidth) &&
+       (static_cast<int>(rect.size.height) == CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iHeight))
       return;
   }
-  XBMC_Event newEvent;
+  XBMC_Event newEvent = {};
   newEvent.type = XBMC_VIDEORESIZE;
-  newEvent.resize.w = (int)rect.size.width;
-  newEvent.resize.h = (int)rect.size.height;
+  newEvent.resize.w = static_cast<int>(rect.size.width);
+  newEvent.resize.h = static_cast<int>(rect.size.height);
 
   // check for valid sizes cause in some cases
   // we are hit during fullscreen transition from osx
@@ -159,7 +158,7 @@
 
 -(void)windowDidExitFullScreen: (NSNotification*)pNotification
 {
-  CWinSystemOSX* winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  auto winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
   // if osx is the issuer of the toggle
   // call XBMCs toggle function
   if (!winSystem->GetFullscreenWillToggle())
@@ -179,34 +178,35 @@
   }
 }
 
--(void)windowWillExitFullScreen: (NSNotification*)pNotification
-{
-
-}
-
 - (void)windowDidMiniaturize:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidMiniaturize");
   g_application.m_AppFocused = false;
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidDeminiaturize");
   g_application.m_AppFocused = true;
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidBecomeKey");
   g_application.m_AppFocused = true;
-//  CWinEventsOSXImp::EnableInput();
+
+  auto winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  if (winSystem)
+  {
+    winSystem->enableInputEvents();
+  }
 }
 
 - (void)windowDidResignKey:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidResignKey");
   g_application.m_AppFocused = false;
-//  CWinEventsOSXImp::DisableInput();
+
+  auto winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  if (winSystem)
+  {
+    winSystem->disableInputEvents();
+  }
 }
 @end
