@@ -9,6 +9,7 @@
 
 #include "WinEventsOSXImpl.h"
 
+#include "Application.h"
 #include "AppInboundProtocol.h"
 #include "ServiceBroker.h"
 #include "input/actions/Action.h"
@@ -22,6 +23,8 @@
 #include "threads/CriticalSection.h"
 #include "threads/SingleLock.h"
 #include "utils/log.h"
+
+#include "windowing/osx/WinSystemOSX.h"
 
 #include <list>
 #include <memory>
@@ -165,7 +168,7 @@
     switch (event.key.keysym.sym)
     {
       case XBMCK_q: // CMD-q to quit
-        //if (!g_application.m_bStop)
+        if (!g_application.m_bStop)
           KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
         return true;
 
@@ -244,7 +247,12 @@
     return nsevent;
 
   // cocoa world is upside down ...
-  //  location.y = g_Windowing.CocoaToNativeFlip(location.y);
+  auto winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  if (!winSystem)
+    return nsevent;
+
+  NSRect frame = winSystem->GetWindowDimensions();
+  location.y = frame.size.height - location.y;
 
   UniChar unicodeString[10];
   UniCharCount actualStringLength = 10;

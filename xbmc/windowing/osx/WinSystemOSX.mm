@@ -51,6 +51,7 @@
 #include <signal.h>
 
 #import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <IOKit/graphics/IOGraphicsLib.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
 #import <QuartzCore/QuartzCore.h>
@@ -1344,5 +1345,15 @@ void CWinSystemOSX::GetConnectedOutputs(std::vector<std::string> *outputs)
   {
     NSString *dispName = screenNameForDisplay(GetDisplayID(disp));
     outputs->push_back([dispName UTF8String]);
+  }
+}
+
+NSRect CWinSystemOSX::GetWindowDimensions()
+{
+  if (m_appWindow)
+  {
+    NSWindow *win = (NSWindow *)m_appWindow;
+    NSRect frame = [[win contentView] frame];
+    return frame;
   }
 }

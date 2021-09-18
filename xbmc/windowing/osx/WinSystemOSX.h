@@ -17,6 +17,7 @@
 #include <vector>
 
 typedef struct _CGLContextObject *CGLContextObj;
+typedef struct CGRect NSRect;
 
 class IDispResource;
 class CWinEventsOSX;
@@ -84,6 +85,8 @@ public:
 
   // winevents override
   bool MessagePump() override;
+
+  NSRect GetWindowDimensions();
 
 protected:
   std::unique_ptr<KODI::WINDOWING::IOSScreenSaver> GetOSScreenSaverImpl() override;
