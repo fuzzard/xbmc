@@ -22,10 +22,8 @@
 #import "windowing/osx/WinSystemOSX.h"
 
 #include "windowing/osx/WinEventsOSX.h"
-//#include "windowing/WindowingFactory.h"
 
 #include "platform/darwin/osx/CocoaInterface.h"
-//#import "platform/darwin/osx/DarwinUtils.h"
 #import "platform/darwin/osx/OSXGLView.h"
 
 //------------------------------------------------------------------------------------------
@@ -64,7 +62,6 @@
 
 - (BOOL)windowShouldClose:(id)sender
 {
-
   if (!g_application.m_bStop)
     KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
 
@@ -73,21 +70,18 @@
 
 - (void)windowDidExpose:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidExpose");
   g_application.m_AppFocused = true;
 }
 
 - (void)windowDidMove:(NSNotification *)aNotification
 {
-  //NSLog(@"windowDidMove");
   NSOpenGLContext* context = [NSOpenGLContext currentContext];
   if (context)
   {
     if ([context view])
     {
       NSPoint window_origin = [[[context view] window] frame].origin;
-      XBMC_Event newEvent;
-      memset(&newEvent, 0, sizeof(newEvent));
+      XBMC_Event newEvent = {};
       newEvent.type = XBMC_VIDEOMOVE;
       newEvent.move.x = window_origin.x;
       newEvent.move.y = window_origin.y;
@@ -135,24 +129,9 @@
 //    CServiceBroker::GetWinSystem()->SetMovedToOtherScreen(true);
 }
 
--(NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize
+-(NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize
 {
-  //NSLog(@"windowWillResize");
   return frameSize;
-}
-
--(void)windowWillStartLiveResize:(NSNotification *)aNotification
-{
-  //NSLog(@"windowWillStartLiveResize");
-}
-
--(void)windowDidEndLiveResize:(NSNotification *)aNotification
-{
-  //NSLog(@"windowDidEndLiveResize");
-}
-
--(void)windowDidEnterFullScreen: (NSNotification*)pNotification
-{
 }
 
 -(void)windowWillEnterFullScreen: (NSNotification*)pNotification

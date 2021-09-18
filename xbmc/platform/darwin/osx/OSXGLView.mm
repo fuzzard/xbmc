@@ -53,7 +53,6 @@
 
 - (void)dealloc
 {
-  //NSLog(@"OSXGLView dealoc");
   [NSOpenGLContext clearCurrentContext];
   [m_glcontext clearDrawable];
 }
@@ -63,7 +62,6 @@
   static BOOL firstRender = YES;
   if (firstRender)
   {
-    //NSLog(@"OSXGLView drawRect setView");
     [m_glcontext setView:self];
     firstRender = NO;
 
@@ -78,7 +76,6 @@
 
 -(void)updateTrackingAreas
 {
-  //NSLog(@"updateTrackingAreas");
   if (m_trackingArea != nil)
   {
     [self removeTrackingArea:m_trackingArea];
@@ -96,20 +93,17 @@
 
 - (void)mouseEntered:(NSEvent*)theEvent
 {
-  //NSLog(@"mouseEntered");
   Cocoa_HideMouse();
   [self displayIfNeeded];
 }
 
 - (void)mouseMoved:(NSEvent*)theEvent
 {
-  //NSLog(@"mouseMoved");
   [self displayIfNeeded];
 }
 
 - (void)mouseExited:(NSEvent*)theEvent
 {
-  //NSLog(@"mouseExited");
   Cocoa_ShowMouse();
   [self displayIfNeeded];
 }
