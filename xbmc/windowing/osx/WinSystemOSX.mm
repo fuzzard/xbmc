@@ -804,6 +804,9 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
     Cocoa_HideMouse();
   }
 
+  dispatch_sync(dispatch_get_main_queue(), ^{
+    [window setAllowsConcurrentViewDrawing:NO];
+  });
 
   if (m_fullscreenWillToggle)
   {
@@ -811,17 +814,26 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
     m_fullscreenWillToggle = false;
     return true;
   }
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    [window setAllowsConcurrentViewDrawing:NO];
-  });
+
 
   if (m_bFullScreen)
   {
     // Save info about the windowed context so we can restore it when returning to windowed.
 
-    last_view_size = [view frame].size;
-    last_view_origin = [view frame].origin;
-    last_window_origin = [window frame].origin;
+
+    __block NSPoint block_last_window_origin;
+    __block NSSize block_last_view_size;
+    __block NSPoint block_last_view_origin;
+
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      block_last_view_size = [view frame].size;
+      block_last_view_origin = [view frame].origin;
+      block_last_window_origin = [window frame].origin;
+    });
+
+    last_view_size = block_last_view_size;
+    last_view_origin = block_last_view_origin;
+    last_window_origin = block_last_window_origin;
 
     // This is Cocoa Windowed FullScreen Mode
     // Get the screen rect of our current display
@@ -849,8 +861,9 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
     if (blankOtherDisplays)
       BlankOtherDisplays(m_lastDisplayNr);
 
-    // Hide the mouse.
-    Cocoa_HideMouse();
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      [window setAllowsConcurrentViewDrawing:YES];
+    });
   }
   else
   {
@@ -861,10 +874,6 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
     DestroyWindow();
     CreateNewWindow(m_name, false, res);
 
-    dispatch_sync(dispatch_get_main_queue(), ^{
-      window = m_appWindow;
-      view = [window contentView];
-    });
     // Unblank.
     // Force the unblank when returning from fullscreen, we get called with blankOtherDisplays set false.
     //if (blankOtherDisplays)
