@@ -14,25 +14,25 @@
 {
 }
 
-+(void) SetMenuBarVisible;
-+(void) SetMenuBarInvisible;
++ (void)SetMenuBarVisible;
++ (void)SetMenuBarInvisible;
 
--(id) initWithContentRect:(NSRect)box styleMask:(uint)style;
--(void) dealloc;
--(BOOL) windowShouldClose:(id) sender;
--(void) windowDidExpose:(NSNotification *) aNotification;
--(void) windowDidMove:(NSNotification *) aNotification;
--(void) windowDidResize:(NSNotification *) aNotification;
--(void) windowDidMiniaturize:(NSNotification *) aNotification;
--(void) windowDidDeminiaturize:(NSNotification *) aNotification;
--(void) windowDidBecomeKey:(NSNotification *) aNotification;
--(void) windowDidResignKey:(NSNotification *) aNotification;
--(NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize;
--(void) windowWillStartLiveResize:(NSNotification *)aNotification;
--(void) windowDidEndLiveResize:(NSNotification *)aNotification;
--(void) windowDidEnterFullScreen: (NSNotification*)pNotification;
--(void) windowWillEnterFullScreen: (NSNotification*)pNotification;
--(void) windowDidExitFullScreen: (NSNotification*)pNotification;
--(void) windowWillExitFullScreen: (NSNotification*)pNotification;
--(void) windowDidChangeScreen:(NSNotification *)notification;
+- (id)initWithContentRect:(NSRect)box styleMask:(uint)style;
+- (void)dealloc;
+- (BOOL)windowShouldClose:(id)sender;
+- (void)windowDidExpose:(NSNotification*)aNotification;
+- (void)windowDidMove:(NSNotification*)aNotification;
+- (void)windowDidResize:(NSNotification*)aNotification;
+- (void)windowDidMiniaturize:(NSNotification*)aNotification;
+- (void)windowDidDeminiaturize:(NSNotification*)aNotification;
+- (void)windowDidBecomeKey:(NSNotification*)aNotification;
+- (void)windowDidResignKey:(NSNotification*)aNotification;
+- (NSSize)windowWillResize:(NSWindow*)sender toSize:(NSSize)frameSize;
+- (void)windowWillStartLiveResize:(NSNotification*)aNotification;
+- (void)windowDidEndLiveResize:(NSNotification*)aNotification;
+- (void)windowDidEnterFullScreen:(NSNotification*)pNotification;
+- (void)windowWillEnterFullScreen:(NSNotification*)pNotification;
+- (void)windowDidExitFullScreen:(NSNotification*)pNotification;
+- (void)windowWillExitFullScreen:(NSNotification*)pNotification;
+- (void)windowDidChangeScreen:(NSNotification*)notification;
 @end

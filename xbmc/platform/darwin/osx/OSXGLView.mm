@@ -8,34 +8,32 @@
 
 #import "OSXGLView.h"
 
-#include "system_gl.h"
-#include "platform/darwin/osx/CocoaInterface.h"
-#include "utils/log.h"
 #include "AppInboundProtocol.h"
+#include "AppParamParser.h"
+#include "Application.h"
 #include "ServiceBroker.h"
 #include "messaging/ApplicationMessenger.h"
-#include "Application.h"
-#include "AppParamParser.h"
-#include "settings/SettingsComponent.h"
 #include "settings/AdvancedSettings.h"
+#include "settings/SettingsComponent.h"
+#include "utils/log.h"
+
+#include "platform/darwin/osx/CocoaInterface.h"
+
+#include "system_gl.h"
 
 @implementation OSXGLView
 
-- (id)initWithFrame: (NSRect)frameRect
+- (id)initWithFrame:(NSRect)frameRect
 {
-  NSOpenGLPixelFormatAttribute wattrs[] =
-  {
-    NSOpenGLPFADoubleBuffer,
-    NSOpenGLPFAWindow,
-    NSOpenGLPFANoRecovery,
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFAColorSize,           (NSOpenGLPixelFormatAttribute)32,
-    NSOpenGLPFAAlphaSize,           (NSOpenGLPixelFormatAttribute)8,
-    NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24,
-    (NSOpenGLPixelFormatAttribute) 0
-  };
+  NSOpenGLPixelFormatAttribute wattrs[] = {
+      NSOpenGLPFADoubleBuffer,        NSOpenGLPFAWindow,
+      NSOpenGLPFANoRecovery,          NSOpenGLPFAAccelerated,
+      NSOpenGLPFAColorSize,           (NSOpenGLPixelFormatAttribute)32,
+      NSOpenGLPFAAlphaSize,           (NSOpenGLPixelFormatAttribute)8,
+      NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24,
+      (NSOpenGLPixelFormatAttribute)0};
 
-  self = [super initWithFrame: frameRect];
+  self = [super initWithFrame:frameRect];
   if (self)
   {
     m_pixFmt = [[NSOpenGLPixelFormat alloc] initWithAttributes:wattrs];
@@ -74,20 +72,19 @@
   }
 }
 
--(void)updateTrackingAreas
+- (void)updateTrackingAreas
 {
   if (m_trackingArea != nil)
   {
     [self removeTrackingArea:m_trackingArea];
   }
 
-  const int opts = (NSTrackingMouseEnteredAndExited |
-                    NSTrackingMouseMoved |
-                    NSTrackingActiveAlways);
-  m_trackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds]
-                                                 options:opts
-                                                   owner:self
-                                                userInfo:nil];
+  const int opts =
+      (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways);
+  m_trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                                options:opts
+                                                  owner:self
+                                               userInfo:nil];
   [self addTrackingArea:m_trackingArea];
 }
 
@@ -108,7 +105,7 @@
   [self displayIfNeeded];
 }
 
-- (NSOpenGLContext *)getGLContext
+- (NSOpenGLContext*)getGLContext
 {
   return m_glcontext;
 }
