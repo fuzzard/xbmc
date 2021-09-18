@@ -9,21 +9,17 @@
 
 #include "WinEventsOSXImpl.h"
 
-#include "Application.h"
 #include "AppInboundProtocol.h"
+#include "Application.h"
 #include "ServiceBroker.h"
+#include "input/XBMC_keysym.h"
 #include "input/actions/Action.h"
 #include "input/actions/ActionIDs.h"
-//#include "guilib/GUIWindowManager.h"
-//#include "input/InputManager.h"
-//#include "input/XBMC_vkeys.h"
 #include "input/mouse/MouseStat.h"
-#include "input/XBMC_keysym.h"
 #include "messaging/ApplicationMessenger.h"
 #include "threads/CriticalSection.h"
 #include "threads/SingleLock.h"
 #include "utils/log.h"
-
 #include "windowing/osx/WinSystemOSX.h"
 
 #include <list>
@@ -32,10 +28,6 @@
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
-
-//#import <ApplicationServices/ApplicationServices.h>
-//#import <Cocoa/Cocoa.h>
-//#import <IOKit/hidsystem/ev_keymap.h>
 
 #define NX_KEYSTATE_DOWN 0x0A
 #define NX_KEYSTATE_UP 0x0B
@@ -60,7 +52,7 @@
 
   parentClass = initClass;
 
-//  m_TapThread = new CThread(this, "OSXEventTapThread");
+  //  m_TapThread = new CThread(this, "OSXEventTapThread");
 
   [self enableInputEvents];
 
@@ -105,7 +97,7 @@
   return events.size();
 }
 
-- (unichar) OsxKey2XbmcKey:(unichar)character
+- (unichar)OsxKey2XbmcKey:(unichar)character
 {
   switch (character)
   {
@@ -189,7 +181,7 @@
         return true;
 
       case XBMCK_v: // CMD-v to paste clipboard text
-/*        if (g_Windowing.IsTextInputEnabled())
+        /*        if (g_Windowing.IsTextInputEnabled())
         {
           const char* szStr = Cocoa_Paste();
           if (szStr)

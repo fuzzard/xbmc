@@ -22,7 +22,7 @@ public:
   CWinEventsOSX();
   ~CWinEventsOSX();
 
-  void MessagePush(XBMC_Event *newEvent);
+  void MessagePush(XBMC_Event* newEvent);
   bool MessagePump();
   size_t GetQueueSize();
 

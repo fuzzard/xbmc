@@ -9,9 +9,8 @@
 
 #include "WinEventsOSX.h"
 
-#include "utils/log.h"
-
 #import "WinEventsOSXImpl.h"
+#include "utils/log.h"
 
 struct CWinEventsOSXImplWrapper
 {
@@ -21,8 +20,7 @@ struct CWinEventsOSXImplWrapper
 CWinEventsOSX::CWinEventsOSX() : CThread("CWinEventsOSX")
 {
   m_eventsImplWrapper = std::make_unique<CWinEventsOSXImplWrapper>();
-  m_eventsImplWrapper->callbackClass =
-      [[CWinEventsOSXImpl alloc] initWithName:this];
+  m_eventsImplWrapper->callbackClass = [[CWinEventsOSXImpl alloc] initWithName:this];
   CLog::Log(LOGDEBUG, "CWinEventsOSX::CWinEventsOSX");
   Create();
 }
@@ -42,7 +40,6 @@ size_t CWinEventsOSX::GetQueueSize()
 {
   return [m_eventsImplWrapper->callbackClass GetQueueSize];
 }
-
 
 bool CWinEventsOSX::MessagePump()
 {
