@@ -7,6 +7,9 @@ VERSION=1.1.4
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
+ARCHIVE=v$(VERSION).tar.gz
+BASE_URL=https://github.com/benfogle/crossenv/archive/refs/tags/
+
 # provide any platform specific env variables to be available to the cross env
 ifeq ($(OS),android)
   LDSHAREDCC=--env=LDSHARED:="$(CC) -shared $(PYTHON_MODULELDFLAGS)"
