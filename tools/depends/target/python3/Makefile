@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch android.patch \
+DEPS= ../../Makefile.include Makefile apple.patch crosscompile.patch \
        modules.setup darwin_embedded.patch
 
 # lib name, version
@@ -10,8 +10,8 @@ ARCHIVE=$(SOURCE).tar.xz
 BASE_URL=https://www.python.org/ftp/python/$(VERSION)
 
 ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
-  HOSTPLATFORM=_PYTHON_HOST_PLATFORM="darwin"
   LINK_ICONV=-liconv
+  LDFLAGS+= -framework Foundation
   ifeq ($(OS), darwin_embedded)
     EXTRA_CONFIGURE=ac_cv_func_wait3=no ac_cv_func_wait4=no ac_cv_func_waitpid=no \
                     ac_cv_func_execv=no ac_cv_func_fexecv=no ac_cv_func_getentropy=no \
@@ -26,13 +26,27 @@ ifeq ($(OS), linux)
   EXTRA_CONFIGURE=ac_cv_pthread=yes
 endif
 
-# configuration settings
-CONFIGURE=./configure --prefix=$(PREFIX) \
-  --disable-shared \
-  --without-ensurepip \
-  --disable-framework --with-system-expat --with-system-ffi --without-pymalloc --enable-ipv6 \
-  $(EXTRA_CONFIGURE)
+export PATH:=$(NATIVEPREFIX)/bin:$(PATH)
 
+# configuration settings
+CONFIGURE=./configure \
+            --prefix=$(PREFIX) \
+            --disable-shared \
+            --disable-framework \
+            --host=$(HOST) \
+            --build=$(BUILD) \
+            --enable-ipv6 \
+            --without-ensurepip \
+            --with-system-ffi \
+            --with-system-expat \
+            --without-pymalloc \
+            CC="$(CC)" \
+            CXX="$(CXX)" \
+            PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig \
+            LDFLAGS="$(LDFLAGS)" \
+            CFLAGS="$(CFLAGS)" \
+            CPPFLAGS="$(CPPFLAGS)" \
+            $(EXTRA_CONFIGURE)
 
 LIBDYLIB=$(PLATFORM)/libpython$(PYTHON_VERSION).a
 
@@ -45,7 +59,6 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../crosscompile.patch
-	cd $(PLATFORM); patch -p1 -i ../android.patch
 	cd $(PLATFORM); patch -p1 -i ../apple.patch
 ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../darwin_embedded.patch
@@ -68,14 +81,10 @@ endif
 	cd $(PLATFORM); $(AUTORECONF)
 	cd $(PLATFORM); $(CONFIGURE)
 
-$(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes libpython$(PYTHON_VERSION).a
-	touch $@
-
-.installed-$(PLATFORM): $(LIBDYLIB)
-	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) PYTHON_FOR_BUILD=$(NATIVEPREFIX)/bin/python3 CROSS_COMPILE_TARGET=yes install
+.installed-$(PLATFORM): $(PLATFORM)
+	$(MAKE) -C $(PLATFORM)
+	$(MAKE) -C $(PLATFORM) install prefix=$(PREFIX)
 	find $(PREFIX)/lib/python$(PYTHON_VERSION) -type f -name "*.pyc" -delete
-	touch $(LIBDYLIB)
 	touch $@
 
 clean:

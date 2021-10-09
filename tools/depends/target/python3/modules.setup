@@ -388,7 +388,9 @@ $(OSX_SCPROXY)
 # Uncommenting the following line tells makesetup that all following modules
 # are not built (see above for more detail).
 #
-#*disabled*
-#
-#_sqlite3 _tkinter _curses pyexpat
-#_codecs_jp _codecs_kr _codecs_tw unicodedata
+*disabled*
+
+_tkinter _curses _gdbm _dbm
+audioop nis spwd readline
+# android build failures
+grp crypt
