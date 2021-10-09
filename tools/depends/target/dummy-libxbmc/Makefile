@@ -1,6 +1,10 @@
 include ../../Makefile.include
 DEPS= ../../Makefile.include Makefile dummy-libxbmc.c
 
+ifeq ($(TARGET_PLATFORM),appletvos)
+  TARGET_FLAGS=$(CFLAGS) $(LDFLAGS)
+endif
+
 LIBDYLIB=lib$(APP_NAME).so
 
 all: $(PLATFORM)/$(LIBDYLIB) .installed-$(PLATFORM)
@@ -9,7 +13,7 @@ $(PLATFORM):
 	mkdir -p $(PLATFORM)
 
 $(PLATFORM)/$(LIBDYLIB): $(PLATFORM) $(DEPS)
-	$(CC) -shared -o $(PLATFORM)/lib$(APP_NAME).so dummy-libxbmc.c
+	$(CC) -shared $(TARGET_FLAGS) -o $(PLATFORM)/lib$(APP_NAME).so dummy-libxbmc.c
 
 .installed-$(PLATFORM): $(PLATFORM)/$(LIBDYLIB)
 	mkdir -p  $(PREFIX)/lib/dummy-lib$(APP_NAME)

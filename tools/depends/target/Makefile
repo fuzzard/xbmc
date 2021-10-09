@@ -26,8 +26,9 @@ endif
 ifeq ($(OS),darwin_embedded)
   EXCLUDED_DEPENDS = libcec libusb
   ifeq ($(TARGET_PLATFORM),appletvos)
-    DEPENDS += boblight
+    DEPENDS += boblight dummy-libxbmc
     EXCLUDED_DEPENDS += libshairplay libplist
+    PYMODULE_DEPS = dummy-libxbmc
   endif
   DEPENDS += darwin-embedded-entitlements
 endif
