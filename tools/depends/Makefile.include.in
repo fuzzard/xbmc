@@ -98,6 +98,9 @@ NATIVE_LDFLAGS=@host_includes@ -L@prefix@/@tool_dir@/lib
 NATIVE_CPPFLAGS=@host_includes@ -I@prefix@/@tool_dir@/include
 NATIVE_CXXFLAGS=@host_includes@ -I@prefix@/@tool_dir@/include
 
+# Python related vars
+PYTHON_VERSION=3.8
+PYTHON_SITE_PKG=@prefix@/@deps_dir@/lib/python${PYTHON_VERSION}/site-packages
 
 ifeq ($(CPU), arm64)
   export GASPP_FIX_XCODE5=1
