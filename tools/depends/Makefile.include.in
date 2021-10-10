@@ -113,6 +113,9 @@ else ifeq (@platform_os@,android)
   PYTHON_MODULELDFLAGS=-lpython$(PYTHON_VERSION) -lc -ldl -lm -lexpat -lffi -lintl -lssl -lsqlite3 -lbz2 -lz -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) @link_iconv@
 endif
 
+# Pythonmodule-crossenv venv name
+PYTHON_TARGETENV=$(APP_NAME)targetenv
+
 ifeq ($(CPU), arm64)
   export GASPP_FIX_XCODE5=1
 endif
