@@ -106,6 +106,13 @@ APP_NAME=$(shell awk '/APP_NAME/ {print tolower($$2)}' $(VERSION.TXT))
 PYTHON_VERSION=3.8
 PYTHON_SITE_PKG=@prefix@/@deps_dir@/lib/python${PYTHON_VERSION}/site-packages
 
+# Linker flags for python modules
+ifeq (@target_platform@,appletvos)
+  PYTHON_MODULELDFLAGS=-lpython$(PYTHON_VERSION) -lc -ldl -lm -lexpat -lffi -lintl -lutil -lssl -lcrypto -lsqlite3 -lbz2 -lz -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -framework CoreFoundation @link_iconv@
+else ifeq (@platform_os@,android)
+  PYTHON_MODULELDFLAGS=-lpython$(PYTHON_VERSION) -lc -ldl -lm -lexpat -lffi -lintl -lssl -lsqlite3 -lbz2 -lz -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) @link_iconv@
+endif
+
 ifeq ($(CPU), arm64)
   export GASPP_FIX_XCODE5=1
 endif
