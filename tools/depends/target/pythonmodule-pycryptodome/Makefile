@@ -1,30 +1,11 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile 01-nosetuptool.patch 02-android-dlopen.patch 03-obey-crosscompileflags.patch
+DEPS= ../../Makefile.include Makefile 02-android-dlopen.patch
 
 # lib name, version
 LIBNAME=pycryptodome
 VERSION=3.4.3
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
-
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)"
-ifeq ($(OS),android)
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm" PYTHONPATH="$(PYTHON_SITE_PKG)"
-endif
-
-ifeq (darwin, $(findstring darwin, $(HOST)))
-ifeq ($(OS),darwin_embedded)
-PYTHON_O=$(abs_top_srcdir)/target/python3/$(PLATFORM)/Programs/python.o
-endif
-#ensure that only our target ldflags are passed to the python build
-LDSHARED:=$(CC) -bundle -undefined dynamic_lookup $(LDFLAGS)
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)" LDSHARED="$(LDSHARED)"
-endif
-
-LIBDYLIB=$(PLATFORM)/build/lib.$(OS)-$(CPU)-$(PYTHON_VERSION)/Cryptodome
-ifeq ($(NATIVE_OS), osx)
-	LIBDYLIB=$(PLATFORM)/build/lib.macosx-10.4-x86_64-$(PYTHON_VERSION)/Cryptodome
-endif
 
 all: .installed-$(PLATFORM)
 
@@ -34,18 +15,22 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../01-nosetuptool.patch
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../02-android-dlopen.patch
 endif
-	cd $(PLATFORM); patch -p1 -i ../03-obey-crosscompileflags.patch
 
-$(LIBDYLIB): $(PLATFORM)
-	mkdir -p $(PLATFORM)/output
-	cd $(PLATFORM); touch .separate_namespace && $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(TARGET_ARCH)
+$(PLATFORM)/.separate_namespace: $(PLATFORM)
+	. $(NATIVEPREFIX)/bin/$(PYTHON_TARGETENV)/bin/activate \
+	  && cd $(PLATFORM); touch ../$@ && cross-python setup.py build_ext --plat-name $(OS)-$(TARGET_ARCH)
+	touch $@
 
-.installed-$(PLATFORM): $(LIBDYLIB)
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(PREFIX)
+.installed-$(PLATFORM): $(PLATFORM)/.separate_namespace
+	. $(NATIVEPREFIX)/bin/$(PYTHON_TARGETENV)/bin/activate \
+	  && cd $(PLATFORM); cross-python setup.py install --prefix=$(PREFIX)
+	# Setuptools installs the egg into a pycryptodomex-$(version)-*.egg folder
+	# Move the Cryptodome folder back to $(PYTHON_SITE_PKG) to match distutils install
+	mv $(PYTHON_SITE_PKG)/pycryptodomex*/Cryptodome $(PYTHON_SITE_PKG)/ \
+	  && rm -rf $(PYTHON_SITE_PKG)/pycryptodomex*
 	touch $@
 
 clean:
