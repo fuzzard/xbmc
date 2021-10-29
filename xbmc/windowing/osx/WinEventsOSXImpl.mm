@@ -143,7 +143,7 @@
           KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
         return true;
 
-      case XBMCK_f: // CMD-f to toggle fullscreen
+      case XBMCK_CTRLF: // CMD-f to toggle fullscreen
         KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_TOGGLEFULLSCREEN);
         return true;
 
