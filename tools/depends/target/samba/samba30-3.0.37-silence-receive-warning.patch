@@ -1,0 +1,11 @@
+--- a/source/libsmb/clientgen.c
++++ b/source/libsmb/clientgen.c
+@@ -108,7 +108,7 @@
+ 
+ 	/* If the server is not responding, note that now */
+ 	if (!ret) {
+-                DEBUG(0, ("Receiving SMB: Server stopped responding\n"));
++    DEBUG(1, ("Receiving SMB: Server stopped responding\n"));
+ 		cli->smb_rw_error = smb_read_error;
+ 		close(cli->fd);
+ 		cli->fd = -1;

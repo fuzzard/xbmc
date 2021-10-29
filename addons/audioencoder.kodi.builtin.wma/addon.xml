@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon
+  id="audioencoder.kodi.builtin.wma"
+  version="1.0.2"
+  name="WMA encoder"
+  provider-name="spiff">
+  <extension
+    point="kodi.audioencoder"
+    extension=".wma"
+    library="dummy.so"/>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+    <summary lang="da_DK">WMA Lydindkoder</summary>
+    <summary lang="de_DE">WMA Audio Encoder</summary>
+    <summary lang="en_AU">WMA Audio Encoder</summary>
+    <summary lang="en_GB">WMA Audio Encoder</summary>
+    <summary lang="en_NZ">WMA Audio Encoder</summary>
+    <summary lang="en_US">WMA Audio Encoder</summary>
+    <summary lang="es_ES">Codificador de Audio WMA</summary>
+    <summary lang="es_MX">Codificador de audio WMA</summary>
+    <summary lang="hu_HU">WMA Audio Encoder</summary>
+    <summary lang="ko_KR">WMA 오디오 인코더</summary>
+    <summary lang="oc_FR">Encodador àudio WMA</summary>
+    <summary lang="pl_PL">Koder dźwięku WMA</summary>
+    <summary lang="pt_BR">Encode de áudio WMA</summary>
+    <summary lang="ru_RU">Кодировщик аудио WMA</summary>
+    <summary lang="tr_TR">WMA Ses Kodlayıcı</summary>
+    <summary lang="zh_CN">WMA 音频编码器</summary>
+    <description lang="da_DK">Windows Media Audio, Microsofts kvalitetstabende lydformat.</description>
+    <description lang="de_DE">Windows Media Audio, Microsofts verlustbehaftetes Audio-Format.</description>
+    <description lang="en_AU">Windows Media Audio, Microsoft’s lossy audio format.</description>
+    <description lang="en_GB">Windows Media Audio, Microsoft’s lossy audio format.</description>
+    <description lang="en_NZ">Windows Media Audio, Microsoft’s lossy audio format.</description>
+    <description lang="en_US">Windows Media Audio, Microsoft’s lossy audio format.</description>
+    <description lang="es_MX">Windows Media Audio, el formato de audio con pérdidas de Microsoft.</description>
+    <description lang="hu_HU">Windows Media Audio, a Microsoft veszteséges hangformátuma.</description>
+    <description lang="ko_KR">Microsoft의 손실 오디오 형식인 Windows Media 오디오.</description>
+    <description lang="oc_FR">Windows Media Audio, format àudio amb pèrda de Microsoft.</description>
+    <description lang="pl_PL">Windows Media Audio, stratny format audio firmy Microsoft.</description>
+    <description lang="pt_BR">Windows Media Audio, o formato de áudio com perdas da Microsoft.</description>
+    <description lang="ru_RU">Windows Media Audio, звуковой формат с потерями от Microsoft.</description>
+    <description lang="tr_TR">Windows Media Audio, Microsoft'un kayıplı ses biçimi.</description>
+    <description lang="zh_CN">Windows Media Audio，Microsoft 的有损压缩音频格式。</description>
+  </extension>
+</addon>

@@ -1,0 +1,2 @@
+xbmc/platform/darwin/ios              platform/ios
+xbmc/windowing/ios                    windowing/ios

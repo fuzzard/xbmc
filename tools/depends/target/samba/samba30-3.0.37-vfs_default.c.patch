@@ -1,0 +1,16 @@
+--- a/source/modules/vfs_default.c
++++ b/source/modules/vfs_default.c
+@@ -813,10 +813,11 @@
+ 
+ 	START_PROFILE(syscall_linux_setlease);
+ 
+-#ifdef LINUX
++#ifdef HAVE_KERNEL_OPLOCKS_LINUX
+ 	/* first set the signal handler */
+-	if(linux_set_lease_sighandler(fd) == -1)
++	if(linux_set_lease_sighandler(fd) == -1) {
+ 		return -1;
++	}
+ 
+ 	result = linux_setlease(fd, leasetype);
+ #else

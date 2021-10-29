@@ -1,0 +1,8 @@
+@ECHO OFF
+
+PUSHD %~dp0\..
+
+SET TARGET_PLATFORM=x64
+
+CALL run-tests.bat
+POPD

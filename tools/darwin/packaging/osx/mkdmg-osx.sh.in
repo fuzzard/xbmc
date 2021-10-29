@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# usage: ./mkdmg-osx.sh release/debug (case insensitive)
+# Allows us to run mkdmg-osx.sh from anywhere in the three, rather than the tools/darwin/packaging/osx folder only
+
+case "$XCODE_BUILDTYPE" in
+ ".") SWITCH="$1" ;;
+ *) SWITCH="$XCODE_BUILDTYPE" ;;
+esac
+
+DIRNAME=`dirname $0`
+
+# use for case insensitive match. revert to system default after this block
+shopt -s nocasematch
+case "$SWITCH" in
+  "debug" )
+    echo "Packaging Debug target for OSX"
+    APP="$DIRNAME/../../../../build/Debug/@APP_NAME@.app"
+  ;;
+  "release" )
+    echo "Packaging Release target for OSX"
+    APP="$DIRNAME/../../../../build/Release/@APP_NAME@.app"
+    isReleaseBuild=1
+  ;;
+  *)
+    echo "You need to specify the build target"
+    exit 1
+  ;;
+esac
+shopt -u nocasematch
+
+if [ ! -d $APP ]; then
+  echo "@APP_NAME@.app not found! are you sure you built $1 target?"
+  exit 1
+fi
+ARCHITECTURE=`file $APP/Contents/MacOS/@APP_NAME@ | awk '{print $NF}'`
+
+# codesign .app
+if [ "$EXPANDED_CODE_SIGN_IDENTITY_NAME" ]; then
+  # execute codesign script
+  "$DIRNAME/Codesign.command"
+  # sign helper tool
+  codesign --verbose=4 --sign "$EXPANDED_CODE_SIGN_IDENTITY_NAME" --options runtime --timestamp --entitlements Kodi.entitlements "$APP/Contents/Resources/Kodi/tools/darwin/runtime/XBMCHelper"
+  # perform top-level signing (Xcode does it automatically when signing settings are configured)
+  codesign --verbose=4 --sign "$EXPANDED_CODE_SIGN_IDENTITY_NAME" --options runtime --timestamp --entitlements Kodi.entitlements "$APP"
+fi
+
+PACKAGE=org.xbmc.@APP_NAME_LC@-osx
+
+VERSION=@APP_VERSION_MAJOR@.@APP_VERSION_MINOR@
+REVISION=0
+
+if [ "@APP_VERSION_TAG_LC@" != "" ]; then
+  REVISION=$REVISION~@APP_VERSION_TAG_LC@
+fi
+
+ARCHIVE=${PACKAGE}_${VERSION}-${REVISION}_macosx-intel-${ARCHITECTURE}
+
+echo Creating $PACKAGE package version $VERSION revision $REVISION
+dmgPath="$DIRNAME/$ARCHIVE.dmg"
+rm -rf "$dmgPath"
+
+if [ -e "/Volumes/@APP_NAME_LC@" ]; then
+  umount /Volumes/@APP_NAME_LC@
+fi
+
+#generate volume iconset
+if [ `which iconutil` ]
+then
+  echo "Generating volumeIcon.icns"
+  iconutil -c icns --output "VolumeIcon.icns" "../media/osx/volumeIcon.iconset"
+fi
+
+$DIRNAME/dmgmaker.pl $APP $ARCHIVE
+
+echo "done"
+
+# codesign and notarize dmg
+if [ "$EXPANDED_CODE_SIGN_IDENTITY_NAME" ]; then
+  codesign --verbose=4 --sign "$EXPANDED_CODE_SIGN_IDENTITY_NAME" "$dmgPath"
+  if ! ./notarize.sh "$dmgPath" "$APP/Contents/Info.plist" && [[ $isReleaseBuild == 1 ]]; then
+    exit 1
+  fi
+fi
+exit 0

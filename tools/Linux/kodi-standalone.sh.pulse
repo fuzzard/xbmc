@@ -1,0 +1,4 @@
+PULSE_START="$(command -v start-pulseaudio-x11)"
+if [ -n "$PULSE_START" ]; then
+  $PULSE_START
+fi

@@ -1,0 +1,14 @@
+list(APPEND PLATFORM_REQUIRED_DEPS WaylandProtocols>=1.7 Waylandpp>=0.2.2 LibDRM Xkbcommon>=0.4.1)
+list(APPEND PLATFORM_OPTIONAL_DEPS VAAPI)
+
+if(APP_RENDER_SYSTEM STREQUAL "gl")
+  list(APPEND PLATFORM_REQUIRED_DEPS OpenGl EGL)
+elseif(APP_RENDER_SYSTEM STREQUAL "gles")
+  list(APPEND PLATFORM_REQUIRED_DEPS OpenGLES EGL)
+endif()
+
+set(PLATFORM_GLOBAL_TARGET_DEPS generate-wayland-extra-protocols)
+set(WAYLAND_EXTRA_PROTOCOL_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+# for wayland-extra-protocols.hpp
+include_directories("${WAYLAND_EXTRA_PROTOCOL_GENERATED_DIR}")

@@ -1,0 +1,99 @@
+--- a/lib/util/charset/iconv.c
++++ b/lib/util/charset/iconv.c
+@@ -28,6 +28,10 @@
+ #include "libcli/util/ntstatus.h"
+ #include "lib/util/util_str_hex.h"
+ 
++#if defined(ANDROID) && (!defined(__ANDROID_API__) || __ANDROID_API__ < 28)
++#include <byteswap.h>
++#endif
++
+ #ifdef strcasecmp
+ #undef strcasecmp
+ #endif
+@@ -592,6 +596,19 @@
+ 	return 0;
+ }
+ 
++#if defined(ANDROID) && (!defined(__ANDROID_API__) || __ANDROID_API__ < 28)
++void swab(const void *from, void*to, ssize_t n)
++{
++  ssize_t i;
++
++  if (n < 0)
++    return;
++
++  for (i = 0; i < (n/2)*2; i += 2)
++    *((uint16_t*)to+i) = bswap_16(*((uint16_t*)from+i));
++}
++#endif
++
+ static size_t iconv_swab(void *cd, const char **inbuf, size_t *inbytesleft,
+ 			 char **outbuf, size_t *outbytesleft)
+ {
+--- a/nsswitch/libwbclient/wbc_pwd.c
++++ b/nsswitch/libwbclient/wbc_pwd.c
+@@ -46,7 +46,9 @@
+ 	struct passwd *pw = (struct passwd *)ptr;
+ 	free(pw->pw_name);
+ 	free(pw->pw_passwd);
++#if !defined(ANDROID) || !defined(pw_gecos)
+ 	free(pw->pw_gecos);
++#endif
+ 	free(pw->pw_shell);
+ 	free(pw->pw_dir);
+ }
+@@ -68,10 +70,12 @@
+ 	if (pw->pw_passwd == NULL) {
+ 		goto fail;
+ 	}
++#if !defined(ANDROID) || !defined(pw_gecos)
+ 	pw->pw_gecos = strdup(p->pw_gecos);
+ 	if (pw->pw_gecos == NULL) {
+ 		goto fail;
+ 	}
++#endif
+ 	pw->pw_shell = strdup(p->pw_shell);
+ 	if (pw->pw_shell == NULL) {
+ 		goto fail;
+--- a/nsswitch/libwbclient/wbc_sid.c
++++ b/nsswitch/libwbclient/wbc_sid.c
+@@ -1052,9 +1052,13 @@
+ 
+ 		wbcFreeMemory(name);
+ 
++#if !defined(ANDROID) || !defined(pw_gecos)
+ 		name = wbcStrDup(pwd->pw_gecos);
++#endif
+ 		wbcFreeMemory(pwd);
++#if !defined(ANDROID) || !defined(pw_gecos)
+ 		BAIL_ON_PTR_ERROR(name, wbc_status);
++#endif
+ 	}
+ 
+ 	wbc_status = WBC_ERR_SUCCESS;
+--- a/nsswitch/winbind_struct_protocol.h
++++ b/nsswitch/winbind_struct_protocol.h
+@@ -188,6 +188,11 @@
+ 	WINBINDD_NUM_CMDS
+ };
+ 
++#if defined(ANDROID) && defined(pw_gecos)
++#define _pw_gecos pw_gecos
++#undef pw_gecos
++#endif
++
+ typedef struct winbindd_pw {
+ 	fstring pw_name;
+ 	fstring pw_passwd;
+@@ -198,6 +203,10 @@
+ 	fstring pw_shell;
+ } WINBINDD_PW;
+ 
++#if defined(ANDROID) && defined(_pw_gecos)
++#define pw_gecos _pw_gecos
++#undef _pw_gecos
++#endif
+ 
+ typedef struct winbindd_gr {
+ 	fstring gr_name;
