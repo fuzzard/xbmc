@@ -26,8 +26,8 @@ class CWinEventsOSX;
 @class NSWindow;
 @class OSXGLView;
 #else
-class NSWindow;
-class OSXGLView;
+struct NSWindow;
+struct OSXGLView;
 #endif
 
 class CWinSystemOSX : public CWinSystemBase, public ITimerCallback

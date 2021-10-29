@@ -140,6 +140,9 @@
 - (void)windowWillEnterFullScreen:(NSNotification*)pNotification
 {
   CWinSystemOSX* winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  if (!winSystem)
+    return;
+
   // if osx is the issuer of the toggle
   // call XBMCs toggle function
   if (!winSystem->GetFullscreenWillToggle())
@@ -163,6 +166,9 @@
 - (void)windowDidExitFullScreen:(NSNotification*)pNotification
 {
   auto winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
+  if (!winSystem)
+    return;
+
   // if osx is the issuer of the toggle
   // call XBMCs toggle function
   if (!winSystem->GetFullscreenWillToggle())
