@@ -261,14 +261,14 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
   CLog::Log(LOGDEBUG, "GetMode looking for suitable mode with {} x {} @ {} Hz on display {}", width,
             height, refreshrate, screenIdx);
 
-  CFArrayRef displayModes = GetAllDisplayModes(GetDisplayID(screenIdx));
+  CFArrayRef allModes = GetAllDisplayModes(GetDisplayID(screenIdx));
 
-  if (!displayModes)
+  if (!allModes)
     return nullptr;
 
-  for (int i = 0; i < CFArrayGetCount(displayModes); ++i)
+  for (int i = 0; i < CFArrayGetCount(allModes); ++i)
   {
-    CGDisplayModeRef displayMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(displayModes, i);
+    CGDisplayModeRef displayMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
     uint32_t flags = CGDisplayModeGetIOFlags(displayMode);
     stretched = (flags & kDisplayModeStretchedFlag) != 0;
     interlaced = (flags & kDisplayModeInterlacedFlag) != 0;
@@ -283,12 +283,13 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
         (interlaced == false) && (w == width) && (h == height) &&
         (rate == refreshrate || rate == 0))
     {
+      CFRelease(allModes);
       CLog::Log(LOGDEBUG, "GetMode found a match!");
-      return displayMode;
+      return CGDisplayModeRetain(displayMode);
     }
   }
 
-  CFRelease(displayModes);
+  CFRelease(allModes);
   CLog::Log(LOGERROR, "GetMode - no match found!");
   return nullptr;
 }
@@ -297,10 +298,6 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
 CGDisplayModeRef BestMatchForMode(
     CGDirectDisplayID display, size_t bitsPerPixel, size_t width, size_t height)
 {
-
-  // Get a copy of the current display mode
-  CGDisplayModeRef displayMode = nullptr;
-
   // Loop through all display modes to determine the closest match.
   // CGDisplayBestModeForParameters is deprecated on 10.6 so we will emulate it's behavior
   // Try to find a mode with the requested depth and equal or greater dimensions first.
@@ -308,9 +305,17 @@ CGDisplayModeRef BestMatchForMode(
   // If still no match is found, just use the current mode.
   CFArrayRef allModes = GetAllDisplayModes(display);
 
+  if (!allModes)
+    return nullptr;
+
+  CGDisplayModeRef displayMode = nullptr;
+
   for (int i = 0; i < CFArrayGetCount(allModes); i++)
   {
     CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+
+    if (!mode)
+      continue;
 
     if (DisplayBitsPerPixelForMode(mode) != bitsPerPixel)
       continue;
@@ -328,6 +333,10 @@ CGDisplayModeRef BestMatchForMode(
     for (int i = 0; i < CFArrayGetCount(allModes); i++)
     {
       CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+
+      if (!mode)
+        continue;
+
       if (DisplayBitsPerPixelForMode(mode) >= bitsPerPixel)
         continue;
 
@@ -1049,24 +1058,25 @@ bool CWinSystemOSX::SwitchToVideoMode(int width, int height, double refreshrate)
     dispMode = BestMatchForMode(display_id, 32, width, height);
 
     if (!dispMode)
+    {
       dispMode = BestMatchForMode(display_id, 16, width, height);
 
-    // still no match? fallback to current resolution of the display which HAS to work [tm]
-    if (!dispMode)
-    {
-      int currentWidth;
-      int currentHeight;
-      double currentRefresh;
-
-      GetScreenResolution(&currentWidth, &currentHeight, &currentRefresh, screenIdx);
-      dispMode = GetMode(currentWidth, currentHeight, currentRefresh, screenIdx);
-
-      // no way to get a resolution set
+      // still no match? fallback to current resolution of the display which HAS to work [tm]
       if (!dispMode)
-        return false;
+      {
+        int currentWidth;
+        int currentHeight;
+        double currentRefresh;
+
+        GetScreenResolution(&currentWidth, &currentHeight, &currentRefresh, screenIdx);
+        dispMode = GetMode(currentWidth, currentHeight, currentRefresh, screenIdx);
+
+        // no way to get a resolution set
+        if (!dispMode)
+          return false;
+      }
     }
   }
-
   // switch mode and return success
   CGDisplayCapture(display_id);
   CGDisplayConfigRef cfg;
@@ -1101,7 +1111,7 @@ void CWinSystemOSX::FillInVideoModes()
 
     CLog::Log(LOGINFO, "Display {} has name {}", disp, [dispName UTF8String]);
 
-    if (nullptr == displayModes)
+    if (!displayModes)
       continue;
 
     for (int i = 0; i < CFArrayGetCount(displayModes); ++i)
