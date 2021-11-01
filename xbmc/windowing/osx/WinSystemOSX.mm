@@ -295,11 +295,11 @@ CGDisplayModeRef GetMode(int width, int height, double refreshrate, int screenId
 
 // mimic former behavior of deprecated CGDisplayBestModeForParameters
 CGDisplayModeRef BestMatchForMode(
-    CGDirectDisplayID display, size_t bitsPerPixel, size_t width, size_t height, bool& match)
+    CGDirectDisplayID display, size_t bitsPerPixel, size_t width, size_t height)
 {
 
   // Get a copy of the current display mode
-  CGDisplayModeRef displayMode = CGDisplayCopyDisplayMode(display);
+  CGDisplayModeRef displayMode = nullptr;
 
   // Loop through all display modes to determine the closest match.
   // CGDisplayBestModeForParameters is deprecated on 10.6 so we will emulate it's behavior
@@ -317,15 +317,13 @@ CGDisplayModeRef BestMatchForMode(
 
     if ((CGDisplayModeGetWidth(mode) == width) && (CGDisplayModeGetHeight(mode) == height))
     {
-      CGDisplayModeRelease(displayMode); // release the copy we got before ...
       displayMode = mode;
-      match = true;
       break;
     }
   }
 
   // No depth match was found
-  if (!match)
+  if (!displayMode)
   {
     for (int i = 0; i < CFArrayGetCount(allModes); i++)
     {
@@ -335,9 +333,7 @@ CGDisplayModeRef BestMatchForMode(
 
       if ((CGDisplayModeGetWidth(mode) == width) && (CGDisplayModeGetHeight(mode) == height))
       {
-        CGDisplayModeRelease(displayMode); // release the copy we got before ...
         displayMode = mode;
-        match = true;
         break;
       }
     }
@@ -1035,7 +1031,6 @@ void CWinSystemOSX::GetScreenResolution(int* w, int* h, double* fps, int screenI
 
 bool CWinSystemOSX::SwitchToVideoMode(int width, int height, double refreshrate)
 {
-  bool match = false;
   CGDisplayModeRef dispMode = nullptr;
 
   int screenIdx = GetDisplayIndex(CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(
@@ -1051,13 +1046,13 @@ bool CWinSystemOSX::SwitchToVideoMode(int width, int height, double refreshrate)
   //not found - fallback to bestemdeforparameters
   if (!dispMode)
   {
-    dispMode = BestMatchForMode(display_id, 32, width, height, match);
+    dispMode = BestMatchForMode(display_id, 32, width, height);
 
-    if (!match)
-      dispMode = BestMatchForMode(display_id, 16, width, height, match);
+    if (!dispMode)
+      dispMode = BestMatchForMode(display_id, 16, width, height);
 
     // still no match? fallback to current resolution of the display which HAS to work [tm]
-    if (!match)
+    if (!dispMode)
     {
       int currentWidth;
       int currentHeight;
@@ -1070,9 +1065,6 @@ bool CWinSystemOSX::SwitchToVideoMode(int width, int height, double refreshrate)
       if (!dispMode)
         return false;
     }
-
-    if (!match)
-      return false;
   }
 
   // switch mode and return success
