@@ -96,20 +96,20 @@
   if (!m_resizeState)
   {
     NSRect rect = [self contentRectForFrameRect:self.frame];
+    int width = static_cast<int>(rect.size.width);
+    int height = static_cast<int>(rect.size.height);
 
     if (!CServiceBroker::GetWinSystem()->IsFullScreen())
     {
       RESOLUTION res_index = RES_DESKTOP;
-      if ((static_cast<int>(rect.size.width) ==
-           CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iWidth) &&
-          (static_cast<int>(rect.size.height) ==
-           CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iHeight))
+      if ((width == CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iWidth) &&
+          (height == CDisplaySettings::GetInstance().GetResolutionInfo(res_index).iHeight))
         return;
     }
     XBMC_Event newEvent = {};
     newEvent.type = XBMC_VIDEORESIZE;
-    newEvent.resize.w = static_cast<int>(rect.size.width);
-    newEvent.resize.h = static_cast<int>(rect.size.height);
+    newEvent.resize.w = width;
+    newEvent.resize.h = height;
 
     // check for valid sizes cause in some cases
     // we are hit during fullscreen transition from osx

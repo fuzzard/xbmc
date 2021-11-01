@@ -130,7 +130,7 @@
   if (appleModifier & kCGEventFlagMaskCommand)
     xbmcModifier |= XBMCKMOD_LMETA;
 
-  return (XBMCMod)xbmcModifier;
+  return static_cast<XBMCMod>(xbmcModifier);
 }
 
 - (bool)ProcessOSXShortcuts:(XBMC_Event&)event
@@ -145,7 +145,7 @@
           KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
         return true;
 
-      case XBMCK_CTRLF: // CMD-f to toggle fullscreen
+      case XBMCK_CTRLF: // CMD-CTRL-f to toggle fullscreen
         KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_TOGGLEFULLSCREEN);
         return true;
 
@@ -326,7 +326,7 @@
 {
   UniCharCount actualStringLength = 0;
   // Get stringlength of event
-  CGEventKeyboardGetUnicodeString(*event, 0, &actualStringLength, NULL);
+  CGEventKeyboardGetUnicodeString(*event, 0, &actualStringLength, nullptr);
 
   // Create array with size of event string
   UniChar unicodeString[actualStringLength];
@@ -355,7 +355,7 @@
   unicodeString[0] = [self OsxKey2XbmcKey:unicodeString[0]];
 
   newEvent.key.keysym.scancode = keycode;
-  newEvent.key.keysym.sym = (XBMCKey)unicodeString[0];
+  newEvent.key.keysym.sym = static_cast<XBMCKey>(unicodeString[0]);
   newEvent.key.keysym.unicode = unicodeString[0];
   newEvent.key.keysym.mod = [self OsxMod2XbmcMod:CGEventGetFlags(*event)];
 

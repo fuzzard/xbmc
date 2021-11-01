@@ -111,7 +111,7 @@ static NSMenu* setupWindowMenu()
   struct rlimit rlim;
   rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
   if (setrlimit(RLIMIT_CORE, &rlim) == -1)
-    CLog::Log(LOGDEBUG, "Failed to set core size limit (%s)", strerror(errno));
+    CLog::Log(LOGDEBUG, "Failed to set core size limit ({})", strerror(errno));
 #endif
 
   setlocale(LC_NUMERIC, "C");
@@ -142,7 +142,8 @@ static NSMenu* setupWindowMenu()
     occluded = false;
 
   CWinSystemOSX* winSystem = dynamic_cast<CWinSystemOSX*>(CServiceBroker::GetWinSystem());
-  winSystem->SetOcclusionState(occluded);
+  if (winSystem)
+    winSystem->SetOcclusionState(occluded);
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
@@ -268,11 +269,11 @@ static NSMenu* setupWindowMenu()
   temparg = [filename UTF8String];
   arglen = strlen(temparg) + 1;
   arg = (char*)malloc(arglen);
-  if (arg == NULL)
+  if (arg == nullptr)
     return FALSE;
 
   newargv = (char**)realloc(gArgv, sizeof(char*) * (gArgc + 2));
-  if (newargv == NULL)
+  if (newargv == nullptr)
   {
     free(arg);
     return FALSE;
@@ -281,7 +282,7 @@ static NSMenu* setupWindowMenu()
 
   strlcpy(arg, temparg, arglen);
   gArgv[gArgc++] = arg;
-  gArgv[gArgc] = NULL;
+  gArgv[gArgc] = nullptr;
 
   return TRUE;
 }
@@ -359,7 +360,7 @@ int main(int argc, char* argv[])
     {
       gArgv = (char**)malloc(sizeof(char*) * 2);
       gArgv[0] = argv[0];
-      gArgv[1] = NULL;
+      gArgv[1] = nullptr;
       gArgc = 1;
     }
     else
