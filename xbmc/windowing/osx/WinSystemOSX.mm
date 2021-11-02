@@ -59,25 +59,6 @@ using namespace WINDOWING;
 #define MAX_DISPLAYS 32
 static NSWindow* blankingWindows[MAX_DISPLAYS];
 
-//---------------------------------------------------------------------------------
-void SetMenuBarVisible(bool visible)
-{
-  NSApplicationPresentationOptions options;
-  if (visible)
-  {
-    options = NSApplicationPresentationDefault;
-  }
-  else
-  {
-    options =
-      NSApplicationPresentationHideMenuBar | NSApplicationPresentationHideDock;
-  }
-
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    [NSApplication.sharedApplication setPresentationOptions:options];
-  });
-}
-
 size_t DisplayBitsPerPixelForMode(CGDisplayModeRef mode)
 {
   size_t bitsPerPixel = 0;
@@ -886,19 +867,10 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
 {
   CSingleLock lock(m_critSection);
 
-  static NSPoint last_window_origin;
-
-  static NSSize last_view_size;
-  static NSPoint last_view_origin;
-
   //  if (m_lastDisplayNr == -1)
   //    m_lastDisplayNr = res.iScreen;
 
   __block NSWindow* window = m_appWindow;
-  __block OSXGLView* view;
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    view = window.contentView;
-  });
 
   const std::shared_ptr<CSettings> settings = CServiceBroker::GetSettingsComponent()->GetSettings();
   m_lastDisplayNr = GetDisplayIndex(settings->GetString(CSettings::SETTING_VIDEOSCREEN_MONITOR));
@@ -928,52 +900,29 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
 
   if (m_bFullScreen)
   {
-    // Save info about the windowed context so we can restore it when returning to windowed.
-    __block NSPoint block_last_window_origin;
-    __block NSSize block_last_view_size;
-    __block NSPoint block_last_view_origin;
-
-    dispatch_sync(dispatch_get_main_queue(), ^{
-      block_last_view_size = view.frame.size;
-      block_last_view_origin = view.frame.origin;
-      block_last_window_origin = window.frame.origin;
-    });
-
-    last_view_size = block_last_view_size;
-    last_view_origin = block_last_view_origin;
-    last_window_origin = block_last_window_origin;
-
     // This is Cocoa Windowed FullScreen Mode
     // Get the screen rect of our current display
     NSScreen* pScreen = [NSScreen.screens objectAtIndex:m_lastDisplayNr];
-    NSRect screenRect = pScreen.frame;
 
     // remove frame origin offset of original display
-    screenRect.origin = NSZeroPoint;
+    pScreen.frame.origin = NSZeroPoint;
 
-    window = m_appWindow;
     dispatch_sync(dispatch_get_main_queue(), ^{
-      view = [window contentView];
-      [view setFrameSize:NSMakeSize(m_nWidth, m_nHeight)];
-
+      [window.contentView setFrameSize:NSMakeSize(m_nWidth, m_nHeight)];
       window.title = @"";
+      [window setAllowsConcurrentViewDrawing:YES];
     });
-
-    // Hide the menu bar.
-    SetMenuBarVisible(false);
 
     // Blank other displays if requested.
     if (blankOtherDisplays)
       BlankOtherDisplays(m_lastDisplayNr);
-
-    dispatch_sync(dispatch_get_main_queue(), ^{
-      [window setAllowsConcurrentViewDrawing:YES];
-    });
   }
   else
   {
     // Show menubar.
-    SetMenuBarVisible(true);
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      [NSApplication.sharedApplication setPresentationOptions:NSApplicationPresentationDefault];
+    });
 
     // Unblank.
     // Force the unblank when returning from fullscreen, we get called with blankOtherDisplays set false.
@@ -1187,7 +1136,6 @@ void CWinSystemOSX::NotifyAppFocusChange(bool bGaining)
         window = view.window;
         if (window)
         {
-          SetMenuBarVisible(false);
           [window orderFront:nil];
         }
       }
