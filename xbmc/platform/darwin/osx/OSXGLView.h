@@ -12,8 +12,6 @@
 
 @interface OSXGLView : NSOpenGLView
 
-@property(readonly, getter=getCurrentNSContext) NSOpenGLContext* context;
-
 - (id)initWithFrame:(NSRect)frameRect;
 - (NSOpenGLContext*)getGLContext;
 

@@ -207,7 +207,7 @@ static NSMenu* setupWindowMenu()
   gCalledAppMainline = TRUE;
 
   //window.acceptsMouseMovedEvents = TRUE;
-
+  [NSApp activateIgnoringOtherApps:YES];
   // kick our mainloop into an extra thread
   [NSThread detachNewThreadSelector:@selector(mainLoopThread:) toTarget:self withObject:nil];
 }
