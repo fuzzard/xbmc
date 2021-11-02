@@ -31,6 +31,8 @@
 #include "utils/StringUtils.h"
 #include "utils/log.h"
 #include "windowing/osx/CocoaDPMSSupport.h"
+#import "windowing/osx/OpenGL/OSXGLView.h"
+#import "windowing/osx/OpenGL/OSXGLWindow.h"
 #include "windowing/osx/OSScreenSaverOSX.h"
 #include "windowing/osx/VideoSyncOsx.h"
 #include "windowing/osx/WinEventsOSX.h"
@@ -38,8 +40,6 @@
 #include "platform/darwin/DarwinUtils.h"
 #include "platform/darwin/DictionaryUtils.h"
 #include "platform/darwin/osx/CocoaInterface.h"
-#import "platform/darwin/osx/OSXGLView.h"
-#import "platform/darwin/osx/OSXGLWindow.h"
 #include "platform/darwin/osx/powermanagement/CocoaPowerSyscall.h"
 
 #include <chrono>

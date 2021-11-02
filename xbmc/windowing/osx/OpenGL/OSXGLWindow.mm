@@ -18,11 +18,11 @@
 #include "settings/DisplaySettings.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
+#import "windowing/osx/OpenGL/OSXGLView.h"
 #include "windowing/osx/WinEventsOSX.h"
 #import "windowing/osx/WinSystemOSX.h"
 
 #include "platform/darwin/osx/CocoaInterface.h"
-#import "platform/darwin/osx/OSXGLView.h"
 
 //------------------------------------------------------------------------------------------
 @implementation OSXGLWindow
