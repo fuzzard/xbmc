@@ -1,5 +1,5 @@
 include ../../Makefile.include
-DEPS= ../../Makefile.include 01-disable-test.patch lconv.patch fix-aarch64_atomics.patch Makefile
+DEPS= ../../Makefile.include 01-disable-test.patch lconv.patch fix-aarch64_atomics.patch Makefile GL178-remove-gperf-ac.patch
 
 # lib name, version
 LIBNAME=fontconfig
@@ -30,6 +30,10 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	cd $(PLATFORM); patch -p1 -i ../01-disable-test.patch
 	cd $(PLATFORM); patch -p1 -i ../lconv.patch
 	cd $(PLATFORM); patch -p1 -i ../fix-aarch64_atomics.patch
+# https://gitlab.freedesktop.org/fontconfig/fontconfig/-/merge_requests/178
+# macos with a brew version of gperf fails to build - wrong type detection conflicting
+# native gperf
+	cd $(PLATFORM); patch -p1 -i ../GL178-remove-gperf-ac.patch
 	cd $(PLATFORM); $(AUTORECONF) -vif
 	cd $(PLATFORM); $(CONFIGURE)
 
