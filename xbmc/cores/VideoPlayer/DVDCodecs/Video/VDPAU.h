@@ -549,7 +549,6 @@ public:
 private:
   CVDPAUContext();
   void Close();
-  bool LoadSymbols();
   bool CreateContext();
   void DestroyContext();
   void QueryProcs();
@@ -560,10 +559,8 @@ private:
   int m_refCount;
   VdpVideoMixerFeature m_vdpFeatures[14];
   int m_featureCount;
-  static void *m_dlHandle;
   VdpDevice m_vdpDevice;
   VDPAU_procs m_vdpProcs;
-  VdpStatus (*dl_vdp_device_create_x11)(Display* display, int screen, VdpDevice* device, VdpGetProcAddress **get_proc_address);
 };
 
 /**
