@@ -188,15 +188,15 @@
   }
 }
 
-- (NSApplicationPresentationOptions)window:(NSWindow *)window
+- (NSApplicationPresentationOptions)window:(NSWindow*)window
       willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
-    // customize our appearance when entering full screen:
-    // we don't want the dock to appear but we want the menubar to hide/show automatically
-    //
-    return (NSApplicationPresentationFullScreen |       // support full screen for this window (required)
-            NSApplicationPresentationHideDock |         // completely hide the dock
-            NSApplicationPresentationAutoHideMenuBar);  // yes we want the menu bar to show/hide
+  // customize our appearance when entering full screen:
+  // we don't want the dock to appear but we want the menubar to hide/show automatically
+  //
+  return (NSApplicationPresentationFullScreen | // support full screen for this window (required)
+          NSApplicationPresentationHideDock | // completely hide the dock
+          NSApplicationPresentationAutoHideMenuBar); // yes we want the menu bar to show/hide
 }
 
 - (void)windowDidMiniaturize:(NSNotification*)aNotification

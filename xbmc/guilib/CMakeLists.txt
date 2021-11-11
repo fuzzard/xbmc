@@ -179,6 +179,15 @@ if(OPENGLES_FOUND)
                       TextureGL.h)
 endif()
 
+if(METAL_FOUND)
+  list(APPEND SOURCES GUIFontTTFMetal.cpp
+                      GUITextureMetal.cpp
+                      TextureMetal.cpp)
+  list(APPEND HEADERS GUIFontTTFMetal.h
+                      GUITextureMetal.h
+                      TextureMetal.h)
+endif()
+
 if(CORE_SYSTEM_NAME STREQUAL windows OR CORE_SYSTEM_NAME STREQUAL windowsstore)
   list(APPEND SOURCES D3DResource.cpp
                       DirectXGraphics.cpp

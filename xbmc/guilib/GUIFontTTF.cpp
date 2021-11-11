@@ -1053,6 +1053,11 @@ void CGUIFontTTF::RenderCharacter(float posX,
               , a = GET_A(color);
 #endif
 
+#if defined(HAS_METAL)
+  // todo
+  unsigned char r = 0, g = 0, b = 0, a = 0;
+#endif
+
   for(int i = 0; i < 4; i++)
   {
 #ifdef HAS_DX

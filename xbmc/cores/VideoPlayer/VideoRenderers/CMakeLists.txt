@@ -43,6 +43,15 @@ if(OPENGL_FOUND)
                       RenderCaptureGL.h)
 endif()
 
+if (METAL_FOUND)
+  list(APPEND SOURCES OverlayRendererMetal.cpp
+                      RenderCaptureMetal.cpp
+                      RendererMetal.cpp)
+  list(APPEND HEADERS OverlayRendererMetal.h
+                      RenderCaptureMetal.h
+                      RendererMetal.h)
+endif()
+
 if(OPENGLES_FOUND AND ("android" IN_LIST CORE_PLATFORM_NAME_LC OR
                        "ios" IN_LIST CORE_PLATFORM_NAME_LC OR
                        "tvos" IN_LIST CORE_PLATFORM_NAME_LC OR
