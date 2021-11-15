@@ -19,6 +19,7 @@
 #elif defined(TARGET_FREEBSD)
 #include <GL/gl.h>
 #elif defined(TARGET_DARWIN)
+#define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
 #include <OpenGL/gl3.h>
 #include <OpenGL/gl3ext.h>

@@ -5,7 +5,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  *  See LICENSES/README.md for more information.
  */
-
+#define GL_SILENCE_DEPRECATION
 #import "OSXGLWindow.h"
 
 #include "AppInboundProtocol.h"
