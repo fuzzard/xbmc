@@ -8,6 +8,7 @@
  *  See LICENSES/README.md for more information.
  */
 
+#define GL_SILENCE_DEPRECATION
 #import <Cocoa/Cocoa.h>
 
 @interface OSXGLView : NSOpenGLView
