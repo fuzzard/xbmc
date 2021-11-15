@@ -70,7 +70,7 @@ bool Cocoa_CVDisplayLinkCreate(void *displayLinkcallback, void *displayLinkConte
 
   // OpenGL Flush synchronised with vertical retrace
   GLint swapInterval = 1;
-  [[NSOpenGLContext currentContext] setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
+  [[NSOpenGLContext currentContext] setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
 
   display_id = (CGDirectDisplayID)Cocoa_GL_GetCurrentDisplayID();
   if (!displayLink)
@@ -243,7 +243,7 @@ void Cocoa_ShowMouse()
 const char *Cocoa_Paste()
 {
   NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-  NSString *type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:NSStringPboardType]];
+  NSString *type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:NSPasteboardTypeString]];
   if (type != nil) {
     NSString *contents = [pasteboard stringForType:type];
     if (contents != nil) {

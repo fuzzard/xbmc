@@ -49,7 +49,7 @@
   [self updateTrackingAreas];
 
   GLint swapInterval = 1;
-  [m_glcontext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
+  [m_glcontext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
   [m_glcontext makeCurrentContext];
 
   return self;
