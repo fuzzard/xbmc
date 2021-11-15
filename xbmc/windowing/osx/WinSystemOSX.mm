@@ -670,7 +670,6 @@ bool CWinSystemOSX::CreateNewWindow(const std::string& name, bool fullScreen, RE
       NSString* title = [NSString stringWithUTF8String:m_name.c_str()];
       appWindow.backgroundColor = NSColor.blackColor;
       appWindow.title = title;
-      [appWindow setOneShot:NO];
 
       NSWindowCollectionBehavior behavior = appWindow.collectionBehavior;
       behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
