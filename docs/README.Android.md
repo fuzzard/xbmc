@@ -107,13 +107,11 @@ keytool -genkey -keystore ~/.android/debug.keystore -v -alias androiddebugkey -d
 ```
 
 ### 3.4. macOS specific prerequisites
-* **[Java Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)** installed.
-* Normal macOS installations filesystem is case insensitive but compiling for Android requires a case sensitive filesystem. Generate a writeable hdd image and format it with hfs+ (case sensitive) issuing
-  * `hdiutil create -type UDIF -fs 'Case-sensitive Journaled HFS+' -size 20g -volname android-dev $HOME/android-dev.dmg`
-* Whenever you want to compile/develop you need to mount the image
-  * `open ~/android-dev.dmg`
-* Once you have your hdd image with case sensitive hfs+ file system execute all the steps inside of this filesystem. You need to adapt all paths in this guide so that they match your local environment. As an example here is a configure line that demonstrates possible paths:
-  * `./configure --with-tarballs=/Users/Shared/xbmc-depends/tarballs --host=arm-linux-androideabi --with-sdk-path=/Volumes/android-dev/android/android-sdk-macosx --with-ndk-path=/Volumes/android-dev/android/android-ndk-r21e --prefix=/Volumes/android-dev/android/xbmc-depends`
+* **[Java Development Kit 11 (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)** installed. **[Adoptium Temurin 11](https://adoptium.net/)** tested working as well
+* **[Android Studio](https://developer.android.com/studio)** installed. Tested with 2020.3.1
+* Set JAVA_HOME env var in your shell (eg ~/.zshrc) eg. export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-11.jdk/Contents/Home
+* You need to adapt all paths in this guide so that they match your local environment. As an example here is a configure line that demonstrates possible paths with default Android Studio 2020.3.1 for Aarch64 Android target:
+  * `./configure --with-tarballs=/Users/Shared/xbmc-depends/tarballs --host=aarch64-linux-android --with-sdk-path=/Users/<username>/Library/Android/sdk --with-ndk-path=/Users/<username>/Library/Android/sdk/ndk/23.1.7779620 --with-ndk-api=31`
   
 **[back to top](#table-of-contents)** | **[back to section top](#3-prerequisites)**
 
