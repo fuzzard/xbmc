@@ -11,6 +11,10 @@ if(NOT D8_EXECUTABLE)
     message(FATAL_ERROR "Could NOT find dx or d8 executable")
   endif()
 endif()
+find_program(APKSIGNER_EXECUTABLE apksigner PATHS ${SDK_BUILDTOOLS_PATH})
+if(NOT APKSIGNER_EXECUTABLE)
+  message(FATAL_ERROR "Could NOT find apksigner executable - SDK BuildTools 24.0.3 (September 2016) or newer required")
+endif()
 find_program(ZIPALIGN_EXECUTABLE zipalign PATHS ${SDK_BUILDTOOLS_PATH})
 if(NOT ZIPALIGN_EXECUTABLE)
   message(FATAL_ERROR "Could NOT find zipalign executable")
@@ -182,6 +186,7 @@ foreach(target apk obb apk-unsigned apk-obb apk-obb-unsigned apk-noobb apk-clean
               DX=${DX_EXECUTABLE}
               D8=${D8_EXECUTABLE}
               ZIPALIGN=${ZIPALIGN_EXECUTABLE}
+              APKSIGNER=${APKSIGNER_EXECUTABLE}
               ${target}
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tools/android/packaging
   )

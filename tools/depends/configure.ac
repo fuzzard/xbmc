@@ -543,6 +543,11 @@ if test "$platform_os" == "android"; then
     fi
   fi
 
+  AC_PATH_PROG(APKSIGNER,apksigner,"no",$build_tools_path)
+  if test "x$APKSIGNER" = "xno" ; then
+    AC_MSG_ERROR("Missing program: apksigner")
+  fi
+
   AC_PATH_PROG(ZIPALIGN,zipalign,"no",$build_tools_path)
   if test "x$ZIPALIGN" = "xno" ; then
     AC_MSG_ERROR("Missing program: zipalign")

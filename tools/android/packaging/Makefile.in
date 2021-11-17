@@ -21,7 +21,7 @@ SIGN_KEY=androiddebugkey
 SIGN_KEYPASS=
 
 ifneq ($(strip $(SIGN_KEYPASS)),)
-SIGN_KEYPASS_OPT=-keypass $(SIGN_KEYPASS)
+SIGN_KEYPASS_OPT=--key-pass pass:$(SIGN_KEYPASS)
 endif
 
 #this fixes a android ndk fuckup where the paths to
@@ -140,8 +140,8 @@ package: libs python java
 
 apk-sign:
 	@echo "Signing..."
-	@jarsigner -sigalg MD5withRSA -digestalg SHA1 -keystore $(SIGN_STORE) -storepass $(SIGN_STOREPASS) $(SIGN_KEYPASS_OPT) images/@APP_NAME_LC@app-debug-$(CPU)-unaligned.apk $(SIGN_KEY)
 	@$(ZIPALIGN) -f 4 images/@APP_NAME_LC@app-debug-$(CPU)-unaligned.apk $(CMAKE_SOURCE_DIR)/@APP_NAME_LC@app-$(CPU)-debug.apk
+	@$(APKSIGNER) sign --ks $(SIGN_STORE) --ks-pass pass:$(SIGN_STOREPASS) --ks-key-alias $(SIGN_KEY) $(SIGN_KEYPASS_OPT) --v1-signing-enabled true --v2-signing-enabled true images/@APP_NAME_LC@app-debug-$(CPU)-unaligned.apk
 	@rm images/@APP_NAME_LC@app-debug-$(CPU)-unaligned.apk
 	@echo "$(CMAKE_SOURCE_DIR)/@APP_NAME_LC@app-$(CPU)-debug.apk created"
 
