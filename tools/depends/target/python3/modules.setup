@@ -348,11 +348,6 @@ _lsprof _lsprof.c rotatingtree.c -DPy_BUILD_CORE_MODULE
 # See http://www.gzip.org/zlib/
 zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
 
-# Interface to the Expat XML parser
-# More information on Expat can be found at www.libexpat.org.
-#
-pyexpat expat/xmlparse.c expat/xmlrole.c expat/xmltok.c pyexpat.c -I$(srcdir)/Modules/expat -DHAVE_EXPAT_CONFIG_H -DXML_POOR_ENTROPY -DUSE_PYEXPAT_CAPI
-
 # Hye-Shik Chang's CJKCodecs
 
 # multibytecodec is required for all the other CJK codec modules
@@ -388,6 +383,12 @@ _lzma _lzmamodule.c -I$(prefix)/include -L$(prefix)/lib -llzma
 
 # scproxy module only for osx
 $(OSX_SCPROXY)
+
+*shared*
+# Interface to the Expat XML parser
+# More information on Expat can be found at www.libexpat.org.
+#
+pyexpat expat/xmlparse.c expat/xmlrole.c expat/xmltok.c pyexpat.c -I$(srcdir)/Modules/expat -DHAVE_EXPAT_CONFIG_H -DXML_POOR_ENTROPY -DUSE_PYEXPAT_CAPI
 
 # Uncommenting the following line tells makesetup that all following modules
 # are not built (see above for more detail).

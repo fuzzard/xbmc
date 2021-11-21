@@ -15,8 +15,7 @@ DEPENDS = \
 	taglib libusb libnfs freetype2 \
 	pythonmodule-pil pythonmodule-pycryptodome pythonmodule-setuptools \
 	libxslt ffmpeg crossguid libudfread \
-	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d xz \
-  expat-python
+	libdvdread libdvdnav libdvdcss p8-platform flatbuffers dav1d xz
 
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3
@@ -93,7 +92,6 @@ endif
 all: .installed-$(PLATFORM)
 
 gettext: $(ICONV)
-expat: expat-python
 xz: gettext
 libgcrypt: libgpg-error
 fontconfig: freetype2 expat $(ICONV) $(LIBUUID)
@@ -102,7 +100,7 @@ harfbuzz: meson-cross-file freetype2-noharfbuzz $(ICONV)
 freetype2: harfbuzz $(ZLIB)
 libass: fontconfig fribidi harfbuzz libpng freetype2 expat $(ICONV)
 libmicrohttpd: gnutls libgcrypt libgpg-error
-python3: expat-python gettext libxml2 sqlite3 openssl libffi bzip2 xz
+python3: expat gettext libxml2 sqlite3 openssl libffi bzip2 xz
 libcdio: $(ICONV)
 libcdio-gplv3: $(ICONV)
 libplist: $(ZLIB)
