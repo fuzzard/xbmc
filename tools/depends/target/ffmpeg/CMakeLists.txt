@@ -62,11 +62,10 @@ elseif(CORE_SYSTEM_NAME STREQUAL android)
   endif()
   list(APPEND ffmpeg_conf --target-os=linux --extra-libs=-liconv --disable-linux-perf)
 elseif(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
-  list(APPEND ffmpeg_conf "--as=${NATIVEPREFIX}/bin/gas-preprocessor.pl -arch aarch64 -- ${CMAKE_C_COMPILER}")
-  list(APPEND ffmpeg_conf --disable-decoder=mpeg_xvmc --disable-crystalhd --enable-videotoolbox
+  list(APPEND ffmpeg_conf --disable-crystalhd --enable-videotoolbox 
                           --target-os=darwin)
 elseif(CORE_SYSTEM_NAME STREQUAL osx)
-  list(APPEND ffmpeg_conf --disable-decoder=mpeg_xvmc --disable-crystalhd --enable-videotoolbox
+  list(APPEND ffmpeg_conf --disable-crystalhd --enable-videotoolbox
                           --target-os=darwin
                           --disable-securetransport)
 endif()
@@ -113,9 +112,7 @@ externalproject_add(ffmpeg
                       --extra-version="kodi-${FFMPEG_VER}"
                       --disable-devices
                       --disable-doc
-                      --disable-ffplay
-                      --disable-ffmpeg
-                      --disable-ffprobe
+                      --disable-programs
                       --enable-gpl
                       --enable-runtime-cpudetect
                       --enable-postproc
