@@ -18,16 +18,6 @@ ffmpg_config += --disable-programs
 ffmpg_config += --disable-sdl2
 ffmpg_config += --enable-gpl
 ffmpg_config += --enable-postproc
-ffmpg_config += --enable-muxer=spdif
-ffmpg_config += --enable-muxer=adts
-ffmpg_config += --enable-muxer=asf
-ffmpg_config += --enable-muxer=ipod
-ffmpg_config += --enable-encoder=ac3
-ffmpg_config += --enable-encoder=aac
-ffmpg_config += --enable-encoder=png
-ffmpg_config += --enable-encoder=mjpeg
-ffmpg_config += --enable-encoder=wmav2
-ffmpg_config += --enable-protocol=http
 ffmpg_config += --enable-runtime-cpudetect
 ffmpg_config += --enable-pthreads
 ffmpg_config += --enable-gnutls

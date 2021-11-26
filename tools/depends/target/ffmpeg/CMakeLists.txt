@@ -117,16 +117,6 @@ externalproject_add(ffmpeg
                       --enable-runtime-cpudetect
                       --enable-postproc
                       --enable-pthreads
-                      --enable-muxer=spdif
-                      --enable-muxer=adts
-                      --enable-muxer=asf
-                      --enable-muxer=ipod
-                      --enable-encoder=ac3
-                      --enable-encoder=aac
-                      --enable-encoder=wmav2
-                      --enable-protocol=http
-                      --enable-encoder=png
-                      --enable-encoder=mjpeg
                       ${ffmpeg_conf}
                     BUILD_COMMAND ${MAKE_COMMAND})
 
