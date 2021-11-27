@@ -43,7 +43,7 @@ ifeq ($(OS), android)
       ffmpg_config += --cpu=cortex-a9
     else
       ifeq ($(CPU), x86_64)
-        ffmpg_config += --cpu=$(CPU) --enable-pic
+        ffmpg_config += --cpu=$(CPU)
       else
         ffmpg_config += --cpu=i686 --disable-mmx
       endif
