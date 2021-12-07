@@ -3,7 +3,7 @@ DEPS= ../../Makefile.include Makefile pillow-crosscompile.patch
 
 # lib name, version
 LIBNAME=Pillow
-VERSION=7.1.2
+VERSION=8.4.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
@@ -27,10 +27,6 @@ else ifeq ($(OS),darwin_embedded)
 PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
 PILPATHLIB=$(PILPATH)/lib
 PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
-
-# Work around an issue with xcode 11 stripping -arch arm64 flags.
-# Not required for xcode 12+, but doesnt hurt either.
-CFLAGS+= -target arm64-apple-darwin
 endif
 
 SED_FLAG=-i
