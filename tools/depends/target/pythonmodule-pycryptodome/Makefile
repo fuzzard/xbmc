@@ -1,7 +1,6 @@
 include ../../Makefile.include PYTHONMODULE-PYCRYPTODOME-VERSION ../../download-files.include
 DEPS= ../../Makefile.include Makefile PYTHONMODULE-PYCRYPTODOME-VERSION ../../download-files.include \
-                             01-nosetuptool.patch 02-android-dlopen.patch \
-                             03-obey-crosscompileflags.patch
+                             01-nosetuptool.patch 02-android-dlopen.patch
 
 LDSHARED=$(CC) -shared
 
@@ -41,13 +40,13 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE) $(DEPS)
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../02-android-dlopen.patch
 endif
-	cd $(PLATFORM); patch -p1 -i ../03-obey-crosscompileflags.patch
 
 $(LIBDYLIB): $(PLATFORM)
 	cd $(PLATFORM); touch .separate_namespace && $(NATIVEPREFIX)/bin/python3 setup.py build_ext --plat-name $(OS)-$(CPU)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(PREFIX)
+	cd $(PYTHON_SITE_PKG); mkdir -p Cryptodome && cp -rf pycryptodomex*.egg/Cryptodome/* ./Cryptodome && rm -rf pycryptodomex*.egg
 	touch $@
 
 clean:
