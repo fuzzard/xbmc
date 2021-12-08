@@ -7,6 +7,9 @@ VERSION=8.4.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
 
+ARCHIVE=$(VERSION).tar.gz
+BASE_URL=https://github.com/python-pillow/Pillow/archive/refs/tags
+
 PYTHONPATH=$(PYTHON_SITE_PKG)
 PILPATH=$(PYTHONPATH)
 LDSHARED=$(CC) -shared
