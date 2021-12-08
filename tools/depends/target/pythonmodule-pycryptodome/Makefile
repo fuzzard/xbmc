@@ -3,9 +3,12 @@ DEPS= ../../Makefile.include Makefile 01-nosetuptool.patch 02-android-dlopen.pat
 
 # lib name, version
 LIBNAME=pycryptodome
-VERSION=3.4.3
+VERSION=3.12.0
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.gz
+
+ARCHIVE=v$(VERSION).tar.gz
+BASE_URL=https://github.com/Legrandin/pycryptodome/archive/refs/tags
 
 CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)"
 ifeq ($(OS),android)
@@ -40,7 +43,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../02-android-dlopen.patch
 endif
-	cd $(PLATFORM); patch -p1 -i ../03-obey-crosscompileflags.patch
+#	cd $(PLATFORM); patch -p1 -i ../03-obey-crosscompileflags.patch
 
 $(LIBDYLIB): $(PLATFORM)
 	mkdir -p $(PLATFORM)/output
