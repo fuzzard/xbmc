@@ -4,10 +4,11 @@ DEPS= ../../Makefile.include Makefile
 # We use uuid from e2fsprogs since this easily cross-compiles on android, while util-linux does not.
 # lib name, version
 LIBNAME=libuuid
-VERSION=1.42.13
-SOURCE=e2fsprogs-1.42.13
+VERSION=2.37.2
+SOURCE=util-linux-$(VERSION)
 ARCHIVE=$(SOURCE).tar.xz
 
+BASE_URL=https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.37
 
 LIBDYLIB=$(PLATFORM)/lib/$(LIBNAME).a
 
@@ -19,13 +20,13 @@ $(TARBALLS_LOCATION)/$(ARCHIVE):
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); ./configure --prefix=$(PREFIX) --disable-fsck
+	cd $(PLATFORM); ./configure --prefix=$(PREFIX) --disable-all-programs --enable-libuuid
 
 $(LIBDYLIB): $(PLATFORM)
-	cd $(PLATFORM)/lib/uuid ; $(MAKE) -j1
+	cd $(PLATFORM); $(MAKE)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
-	cd $(PLATFORM)/lib/uuid ; $(MAKE) -j1 install
+	cd $(PLATFORM); $(MAKE) install
 	touch $@
 
 clean:
