@@ -19,6 +19,8 @@ ARCHIVE=$(SOURCE).tar.gz
 # Then xbmc will correctly access smb shares with LFS enabled
 # using the altered libsmbclient.h.
 ifeq ($(OS),android)
+
+CONFIGURE_OPTS=ac_cv_func_srand=yes ac_cv_func_rand=yes
 export CFLAGS+=-D_FILE_OFFSET_BITS=64 -D_OFF_T_DEFINED_ -Doff_t=off64_t -Dlseek=lseek64
 ANDROID_OFF_T_FIX=sed -ie "s|off_t|off64_t|g" "$(PLATFORM)/source/include/libsmbclient.h"
 endif
@@ -44,6 +46,7 @@ CONFIGURE= cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
         --with-libiconv=$(STAGING_DIR) \
         --without-cifsmount \
         --without-winbind \
+        $(CONFIGURE_OPTS)
 
 LIBDYLIB=$(PLATFORM)/source/bin/libsmbclient.a
 

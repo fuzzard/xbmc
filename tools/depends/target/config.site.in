@@ -36,34 +36,11 @@ LD_LIBRARY_PATH=@prefix@/@tool_dir@/lib:$LD_LIBRARY_PATH
 PYTHON_VERSION=3.9
 NATIVE_ROOT=@prefix@/@tool_dir@
 
-#libomxil-bellagio
-ac_cv_func_malloc_0_nonnull=yes
-
-#curl
-ac_cv_file__dev_urandom=yes
-ac_cv_lib_ssl_SSL_connect=yes
-
-#gettext and libiconv
-gl_cv_header_working_stdint_h=yes
-
-#libcec
-ac_cv_search_dlopen=-ldl
-
-#libgcrypt
-if test "${PACKAGE_NAME}" = "libgcrypt"; then
-  ac_cv_path_GPG_ERROR_CONFIG=@prefix@/@deps_dir@/bin/gpg-error-config
-  ac_cv_sys_symbol_underscore=no
-  CFLAGS="$CFLAGS -std=gnu99"
-fi
-
 #python
 ac_cv_func_gethostbyname_r=no
 ac_cv_header_sys_un_h=yes
 ac_cv_file__dev_ptmx=no
 ac_cv_file__dev_ptc=no
-
-#gnutls
-gl_cv_func_gettimeofday_clobber=no
 
 #wayland
 if test "${PACKAGE_NAME}" = "wayland"; then
@@ -71,12 +48,6 @@ if test "${PACKAGE_NAME}" = "wayland"; then
   # Maybe it would be better not to define -DNDEBUG globally for release builds?
   export CFLAGS=`echo ${CFLAGS} | sed 's/-DNDEBUG=1//g'`
   export CPPFLAGS=`echo ${CPPFLAGS} | sed 's/-DNDEBUG=1//g'`
-fi
-
-
-if test "@platform_os@" = "android"; then
-  ac_cv_func_srand=yes
-  ac_cv_func_rand=yes
 fi
 
 if test "@platform_os@" = "darwin_embedded"; then
@@ -95,11 +66,6 @@ if test "@target_platform@" = "appletvos"; then
   ac_cv_func_sigaltstack=no
   ac_cv_func_vfork_works=no
   ac_cv_func_fork=no
-fi
-
-#Fix for older, broken android toolchains
-if test "${PACKAGE_NAME}" = "FreeType" -a "@platform_os@" = "android"; then
-  CFLAGS="$CFLAGS -std=gnu99"
 fi
 
 # These libs do not correctly export their symbols. Force them in case

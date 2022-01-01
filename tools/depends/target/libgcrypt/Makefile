@@ -16,6 +16,9 @@ else
   CONFIGURE_FLAGS+= --disable-asm --disable-arm-crypto-support
 endif
 
+ifeq ($(OS),android)
+  CONFIGURE_FLAGS+= ac_cv_path_GPG_ERROR_CONFIG=$(PREFIX)/bin/gpg-error-config
+endif
 
 # configuration settings
 CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
