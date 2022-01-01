@@ -47,11 +47,6 @@ AC_ARG_WITH([platform],
   [use_platform=$withval],
   [use_platform=auto])
 
-AC_ARG_WITH([firmware],
-  [AS_HELP_STRING([--with-firmware],
-  [platform specific firmware []])],
-  [use_firmware=$withval])
-
 AC_ARG_WITH([tarballs],
   [AS_HELP_STRING([--with-tarballs],
   [path where tarballs will be saved [prefix/xbmc-tarballs]])],
@@ -75,7 +70,7 @@ AC_ARG_WITH([sdk-path],
 
 AC_ARG_WITH([sdk],
   [AS_HELP_STRING([--with-sdk],
-  [specify sdk platform version.])],
+  [specify sdk platform version. (optional for Darwin platforms)])],
   [use_sdk=$withval])
 
 AC_ARG_WITH([ndk-api],
@@ -117,7 +112,6 @@ AC_ARG_WITH([ffmpeg-options],
   [ffmpeg_options=$withval],
   [ffmpeg_options=default])
 
-
 if test "$use_ccache" = "yes"; then
   AC_CHECK_PROG(HAVE_CCACHE,ccache,"yes","no",)
   if test "x$HAVE_CCACHE" = "xno" ; then
@@ -145,10 +139,8 @@ use_host=$host_alias
 use_build=$build_cpu-$build_vendor-$build_os
 use_buildcpu=$build_cpu
 
-cross_compiling="yes"
 if test "x$host" = "x$build"; then
   use_host=$build_cpu-$build_os
-  cross_compiling="no"
 fi
 
 deps_dir=$use_host-$build_type
@@ -317,8 +309,6 @@ case $host in
     platform_includes="-I$prefix/$deps_dir/include/android-$use_ndk_api"
     platform_os="android"
     meson_system="android"
-    #android builds are always cross
-    cross_compiling="yes"
   ;;
   arm*-*-linux-gnu*|arm*-*-linux-uclibc*|aarch64*-*-linux-gnu*|aarch*-*-linux-be*)
     case $host in
@@ -361,9 +351,6 @@ case $host in
     target_platform="x11 wayland gbm"
   ;;
   *darwin*)
-    # darwin builds are always cross
-    cross_compiling="yes"
-
     meson_system="darwin"
 
     platform_cflags="-fheinous-gnu-extensions"
@@ -647,7 +634,6 @@ AC_SUBST(use_toolchain)
 AC_SUBST(use_build_toolchain)
 AC_SUBST(use_tarballs)
 AC_SUBST(target_platform)
-AC_SUBST(use_firmware)
 AC_SUBST(cross_compiling)
 AC_SUBST(platform_cflags)
 AC_SUBST(platform_cxxflags)
