@@ -1,0 +1,11 @@
+--- a/Modules/Setup
++++ a/Modules/Setup
+@@ -262,7 +262,7 @@
+ _multiprocessing _multiprocessing/multiprocessing.c _multiprocessing/semaphore.c
+ 
+ # _posixshmem module does not run on android platform due to missing primitives shm_open/shm_unlink
+-_posixshmem _multiprocessing/posixshmem.c -I$(srcdir)/Modules/_multiprocessing # -lrt # _posixshmem
++_posixshmem _multiprocessing/posixshmem.c -I$(srcdir)/Modules/_multiprocessing -lrt
+ 
+ # The _tkinter module.
+ #

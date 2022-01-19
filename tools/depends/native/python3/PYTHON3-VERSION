@@ -1,4 +1,4 @@
 LIBNAME=Python
 VERSION=3.9.10
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.xz
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.xz
+BASE_URL=https://www.python.org/ftp/python/$(VERSION)

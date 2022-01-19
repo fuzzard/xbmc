@@ -68,6 +68,7 @@ if(UNIX)
   option(ENABLE_INTERNAL_GTEST "Enable internal gtest?" OFF)
   option(ENABLE_INTERNAL_UDFREAD "Enable internal udfread?" OFF)
   option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?" OFF)
+  option(ENABLE_INTERNAL_PYTHON "Enable internal python?" OFF)
 endif()
 # prefer kissfft from xbmc/contrib but let use system one on unices
 include(CMakeDependentOption)
