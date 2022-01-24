@@ -1,0 +1,3 @@
+LIBNAME=libcdio
+VERSION=0.80
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz

@@ -1,11 +1,5 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile osx.patch 01-fix-glob-on-android.patch
-
-# lib name, version
-LIBNAME=libcdio
-VERSION=2.1.0
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.bz2
+include ../../Makefile.include LIBCDIO-GPLV3-VERSION
+DEPS= ../../Makefile.include Makefile LIBCDIO-GPLV3-VERSION osx.patch 01-fix-glob-on-android.patch
 
 # configuration settings
 CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \

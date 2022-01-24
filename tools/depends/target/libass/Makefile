@@ -1,15 +1,11 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile
-
-# lib name, version
-LIBNAME=libass
-VERSION=0.15.2
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
+include ../../Makefile.include LIBASS-VERSION
+DEPS= ../../Makefile.include LIBASS-VERSION Makefile
 
 # configuration settings
 CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
-          ./configure --prefix=$(PREFIX) --disable-enca
+          ./configure --prefix=$(PREFIX)
+
+$(info $$PATH is [${PATH}])
 
 LIBDYLIB=$(PLATFORM)/$(LIBNAME)/.libs/$(LIBNAME).a
 

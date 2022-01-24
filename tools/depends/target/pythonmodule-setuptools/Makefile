@@ -1,11 +1,5 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile
-
-# lib name, version
-LIBNAME=setuptools
-VERSION=53.0.0
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
+include ../../Makefile.include PYTHONMODULE-SETUPTOOLS-VERSION
+DEPS= ../../Makefile.include PYTHONMODULE-SETUPTOOLS-VERSION Makefile
 
 CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)"
 ifeq ($(OS),android)
@@ -13,12 +7,15 @@ ifeq ($(OS),android)
 CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm" PYTHONPATH="$(PYTHON_SITE_PKG)"
 endif
 ifeq ($(OS),osx)
-CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -lpython" PYTHONPATH="$(PYTHON_SITE_PKG)"
+#CROSSFLAGS=LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS) -lpython" PYTHONPATH="$(PYTHON_SITE_PKG)"
+CROSSFLAGS=PYTHONPATH="$(PYTHON_SITE_PKG)"
 endif
 ifeq ($(OS),darwin_embedded)
 PYTHON_O=$(abs_top_srcdir)/target/python3/$(PLATFORM)/Programs/python.o
 CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" CCSHARED="$(CC) $(CFLAGS) $(PYTHON_O)" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)"
 endif
+
+export CC
 
 LIBDYLIB=$(PLATFORM)/dist/$(LIBNAME)-$(VERSION)-py$(PYTHON_VERSION).egg
 

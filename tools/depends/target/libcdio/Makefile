@@ -1,11 +1,6 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile configure.patch cross.patch
+include ../../Makefile.include LIBCDIO-VERSION
+DEPS= ../../Makefile.include Makefile LIBCDIO-VERSION configure.patch cross.patch
 
-# lib name, version
-LIBNAME=libcdio
-VERSION=0.80
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
 # configuration settings
 CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
           ./configure --prefix=$(PREFIX)  --with-cd-drive=no --with-cd-info=no --with-cd-paranoia=no \

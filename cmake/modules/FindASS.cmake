@@ -13,16 +13,20 @@
 #
 #   ASS::ASS   - The ASS library
 
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_ASS libass QUIET)
+if(KODI_DEPENDSBUILD)
+  include(cmake/modules/depends/target/BuildASS.cmake)
+else()
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_ASS libass QUIET)
+  endif()
+
+  find_path(ASS_INCLUDE_DIR NAMES ass/ass.h
+                            PATHS ${PC_ASS_INCLUDEDIR})
+  find_library(ASS_LIBRARY NAMES ass libass
+                           PATHS ${PC_ASS_LIBDIR})
+
+  set(ASS_VERSION ${PC_ASS_VERSION})
 endif()
-
-find_path(ASS_INCLUDE_DIR NAMES ass/ass.h
-                          PATHS ${PC_ASS_INCLUDEDIR})
-find_library(ASS_LIBRARY NAMES ass libass
-                         PATHS ${PC_ASS_LIBDIR})
-
-set(ASS_VERSION ${PC_ASS_VERSION})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ASS

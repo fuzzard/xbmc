@@ -1,11 +1,5 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile pillow-crosscompile.patch
-
-# lib name, version
-LIBNAME=Pillow
-VERSION=8.4.0
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
+include ../../Makefile.include PYTHONMODULE-PIL-VERSION
+DEPS= ../../Makefile.include Makefile PYTHONMODULE-PIL-VERSION pillow-crosscompile.patch
 
 PYTHONPATH=$(PYTHON_SITE_PKG)
 PILPATH=$(PYTHONPATH)
@@ -45,7 +39,9 @@ ZLIB_ROOT=ZLIB_ROOT="$(SDKROOT)/usr"
 endif
 
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
-CROSSFLAGS=$(ZLIB_ROOT) PYTHONXINCLUDE="$(PREFIX)/include/python$(PYTHON_VERSION)" PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(LDSHARED)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)" PYTHONPATH="$(PYTHONPATH)"
+CROSSFLAGS=PYTHONXINCLUDE="$(PREFIX)/include/python$(PYTHON_VERSION)" LDFLAGS="$(LDFLAGS) $(EXTRALDFLAGS)"
+
+export CC CFLAGS LDSHARED ZLIB_ROOT PYTHONPATH
 
 all: .installed-$(PLATFORM)
 
@@ -65,7 +61,8 @@ else ifeq ($(OS),darwin_embedded)
 endif
 
 .installed-$(PLATFORM): $(PLATFORM) $(PILPATHLIB)
-	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS)
+	cd $(PLATFORM); $(CROSSFLAGS) $(NATIVEPREFIX)/bin/python3 setup.py install --install-lib $(PILPATH)
 ifeq ($(OS),android)
 	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
 	cd $(PILPATHLIB)/PIL && \

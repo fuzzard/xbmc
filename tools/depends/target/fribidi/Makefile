@@ -1,11 +1,5 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile
-
-# lib name, version
-LIBNAME=fribidi
-VERSION=1.0.10
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
+include ../../Makefile.include FRIBIDI-VERSION
+DEPS= ../../Makefile.include Makefile FRIBIDI-VERSION
 
 MESON_BUILD_TYPE=release
 

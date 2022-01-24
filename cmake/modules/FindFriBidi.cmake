@@ -13,17 +13,23 @@
 #
 #   FriBidi::FriBidi   - The FriBidi library
 
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_FRIBIDI fribidi QUIET)
+if(KODI_DEPENDSBUILD)
+  if(NOT FRIBIDI_FOUND)
+    include(cmake/modules/depends/target/BuildFribidi.cmake)
+  endif()
+else()
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_FRIBIDI fribidi QUIET)
+  endif()
+
+  find_path(FRIBIDI_INCLUDE_DIR NAMES fribidi.h
+                                PATH_SUFFIXES fribidi
+                                PATHS ${PC_FRIBIDI_INCLUDEDIR})
+  find_library(FRIBIDI_LIBRARY NAMES fribidi libfribidi
+                               PATHS ${PC_FRIBIDI_LIBDIR})
+
+  set(FRIBIDI_VERSION ${PC_FRIBIDI_VERSION})
 endif()
-
-find_path(FRIBIDI_INCLUDE_DIR NAMES fribidi.h
-                              PATH_SUFFIXES fribidi
-                              PATHS ${PC_FRIBIDI_INCLUDEDIR})
-find_library(FRIBIDI_LIBRARY NAMES fribidi libfribidi
-                             PATHS ${PC_FRIBIDI_LIBDIR})
-
-set(FRIBIDI_VERSION ${PC_FRIBIDI_VERSION})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FriBidi
@@ -33,6 +39,7 @@ find_package_handle_standard_args(FriBidi
 if(FRIBIDI_FOUND)
   set(FRIBIDI_LIBRARIES ${FRIBIDI_LIBRARY})
   set(FRIBIDI_INCLUDE_DIRS ${FRIBIDI_INCLUDE_DIR})
+  set(FRIBIDI_FOUND TRUE CACHE INTERNAL "" FORCE)
   if(PC_FRIBIDI_CFLAGS)
     set(FRIBIDI_DEFINITIONS ${PC_FRIBIDI_CFLAGS})
   endif()

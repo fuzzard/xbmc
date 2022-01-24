@@ -1,11 +1,6 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile 01-nosetuptool.patch 02-android-dlopen.patch 03-obey-crosscompileflags.patch
-
-# lib name, version
-LIBNAME=pycryptodome
-VERSION=3.4.3
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.gz
+include ../../Makefile.include PYTHONMODULE-PYCRYPTODOME-VERSION
+DEPS= ../../Makefile.include PYTHONMODULE-PYCRYPTODOME-VERSION Makefile \
+         01-nosetuptool.patch 02-android-dlopen.patch 03-obey-crosscompileflags.patch
 
 CROSSFLAGS=PYTHONXCPREFIX="$(PREFIX)" CC="$(CC) $(CFLAGS)" LDSHARED="$(CC) -shared" LDFLAGS="$(LDFLAGS)" PYTHONPATH="$(PYTHON_SITE_PKG)"
 ifeq ($(OS),android)

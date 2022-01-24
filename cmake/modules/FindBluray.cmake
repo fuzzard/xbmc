@@ -14,24 +14,28 @@
 #
 #   Bluray::Bluray   - The libbluray library
 
-set(Bluray_FIND_VERSION 0.9.3)
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_BLURAY libbluray>=${Bluray_FIND_VERSION} QUIET)
-  set(BLURAY_VERSION ${PC_BLURAY_VERSION})
+if(KODI_DEPENDSBUILD)
+  include(cmake/modules/depends/target/BuildBluray.cmake)
+else()
+  set(Bluray_FIND_VERSION 0.9.3)
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_BLURAY libbluray>=${Bluray_FIND_VERSION} QUIET)
+    set(BLURAY_VERSION ${PC_BLURAY_VERSION})
+  endif()
+
+  find_path(BLURAY_INCLUDE_DIR libbluray/bluray.h
+                               PATHS ${PC_BLURAY_INCLUDEDIR})
+
+  if(NOT BLURAY_VERSION AND EXISTS ${BLURAY_INCLUDE_DIR}/libbluray/bluray-version.h)
+    file(STRINGS ${BLURAY_INCLUDE_DIR}/libbluray/bluray-version.h _bluray_version_str
+         REGEX "#define[ \t]BLURAY_VERSION_STRING[ \t][\"]?[0-9.]+[\"]?")
+    string(REGEX REPLACE "^.*BLURAY_VERSION_STRING[ \t][\"]?([0-9.]+).*$" "\\1" BLURAY_VERSION ${_bluray_version_str})
+    unset(_bluray_version_str)
+  endif()
+
+  find_library(BLURAY_LIBRARY NAMES bluray libbluray
+                              PATHS ${PC_BLURAY_LIBDIR})
 endif()
-
-find_path(BLURAY_INCLUDE_DIR libbluray/bluray.h
-                             PATHS ${PC_BLURAY_INCLUDEDIR})
-
-if(NOT BLURAY_VERSION AND EXISTS ${BLURAY_INCLUDE_DIR}/libbluray/bluray-version.h)
-  file(STRINGS ${BLURAY_INCLUDE_DIR}/libbluray/bluray-version.h _bluray_version_str
-       REGEX "#define[ \t]BLURAY_VERSION_STRING[ \t][\"]?[0-9.]+[\"]?")
-  string(REGEX REPLACE "^.*BLURAY_VERSION_STRING[ \t][\"]?([0-9.]+).*$" "\\1" BLURAY_VERSION ${_bluray_version_str})
-  unset(_bluray_version_str)
-endif()
-
-find_library(BLURAY_LIBRARY NAMES bluray libbluray
-                            PATHS ${PC_BLURAY_LIBDIR})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Bluray

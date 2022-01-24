@@ -1,11 +1,5 @@
-include ../../Makefile.include
-DEPS= ../../Makefile.include Makefile 001-darwinembed_DiskArbitration-revert.patch tvos.patch
-
-# lib name, version
-LIBNAME=libbluray
-VERSION=1.3.0
-SOURCE=$(LIBNAME)-$(VERSION)
-ARCHIVE=$(SOURCE).tar.bz2
+include ../../Makefile.include LIBBLURAY-VERSION
+DEPS= ../../Makefile.include Makefile LIBBLURAY-VERSION 001-darwinembed_DiskArbitration-revert.patch tvos.patch
 
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) --disable-shared --exec-prefix=$(PREFIX) \

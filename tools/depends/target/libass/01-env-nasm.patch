@@ -1,0 +1,28 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -205,14 +205,14 @@
+     AS_CASE([$host],
+         [i?86-*], [
+             INTEL=true
+-            AS=nasm
++            AS=$nasm
+             X86=true
+             BITS=32
+             BITTYPE=32
+             ASFLAGS="$ASFLAGS -DARCH_X86_64=0"
+         ],
+         [x86_64-*-gnux32|amd64-*-gnux32], [
+-            AS=nasm
++            AS=$nasm
+             INTEL=true
+             X64=true
+             BITS=64
+@@ -220,7 +220,7 @@
+             ASFLAGS="$ASFLAGS -DARCH_X86_64=1"
+         ],
+         [x86_64-*|amd64-*], [
+-            AS=nasm
++            AS=$nasm
+             INTEL=true
+             X64=true
+             BITS=64
