@@ -1,0 +1,3 @@
+LIBNAME=libnfs
+VERSION=5.0.1
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
