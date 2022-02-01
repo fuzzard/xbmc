@@ -1,3 +1,5 @@
 LIBNAME=libnfs
 VERSION=5.0.1
 ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+
+BASE_URL=https://github.com/sahlberg/libnfs/archive/refs/tags
