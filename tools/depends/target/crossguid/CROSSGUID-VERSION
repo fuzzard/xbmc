@@ -5,3 +5,5 @@ SHA512=f0a80d8e99b10473bcfdfde3d1c5fd7b766959819f0d1c0595ac84ce46db9007a5fbfde9a
 BYPRODUCT=libcrossguid.a
 BYPRODUCT_WIN=crossguid.lib
 
+ARCHIVE=$(VERSION).tar.gz
+BASE_URL=https://github.com/graeme-hill/crossguid/archive
