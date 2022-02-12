@@ -1,12 +1,10 @@
 -include ../../Makefile.include
 include CROSSGUID-VERSION
-DEPS = Makefile CROSSGUID-VERSION ../../download-files.include
+DEPS = Makefile CROSSGUID-VERSION ../../download-files.include 001-fix-unused-function.patch
 
 ifeq ($(CROSS_COMPILING), yes)
   DEPS += ../../Makefile.include
-  CXXFLAGS += -std=c++11
 else
-  CXXFLAGS += -std=c++11
   ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
   ifeq ($(PLATFORM),)
@@ -20,15 +18,7 @@ else
   endif
 endif
 
-
-# define specifying the native GUID implementation to use
-GUID_PLATFORM_DEFINE=GUID_LIBUUID
-ifeq ($(OS),osx)
-	GUID_PLATFORM_DEFINE=GUID_CFUUID
-endif
-ifeq ($(OS),darwin_embedded)
-	GUID_PLATFORM_DEFINE=GUID_CFUUID
-endif
+CMAKE_OPTIONS=-DCROSSGUID_TESTS=OFF
 
 LIBDYLIB=$(PLATFORM)/$(BYPRODUCT)
 
@@ -38,30 +28,24 @@ include ../../download-files.include
 
 all: .installed-$(PLATFORM)
 
-
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE) $(DEPS)
 ifeq ($(PREFIX),)
 	@echo
 	@echo "ERROR: please set PREFIX to the kodi install path e.g. make PREFIX=/usr/local"
 	@exit 1
 endif
-	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
+	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)/build
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	cd $(PLATFORM); patch -p1 -i ../001-fix-unused-function.patch
+	cd $(PLATFORM)/build; $(CMAKE) $(CMAKE_OPTIONS) ..
 
-$(LIBDYLIB): $(PLATFORM)
-	cd $(PLATFORM); $(CXX) -c guid.cpp -o guid.o $(CXXFLAGS) -D$(GUID_PLATFORM_DEFINE)
-	cd $(PLATFORM); $(AR) rvs lib$(LIBNAME).a guid.o
-
-.installed-$(PLATFORM): $(LIBDYLIB)
-	@[ -d $(PREFIX)/include ] || mkdir -p $(PREFIX)/include
-	@[ -d $(PREFIX)/lib ] || mkdir $(PREFIX)/lib
-	cp $(PLATFORM)/guid.h $(PREFIX)/include/
-	cp $(LIBDYLIB) $(PREFIX)/lib/
+.installed-$(PLATFORM): $(PLATFORM)
+	$(MAKE) -C $(PLATFORM)/build install
 	touch $@
 
 clean:
-	rm -rf $(PLATFORM) .installed-$(PLATFORM)
+	$(MAKE) -C $(PLATFORM)/build clean
+	rm -f .installed-$(PLATFORM)
 
-distclean::
+distclean:
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
-

@@ -7,7 +7,6 @@ endif
 # Keep in alphabetical order
 DEPENDS = \
   bzip2 \
-  crossguid \
   curl \
   dav1d \
   expat \
@@ -132,7 +131,6 @@ endif
 
 all: .installed-$(PLATFORM)
 
-crossguid: $(LIBUUID)
 curl: openssl nghttp2
 dav1d: meson-cross-file
 dbus: expat
