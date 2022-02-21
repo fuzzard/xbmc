@@ -35,6 +35,7 @@ if(ENABLE_INTERNAL_FLATBUFFERS)
                       DOWNLOAD_DIR ${TARBALL_DIR}
                       PREFIX ${CORE_BUILD_DIR}/flatbuffers
                       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                                 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
                                  -DCMAKE_BUILD_TYPE=Release
                                  -DFLATBUFFERS_CODE_COVERAGE=OFF
                                  -DFLATBUFFERS_BUILD_TESTS=OFF
