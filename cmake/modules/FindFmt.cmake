@@ -10,7 +10,7 @@
 #
 # and the following imported targets::
 #
-#   Fmt::Fmt   - The Fmt library
+#   fmt   - The Fmt library
 
 if(ENABLE_INTERNAL_FMT)
   include(ExternalProject)
@@ -50,36 +50,27 @@ if(ENABLE_INTERNAL_FMT)
                                  "${EXTRA_ARGS}"
                       BUILD_BYPRODUCTS ${FMT_LIBRARY})
   set_target_properties(fmt PROPERTIES FOLDER "External Projects")
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(Fmt
-                                    REQUIRED_VARS FMT_LIBRARY FMT_INCLUDE_DIR
-                                    VERSION_VAR FMT_VER)
-
-  set(FMT_LIBRARIES ${FMT_LIBRARY})
-  set(FMT_INCLUDE_DIRS ${FMT_INCLUDE_DIR})
-
 else()
+  find_package(FMT 6.1.2 CONFIG REQUIRED QUIET)
 
-find_package(FMT 6.1.2 CONFIG REQUIRED QUIET)
-
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_FMT libfmt QUIET)
-  if(PC_FMT_VERSION AND NOT FMT_VERSION)
-    set(FMT_VERSION ${PC_FMT_VERSION})
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_FMT libfmt QUIET)
+    if(PC_FMT_VERSION AND NOT FMT_VERSION)
+      set(FMT_VERSION ${PC_FMT_VERSION})
+    endif()
   endif()
+
+  find_path(FMT_INCLUDE_DIR NAMES fmt/format.h
+                            PATHS ${PC_FMT_INCLUDEDIR})
+
+  find_library(FMT_LIBRARY_RELEASE NAMES fmt
+                                  PATHS ${PC_FMT_LIBDIR})
+  find_library(FMT_LIBRARY_DEBUG NAMES fmtd
+                                 PATHS ${PC_FMT_LIBDIR})
+
+  include(SelectLibraryConfigurations)
+  select_library_configurations(FMT)
 endif()
-
-find_path(FMT_INCLUDE_DIR NAMES fmt/format.h
-                          PATHS ${PC_FMT_INCLUDEDIR})
-
-find_library(FMT_LIBRARY_RELEASE NAMES fmt
-                                PATHS ${PC_FMT_LIBDIR})
-find_library(FMT_LIBRARY_DEBUG NAMES fmtd
-                               PATHS ${PC_FMT_LIBDIR})
-
-include(SelectLibraryConfigurations)
-select_library_configurations(FMT)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Fmt
@@ -98,5 +89,4 @@ if(FMT_FOUND)
   endif()
 endif()
 
-endif()
 mark_as_advanced(FMT_INCLUDE_DIR FMT_LIBRARY)
