@@ -38,7 +38,8 @@ if(ENABLE_INTERNAL_UDFREAD)
                       DOWNLOAD_NAME ${LIBUDFREAD_ARCHIVE}
                       DOWNLOAD_DIR ${TARBALL_DIR}
                       PREFIX ${CORE_BUILD_DIR}/libudfread
-                      CONFIGURE_COMMAND autoreconf -vif &&
+                      CONFIGURE_COMMAND ${SETBUILDENV} autoreconf -vif
+                                COMMAND ${SETBUILDENV}
                                         ./configure
                                         --enable-static
                                         --disable-shared

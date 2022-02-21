@@ -62,6 +62,7 @@ set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_COMPILER @CC@)
 set(CMAKE_CXX_COMPILER @CXX@)
 set(CMAKE_AR @AR@ CACHE FILEPATH "Archiver")
+SET(CMAKE_AS @AS@ CACHE FILEPATH "Assembler")
 set(CMAKE_LINKER @LD@ CACHE FILEPATH "Linker")
 set(CMAKE_NM @NM@ CACHE FILEPATH "Nm")
 set(CMAKE_STRIP @STRIP@ CACHE PATH "strip binary" FORCE)
@@ -94,6 +95,7 @@ if(CORE_SYSTEM_NAME STREQUAL android)
   string(REPLACE ":" ";" SDK_BUILDTOOLS_PATH "@build_tools_path@")
 endif()
 
+# Target flags/paths
 set(CMAKE_C_FLAGS "@platform_cflags@ @platform_includes@ -isystem @prefix@/@deps_dir@/include")
 set(CMAKE_CXX_FLAGS "@platform_cxxflags@ @platform_includes@ -isystem @prefix@/@deps_dir@/include")
 set(CMAKE_C_FLAGS_RELEASE "@platform_cflags_release@ @platform_includes@ -isystem @prefix@/@deps_dir@/include")
@@ -112,7 +114,80 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_FRAMEWORK LAST)
+set(PKG_CONFIG_LIBDIR "@prefix@/@deps_dir@/lib/pkgconfig:@prefix@/@deps_dir@/share/pkgconfig")
 set(ENV{PKG_CONFIG_LIBDIR} @prefix@/@deps_dir@/lib/pkgconfig:@prefix@/@deps_dir@/share/pkgconfig)
+
+# Host build tools/flags
+set(CC_FOR_BUILD "@CC_FOR_BUILD@")
+set(CXX_FOR_BUILD "@CXX_FOR_BUILD@")
+set(LD_FOR_BUILD "@LD_FOR_BUILD@")
+set(CC_BINARY_FOR_BUILD "@CC_FOR_BUILD@")
+set(CXX_BINARY_FOR_BUILD "@CXX_FOR_BUILD@")
+set(AR_FOR_BUILD "@AR_FOR_BUILD@")
+set(RANLIB_FOR_BUILD "@RANLIB_FOR_BUILD@")
+set(AS_FOR_BUILD "@AS_FOR_BUILD@")
+set(NM_FOR_BUILD "@NM_FOR_BUILD@")
+set(STRIP_FOR_BUILD "@STRIP_FOR_BUILD@")
+set(READELF_FOR_BUILD "@READELF_FOR_BUILD@")
+set(OBJDUMP_FOR_BUILD "@OBJDUMP_FOR_BUILD@")
+set(CFLAGS_FOR_BUILD "@host_includes@ -I@prefix@/@tool_dir@/include")
+set(LDFLAGS_FOR_BUILD "@host_includes@ -L@prefix@/@tool_dir@/lib")
+
+# Autoconf tools/paths
+set(AUTOM4TE "@prefix@/@tool_dir@/bin/autom4te")
+set(AUTOMAKE "@prefix@/@tool_dir@/bin/automake")
+set(AUTOCONF "@prefix@/@tool_dir@/bin/autoconf")
+set(ACLOCAL "@prefix@/@tool_dir@/bin/aclocal")
+set(ACLOCAL_PATH "@prefix@/@deps_dir@/share/aclocal:@prefix@/@tool_dir@/share/aclocal")
+set(AUTOPOINT "@prefix@/@tool_dir@/bin/autopoint")
+set(AUTOHEADER "@prefix@/@tool_dir@/bin/autoheader")
+set(LIBTOOL "@prefix@/@tool_dir@/bin/libtool")
+set(LIBTOOLIZE "@prefix@/@tool_dir@/bin/libtoolize")
+
+set(ENVPATH "@prefix@/@tool_dir@/bin:$ENV{PATH}")
+
+set(TARGET_ENV_VARS "AS=${CMAKE_AS}"
+                    "AR=${CMAKE_AR}"
+                    "CC=${CMAKE_C_COMPILER}"
+                    "CXX=${CMAKE_CXX_COMPILER}"
+                    "NM=${CMAKE_NM}"
+                    "LD=${CMAKE_LINKER}"
+                    "STRIP=${CMAKE_STRIP}"
+                    "RANLIB=${CMAKE_RANLIB}"
+                    "OBJDUMP=${CMAKE_OBJDUMP}"
+                    "CFLAGS=${CMAKE_C_FLAGS}"
+                    "CPPFLAGS=${CMAKE_CPP_FLAGS}"
+                    "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS}"
+                    "PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}"
+                    "AUTOM4TE=${AUTOM4TE}"
+                    "AUTOMAKE=${AUTOMAKE}"
+                    "AUTOCONF=${AUTOCONF}"
+                    "ACLOCAL=${ACLOCAL}"
+                    "ACLOCAL_PATH=${ACLOCAL_PATH}"
+                    "AUTOPOINT=${AUTOPOINT}"
+                    "AUTOHEADER=${AUTOHEADER}"
+                    "LIBTOOL=${LIBTOOL}"
+                    "LIBTOOLIZE=${LIBTOOLIZE}"
+                    "PATH=${ENVPATH}"
+                    )
+
+set(HOST_ENV_VARS CC_FOR_BUILD=${CC_FOR_BUILD}
+                  CXX_FOR_BUILD=${CXX_FOR_BUILD}
+                  LD_FOR_BUILD=${LD_FOR_BUILD}
+                  CC_BINARY_FOR_BUILD=${CC_FOR_BUILD}
+                  CXX_BINARY_FOR_BUILD=${CXX_FOR_BUILD}
+                  AR_FOR_BUILD=${AR_FOR_BUILD}
+                  RANLIB_FOR_BUILD=${RANLIB_FOR_BUILD}
+                  AS_FOR_BUILD=${AS_FOR_BUILD}
+                  NM_FOR_BUILD=${NM_FOR_BUILD}
+                  STRIP_FOR_BUILD=${STRIP_FOR_BUILD}
+                  READELF_FOR_BUILD=${READELF_FOR_BUILD}
+                  OBJDUMP_FOR_BUILD=${OBJDUMP_FOR_BUILD}
+                  CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD}
+                  LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD}
+                  )
+
+set(SETBUILDENV ${CMAKE_COMMAND} -E env ${TARGET_ENV_VARS} ${HOST_ENV_VARS})
 
 # Binary Addons
 if(NOT CORE_SYSTEM_NAME STREQUAL linux)

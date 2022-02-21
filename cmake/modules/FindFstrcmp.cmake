@@ -35,10 +35,12 @@ if(ENABLE_INTERNAL_FSTRCMP)
                       URL_HASH ${FSTRCMP_HASH}
                       DOWNLOAD_DIR ${TARBALL_DIR}
                       PREFIX ${CORE_BUILD_DIR}/fstrcmp
-                      PATCH_COMMAND autoreconf -vif
-                      CONFIGURE_COMMAND ./configure --prefix ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                      CONFIGURE_COMMAND ${SETBUILDENV} autoreconf -vif
+                                COMMAND ${SETBUILDENV}
+                                        ./configure
+                                        --prefix ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
                       BUILD_BYPRODUCTS ${FSTRCMP_LIBRARY}
-                      BUILD_COMMAND make lib/libfstrcmp.la
+                      BUILD_COMMAND ${SETBUILDENV} make lib/libfstrcmp.la
                       BUILD_IN_SOURCE 1
                       INSTALL_COMMAND make install-libdir install-include)
 
