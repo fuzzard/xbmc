@@ -18,10 +18,19 @@ if(ENABLE_INTERNAL_DAV1D)
 
   set(DAV1D_VERSION ${${MODULE}_VER})
 
-  find_program(NINJA_EXECUTABLE ninja REQUIRED)
-  find_program(MESON_EXECUTABLE meson REQUIRED)
+  find_package(Meson REQUIRED)
+  find_package(Ninja REQUIRED)
+  find_package(NASM REQUIRED)
 
-  set(CONFIGURE_COMMAND ${MESON_EXECUTABLE}
+  # Add bin dirs to path in case EXECUTABLES arent in existing path
+  # This is the case for Apple/Android platforms that create native tools
+  set(PATH "PATH=${NASM_BINDIR}:${NINJA_BINDIR}:${MESON_BINDIR}:$ENV{PATH}")
+
+  if(KODI_DEPENDSBUILD)
+    set(MESON_CROSSFILE --cross-file ${DEPENDS_PATH}/share/cross-file.meson)
+  endif()
+
+  set(CONFIGURE_COMMAND ${PATH} ${MESON_EXECUTABLE}
                         --buildtype=release
                         --default-library=static
                         --prefix=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
@@ -30,6 +39,7 @@ if(ENABLE_INTERNAL_DAV1D)
                         -Denable_tools=false
                         -Denable_examples=false
                         -Denable_tests=false
+                        ${MESON_CROSSFILE}
                         ../dav1d)
   set(BUILD_COMMAND ${NINJA_EXECUTABLE})
   set(INSTALL_COMMAND ${NINJA_EXECUTABLE} install)
