@@ -12,7 +12,7 @@ options that are platform specific
 3. **[Enable Kodi Features](#3-enable-kodi-features)**
 4. **[Build Dependencies](#4-build-dependencies)**  
   4.1. **[Unix General](#41-unix-general)**
-5. **[Platform Specific Options](#3-platform-specific-options)**  
+5. **[Platform Specific Options](#5-platform-specific-options)**  
   5.1. **[Unix General](#51-unix-general)**  
   5.2. **[Linux](#52-linux)**  
     5.2.1. **[Linkers](#521-linkers)**  
@@ -20,8 +20,7 @@ options that are platform specific
   5.3. **[Apple](#53-apple)**  
   5.4. **[Windows](#54-windows)**  
   5.5. **[Android](#55-android)**
-5. **[Dependencies](#4-Dependencies)**
-6. **[Developer Utilities](#5-developer-utilities)**
+6. **[Developer Utilities](#6-developer-utilities)**
 
 ## 1. Document conventions
 This guide assumes you are using `terminal`, also known as `console`, `command-line` or simply `cli`. Commands need to be run at the terminal, one at a time and in the provided order.
