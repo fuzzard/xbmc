@@ -52,6 +52,8 @@ Apple users, look for the usage of CMAKE_EXTRA_ARGUMENTS to add the options to c
 make -C tools/depends/target/cmakebuildsys CMAKE_EXTRA_ARGUMENTS="-DENABLE_UPNP=ON -DENABLE_OPTICAL=OFF"
 ```
 
+**[back to top](#table-of-contents)**
+
 ## 2. General Build Options
 
 ```
@@ -105,6 +107,8 @@ Path to build the project in.
 
 ---
 
+**[back to top](#table-of-contents)**
+
 ## 3. Enable Kodi Features
 
 ```
@@ -149,6 +153,8 @@ Default: ON
 
 ---
 
+**[back to top](#table-of-contents)**
+
 ## 4. Build Dependencies
 
 ```
@@ -189,6 +195,8 @@ Build FFMPEG as part of the build. This wont use system installed versions
 Default: OFF
 
 ---
+
+**[back to top](#table-of-contents)**
 
 ### 4.1. Unix General
 
@@ -276,12 +284,16 @@ Default: OFF
 
 ---
 
-## 5. Platform Specific Option
+**[back to top](#table-of-contents)**
+
+## 5. Platform Specific Options
 
 ### 5.1. Unix General
 
-  option(WITH_ARCH              "build with given arch" OFF)
+  option(WITH_ARCH              "build with given arch" OFF)  
   option(WITH_CPU               "build with given cpu" OFF)
+
+**[back to top](#table-of-contents)**
 
 ### 5.2. Linux
 
@@ -301,6 +313,8 @@ Enable event clients support
 Default: OFF
 
 ---
+
+**[back to top](#table-of-contents)**
 
 ### 5.2.1. Linkers
 
@@ -331,6 +345,8 @@ Default: OFF
 
 ---
 
+**[back to top](#table-of-contents)**
+
 ### 5.2.2. LTO
 
 ```
@@ -349,6 +365,8 @@ Requires to be using clang compiler tools
 
 
 ---
+
+**[back to top](#table-of-contents)**
 
 ### 5.3. Apple
 
@@ -406,9 +424,15 @@ Requires to be using clang compiler tools
 
 ---
 
+**[back to top](#table-of-contents)**
+
 ### 5.4. Windows
 
+**[back to top](#table-of-contents)**
+
 ### 5.5. Android
+
+**[back to top](#table-of-contents)**
 
 ## 6. Developer Utilities
 
@@ -442,3 +466,4 @@ Default: ON
 Enable [include-what-you-use](https://include-what-you-use.org/) support  
 Default: OFF
 
+**[back to top](#table-of-contents)**
