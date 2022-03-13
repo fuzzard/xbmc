@@ -15,25 +15,67 @@
 #   PCRE::PCRECPP - The PCRECPP library
 #   PCRE::PCRE    - The PCRE library
 
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_PCRE libpcrecpp QUIET)
-endif()
+if(ENABLE_INTERNAL_PCRE)
+  include(cmake/scripts/common/ModuleHelpers.cmake)
 
-find_path(PCRE_INCLUDE_DIR pcrecpp.h
-                           PATHS ${PC_PCRE_INCLUDEDIR})
-find_library(PCRECPP_LIBRARY_RELEASE NAMES pcrecpp
+  set(MODULE_LC pcre)
+
+  SETUP_BUILD_VARS()
+
+  if(APPLE)
+    set(EXTRA_ARGS "-DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}")
+  endif()
+
+  # ToDo: Windows
+
+  set(PCRE_VERSION ${${MODULE}_VER})
+  set(PCRECPP_LIBRARY ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/libpcrecpp.a)
+
+  if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+    set(PATCH_COMMAND ${PATCH_EXECUTABLE} -p1 -i ${CMAKE_SOURCE_DIR}/tools/depends/target/pcre/ios-clear_cache.patch)
+    if(CORE_PLATFORM_NAME STREQUAL tvos)
+      list(APPEND PATCH_COMMAND COMMAND ${PATCH_EXECUTABLE} -p1 -i ${CMAKE_SOURCE_DIR}/tools/depends/target/pcre/tvos-bitcode-fix.patch)
+    endif()
+  elseif(CORE_SYSTEM_NAME STREQUAL android)
+    set(PATCH_COMMAND ${PATCH_EXECUTABLE} -p1 -i ${CMAKE_SOURCE_DIR}/tools/depends/target/pcre/jit_aarch64.patch)
+  endif()
+
+  set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                 -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DPCRE_NEWLINE=ANYCRLF
+                 -DPCRE_NO_RECURSE=ON
+                 -DPCRE_SUPPORT_JIT=ON
+                 -DPCRE_SUPPORT_PCREGREP_JIT=OFF
+                 -DPCRE_SUPPORT_UTF=ON
+                 -DPCRE_SUPPORT_UNICODE_PROPERTIES=ON
+                 -DPCRE_BUILD_PCREGREP=OFF
+                 -DPCRE_BUILD_TESTS=OFF
+                 "${EXTRA_ARGS}")
+
+  BUILD_DEP_TARGET()
+
+else()
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_PCRE libpcrecpp QUIET)
+  endif()
+
+  find_path(PCRE_INCLUDE_DIR pcrecpp.h
+                             PATHS ${PC_PCRE_INCLUDEDIR})
+  find_library(PCRECPP_LIBRARY_RELEASE NAMES pcrecpp
+                                       PATHS ${PC_PCRE_LIBDIR})
+  find_library(PCRE_LIBRARY_RELEASE NAMES pcre
+                                    PATHS ${PC_PCRE_LIBDIR})
+  find_library(PCRECPP_LIBRARY_DEBUG NAMES pcrecppd
                                      PATHS ${PC_PCRE_LIBDIR})
-find_library(PCRE_LIBRARY_RELEASE NAMES pcre
-                                  PATHS ${PC_PCRE_LIBDIR})
-find_library(PCRECPP_LIBRARY_DEBUG NAMES pcrecppd
-                                   PATHS ${PC_PCRE_LIBDIR})
-find_library(PCRE_LIBRARY_DEBUG NAMES pcred
-                                   PATHS ${PC_PCRE_LIBDIR})
-set(PCRE_VERSION ${PC_PCRE_VERSION})
+  find_library(PCRE_LIBRARY_DEBUG NAMES pcred
+                                     PATHS ${PC_PCRE_LIBDIR})
+  set(PCRE_VERSION ${PC_PCRE_VERSION})
 
-include(SelectLibraryConfigurations)
-select_library_configurations(PCRECPP)
-select_library_configurations(PCRE)
+  include(SelectLibraryConfigurations)
+  select_library_configurations(PCRECPP)
+  select_library_configurations(PCRE)
+endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(PCRE
