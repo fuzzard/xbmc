@@ -30,46 +30,78 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-# use pkg-config to get the directories and then use these values
-# in the find_path() and find_library() calls
-find_package(PkgConfig QUIET)
-PKG_CHECK_MODULES(PC_LIBXML QUIET libxml-2.0)
-set(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
+if(ENABLE_INTERNAL_LIBXML2)
+  include(cmake/scripts/common/ModuleHelpers.cmake)
 
-find_path(LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
-   HINTS
-   ${PC_LIBXML_INCLUDEDIR}
-   ${PC_LIBXML_INCLUDE_DIRS}
-   PATH_SUFFIXES libxml2
-   )
+  set(MODULE_LC libxml2)
 
-find_library(LIBXML2_LIBRARY NAMES xml2 libxml2
-   HINTS
-   ${PC_LIBXML_LIBDIR}
-   ${PC_LIBXML_LIBRARY_DIRS}
-   )
+  SETUP_BUILD_VARS()
 
-find_program(LIBXML2_XMLLINT_EXECUTABLE xmllint)
-# for backwards compat. with KDE 4.0.x:
-set(XMLLINT_EXECUTABLE "${LIBXML2_XMLLINT_EXECUTABLE}")
+  if(APPLE)
+    set(EXTRA_ARGS "-DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}")
+  endif()
 
-# Make sure to use static flags if appropriate
-if(PC_LIBXML_FOUND)
-    if(${LIBXML2_LIBRARY} MATCHES ".+\.a$" AND PC_LIBXML_STATIC_LDFLAGS)
-        set(LIBXML2_LIBRARY ${LIBXML2_LIBRARY} ${PC_LIBXML_STATIC_LDFLAGS})
-    endif()
+  # ToDo: Windows - requires patching
+
+  set(LIBXML2_VERSION_STRING ${${MODULE}_VER})
+
+  set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                 -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DBUILD_SHARED_LIBS=OFF
+                 -DLIBXML2_WITH_DEBUG=OFF
+                 -DLIBXML2_WITH_DOCB=OFF
+                 -DLIBXML2_WITH_ICONV=OFF
+                 -DLIBXML2_WITH_MODULES=OFF
+                 -DLIBXML2_WITH_PYTHON=OFF
+                 -DLIBXML2_WITH_RUN_DEBUG=OFF
+                 -DLIBXML2_WITH_PROGRAMS=OFF
+                 -DLIBXML2_WITH_TESTS=OFF
+                 "${EXTRA_ARGS}")
+
+  BUILD_DEP_TARGET()
+
+else()
+  # use pkg-config to get the directories and then use these values
+  # in the find_path() and find_library() calls
+  find_package(PkgConfig QUIET)
+  PKG_CHECK_MODULES(PC_LIBXML QUIET libxml-2.0)
+  set(LIBXML2_DEFINITIONS ${PC_LIBXML_CFLAGS_OTHER})
+
+  find_path(LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
+     HINTS
+     ${PC_LIBXML_INCLUDEDIR}
+     ${PC_LIBXML_INCLUDE_DIRS}
+     PATH_SUFFIXES libxml2
+     )
+
+  find_library(LIBXML2_LIBRARY NAMES xml2 libxml2
+     HINTS
+     ${PC_LIBXML_LIBDIR}
+     ${PC_LIBXML_LIBRARY_DIRS}
+     )
+
+  find_program(LIBXML2_XMLLINT_EXECUTABLE xmllint)
+  # for backwards compat. with KDE 4.0.x:
+  set(XMLLINT_EXECUTABLE "${LIBXML2_XMLLINT_EXECUTABLE}")
+
+  # Make sure to use static flags if appropriate
+  if(PC_LIBXML_FOUND)
+      if(${LIBXML2_LIBRARY} MATCHES ".+\.a$" AND PC_LIBXML_STATIC_LDFLAGS)
+          set(LIBXML2_LIBRARY ${LIBXML2_LIBRARY} ${PC_LIBXML_STATIC_LDFLAGS})
+      endif()
+  endif()
+
+  if(PC_LIBXML_VERSION)
+      set(LIBXML2_VERSION_STRING ${PC_LIBXML_VERSION})
+  elseif(LIBXML2_INCLUDE_DIR AND EXISTS "${LIBXML2_INCLUDE_DIR}/libxml/xmlversion.h")
+      file(STRINGS "${LIBXML2_INCLUDE_DIR}/libxml/xmlversion.h" libxml2_version_str
+           REGEX "^#define[\t ]+LIBXML_DOTTED_VERSION[\t ]+\".*\"")
+      string(REGEX REPLACE "^#define[\t ]+LIBXML_DOTTED_VERSION[\t ]+\"([^\"]*)\".*" "\\1"
+             LIBXML2_VERSION_STRING "${libxml2_version_str}")
+      unset(libxml2_version_str)
+  endif()
 endif()
-
-if(PC_LIBXML_VERSION)
-    set(LIBXML2_VERSION_STRING ${PC_LIBXML_VERSION})
-elseif(LIBXML2_INCLUDE_DIR AND EXISTS "${LIBXML2_INCLUDE_DIR}/libxml/xmlversion.h")
-    file(STRINGS "${LIBXML2_INCLUDE_DIR}/libxml/xmlversion.h" libxml2_version_str
-         REGEX "^#define[\t ]+LIBXML_DOTTED_VERSION[\t ]+\".*\"")
-    string(REGEX REPLACE "^#define[\t ]+LIBXML_DOTTED_VERSION[\t ]+\"([^\"]*)\".*" "\\1"
-           LIBXML2_VERSION_STRING "${libxml2_version_str}")
-    unset(libxml2_version_str)
-endif()
-
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibXml2
