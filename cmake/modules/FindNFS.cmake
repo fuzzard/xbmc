@@ -14,17 +14,49 @@
 #
 #   NFS::NFS   - The libnfs library
 
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_NFS libnfs QUIET)
+if(ENABLE_INTERNAL_LIBNFS)
+  include(cmake/scripts/common/ModuleHelpers.cmake)
+
+  set(MODULE_LC libnfs)
+
+  SETUP_BUILD_VARS()
+
+  if(APPLE)
+    set(EXTRA_ARGS "-DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}")
+  endif()
+
+  set(NFS_VERSION ${${MODULE}_VER})
+
+  # ToDo: Windows - Do we need to worry about the --binary flag for patch?
+  find_program(PATCH_EXECUTABLE NAMES patch patch.exe REQUIRED)
+
+  set(PATCH_COMMAND ${PATCH_EXECUTABLE} -p1 -i ${CMAKE_SOURCE_DIR}/tools/depends/target/libnfs/001-fix-cmake-build.patch)
+
+  set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                 -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DBUILD_SHARED_LIBS=OFF
+                 -DENABLE_TESTS=OFF
+                 -DENABLE_DOCUMENTATION=OFF
+                 -DENABLE_UTILS=OFF
+                 -DENABLE_EXAMPLES=OFF
+                 "${EXTRA_ARGS}")
+
+  BUILD_DEP_TARGET()
+
+else()
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_NFS libnfs QUIET)
+  endif()
+
+  find_path(NFS_INCLUDE_DIR nfsc/libnfs.h
+                            PATHS ${PC_NFS_INCLUDEDIR})
+
+  set(NFS_VERSION ${PC_NFS_VERSION})
+
+  find_library(NFS_LIBRARY NAMES nfs libnfs
+                           PATHS ${PC_NFS_LIBDIR})
 endif()
-
-find_path(NFS_INCLUDE_DIR nfsc/libnfs.h
-                          PATHS ${PC_NFS_INCLUDEDIR})
-
-set(NFS_VERSION ${PC_NFS_VERSION})
-
-find_library(NFS_LIBRARY NAMES nfs libnfs
-                         PATHS ${PC_NFS_LIBDIR})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NFS

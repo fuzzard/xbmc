@@ -2,6 +2,7 @@
 # Dep Options available for all platforms
 option(ENABLE_INTERNAL_FMT "Enable internal fmt?" OFF)
 option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?" OFF)
+option(ENABLE_INTERNAL_LIBNFS "Enable internal libnfs?" OFF)
 
 # prefer kissfft from xbmc/contrib but let use system one on unices
 cmake_dependent_option(ENABLE_INTERNAL_KISSFFT "Enable internal kissfft?" ON "UNIX" ON)
@@ -30,6 +31,7 @@ option(ENABLE_INTERNAL_LIBS "Enable build of all available internal libs?" OFF)
 if(ENABLE_INTERNAL_LIBS)
 
   set(ENABLE_INTERNAL_FMT ON)
+  set(ENABLE_INTERNAL_LIBNFS ON)
   set(ENABLE_INTERNAL_SPDLOG ON)
   if(UNIX)
     # Following dependencies only build on UNIX platforms currently
@@ -44,6 +46,6 @@ if(ENABLE_INTERNAL_LIBS)
     set(ENABLE_INTERNAL_PCRE ON)
     set(ENABLE_INTERNAL_RapidJSON ON)
     set(ENABLE_INTERNAL_TAGLIB ON)
-    set(ENABLE_INTERNAL_UDFREAD ON)
+    set(ENABLE_INTERNAL_UDFREAD OFF)
   endif()
 endif()

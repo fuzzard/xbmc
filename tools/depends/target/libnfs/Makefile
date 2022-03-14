@@ -9,7 +9,7 @@ CMAKE_OPTIONS=-DBUILD_SHARED_LIBS=OFF \
               -DENABLE_UTILS=OFF \
               -DENABLE_EXAMPLES=OFF
 
-LIBDYLIB=$(PLATFORM)/lib/.libs/$(LIBNAME).a
+LIBDYLIB=$(PLATFORM)/lib/.libs/$(BYPRODUCT)
 
 all: .installed-$(PLATFORM)
 
