@@ -1,13 +1,8 @@
-include ../../Makefile.include
-DEPS = ../../Makefile.include Makefile 01-android.patch 04-pthread.patch ../../download-files.include
+include ../../Makefile.include MARIADB-VERSION ../../download-files.include
+DEPS = ../../Makefile.include Makefile MARIADB-VERSION \
+                              01-android.patch 04-pthread.patch ../../download-files.include
 
-LIBNAME=mariadb
-VERSION=3.1.15
-ARCHIVE=$(LIBNAME)-connector-c-$(VERSION).tar.gz
-SHA512=c64a69fecf1e0053748fb24b82614fc8d862de79d139f848283a504d72b521bc6bf29119a86fc9cca57c3578812702483cc408c8a684e35887108f172eaa3c56
-include ../../download-files.include
-
-LIBDYLIB=$(PLATFORM)/build/lib$(LIBNAME)/lib$(LIBNAME)client.a
+LIBDYLIB=$(PLATFORM)/build/lib$(LIBNAME)/$(BYPRODUCT)
 
 # build all plugins as static
 PLUGIN_BUILD_FLAGS=-DCLIENT_PLUGIN_DIALOG=STATIC
@@ -20,7 +15,6 @@ ifeq ($(TARGET_PLATFORM),appletvos)
 endif
 
 all: .installed-$(PLATFORM)
-
 
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)/build
