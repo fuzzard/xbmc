@@ -42,7 +42,7 @@ core_find_versions()
 include(cmake/scripts/${CORE_SYSTEM_NAME}/PathSetup.cmake)
 include(cmake/scripts/common/CompilerSettings.cmake)
 include(ExternalProject)
-
+include(CMakeDependentOption)
 
 # general
 option(VERBOSE            "Enable verbose output?" OFF)
@@ -55,34 +55,18 @@ option(ENABLE_AIRTUNES    "Enable AirTunes support?" ON)
 option(ENABLE_OPTICAL     "Enable optical support?" ON)
 option(ENABLE_PYTHON      "Enable python support?" ON)
 option(ENABLE_TESTING     "Enable testing support?" ON)
-# use ffmpeg from depends or system
-option(ENABLE_INTERNAL_FFMPEG "Enable internal ffmpeg?" OFF)
-if(UNIX)
-  option(FFMPEG_PATH        "Path to external ffmpeg?" "")
-  option(ENABLE_INTERNAL_CROSSGUID "Enable internal crossguid?" ON)
-  option(ENABLE_INTERNAL_RapidJSON "Enable internal rapidjson?" OFF)
-  option(ENABLE_INTERNAL_FMT "Enable internal fmt?" OFF)
-  option(ENABLE_INTERNAL_FSTRCMP "Enable internal fstrcmp?" OFF)
-  option(ENABLE_INTERNAL_FLATBUFFERS "Enable internal flatbuffers?" OFF)
-  option(ENABLE_INTERNAL_DAV1D "Enable internal dav1d?" OFF)
-  option(ENABLE_INTERNAL_GTEST "Enable internal gtest?" OFF)
-  option(ENABLE_INTERNAL_LIBXML2 "Enable internal libxml2?" OFF)
-  option(ENABLE_INTERNAL_MARIADBCLIENT "Enable internal mariadb-c-connector?" OFF)
-  option(ENABLE_INTERNAL_UDFREAD "Enable internal udfread?" OFF)
-  option(ENABLE_INTERNAL_PCRE "Enable internal pcre?" OFF)
-  option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?" OFF)
-  option(ENABLE_INTERNAL_TAGLIB "Enable internal taglib?" OFF)
+
+if(CORE_SYSTEM_NAME STREQUAL linux)
+  option(ENABLE_EVENTCLIENTS    "Enable event clients support?" OFF)
 endif()
-# prefer kissfft from xbmc/contrib but let use system one on unices
-include(CMakeDependentOption)
-cmake_dependent_option(ENABLE_INTERNAL_KISSFFT "Enable internal kissfft?" ON "UNIX" ON)
+
+# Internal Dependency build options for all platforms
+include(cmake/scripts/common/BuildDepOptions.cmake)
+
 # System options
 if(NOT WIN32)
   option(WITH_ARCH              "build with given arch" OFF)
   option(WITH_CPU               "build with given cpu" OFF)
-endif()
-if(CORE_SYSTEM_NAME STREQUAL linux)
-  option(ENABLE_EVENTCLIENTS    "Enable event clients support?" OFF)
 endif()
 
 # set scope of INTERNAL_DEPS
