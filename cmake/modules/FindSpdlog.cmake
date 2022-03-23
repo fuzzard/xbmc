@@ -25,13 +25,10 @@ if(ENABLE_INTERNAL_SPDLOG)
   endif()
 
   if(WIN32 OR WINDOWS_STORE)
-    # find the path to the patch executable
-    find_program(PATCH_EXECUTABLE NAMES patch patch.exe REQUIRED)
+    # Use custom findpatch to handle windows patch binary if not available
+    include(cmake/modules/FindPatch.cmake)
 
-    set(patch ${CMAKE_SOURCE_DIR}/tools/depends/target/${MODULE_LC}/001-windows-pdb-symbol-gen.patch)
-    PATCH_LF_CHECK(${patch})
-
-    set(PATCH_COMMAND ${PATCH_EXECUTABLE} -p1 -i ${patch})
+    set(PATCH_COMMAND ${PATCH_EXECUTABLE} -p1 -i ${CMAKE_SOURCE_DIR}/tools/depends/target/${MODULE_LC}/001-windows-pdb-symbol-gen.patch)
   endif()
 
   set(SPDLOG_VERSION ${${MODULE}_VER})

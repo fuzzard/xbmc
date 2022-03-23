@@ -180,28 +180,3 @@ macro(BUILD_DEP_TARGET)
 
   set_target_properties(${MODULE_LC} PROPERTIES FOLDER "External Projects")
 endmacro()
-
-# Macro to test format of line endings of a patch
-# Windows Specific
-macro(PATCH_LF_CHECK patch)
-  if(WIN32 OR WINDOWS_STORE)
-    # On Windows "patch.exe" can only handle CR-LF line-endings.
-    # Our patches have LF-only line endings - except when they
-    # have been checked out as part of a dependency hosted on Git
-    # and core.autocrlf=true.
-    file(READ ${ARGV0} patch_content_hex HEX)
-    # Force handle LF-only line endings
-    if(NOT patch_content_hex MATCHES "0d0a")
-      if (NOT "--binary" IN_LIST PATCH_EXECUTABLE)
-        list(APPEND PATCH_EXECUTABLE --binary)
-      endif()
-    else()
-      if ("--binary" IN_LIST PATCH_EXECUTABLE)
-        list(REMOVE_ITEM PATCH_EXECUTABLE --binary)
-      endif()
-    endif()
-  endif()
-  unset(patch_content_hex)
-endmacro()
-
-

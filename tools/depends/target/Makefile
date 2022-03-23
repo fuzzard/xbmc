@@ -12,7 +12,6 @@ DEPENDS = \
   expat \
   ffmpeg \
   flatbuffers \
-  fmt \
   fontconfig \
   freetype2 \
   freetype2-noharfbuzz \
@@ -53,7 +52,6 @@ DEPENDS = \
   pythonmodule-pycryptodome \
   pythonmodule-setuptools \
   rapidjson \
-  spdlog \
   sqlite3 \
   taglib \
   tinyxml \
