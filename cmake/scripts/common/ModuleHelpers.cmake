@@ -99,6 +99,7 @@ macro(SETUP_BUILD_VARS)
   unset(INSTALL_COMMAND)
   unset(BUILD_IN_SOURCE)
   unset(BUILD_BYPRODUCTS)
+  unset(PROJECT_NAME)
 endmacro()
 
 # Macro to create externalproject_add target
@@ -151,7 +152,11 @@ macro(BUILD_DEP_TARGET)
     endif()
   endif()
 
-  externalproject_add(${MODULE_LC}
+  if(NOT PROJECT_NAME)
+    set(PROJECT_NAME ${MODULE_LC})
+  endif()
+
+  externalproject_add(${PROJECT_NAME}
                       URL ${${MODULE}_URL}
                       URL_HASH ${${MODULE}_HASH}
                       DOWNLOAD_DIR ${TARBALL_DIR}
@@ -165,7 +170,7 @@ macro(BUILD_DEP_TARGET)
                       ${BUILD_BYPRODUCTS}
                       ${BUILD_IN_SOURCE})
 
-  set_target_properties(${MODULE_LC} PROPERTIES FOLDER "External Projects")
+  set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "External Projects")
 endmacro()
 
 # Macro to test format of line endings of a patch
