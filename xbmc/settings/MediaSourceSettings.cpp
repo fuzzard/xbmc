@@ -18,7 +18,7 @@
 #include "utils/FileUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"
 
@@ -80,16 +80,16 @@ bool CMediaSourceSettings::Load(const std::string &file)
   CLog::Log(LOGINFO, "CMediaSourceSettings: loading media sources from {}", file);
 
   // load xml file
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
   if (!xmlDoc.LoadFile(file))
   {
     CLog::Log(LOGERROR, "CMediaSourceSettings: error loading {}: Line {}, {}", file,
-              xmlDoc.ErrorRow(), xmlDoc.ErrorDesc());
+              xmlDoc.ErrorLineNum(), xmlDoc.ErrorStr());
     return false;
   }
 
-  TiXmlElement *pRootElement = xmlDoc.RootElement();
-  if (pRootElement == NULL || !StringUtils::EqualsNoCase(pRootElement->ValueStr(), XML_SOURCES))
+  auto* pRootElement = xmlDoc.RootElement();
+  if (!pRootElement || !StringUtils::EqualsNoCase(pRootElement->Value(), XML_SOURCES))
     CLog::Log(LOGERROR, "CMediaSourceSettings: sources.xml file does not contain <sources>");
 
   // parse sources
@@ -111,11 +111,11 @@ bool CMediaSourceSettings::Save()
 
 bool CMediaSourceSettings::Save(const std::string &file) const
 {
-  //! @todo Should we be specifying utf8 here??
-  CXBMCTinyXML doc;
-  TiXmlElement xmlRootElement(XML_SOURCES);
-  TiXmlNode *pRoot = doc.InsertEndChild(xmlRootElement);
-  if (pRoot == NULL)
+  CXBMCTinyXML2 doc;
+  auto* root = doc.NewElement(XML_SOURCES);
+  auto* pRoot = doc.InsertFirstChild(root);
+
+  if (!pRoot)
     return false;
 
   // ok, now run through and save each sources section
@@ -311,21 +311,23 @@ bool CMediaSourceSettings::UpdateShare(const std::string &type, const std::strin
   return Save();
 }
 
-bool CMediaSourceSettings::GetSource(const std::string &category, const TiXmlNode *source, CMediaSource &share)
+bool CMediaSourceSettings::GetSource(const std::string& category,
+                                     const tinyxml2::XMLNode* source,
+                                     CMediaSource& share)
 {
-  const TiXmlNode *pNodeName = source->FirstChild("name");
+  const auto* pNodeName = source->FirstChildElement("name");
   std::string strName;
   if (pNodeName && pNodeName->FirstChild())
-    strName = pNodeName->FirstChild()->ValueStr();
+    strName = pNodeName->FirstChild()->Value();
 
   // get multiple paths
   std::vector<std::string> vecPaths;
-  const TiXmlElement *pPathName = source->FirstChildElement("path");
-  while (pPathName != NULL)
+  const auto* pPathName = source->FirstChildElement("path");
+  while (pPathName)
   {
     if (pPathName->FirstChild())
     {
-      std::string strPath = pPathName->FirstChild()->ValueStr();
+      std::string strPath = pPathName->FirstChild()->Value();
 
       // make sure there are no virtualpaths or stack paths defined in sources.xml
       if (!URIUtils::IsStack(strPath))
@@ -348,10 +350,10 @@ bool CMediaSourceSettings::GetSource(const std::string &category, const TiXmlNod
     pPathName = pPathName->NextSiblingElement("path");
   }
 
-  const TiXmlNode *pLockMode = source->FirstChild("lockmode");
-  const TiXmlNode *pLockCode = source->FirstChild("lockcode");
-  const TiXmlNode *pBadPwdCount = source->FirstChild("badpwdcount");
-  const TiXmlNode *pThumbnailNode = source->FirstChild("thumbnail");
+  const auto* pLockMode = source->FirstChildElement("lockmode");
+  const auto* pLockCode = source->FirstChildElement("lockcode");
+  const auto* pBadPwdCount = source->FirstChildElement("badpwdcount");
+  const auto* pThumbnailNode = source->FirstChildElement("thumbnail");
 
   if (strName.empty() || vecPaths.empty())
     return false;
@@ -359,9 +361,10 @@ bool CMediaSourceSettings::GetSource(const std::string &category, const TiXmlNod
   std::vector<std::string> verifiedPaths;
   // disallowed for files, or there's only a single path in the vector
   if (StringUtils::EqualsNoCase(category, "files") || vecPaths.size() == 1)
+  {
     verifiedPaths.push_back(vecPaths[0]);
-  // multiple paths?
-  else
+  }
+  else // multiple paths?
   {
     // validate the paths
     for (std::vector<std::string>::const_iterator path = vecPaths.begin(); path != vecPaths.end(); ++path)
@@ -419,23 +422,27 @@ bool CMediaSourceSettings::GetSource(const std::string &category, const TiXmlNod
   return true;
 }
 
-void CMediaSourceSettings::GetSources(const TiXmlNode* pRootElement, const std::string& strTagName, VECSOURCES& items, std::string& strDefault)
+void CMediaSourceSettings::GetSources(const tinyxml2::XMLNode* pRootElement,
+                                      const std::string& strTagName,
+                                      VECSOURCES& items,
+                                      std::string& strDefault)
 {
+
   strDefault = "";
   items.clear();
 
-  const TiXmlNode *pChild = pRootElement->FirstChild(strTagName.c_str());
-  if (pChild == NULL)
+  const auto* pChildElement = pRootElement->FirstChildElement(strTagName.c_str());
+  if (!pChildElement)
   {
     CLog::Log(LOGDEBUG, "CMediaSourceSettings: <{}> tag is missing or sources.xml is malformed",
               strTagName);
     return;
   }
 
-  pChild = pChild->FirstChild();
-  while (pChild != NULL)
+  auto pChild = pChildElement->FirstChild();
+  while (pChild)
   {
-    std::string strValue = pChild->ValueStr();
+    std::string strValue = pChild->Value();
     if (strValue == XML_SOURCE || strValue == "bookmark") // "bookmark" left in for backwards compatibility
     {
       CMediaSource share;
@@ -446,10 +453,10 @@ void CMediaSourceSettings::GetSources(const TiXmlNode* pRootElement, const std::
     }
     else if (strValue == "default")
     {
-      const TiXmlNode *pValueNode = pChild->FirstChild();
+      const auto* pValueNode = pChild->FirstChild();
       if (pValueNode)
       {
-        std::string pszText = pChild->FirstChild()->ValueStr();
+        std::string pszText = pChild->FirstChild()->Value();
         if (!pszText.empty())
           strDefault = pszText;
         CLog::Log(LOGDEBUG, "CMediaSourceSettings:    Setting <default> source to : {}",
@@ -461,11 +468,15 @@ void CMediaSourceSettings::GetSources(const TiXmlNode* pRootElement, const std::
   }
 }
 
-bool CMediaSourceSettings::SetSources(TiXmlNode *root, const char *section, const VECSOURCES &shares, const std::string &defaultPath) const
+bool CMediaSourceSettings::SetSources(tinyxml2::XMLNode* root,
+                                      const char* section,
+                                      const VECSOURCES& shares,
+                                      const std::string& defaultPath) const
 {
-  TiXmlElement sectionElement(section);
-  TiXmlNode *sectionNode = root->InsertEndChild(sectionElement);
-  if (sectionNode == NULL)
+  auto* newelement = root->GetDocument()->NewElement(section);
+  auto* sectionNode = root->InsertEndChild(newelement);
+
+  if (!sectionNode)
     return false;
 
   XMLUtils::SetPath(sectionNode, "default", defaultPath);
@@ -475,23 +486,24 @@ bool CMediaSourceSettings::SetSources(TiXmlNode *root, const char *section, cons
     if (share.m_ignore)
       continue;
 
-    TiXmlElement source(XML_SOURCE);
-    XMLUtils::SetString(&source, "name", share.strName);
+    auto* source = root->GetDocument()->NewElement(XML_SOURCE);
+
+    XMLUtils::SetString(source, "name", share.strName);
 
     for (unsigned int i = 0; i < share.vecPaths.size(); i++)
-      XMLUtils::SetPath(&source, "path", share.vecPaths[i]);
+      XMLUtils::SetPath(source, "path", share.vecPaths[i]);
 
     if (share.m_iHasLock)
     {
-      XMLUtils::SetInt(&source, "lockmode", share.m_iLockMode);
-      XMLUtils::SetString(&source, "lockcode", share.m_strLockCode);
-      XMLUtils::SetInt(&source, "badpwdcount", share.m_iBadPwdCount);
+      XMLUtils::SetInt(source, "lockmode", share.m_iLockMode);
+      XMLUtils::SetString(source, "lockcode", share.m_strLockCode);
+      XMLUtils::SetInt(source, "badpwdcount", share.m_iBadPwdCount);
     }
 
     if (!share.m_strThumbnailImage.empty())
-      XMLUtils::SetPath(&source, "thumbnail", share.m_strThumbnailImage);
+      XMLUtils::SetPath(source, "thumbnail", share.m_strThumbnailImage);
 
-    XMLUtils::SetBoolean(&source, "allowsharing", share.m_allowSharing);
+    XMLUtils::SetBoolean(source, "allowsharing", share.m_allowSharing);
 
     sectionNode->InsertEndChild(source);
   }
