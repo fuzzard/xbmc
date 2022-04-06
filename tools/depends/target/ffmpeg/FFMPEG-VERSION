@@ -1,5 +1,8 @@
 LIBNAME=ffmpeg
-BASE_URL=https://github.com/xbmc/FFmpeg
-VERSION=4.4.1-Nexus-Alpha1
-ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
-SHA512=8beb04d577b5251e74b0d52f4d130997a8ba94bbd488c7c8309e6b45095c27807e150212888ce3a384b23dff52f8df1a7bde5407bae924ddc363f8125c0616c5
+#BASE_URL=https://github.com/xbmc/FFmpeg
+VERSION=5.0-kodi
+#ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+ARCHIVE=$(VERSION).tar.gz
+SHA512=bc60c68260e2a41c88c2e27751ec274e17cc0eb7b8de5c8e081d60a444dcb8e486b2d1aa890d059b60dc6e8d7064c925fc3a0a14dc1f10389172f82680bd122e
+
+BASE_URL=https://github.com/xbmc/FFmpeg/archive/refs/heads/release
