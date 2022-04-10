@@ -1633,8 +1633,7 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
           st->iFpsScale = 0;
         }
 
-        if (pStream->codec_info_nb_frames > 0 &&
-            pStream->codec_info_nb_frames <= 2 &&
+       /* if ((pStream->event_flags & AVSTREAM_EVENT_FLAG_NEW_PACKETS) &&
             m_pInput->IsStreamType(DVDSTREAM_TYPE_DVD))
         {
           CLog::Log(LOGDEBUG, "{} - fps may be unreliable since ffmpeg decoded only {} frame(s)",
@@ -1642,6 +1641,7 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
           st->iFpsRate  = 0;
           st->iFpsScale = 0;
         }
+        */
 
         st->iWidth = pStream->codecpar->width;
         st->iHeight = pStream->codecpar->height;
