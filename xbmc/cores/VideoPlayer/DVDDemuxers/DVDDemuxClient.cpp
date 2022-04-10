@@ -132,7 +132,7 @@ bool CDVDDemuxClient::ParsePacket(DemuxPacket* pkt)
 
   if (stream->m_context == nullptr)
   {
-    AVCodec *codec = avcodec_find_decoder(st->codec);
+    const AVCodec *codec = avcodec_find_decoder(st->codec);
     if (codec == nullptr)
     {
       CLog::Log(LOGERROR, "{} - can't find decoder", __FUNCTION__);

@@ -3016,8 +3016,8 @@ IAE::SoundPtr CActiveAE::MakeSound(const std::string& file)
   AVFormatContext *fmt_ctx = nullptr;
   AVCodecContext *dec_ctx = nullptr;
   AVIOContext *io_ctx;
-  AVInputFormat *io_fmt = nullptr;
-  AVCodec *dec = nullptr;
+  const AVInputFormat *io_fmt = nullptr;
+  const AVCodec* dec = nullptr;
   SampleConfig config;
 
   // No custom deleter until sound is registered

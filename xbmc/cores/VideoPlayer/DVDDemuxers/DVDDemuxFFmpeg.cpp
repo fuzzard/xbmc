@@ -234,7 +234,7 @@ bool CDVDDemuxFFmpeg::Aborted()
 
 bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool fileinfo)
 {
-  AVInputFormat* iformat = NULL;
+  const AVInputFormat* iformat = nullptr;
   std::string strFile;
   m_streaminfo = !pInput->IsRealtime() && !m_reopen;
   m_reopen = false;
@@ -421,8 +421,7 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
           // is present, we assume it is PCM audio.
           // AC3 is always wrapped in iec61937 (ffmpeg "spdif"), while DTS
           // may be just padded.
-          AVInputFormat* iformat2;
-          iformat2 = av_find_input_format("spdif");
+          const AVInputFormat* iformat2 = av_find_input_format("spdif");
 
           if (iformat2 && iformat2->read_probe(&pd) > AVPROBE_SCORE_MAX / 4)
           {
@@ -1681,7 +1680,7 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
         if (side_data && size)
         {
           st->masteringMetaData = std::make_shared<AVMasteringDisplayMetadata>(
-              *reinterpret_cast<AVMasteringDisplayMetadata*>(side_data));
+              *reinterpret_cast<const AVMasteringDisplayMetadata*>(side_data));
           // file could be SMPTE2086 which FFmpeg currently returns as unknown so use the presence
           // of static metadata to detect it
           if (st->masteringMetaData->has_primaries && st->masteringMetaData->has_luminance)
@@ -2071,7 +2070,7 @@ std::string CDVDDemuxFFmpeg::GetStreamCodecName(int iStreamId)
       return strName;
     }
 
-    AVCodec* codec = avcodec_find_decoder(stream->codec);
+    const AVCodec* codec = avcodec_find_decoder(stream->codec);
     if (codec)
       strName = avcodec_get_name(codec->id);
   }
@@ -2247,7 +2246,7 @@ void CDVDDemuxFFmpeg::ParsePacket(AVPacket* pkt)
 
       parser->second->m_parserCtx = av_parser_init(st->codecpar->codec_id);
 
-      AVCodec* codec = avcodec_find_decoder(st->codecpar->codec_id);
+      const AVCodec* codec = avcodec_find_decoder(st->codecpar->codec_id);
       if (codec == nullptr)
       {
         CLog::Log(LOGERROR, "{} - can't find decoder", __FUNCTION__);

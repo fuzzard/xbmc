@@ -91,7 +91,7 @@ bool CEncoderFFmpeg::Init()
       throw EncoderException("Could not allocate url");
 
     /* Find the encoder to be used by its name. */
-    AVCodec* codec = avcodec_find_encoder(m_formatCtx->oformat->audio_codec);
+    const AVCodec* codec = avcodec_find_encoder(m_formatCtx->oformat->audio_codec);
     if (!codec)
       throw EncoderException("Unable to find a suitable FFmpeg encoder");
 

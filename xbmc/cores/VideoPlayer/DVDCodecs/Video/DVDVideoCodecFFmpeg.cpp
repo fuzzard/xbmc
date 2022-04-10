@@ -327,7 +327,7 @@ bool CDVDVideoCodecFFmpeg::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options
   m_hints = hints;
   m_options = options;
 
-  AVCodec* pCodec = nullptr;
+  const AVCodec* pCodec = nullptr;
 
   m_iOrientation = hints.orientation;
 

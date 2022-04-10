@@ -45,7 +45,7 @@ bool CDVDAudioCodecFFmpeg::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options
     return false;
   }
 
-  AVCodec* pCodec = NULL;
+  const AVCodec* pCodec = NULL;
   bool allowdtshddecode = true;
 
   // set any special options

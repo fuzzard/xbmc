@@ -81,7 +81,7 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
 
   bool ac3 = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_AUDIOOUTPUT_AC3PASSTHROUGH);
 
-  AVCodec *codec = NULL;
+  const AVCodec *codec = NULL;
 
   /* fallback to ac3 if we support it, we might not have DTS support */
   if (ac3)
