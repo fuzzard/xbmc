@@ -278,7 +278,7 @@ int CAEEncoderFFmpeg::Encode(uint8_t *in, int in_size, uint8_t *out, int out_siz
   pkt->data = out;
 
   /* encode it */
-  int ret = avcodec_encode_audio2(m_CodecCtx, pkt, frame, &got_output);
+  int ret = -1; //avcodec_encode_audio2(m_CodecCtx, pkt, frame, &got_output);
 
   int size = pkt->size;
 
