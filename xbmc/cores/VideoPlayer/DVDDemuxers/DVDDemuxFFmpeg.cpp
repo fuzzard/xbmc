@@ -592,9 +592,6 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
   // if format can be nonblocking, let's use that
   m_pFormatContext->flags |= AVFMT_FLAG_NONBLOCK;
 
-  // deprecated, will be always set in future versions
-  m_pFormatContext->flags |= AVFMT_FLAG_KEEP_SIDE_DATA;
-
   UpdateCurrentPTS();
 
   // select the correct program if requested
