@@ -1046,8 +1046,8 @@ bool CDVDVideoCodecFFmpeg::GetPictureCommon(VideoPicture* pVideoPicture)
   pVideoPicture->qstride = 0;
   pVideoPicture->qscale_type = 0;
 
-  AVFrameSideData* sd;
-  sd = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_QP_TABLE_PROPERTIES);
+  AVFrameSideData* sd = nullptr;
+  //sd = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_QP_TABLE_PROPERTIES);
   if (sd)
   {
     struct qp_properties
@@ -1058,7 +1058,7 @@ bool CDVDVideoCodecFFmpeg::GetPictureCommon(VideoPicture* pVideoPicture)
 
     auto qp = reinterpret_cast<qp_properties*>(sd->data);
 
-    sd = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_QP_TABLE_DATA);
+    //sd = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_QP_TABLE_DATA);
     if (sd && sd->buf && qp)
     {
       // this seems wrong but it's what ffmpeg does internally
