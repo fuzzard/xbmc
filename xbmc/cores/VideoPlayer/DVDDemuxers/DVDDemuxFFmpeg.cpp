@@ -1662,7 +1662,7 @@ CDemuxStream* CDVDDemuxFFmpeg::AddStream(int streamIdx)
         st->colorTransferCharacteristic = pStream->codecpar->color_trc;
         st->colorRange = pStream->codecpar->color_range;
 
-        int size = 0;
+        size_t size;
         uint8_t* side_data = nullptr;
 
         side_data = av_stream_get_side_data(pStream, AV_PKT_DATA_DOVI_CONF, &size);
