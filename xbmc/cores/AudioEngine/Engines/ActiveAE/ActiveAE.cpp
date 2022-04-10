@@ -28,6 +28,8 @@ using namespace ActiveAE;
 #include "windowing/WinSystem.h"
 #include "utils/log.h"
 
+#include <libavformat/avformat.h>
+
 using namespace std::chrono_literals;
 
 #define MAX_CACHE_LEVEL 0.4   // total cache time of stream in seconds

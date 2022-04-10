@@ -53,6 +53,8 @@ extern "C"
 #endif
 
 extern "C" {
+#include <libavformat/avformat.h>
+#include <libavutil/channel_layout.h>
 #include <libavutil/dict.h>
 #include <libavutil/opt.h>
 }

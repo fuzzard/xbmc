@@ -16,6 +16,7 @@
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavutil/channel_layout.h>
 }
 
 struct AVStream;

@@ -16,6 +16,10 @@
 #include "music/tags/MusicInfoTag.h"
 #include "utils/StringUtils.h"
 
+extern "C" {
+#include <libavformat/avformat.h>
+}
+
 using namespace XFILE;
 
 static int cfile_file_read(void *h, uint8_t* buf, int size)
