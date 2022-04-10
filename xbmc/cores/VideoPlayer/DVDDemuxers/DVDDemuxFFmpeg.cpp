@@ -26,7 +26,6 @@
 #include "threads/SystemClock.h"
 #include "utils/FontUtils.h"
 #include "utils/StringUtils.h"
-#include "utils/URIUtils.h"
 #include "utils/XTimeUtils.h"
 #include "utils/log.h"
 
@@ -532,12 +531,6 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
             m_pFormatContext->streams[0]->codecpar->codec_id == AV_CODEC_ID_HEVC)))
   {
     m_streaminfo = true;
-  }
-
-  if (iformat && (strcmp(iformat->name, "mov,mp4,m4a,3gp,3g2,mj2") == 0))
-  {
-    if (URIUtils::IsRemote(strFile))
-      m_pFormatContext->iformat->flags |= AVFMT_NOGENSEARCH;
   }
 
   // we need to know if this is matroska, avi or sup later
