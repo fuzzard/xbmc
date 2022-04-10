@@ -1370,12 +1370,13 @@ void CDVDDemuxFFmpeg::UpdateCurrentPTS()
   int idx = av_find_default_stream_index(m_pFormatContext);
   if (idx >= 0)
   {
-    AVStream* stream = m_pFormatContext->streams[idx];
+/*    AVStream* stream = m_pFormatContext->streams[idx];
     if (stream && stream->cur_dts != (int64_t)AV_NOPTS_VALUE)
     {
       double ts = ConvertTimestamp(stream->cur_dts, stream->time_base.den, stream->time_base.num);
       m_currentPts = ts;
     }
+ */
   }
 }
 
@@ -2323,7 +2324,7 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
         {
           if (!m_startTime)
           {
-            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+            //m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
             m_seekStream = idx;
           }
           return TRANSPORT_STREAM_STATE::READY;
@@ -2343,7 +2344,7 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamAudioState()
         {
           if (!m_startTime)
           {
-            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+            //m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
             m_seekStream = i;
           }
           return TRANSPORT_STREAM_STATE::READY;
@@ -2376,7 +2377,7 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
         {
           if (!m_startTime)
           {
-            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+            //m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
             m_seekStream = idx;
           }
           return TRANSPORT_STREAM_STATE::READY;
@@ -2396,7 +2397,7 @@ TRANSPORT_STREAM_STATE CDVDDemuxFFmpeg::TransportStreamVideoState()
         {
           if (!m_startTime)
           {
-            m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
+            //m_startTime = av_rescale(st->cur_dts, st->time_base.num, st->time_base.den) - 0.000001;
             m_seekStream = i;
           }
           return TRANSPORT_STREAM_STATE::READY;
