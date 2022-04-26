@@ -10,21 +10,25 @@
 # LIBZIP_LIBRARIES - the LibZip libraries
 #
 
-include(cmake/scripts/common/ModuleHelpers.cmake)
+find_package(LIBZIP CONFIG QUIET)
 
-set(MODULE_LC libzip)
+if(NOT LIBZIP_FOUND)
+  include(cmake/scripts/common/ModuleHelpers.cmake)
 
-SETUP_BUILD_VARS()
+  set(MODULE_LC libzip)
 
-set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
-               -DCMAKE_BUILD_TYPE=Release
-               -DBUILD_DOC=OFF
-               -DBUILD_EXAMPLES=OFF
-               -DBUILD_REGRESS=OFF
-               -DBUILD_SHARED_LIBS=OFF
-               -DBUILD_TOOLS=OFF)
+  SETUP_BUILD_VARS()
 
-BUILD_DEP_TARGET()
+  set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
+                 -DCMAKE_BUILD_TYPE=Release
+                 -DBUILD_DOC=OFF
+                 -DBUILD_EXAMPLES=OFF
+                 -DBUILD_REGRESS=OFF
+                 -DBUILD_SHARED_LIBS=OFF
+                 -DBUILD_TOOLS=OFF)
+
+  BUILD_DEP_TARGET()
+endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LibZip

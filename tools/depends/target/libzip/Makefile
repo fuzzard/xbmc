@@ -1,7 +1,5 @@
-include ../../Makefile.include
-DEPS = ../../Makefile.include Makefile ../../download-files.include
-
-include ../../download-files.include
+include ../../Makefile.include LIBZIP-VERSION ../../download-files.include
+DEPS = ../../Makefile.include LIBZIP-VERSION Makefile ../../download-files.include
 
 LIBDYLIB=$(PLATFORM)/build/lib/$(BYPRODUCT)
 
