@@ -65,13 +65,13 @@ function(get_versionfile_data module_name)
       endif()
 
       # Set Debug and Release library names
-      set(${UPPER_MODULE_NAME}_LIBRARY_DEBUG ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/${${UPPER_MODULE_NAME}_BYPRODUCT_DEBUG} PARENT_SCOPE)
-      set(${UPPER_MODULE_NAME}_LIBRARY_RELEASE ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/${${UPPER_MODULE_NAME}_BYPRODUCT} PARENT_SCOPE)
+      set(${UPPER_MODULE_NAME}_LIBRARY_DEBUG ${prefix}/lib/${${UPPER_MODULE_NAME}_BYPRODUCT_DEBUG} PARENT_SCOPE)
+      set(${UPPER_MODULE_NAME}_LIBRARY_RELEASE ${prefix}/lib/${${UPPER_MODULE_NAME}_BYPRODUCT} PARENT_SCOPE)
     endif()
-    set(${UPPER_MODULE_NAME}_LIBRARY ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/${${UPPER_MODULE_NAME}_BYPRODUCT} PARENT_SCOPE)
+    set(${UPPER_MODULE_NAME}_LIBRARY ${prefix}/lib/${${UPPER_MODULE_NAME}_BYPRODUCT} PARENT_SCOPE)
   endif()
 
-  set(${UPPER_MODULE_NAME}_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/include PARENT_SCOPE)
+  set(${UPPER_MODULE_NAME}_INCLUDE_DIR ${prefix}/include PARENT_SCOPE)
   set(${UPPER_MODULE_NAME}_VER ${${UPPER_MODULE_NAME}_VER} PARENT_SCOPE)
 
   if (${UPPER_MODULE_NAME}_BASE_URL)
@@ -187,6 +187,7 @@ macro(BUILD_DEP_TARGET)
                       DOWNLOAD_DIR ${TARBALL_DIR}
                       DOWNLOAD_NAME ${${MODULE}_ARCHIVE}
                       PREFIX ${CORE_BUILD_DIR}/${MODULE_LC}
+                      INSTALL_DIR ${prefix}
                       ${CMAKE_ARGS}
                       ${PATCH_COMMAND}
                       ${CONFIGURE_COMMAND}
