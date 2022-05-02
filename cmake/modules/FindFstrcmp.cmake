@@ -55,6 +55,9 @@ if(FSTRCMP_FOUND)
     set_target_properties(fstrcmp PROPERTIES
                                   IMPORTED_LOCATION "${FSTRCMP_LIBRARY}"
                                   INTERFACE_INCLUDE_DIRECTORIES "${FSTRCMP_INCLUDE_DIR}")
+    if(TARGET dep_fstrcmp)
+      add_dependencies(fstrcmp dep_fstrcmp)
+    endif()
   endif()
 
   set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP fstrcmp)

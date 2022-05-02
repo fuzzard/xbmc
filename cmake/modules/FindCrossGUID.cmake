@@ -46,7 +46,6 @@ if(ENABLE_INTERNAL_CROSSGUID)
                  -DCMAKE_BUILD_TYPE=Release)
 
   BUILD_DEP_TARGET()
-
 else()
   if(PKG_CONFIG_FOUND)
     pkg_check_modules(PC_CROSSGUID crossguid QUIET)
@@ -91,6 +90,11 @@ if(CROSSGUID_FOUND)
     set_target_properties(crossguid PROPERTIES
                                     IMPORTED_LOCATION "${CROSSGUID_LIBRARY}"
                                     INTERFACE_INCLUDE_DIRECTORIES "${CROSSGUID_INCLUDE_DIR}")
+    if(TARGET dep_crossguid)
+      add_dependencies(crossguid dep_crossguid)
+    endif()
+
+    set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP crossguid)
   endif()
 
   if(UNIX AND NOT (APPLE OR ANDROID))
@@ -101,7 +105,5 @@ if(CROSSGUID_FOUND)
     list(APPEND CROSSGUID_INCLUDE_DIRS ${UUID_INCLUDE_DIRS})
     list(APPEND CROSSGUID_LIBRARIES ${UUID_LIBRARIES})
   endif()
-
-  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP crossguid)
 endif()
 mark_as_advanced(CROSSGUID_INCLUDE_DIR CROSSGUID_LIBRARY)

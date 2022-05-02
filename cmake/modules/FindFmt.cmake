@@ -80,6 +80,9 @@ if(FMT_FOUND)
     set_target_properties(fmt PROPERTIES
                                IMPORTED_LOCATION "${FMT_LIBRARY}"
                                INTERFACE_INCLUDE_DIRECTORIES "${FMT_INCLUDE_DIR}")
+    if(TARGET dep_fmt)
+      add_dependencies(fmt dep_fmt)
+    endif()
   endif()
 
   set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP fmt)

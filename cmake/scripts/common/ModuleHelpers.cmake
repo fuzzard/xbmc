@@ -181,7 +181,7 @@ macro(BUILD_DEP_TARGET)
     endif()
   endif()
 
-  externalproject_add(${MODULE_LC}
+  externalproject_add(dep_${MODULE_LC}
                       URL ${${MODULE}_URL}
                       URL_HASH ${${MODULE}_HASH}
                       DOWNLOAD_DIR ${TARBALL_DIR}
@@ -196,7 +196,7 @@ macro(BUILD_DEP_TARGET)
                       ${BUILD_BYPRODUCTS}
                       ${BUILD_IN_SOURCE})
 
-  set_target_properties(${MODULE_LC} PROPERTIES FOLDER "External Projects")
+  set_target_properties(dep_${MODULE_LC} PROPERTIES FOLDER "External Projects")
 endmacro()
 
 # Macro to test format of line endings of a patch
