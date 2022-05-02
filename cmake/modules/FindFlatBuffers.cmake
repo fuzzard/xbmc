@@ -16,28 +16,25 @@ if(ENABLE_INTERNAL_FLATBUFFERS)
 
   SETUP_BUILD_VARS()
 
-  set(FLATBUFFERS_FLATC_EXECUTABLE ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/bin/flatc CACHE INTERNAL "FlatBuffer compiler")
-  set(FLATBUFFERS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/include CACHE INTERNAL "FlatBuffer include dir")
+  set(FLATBUFFERS_INCLUDE_DIR ${DEPENDS_PATH}/include CACHE INTERNAL "FlatBuffer include dir")
 
   set(CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release
                  -DFLATBUFFERS_CODE_COVERAGE=OFF
                  -DFLATBUFFERS_BUILD_TESTS=OFF
                  -DFLATBUFFERS_INSTALL=ON
                  -DFLATBUFFERS_BUILD_FLATLIB=OFF
-                 -DFLATBUFFERS_BUILD_FLATC=ON
+                 -DFLATBUFFERS_BUILD_FLATC=OFF
                  -DFLATBUFFERS_BUILD_FLATHASH=OFF
                  -DFLATBUFFERS_BUILD_GRPCTEST=OFF
                  -DFLATBUFFERS_BUILD_SHAREDLIB=OFF
                  "${EXTRA_ARGS}")
-  set(BUILD_BYPRODUCTS ${FLATBUFFERS_FLATC_EXECUTABLE})
 
   BUILD_DEP_TARGET()
-
-  set_target_properties(${MODULE_LC} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${FLATBUFFERS_INCLUDE_DIR})
 else()
-  find_program(FLATBUFFERS_FLATC_EXECUTABLE NAMES flatc)
   find_path(FLATBUFFERS_INCLUDE_DIR NAMES flatbuffers/flatbuffers.h)
 endif()
+
+find_program(FLATBUFFERS_FLATC_EXECUTABLE NAMES flatc)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FlatBuffers
@@ -53,6 +50,9 @@ if(FLATBUFFERS_FOUND)
     set_target_properties(flatbuffers PROPERTIES
                                FOLDER "External Projects"
                                INTERFACE_INCLUDE_DIRECTORIES ${FLATBUFFERS_INCLUDE_DIR})
+    if(TARGET dep_flatbuffers)
+      add_dependencies(flatbuffers dep_flatbuffers)
+    endif()
   endif()
 
   set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP flatbuffers)
