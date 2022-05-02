@@ -45,14 +45,16 @@ set(PACKAGE_GUID "281d668b-5739-4abd-b3c2-ed1cda572ed2")
 set(APP_MANIFEST_NAME package.appxmanifest)
 set(DEPS_FOLDER_RELATIVE project/BuildDependencies)
 
-set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/${DEPS_FOLDER_RELATIVE}/win10-${ARCH})
+if(NOT DEPENDS_PATH)
+  set(DEPENDS_PATH ${CMAKE_SOURCE_DIR}/${DEPS_FOLDER_RELATIVE}/win10-${ARCH})
+endif()
 set(MINGW_LIBS_DIR ${CMAKE_SOURCE_DIR}/${DEPS_FOLDER_RELATIVE}/mingwlibs/win10-${ARCH})
 
 # mingw libs
 list(APPEND CMAKE_PREFIX_PATH ${MINGW_LIBS_DIR})
 list(APPEND CMAKE_LIBRARY_PATH ${MINGW_LIBS_DIR}/bin)
 # dependencies
-list(PREPEND CMAKE_PREFIX_PATH ${DEPENDENCIES_DIR})
+list(PREPEND CMAKE_PREFIX_PATH ${DEPENDS_PATH})
 
 if(NOT TARBALL_DIR)
   set(TARBALL_DIR "${CMAKE_SOURCE_DIR}/project/BuildDependencies/downloads")
@@ -93,7 +95,7 @@ set(gtest_force_shared_crt ON CACHE STRING "" FORCE)
 # For #pragma comment(lib X)
 # TODO: It would certainly be better to handle these libraries via CMake modules.
 link_directories(${MINGW_LIBS_DIR}/lib
-                 ${DEPENDENCIES_DIR}/lib)
+                 ${DEPENDS_PATH}/lib)
 
 list(APPEND DEPLIBS bcrypt.lib d3d11.lib WS2_32.lib dxguid.lib dloadhelper.lib WindowsApp.lib)
 
