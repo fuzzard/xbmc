@@ -1,0 +1,43 @@
+From f2cd5a7ee6eb8d6b3c769df1be5f3899528227a0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?P=C3=A4r=20Bj=C3=B6rklund?= <per.bjorklund@gmail.com>
+Date: Sat, 11 Apr 2020 08:28:08 +0200
+Subject: [PATCH] fix ssize_t definition to match Kodi
+
+---
+ src/default_blockinput.c | 8 +++++++-
+ src/udfread.h            | 5 ++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/src/default_blockinput.c b/src/default_blockinput.c
+index 633191b..488f0af 100644
+--- a/src/default_blockinput.c
++++ b/src/default_blockinput.c
+@@ -53,6 +53,13 @@
+ # undef  off_t
+ # define off_t off64_t
+ #endif
++
++#include <stdint.h>
++#if !defined(_SSIZE_T_DEFINED) && !defined(HAVE_SSIZE_T)
++typedef intptr_t      ssize_t;
++#define _SSIZE_T_DEFINED
++#endif
++
+ 
+ #ifdef _WIN32
+ static ssize_t pread(int fd, void *buf, size_t count, off_t offset)
+diff --git a/src/udfread.h b/src/udfread.h
+index fb17be0..f4062e5 100644
+--- a/src/udfread.h
++++ b/src/udfread.h
+@@ -52,6 +52,10 @@ extern "C" {
+ typedef struct udfread udfread;
+ 
+ struct udfread_block_input;
++#if !defined(_SSIZE_T_DEFINED) && !defined(HAVE_SSIZE_T)
++typedef intptr_t      ssize_t;
++#define _SSIZE_T_DEFINED
++#endif
+ 
+ /**
+  *  Initialize UDF reader
