@@ -51,7 +51,7 @@ if(ENABLE_INTERNAL_SPDLOG)
   BUILD_DEP_TARGET()
 
   if(ENABLE_INTERNAL_FMT)
-    add_dependencies(${MODULE_LC} fmt)
+    add_dependencies(build_${MODULE_LC} build_fmt)
   else()
     # spdlog 1.9.2 fails to build with fmt < 8.0.0
     find_package(fmt 8.0.0 CONFIG REQUIRED QUIET)
@@ -99,6 +99,10 @@ if(SPDLOG_FOUND)
                                  IMPORTED_LOCATION "${SPDLOG_LIBRARY}"
                                  INTERFACE_INCLUDE_DIRECTORIES "${SPDLOG_INCLUDE_DIR}"
                                  INTERFACE_COMPILE_DEFINITIONS "${SPDLOG_DEFINITIONS}")
+
+    if(TARGET build_spdlog)
+      add_dependencies(spdlog build_spdlog)
+    endif()
   endif()
 
   set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP spdlog)

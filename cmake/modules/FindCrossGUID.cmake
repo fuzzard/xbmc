@@ -39,7 +39,7 @@ if(ENABLE_INTERNAL_CROSSGUID)
                  -DDISABLE_WALL=ON)
 
   BUILD_DEP_TARGET()
-
+  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP build_crossguid)
 else()
   if(PKG_CONFIG_FOUND)
     pkg_check_modules(PC_CROSSGUID crossguid QUIET)
@@ -74,6 +74,8 @@ if(CROSSGUID_FOUND)
   set(CROSSGUID_LIBRARIES ${CROSSGUID_LIBRARY})
   set(CROSSGUID_INCLUDE_DIRS ${CROSSGUID_INCLUDE_DIR})
 
+ # message(FATAL_ERROR "CROSSGUID_LIBRARY: ${CROSSGUID_LIBRARY}")
+
   # NEW_CROSSGUID >= 0.2.0 release
   if(EXISTS "${CROSSGUID_INCLUDE_DIR}/crossguid/guid.hpp")
     list(APPEND CROSSGUID_DEFINITIONS -DHAVE_NEW_CROSSGUID)
@@ -84,6 +86,9 @@ if(CROSSGUID_FOUND)
     set_target_properties(crossguid PROPERTIES
                                     IMPORTED_LOCATION "${CROSSGUID_LIBRARY}"
                                     INTERFACE_INCLUDE_DIRECTORIES "${CROSSGUID_INCLUDE_DIR}")
+    if(TARGET build_crossguid)
+      #add_dependencies(kodi-x11 build_crossguid)
+    endif()
   endif()
 
   if(UNIX AND NOT (APPLE OR ANDROID))

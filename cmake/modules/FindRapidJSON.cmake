@@ -35,7 +35,7 @@ if(ENABLE_INTERNAL_RapidJSON)
   BUILD_DEP_TARGET()
 
   # Add dependency to libkodi to build
-  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP rapidjson)
+  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP build_rapidjson)
 else()
   if(PKG_CONFIG_FOUND)
     pkg_check_modules(PC_RapidJSON RapidJSON>=1.0.2 QUIET)

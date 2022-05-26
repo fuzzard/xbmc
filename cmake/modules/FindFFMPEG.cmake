@@ -73,6 +73,8 @@ macro(buildFFMPEG)
   set(LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
   list(APPEND LINKER_FLAGS ${SYSTEM_LDFLAGS})
 
+  set(FFMPEG_LIB_TYPE STATIC)
+
   set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}
                  -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
                  -DFFMPEG_VER=${FFMPEG_VER}
@@ -96,7 +98,7 @@ macro(buildFFMPEG)
   BUILD_DEP_TARGET()
 
   if(ENABLE_INTERNAL_DAV1D)
-    add_dependencies(ffmpeg dav1d)
+    add_dependencies(build_ffmpeg build_dav1d)
   endif()
 
   find_program(BASH_COMMAND bash)
@@ -128,7 +130,7 @@ fi")
   set(FFMPEG_DEFINITIONS -DUSE_STATIC_FFMPEG=1)
   set(FFMPEG_FOUND 1)
 
-  set_target_properties(ffmpeg PROPERTIES FOLDER "External Projects")
+  set_target_properties(build_ffmpeg PROPERTIES FOLDER "External Projects")
 endmacro()
 
 

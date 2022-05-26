@@ -149,7 +149,7 @@ macro(BUILD_DEP_TARGET)
       endif()
     else()
       # single config generator (ie Make, Ninja)
-      if(CMAKE_BUILD_TYPE)
+      if(DEFINED CMAKE_BUILD_TYPE)
         list(APPEND CMAKE_ARGS "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
       else()
         # Multi-config generators (eg VS, Xcode, Ninja Multi-Config) will not have CMAKE_BUILD_TYPE
@@ -198,11 +198,16 @@ macro(BUILD_DEP_TARGET)
     set(BUILD_BYPRODUCTS BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS})
   else()
     if(${MODULE}_BYPRODUCT)
-      set(BUILD_BYPRODUCTS BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/lib/${${MODULE}_BYPRODUCT})
+      # single config generator (ie Make, Ninja)
+      if(DEFINED CMAKE_BUILD_TYPE AND CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(BUILD_BYPRODUCTS BUILD_BYPRODUCTS ${${MODULE}_LIBRARY})
+      elseif(DEFINED CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+        set(BUILD_BYPRODUCTS BUILD_BYPRODUCTS ${${MODULE}_LIBRARY_DEBUG})
+      endif()
     endif()
   endif()
 
-  externalproject_add(${MODULE_LC}
+  externalproject_add(build_${MODULE_LC}
                       URL ${${MODULE}_URL}
                       URL_HASH ${${MODULE}_HASH}
                       DOWNLOAD_DIR ${TARBALL_DIR}
@@ -217,7 +222,7 @@ macro(BUILD_DEP_TARGET)
                       ${BUILD_BYPRODUCTS}
                       ${BUILD_IN_SOURCE})
 
-  set_target_properties(${MODULE_LC} PROPERTIES FOLDER "External Projects")
+  set_target_properties(build_${MODULE_LC} PROPERTIES FOLDER "External Projects")
 endmacro()
 
 # Macro to test format of line endings of a patch

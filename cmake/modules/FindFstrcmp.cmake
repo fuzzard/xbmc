@@ -26,6 +26,7 @@ if(ENABLE_INTERNAL_FSTRCMP)
   set(BUILD_IN_SOURCE 1)
   set(INSTALL_COMMAND make install-libdir install-include)
 
+  set(BUILD_BYPRODUCTS "${${MODULE}_LIBRARY}")
   BUILD_DEP_TARGET()
 else()
   if(PKG_CONFIG_FOUND)

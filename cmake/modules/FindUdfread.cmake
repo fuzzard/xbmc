@@ -26,9 +26,11 @@ if(ENABLE_INTERNAL_UDFREAD)
                         --prefix=${DEPENDS_PATH})
   set(BUILD_IN_SOURCE 1)
 
+set(BUILD_BYPRODUCTS "${${MODULE}_LIBRARY}")
+
   BUILD_DEP_TARGET()
 
-  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP udfread)
+  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP build_udfread)
 else()
   if(PKG_CONFIG_FOUND)
     pkg_check_modules(PC_UDFREAD udfread>=1.0.0 QUIET)
