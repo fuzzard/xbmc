@@ -2,7 +2,6 @@ include ../../Makefile.include PYTHONMODULE-PIL-VERSION ../../download-files.inc
 DEPS= ../../Makefile.include Makefile PYTHONMODULE-PIL-VERSION ../../download-files.include pillow-crosscompile.patch
 
 PYTHONPATH=$(PYTHON_SITE_PKG)
-PILPATH=$(PYTHONPATH)
 LDSHARED=$(CC) -shared
 
 # Clear pkg-config data, as it will pull from Native pkg-config incorrectly
@@ -13,14 +12,7 @@ ifeq ($(CROSS_COMPILING), yes)
 endif
 
 ifeq ($(OS),android)
-  PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-  PILPATHLIB=$(PILPATH)/lib
-  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
   LDFLAGS+= -L$(PREFIX)/lib/dummy-lib$(APP_NAME)/ -l$(APP_NAME) -lm
-else ifeq ($(OS),darwin_embedded)
-  PILPATH=$(PREFIX)/share/$(APP_NAME)/addons/script.module.pil
-  PILPATHLIB=$(PILPATH)/lib
-  PYTHONPATH=$(PILPATH):$(PYTHON_SITE_PKG)
 endif
 
 SED_FLAG=-i
@@ -55,32 +47,24 @@ export LDSHARED LDFLAGS PYTHONPATH
 
 all: .installed-$(PLATFORM)
 
-
 $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE) $(DEPS)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../pillow-crosscompile.patch
 
-$(PILPATHLIB):
+.installed-$(PLATFORM): $(PLATFORM)
+	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PYTHONPATH)
 ifeq ($(OS),android)
-	mkdir -p $(PILPATHLIB)
-else ifeq ($(OS),darwin_embedded)
-	mkdir -p $(PILPATHLIB)
-endif
-
-.installed-$(PLATFORM): $(PLATFORM) $(PILPATHLIB)
-	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PILPATH)
-ifeq ($(OS),android)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATHLIB)/PIL && \
+	cd $(PYTHONPATH) && unzip -o Pillow-*.egg
+	cd $(PYTHONPATH)/PIL && \
           sed $(SED_FLAG) -e 's/import sys/import os, sys /' \
                           -e '/__file__/ s/_imaging/lib_imaging/g' \
                           -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /' \
                               _imaging*.py
-	cd $(PILPATH) && rm -rf Pillow-*.egg
+	cd $(PYTHONPATH) && rm -rf Pillow-*.egg
 else ifeq ($(OS),darwin_embedded)
-	cd $(PILPATHLIB) && unzip -o ../Pillow-*.egg
-	cd $(PILPATH) && rm -rf Pillow-*.egg
+	cd $(PYTHONPATH) && unzip -o Pillow-*.egg
+	cd $(PYTHONPATH) && rm -rf Pillow-*.egg
 endif
 	touch $@
 

@@ -1,6 +1,6 @@
 --- a/setup.py
 +++ b/setup.py
-@@ -414,6 +414,19 @@
+@@ -434,6 +434,19 @@
          if _cmd_exists(os.environ.get("PKG_CONFIG", "pkg-config")):
              pkg_config = _pkg_config
  
