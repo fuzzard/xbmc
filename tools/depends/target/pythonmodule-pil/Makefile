@@ -54,17 +54,14 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE) $(DEPS)
 
 .installed-$(PLATFORM): $(PLATFORM)
 	cd $(PLATFORM); $(NATIVEPREFIX)/bin/python3 setup.py build_ext $(BUILD_OPTS) install --install-lib $(PYTHONPATH)
-ifeq ($(OS),android)
 	cd $(PYTHONPATH) && unzip -o Pillow-*.egg
+	cd $(PYTHONPATH) && rm -rf Pillow-*.egg
+ifeq ($(OS),android)
 	cd $(PYTHONPATH)/PIL && \
           sed $(SED_FLAG) -e 's/import sys/import os, sys /' \
                           -e '/__file__/ s/_imaging/lib_imaging/g' \
                           -e 's/pkg_resources.resource_filename(__name__,/os.path.join(os.environ["KODI_ANDROID_LIBS"], /' \
                               _imaging*.py
-	cd $(PYTHONPATH) && rm -rf Pillow-*.egg
-else ifeq ($(OS),darwin_embedded)
-	cd $(PYTHONPATH) && unzip -o Pillow-*.egg
-	cd $(PYTHONPATH) && rm -rf Pillow-*.egg
 endif
 	touch $@
 
