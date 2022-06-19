@@ -1,8 +1,10 @@
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
-
 if(APPLE)
   set(CMAKE_FIND_ROOT_PATH ${NATIVEPREFIX})
 endif()
+
+
+message(WARNING "PROJECTSOURCE: ${PROJECTSOURCE}")
+message(WARNING "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 
 find_package(Lzo2 REQUIRED)
 find_package(PNG REQUIRED)
@@ -52,3 +54,7 @@ target_link_libraries(TexturePacker
                               ${JPEG_LIBRARIES}
                               ${LZO2_LIBRARIES})
 target_compile_options(TexturePacker PRIVATE ${ARCH_DEFINES} ${SYSTEM_DEFINES})
+
+if(TARGET Lzo2::Lzo2::native)
+  add_dependencies(TexturePacker Lzo2::Lzo2::native)
+endif()

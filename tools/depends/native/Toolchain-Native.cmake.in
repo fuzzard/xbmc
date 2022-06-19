@@ -1,5 +1,5 @@
 set(NATIVEPREFIX "@prefix@/@tool_dir@")
-
+set(PROJECTSOURCE "@abs_top_srcdir@/../..")
 set(TARBALL_DIR "@use_tarballs@")
 
 set(OS "@build_os@")

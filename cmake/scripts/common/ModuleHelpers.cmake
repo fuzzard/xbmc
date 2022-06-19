@@ -8,10 +8,7 @@
 #   MODULENAME_VER will be set to parent scope (eg FFMPEG_VER, DAV1D_VER)
 #   MODULENAME_BASE_URL will be set to parent scope if exists in VERSION file (eg FFMPEG_BASE_URL)
 function(get_versionfile_data module_name)
-  string(TOUPPER ${module_name} UPPER_MODULE_NAME)
 
-  # Dependency path
-  set(MODULE_PATH "${CMAKE_SOURCE_DIR}/tools/depends/target/${module_name}")
   if(NOT EXISTS "${MODULE_PATH}/${UPPER_MODULE_NAME}-VERSION")
     MESSAGE(FATAL_ERROR "${UPPER_MODULE_NAME}-VERSION does not exist at ${MODULE_PATH}.")
   else()
@@ -47,7 +44,6 @@ function(get_versionfile_data module_name)
 
   set(${UPPER_MODULE_NAME}_ARCHIVE ${${UPPER_MODULE_NAME}_ARCHIVE} PARENT_SCOPE)
 
-  set(${UPPER_MODULE_NAME}_INCLUDE_DIR ${DEPENDS_PATH}/include PARENT_SCOPE)
   set(${UPPER_MODULE_NAME}_VER ${${UPPER_MODULE_NAME}_VER} PARENT_SCOPE)
 
   if (${UPPER_MODULE_NAME}_BASE_URL)
@@ -94,6 +90,45 @@ endfunction()
 
 # Macro to factor out the repetitive URL setup
 macro(SETUP_BUILD_VARS)
+  string(TOUPPER ${MODULE_LC} UPPER_MODULE_NAME)
+
+  # Dependency path
+  set(MODULE_PATH "${CMAKE_SOURCE_DIR}/tools/depends/target/${MODULE_LC}")
+
+  get_versionfile_data(${MODULE_LC} "target")
+  string(TOUPPER ${MODULE_LC} MODULE)
+
+  # allow user to override the download URL with a local tarball
+  # needed for offline build envs
+  if(${MODULE}_URL)
+    get_filename_component(${MODULE}_URL "${${MODULE}_URL}" ABSOLUTE)
+  else()
+    set(${MODULE}_URL ${${MODULE}_BASE_URL}/${${MODULE}_ARCHIVE})
+  endif()
+  if(VERBOSE)
+    message(STATUS "${MODULE}_URL: ${${MODULE}_URL}")
+  endif()
+
+  # unset all build_dep_target variables to insure clean state
+  unset(BUILD_NAME)
+  unset(NATIVETARGET)
+  unset(INSTALL_DIR)
+  unset(CMAKE_ARGS)
+  unset(PATCH_COMMAND)
+  unset(CONFIGURE_COMMAND)
+  unset(BUILD_COMMAND)
+  unset(INSTALL_COMMAND)
+  unset(BUILD_IN_SOURCE)
+  unset(BUILD_BYPRODUCTS)
+endmacro()
+
+# Macro to factor out the repetitive URL setup
+macro(SETUP_NATIVE_BUILD_VARS)
+  string(TOUPPER ${MODULE_LC} UPPER_MODULE_NAME)
+
+  # Dependency path
+  set(MODULE_PATH "${PROJECTSOURCE}/tools/depends/native/${MODULE_LC}")
+
   get_versionfile_data(${MODULE_LC})
   string(TOUPPER ${MODULE_LC} MODULE)
 
@@ -110,6 +145,7 @@ macro(SETUP_BUILD_VARS)
 
   # unset all build_dep_target variables to insure clean state
   unset(BUILD_NAME)
+  unset(NATIVETARGET)
   unset(INSTALL_DIR)
   unset(CMAKE_ARGS)
   unset(PATCH_COMMAND)
@@ -216,18 +252,27 @@ macro(BUILD_DEP_TARGET)
     set(BUILD_IN_SOURCE BUILD_IN_SOURCE ${BUILD_IN_SOURCE})
   endif()
 
+  if(DEFINED NATIVETARGET)
+    set(byproduct_path "${NATIVEPREFIX}")
+  else()
+    set(byproduct_path "${DEPENDS_PATH}")
+  endif()
+
   # Set Library names.
   if(DEFINED ${MODULE}_DEBUG_POSTFIX)
     set(_POSTFIX ${${MODULE}_DEBUG_POSTFIX})
     string(REGEX REPLACE "\\.[^.]*$" "" _LIBNAME ${${MODULE}_BYPRODUCT})
     string(REGEX REPLACE "^.*\\." "" _LIBEXT ${${MODULE}_BYPRODUCT})
-    set(${MODULE}_LIBRARY_DEBUG ${DEPENDS_PATH}/lib/${_LIBNAME}${${MODULE}_DEBUG_POSTFIX}.${_LIBEXT})
+    set(${MODULE}_LIBRARY_DEBUG ${byproduct_path}/lib/${_LIBNAME}${${MODULE}_DEBUG_POSTFIX}.${_LIBEXT})
   endif()
   # set <MODULE>_LIBRARY_RELEASE for use of select_library_configurations
   # any modules that dont use select_library_configurations, we set <MODULE>_LIBRARY
   # No harm in having either set for both potential paths
-  set(${MODULE}_LIBRARY_RELEASE ${DEPENDS_PATH}/lib/${${MODULE}_BYPRODUCT})
+  set(${MODULE}_LIBRARY_RELEASE ${byproduct_path}/lib/${${MODULE}_BYPRODUCT})
   set(${MODULE}_LIBRARY ${${MODULE}_LIBRARY_RELEASE})
+  if(NOT ${MODULE}_INCLUDE_DIR)
+    set(${MODULE}_INCLUDE_DIR ${byproduct_path}/include)
+  endif()
 
   if(BUILD_BYPRODUCTS)
     set(BUILD_BYPRODUCTS BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS})
@@ -259,11 +304,17 @@ macro(BUILD_DEP_TARGET)
     set(INSTALL_DIR ${DEPENDS_PATH})
   endif()
 
+  if(${MODULE}_SOURCE_DIR)
+    set(BUILD_DOWNLOAD_STEPS SOURCE_DIR "${${MODULE}_SOURCE_DIR}")
+  else()
+    set(BUILD_DOWNLOAD_STEPS URL ${${MODULE}_URL}
+                             URL_HASH ${${MODULE}_HASH}
+                             DOWNLOAD_DIR ${TARBALL_DIR}
+                             DOWNLOAD_NAME ${${MODULE}_ARCHIVE})
+  endif()
+
   externalproject_add(${BUILD_NAME}
-                      URL ${${MODULE}_URL}
-                      URL_HASH ${${MODULE}_HASH}
-                      DOWNLOAD_DIR ${TARBALL_DIR}
-                      DOWNLOAD_NAME ${${MODULE}_ARCHIVE}
+                      ${BUILD_DOWNLOAD_STEPS}
                       PREFIX ${CORE_BUILD_DIR}/${BUILD_NAME}
                       INSTALL_DIR ${INSTALL_DIR}
                       ${${MODULE}_LIST_SEPARATOR}

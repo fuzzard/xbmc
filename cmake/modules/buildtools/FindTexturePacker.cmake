@@ -13,7 +13,7 @@
 #   TexturePacker::TexturePacker::Installable  - The TexturePacker executable shipped in the Kodi package
 
 if(NOT TARGET TexturePacker::TexturePacker::Executable)
-  if(KODI_DEPENDSBUILD)
+  if(NOT KODI_DEPENDSBUILD)
     get_filename_component(_tppath "${NATIVEPREFIX}/bin" ABSOLUTE)
     find_program(TEXTUREPACKER_EXECUTABLE NAMES "${APP_NAME_LC}-TexturePacker" TexturePacker
                                           HINTS ${_tppath})
@@ -59,23 +59,76 @@ if(NOT TARGET TexturePacker::TexturePacker::Executable)
 
     # Use it during build if build architecture can be executed on host
     # and TEXTUREPACKER_EXECUTABLE is not found
-    if(HOST_CAN_EXECUTE_TARGET AND NOT TEXTUREPACKER_EXECUTABLE)
+    #if(HOST_CAN_EXECUTE_TARGET AND NOT TEXTUREPACKER_EXECUTABLE)
       set(INTERNAL_TEXTUREPACKER_EXECUTABLE TRUE)
-    endif()
+    #endif()
 
     # Build and install internal TexturePacker if needed
     if (INTERNAL_TEXTUREPACKER_EXECUTABLE OR INTERNAL_TEXTUREPACKER_INSTALLABLE)
-      add_subdirectory(${CMAKE_SOURCE_DIR}/tools/depends/native/TexturePacker build/texturepacker)
+
+      include(${CMAKE_SOURCE_DIR}/cmake/scripts/common/ModuleHelpers.cmake)
+      set(MODULE TEXTUREPACKER)
+
+      unset(BUILD_NAME)
+      unset(NATIVETARGET)
+      unset(INSTALL_DIR)
+      unset(CMAKE_ARGS)
+      unset(PATCH_COMMAND)
+      unset(CONFIGURE_COMMAND)
+      unset(BUILD_COMMAND)
+      unset(INSTALL_COMMAND)
+      unset(BUILD_IN_SOURCE)
+      unset(BUILD_BYPRODUCTS)
+
+      if(NATIVEPREFIX)
+        set(INSTALL_DIR "${NATIVEPREFIX}/bin")
+        set(TEXTUREPACKER_INSTALL_PREFIX ${NATIVEPREFIX})
+      else()
+        set(INSTALL_DIR "${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/bin")
+        set(TEXTUREPACKER_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR})
+      endif()
+
+      if(CMAKE_GENERATOR STREQUAL Xcode)
+        set(TEXTUREPACKER_GENERATOR CMAKE_GENERATOR "Unix Makefiles")
+      endif()
+
+      # Set host build info for buildtool
+      if(EXISTS "${NATIVEPREFIX}/share/Toolchain-Native.cmake")
+        set(TEXTUREPACKER_TOOLCHAIN_FILE "${NATIVEPREFIX}/share/Toolchain-Native.cmake")
+      elseif(WIN32 OR WINDOWS_STORE)
+        set(TEXTUREPACKER_GENERATOR_PLATFORM CMAKE_GENERATOR_PLATFORM ${HOSTTOOLSET})
+        set(TEXTUREPACKER_GENERATOR CMAKE_GENERATOR "${CMAKE_GENERATOR}")
+      endif()
+
+      set(BUILD_NAME texturepacker_build)
+
+      set(TEXTUREPACKER_SOURCE_DIR "${CMAKE_SOURCE_DIR}/tools/depends/native/TexturePacker")
+      set(TEXTUREPACKER_EXECUTABLE ${INSTALL_DIR}/${APP_NAME_LC}-TexturePacker CACHE INTERNAL "TexturePacker Executable")
+      set(BUILD_BYPRODUCTS ${TEXTUREPACKER_EXECUTABLE})
+
+      set(CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release
+                     -DCMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+                     -DCMAKE_MODULE_PATH=${CMAKE_SOURCE_DIR}/cmake/modules/buildtools/libraries)
+
+      BUILD_DEP_TARGET()
+
+      unset(MODULE)
       message(STATUS "Building internal TexturePacker")
     endif()
 
     if(INTERNAL_TEXTUREPACKER_INSTALLABLE)
-      add_executable(TexturePacker::TexturePacker::Installable ALIAS TexturePacker)
+      add_executable(TexturePacker::TexturePacker::Installable IMPORTED)
+      set_target_properties(TexturePacker::TexturePacker::Installable PROPERTIES
+                                                                      IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
+      add_dependencies(TexturePacker::TexturePacker::Installable texturepacker_build)
       message(STATUS "Shipping internal TexturePacker")
     endif()
 
     if(INTERNAL_TEXTUREPACKER_EXECUTABLE)
-      add_executable(TexturePacker::TexturePacker::Executable ALIAS TexturePacker)
+      add_executable(TexturePacker::TexturePacker::Executable IMPORTED)
+      set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
+                                                                     IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
+      add_dependencies(TexturePacker::TexturePacker::Executable texturepacker_build)
       message(STATUS "Internal TexturePacker will be executed during build")
     else()
       message(STATUS "External TexturePacker will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
