@@ -17,8 +17,5 @@
 //   We only keep @ARCH@ here to retain the same structure as *nix.
 // * foo.so will be renamed libfoo.so in the packaging stage
 
-/* VideoPlayer */
-#define DLL_PATH_LIBDVDNAV     "libdvdnav-@ARCH@.so"
-
 /* Android's libui for gralloc */
 #define DLL_PATH_LIBUI         "libui.so"

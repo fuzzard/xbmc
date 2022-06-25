@@ -22,7 +22,6 @@ set(HEADERS BlurayStateSerializer.h
             DVDInputStreamNavigator.h
             DVDInputStreamStack.h
             DVDStateSerializer.h
-            DllDvdNav.h
             InputStreamAddon.h
             InputStreamMultiStreams.h
             InputStreamMultiSource.h

@@ -14,9 +14,11 @@
 #include "DVDInputStream.h"
 #include "DVDInputStreamFile.h"
 #include "DVDStateSerializer.h"
-#include "DllDvdNav.h"
 #include "cores/MenuType.h"
 #include "utils/Geometry.h"
+
+#include <dvdnav/dvdnav.h>
+#include <dvdnav/dvd_types.h>
 
 #include <string>
 
@@ -147,7 +149,6 @@ protected:
   */
   bool FillDVDState(DVDState& dvdstate);
 
-  DllDvdNav m_dll;
   bool m_bCheckButtons;
   bool m_bEOF;
 

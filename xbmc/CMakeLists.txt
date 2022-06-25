@@ -56,7 +56,6 @@ set(HEADERS AppEnvironment.h
             DatabaseManager.h
             DbUrl.h
             DllPaths.h
-            DllPaths_win32.h
             DynamicDll.h
             FileItem.h
             FileItemListModification.h
