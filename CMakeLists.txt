@@ -65,6 +65,9 @@ option(ENABLE_INTERNAL_RapidJSON "Enable internal rapidjson?" ON)
 cmake_dependent_option(ENABLE_INTERNAL_FLATBUFFERS "Enable internal flatbuffers?" OFF "DEFINED USE_INTERNAL_LIBS;NOT USE_INTERNAL_LIBS" ON)
 cmake_dependent_option(ENABLE_INTERNAL_TAGLIB "Enable internal taglib?" OFF "DEFINED USE_INTERNAL_LIBS;NOT USE_INTERNAL_LIBS" ON)
 
+# Disabled options - lib for other required libs not currently supported
+cmake_dependent_option(ENABLE_INTERNAL_SQLITE3 "Enable internal sqlite3?" OFF "DEFINED USE_INTERNAL_LIBS;NOT USE_INTERNAL_LIBS" OFF)
+
 # Internal Depends - supported on UNIX platforms
 if(UNIX)
   option(FFMPEG_PATH        "Path to external ffmpeg?" "")
