@@ -56,6 +56,7 @@ option(ENABLE_AIRTUNES    "Enable AirTunes support?" ON)
 option(ENABLE_OPTICAL     "Enable optical support?" ON)
 option(ENABLE_PYTHON      "Enable python support?" ON)
 option(ENABLE_TESTING     "Enable testing support?" ON)
+option(ENABLE_GPLV3       "Enable GPLV3 library use?" ON)
 
 # Internal Depends - supported on all platforms
 option(ENABLE_INTERNAL_CROSSGUID "Enable internal crossguid?" ON)
@@ -74,6 +75,8 @@ if(UNIX)
   option(ENABLE_INTERNAL_GTEST "Enable internal gtest?" OFF)
   option(ENABLE_INTERNAL_UDFREAD "Enable internal udfread?" OFF)
   option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?" OFF)
+
+  cmake_dependent_option(ENABLE_INTERNAL_SMBCLIENT "Enable internal samba build?" OFF "DEFINED USE_INTERNAL_LIBS;NOT USE_INTERNAL_LIBS" ON)
 
   if(ENABLE_INTERNAL_SPDLOG)
     set(ENABLE_INTERNAL_FMT ON CACHE BOOL "" FORCE)

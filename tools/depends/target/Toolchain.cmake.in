@@ -153,7 +153,9 @@ find_program(LIBTOOL libtool HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 find_program(LIBTOOLIZE libtoolize HINTS "${NATIVEPREFIX}/bin" REQUIRED)
 
 set(ENV{ACLOCAL_PATH} "${DEPENDS_PATH}/share/aclocal:${NATIVEPREFIX}/share/aclocal")
-set(ENVPATH "${NATIVEPREFIX}/bin:$ENV{PATH}")
+set(ENV{PATH} "${NATIVEPREFIX}/bin:$ENV{PATH}")
+
+set(ENV{PERL5LIB} "${NATIVEPREFIX}/lib/perl5/site_perl:$ENV{PERL5LIB}")
 
 # Dependency build tool config files
 find_file(MESON-CROSS "cross-file.meson" PATHS "${DEPENDS_PATH}/share" NO_CMAKE_FIND_ROOT_PATH REQUIRED)
