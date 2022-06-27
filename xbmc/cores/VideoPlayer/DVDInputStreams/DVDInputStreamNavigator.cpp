@@ -27,6 +27,8 @@
 #include "platform/Environment.h"
 #endif
 
+#include <sys/uio.h>
+
 namespace
 {
 constexpr int HOLDMODE_NONE = 0;

@@ -86,7 +86,7 @@ if(ENABLE_DVDCSS)
 
   else()
     if(PKG_CONFIG_FOUND)
-      pkg_check_modules(PC_DVDCSS dvdcss QUIET)
+      pkg_check_modules(PC_DVDCSS libdvdcss QUIET)
     endif()
 
     find_path(LIBDVDCSS_INCLUDE_DIR NAMES dvdcss.h
