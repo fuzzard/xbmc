@@ -22,6 +22,7 @@ DEPENDS = \
   gnutls \
   gtest \
   harfbuzz \
+  lcms2 \
   libass \
   libbluray \
   libcec \
