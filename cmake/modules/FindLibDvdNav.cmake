@@ -25,79 +25,94 @@ if(NOT TARGET LibDvdNav::LibDvdNav)
 
   set(MODULE_LC libdvdnav)
 
-  # We require this due to the odd nature of github URL's compared to our other tarball
-  # mirror system. If User sets LIBDVDNAV_URL or libdvdnav_URL, allow get_filename_component in SETUP_BUILD_VARS
-  if(LIBDVDNAV_URL OR ${MODULE_LC}_URL)
-    set(LIBDVDNAV_URL_PROVIDED TRUE)
-  endif()
+  if(ENABLE_INTERNAL_LIBDVD)
 
-  SETUP_BUILD_VARS()
-
-  if(NOT LIBDVDNAV_URL_PROVIDED)
-    # override LIBDVDNAV_URL due to tar naming when retrieved from github release
-    set(LIBDVDNAV_URL ${LIBDVDNAV_BASE_URL}/archive/${LIBDVDNAV_VER}.tar.gz)
-  endif()
-
-  set(LIBDVDNAV_VERSION ${${MODULE}_VER})
-
-  set(HOST_ARCH ${ARCH})
-  if(CORE_SYSTEM_NAME STREQUAL android)
-    if(ARCH STREQUAL arm)
-      set(HOST_ARCH arm-linux-androideabi)
-    elseif(ARCH STREQUAL aarch64)
-      set(HOST_ARCH aarch64-linux-android)
-    elseif(ARCH STREQUAL i486-linux)
-      set(HOST_ARCH i686-linux-android)
-    elseif(ARCH STREQUAL x86_64)
-      set(HOST_ARCH x86_64-linux-android)
+    # We require this due to the odd nature of github URL's compared to our other tarball
+    # mirror system. If User sets LIBDVDNAV_URL or libdvdnav_URL, allow get_filename_component in SETUP_BUILD_VARS
+    if(LIBDVDNAV_URL OR ${MODULE_LC}_URL)
+      set(LIBDVDNAV_URL_PROVIDED TRUE)
     endif()
-  elseif(CORE_SYSTEM_NAME STREQUAL windowsstore)
-    set(LIBDVD_ADDITIONAL_ARGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
-  endif()
 
-  string(APPEND LIBDVDNAV_CFLAGS "-D_XBMC")
+    SETUP_BUILD_VARS()
 
-  if(APPLE)
-    set(LIBDVDNAV_LDFLAGS "-framework CoreFoundation")
-    string(APPEND LIBDVDNAV_CFLAGS " -D__DARWIN__")
-    if(NOT CORE_SYSTEM_NAME STREQUAL darwin_embedded)
-      string(APPEND LIBDVDNAV_LDFLAGS " -framework IOKit")
+    if(NOT LIBDVDNAV_URL_PROVIDED)
+      # override LIBDVDNAV_URL due to tar naming when retrieved from github release
+      set(LIBDVDNAV_URL ${LIBDVDNAV_BASE_URL}/archive/${LIBDVDNAV_VER}.tar.gz)
     endif()
-  endif()
 
-  if(CORE_SYSTEM_NAME MATCHES windows)
-    set(CMAKE_ARGS -DDUMMY_DEFINE=ON
-                   ${LIBDVD_ADDITIONAL_ARGS})
+    set(LIBDVDNAV_VERSION ${${MODULE}_VER})
+
+    set(HOST_ARCH ${ARCH})
+    if(CORE_SYSTEM_NAME STREQUAL android)
+      if(ARCH STREQUAL arm)
+        set(HOST_ARCH arm-linux-androideabi)
+      elseif(ARCH STREQUAL aarch64)
+        set(HOST_ARCH aarch64-linux-android)
+      elseif(ARCH STREQUAL i486-linux)
+        set(HOST_ARCH i686-linux-android)
+      elseif(ARCH STREQUAL x86_64)
+        set(HOST_ARCH x86_64-linux-android)
+      endif()
+    elseif(CORE_SYSTEM_NAME STREQUAL windowsstore)
+      set(LIBDVD_ADDITIONAL_ARGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
+    endif()
+
+    string(APPEND LIBDVDNAV_CFLAGS "-D_XBMC")
+
+    if(APPLE)
+      set(LIBDVDNAV_LDFLAGS "-framework CoreFoundation")
+      string(APPEND LIBDVDNAV_CFLAGS " -D__DARWIN__")
+      if(NOT CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+        string(APPEND LIBDVDNAV_LDFLAGS " -framework IOKit")
+      endif()
+    endif()
+
+    if(CORE_SYSTEM_NAME MATCHES windows)
+      set(CMAKE_ARGS -DDUMMY_DEFINE=ON
+                     ${LIBDVD_ADDITIONAL_ARGS})
+    else()
+
+      string(APPEND LIBDVDNAV_CFLAGS " -I$<TARGET_PROPERTY:LibDvdRead::LibDvdRead,INTERFACE_INCLUDE_DIRECTORIES> $<TARGET_PROPERTY:LibDvdRead::LibDvdRead,INTERFACE_COMPILE_DEFINITIONS>")
+
+      find_program(AUTORECONF autoreconf REQUIRED)
+      find_program(MAKE_EXECUTABLE make REQUIRED)
+
+      set(CONFIGURE_COMMAND ${AUTORECONF} -vif
+                    COMMAND ac_cv_path_GIT= ./configure
+                            --target=${HOST_ARCH}
+                            --host=${HOST_ARCH}
+                            --enable-static
+                            --disable-shared
+                            --with-pic
+                            --prefix=${DEPENDS_PATH}
+                            --libdir=${DEPENDS_PATH}/lib
+                            "CC=${CMAKE_C_COMPILER}"
+                            "CFLAGS=${CMAKE_C_FLAGS} ${LIBDVDNAV_CFLAGS}"
+                            "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${LIBDVDNAV_LDFLAGS}"
+                            "PKG_CONFIG_PATH=${DEPENDS_PATH}/lib/pkgconfig")
+
+      set(BUILD_COMMAND ${MAKE_EXECUTABLE})
+      set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
+      set(BUILD_IN_SOURCE 1)
+    endif()
+
+    BUILD_DEP_TARGET()
+
+    if(TARGET LibDvdRead::LibDvdRead)
+      add_dependencies(libdvdnav LibDvdRead::LibDvdRead)
+    endif()
   else()
+    if(PKG_CONFIG_FOUND)
+      pkg_check_modules(PC_DVDNAV dvdnav QUIET)
+    endif()
 
-    string(APPEND LIBDVDNAV_CFLAGS " -I$<TARGET_PROPERTY:LibDvdRead::LibDvdRead,INTERFACE_INCLUDE_DIRECTORIES> $<TARGET_PROPERTY:LibDvdRead::LibDvdRead,INTERFACE_COMPILE_DEFINITIONS>")
+    find_path(LIBDVDNAV_INCLUDE_DIR NAMES dvdnav.h
+                                    PATH_SUFFIXES dvdnav
+                                    PATHS ${PC_DVDNAV_INCLUDEDIR})
+    find_library(LIBDVDNAV_LIBRARY NAMES dvdnav libdvdnav
+                                   PATHS ${PC_DVDNAV_LIBDIR})
 
-    find_program(AUTORECONF autoreconf REQUIRED)
-    find_program(MAKE_EXECUTABLE make REQUIRED)
-
-    set(CONFIGURE_COMMAND ${AUTORECONF} -vif
-                  COMMAND ac_cv_path_GIT= ./configure
-                          --target=${HOST_ARCH}
-                          --host=${HOST_ARCH}
-                          --enable-static
-                          --disable-shared
-                          --with-pic
-                          --prefix=${DEPENDS_PATH}
-                          --libdir=${DEPENDS_PATH}/lib
-                          "CC=${CMAKE_C_COMPILER}"
-                          "CFLAGS=${CMAKE_C_FLAGS} ${LIBDVDNAV_CFLAGS}"
-                          "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${LIBDVDNAV_LDFLAGS}"
-                          "PKG_CONFIG_PATH=${DEPENDS_PATH}/lib/pkgconfig")
-
-    set(BUILD_COMMAND ${MAKE_EXECUTABLE})
-    set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
-    set(BUILD_IN_SOURCE 1)
-  endif()
-
-  BUILD_DEP_TARGET()
-
-  if(TARGET LibDvdRead::LibDvdRead)
-    add_dependencies(libdvdnav LibDvdRead::LibDvdRead)
+    set(LIBDVDNAV_VERSION ${PC_DVDNAV_VERSION})
   endif()
 endif()
 

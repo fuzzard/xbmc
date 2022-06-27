@@ -18,70 +18,85 @@ if(ENABLE_DVDCSS)
 
   set(MODULE_LC libdvdcss)
 
-  # We require this due to the odd nature of github URL's compared to our other tarball
-  # mirror system. If User sets LIBDVDCSS_URL or libdvdcss_URL, allow get_filename_component in SETUP_BUILD_VARS
-  if(LIBDVDCSS_URL OR ${MODULE_LC}_URL)
-    set(LIBDVDCSS_URL_PROVIDED TRUE)
-  endif()
+  if(ENABLE_INTERNAL_LIBDVD)
 
-  SETUP_BUILD_VARS()
-
-  if(NOT LIBDVDCSS_URL_PROVIDED)
-    # override LIBDVDCSS_URL_PROVIDED due to tar naming when retrieved from github release
-    set(LIBDVDCSS_URL ${LIBDVDCSS_BASE_URL}/archive/${LIBDVDCSS_VER}.tar.gz)
-  endif()
-
-  set(LIBDVDCSS_VERSION ${${MODULE}_VER})
-
-  set(HOST_ARCH ${ARCH})
-  if(CORE_SYSTEM_NAME STREQUAL android)
-    if(ARCH STREQUAL arm)
-      set(HOST_ARCH arm-linux-androideabi)
-    elseif(ARCH STREQUAL aarch64)
-      set(HOST_ARCH aarch64-linux-android)
-    elseif(ARCH STREQUAL i486-linux)
-      set(HOST_ARCH i686-linux-android)
-    elseif(ARCH STREQUAL x86_64)
-      set(HOST_ARCH x86_64-linux-android)
+    # We require this due to the odd nature of github URL's compared to our other tarball
+    # mirror system. If User sets LIBDVDCSS_URL or libdvdcss_URL, allow get_filename_component in SETUP_BUILD_VARS
+    if(LIBDVDCSS_URL OR ${MODULE_LC}_URL)
+      set(LIBDVDCSS_URL_PROVIDED TRUE)
     endif()
-  elseif(CORE_SYSTEM_NAME STREQUAL windowsstore)
-    set(LIBDVD_ADDITIONAL_ARGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
-  endif()
 
-  if(APPLE)
-    set(LIBDVDCSS_FLAGS " -framework CoreFoundation")
-    if(NOT CORE_SYSTEM_NAME STREQUAL darwin_embedded)
-      string(APPEND LIBDVDCSS_FLAGS " -framework IOKit")
+    SETUP_BUILD_VARS()
+
+    if(NOT LIBDVDCSS_URL_PROVIDED)
+      # override LIBDVDCSS_URL_PROVIDED due to tar naming when retrieved from github release
+      set(LIBDVDCSS_URL ${LIBDVDCSS_BASE_URL}/archive/${LIBDVDCSS_VER}.tar.gz)
     endif()
-  endif()
 
-  if(CORE_SYSTEM_NAME MATCHES windows)
-    set(CMAKE_ARGS -DDUMMY_DEFINE=ON
-                   ${LIBDVD_ADDITIONAL_ARGS})
+    set(LIBDVDCSS_VERSION ${${MODULE}_VER})
+
+    set(HOST_ARCH ${ARCH})
+    if(CORE_SYSTEM_NAME STREQUAL android)
+      if(ARCH STREQUAL arm)
+        set(HOST_ARCH arm-linux-androideabi)
+      elseif(ARCH STREQUAL aarch64)
+        set(HOST_ARCH aarch64-linux-android)
+      elseif(ARCH STREQUAL i486-linux)
+        set(HOST_ARCH i686-linux-android)
+      elseif(ARCH STREQUAL x86_64)
+        set(HOST_ARCH x86_64-linux-android)
+      endif()
+    elseif(CORE_SYSTEM_NAME STREQUAL windowsstore)
+      set(LIBDVD_ADDITIONAL_ARGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
+    endif()
+
+    if(APPLE)
+      set(LIBDVDCSS_FLAGS " -framework CoreFoundation")
+      if(NOT CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+        string(APPEND LIBDVDCSS_FLAGS " -framework IOKit")
+      endif()
+    endif()
+
+    if(CORE_SYSTEM_NAME MATCHES windows)
+      set(CMAKE_ARGS -DDUMMY_DEFINE=ON
+                     ${LIBDVD_ADDITIONAL_ARGS})
+    else()
+      find_program(AUTORECONF autoreconf REQUIRED)
+      find_program(MAKE_EXECUTABLE make REQUIRED)
+
+      set(CONFIGURE_COMMAND ${AUTORECONF} -vif
+                    COMMAND ac_cv_path_GIT= ./configure
+                            --target=${HOST_ARCH}
+                            --host=${HOST_ARCH}
+                            --disable-doc
+                            --enable-static
+                            --disable-shared
+                            --with-pic
+                            --prefix=${DEPENDS_PATH}
+                            --libdir=${DEPENDS_PATH}/lib
+                            "CC=${CMAKE_C_COMPILER}"
+                            "CFLAGS=${CMAKE_C_FLAGS}"
+                            "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${LIBDVDCSS_FLAGS}")
+      set(BUILD_COMMAND ${MAKE_EXECUTABLE})
+      set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
+      set(BUILD_IN_SOURCE 1)
+    endif()
+
+    BUILD_DEP_TARGET()
+
   else()
-    find_program(AUTORECONF autoreconf REQUIRED)
-    find_program(MAKE_EXECUTABLE make REQUIRED)
+    if(PKG_CONFIG_FOUND)
+      pkg_check_modules(PC_DVDCSS dvdcss QUIET)
+    endif()
 
-    set(CONFIGURE_COMMAND ${AUTORECONF} -vif
-                  COMMAND ac_cv_path_GIT= ./configure
-                          --target=${HOST_ARCH}
-                          --host=${HOST_ARCH}
-                          --disable-doc
-                          --enable-static
-                          --disable-shared
-                          --with-pic
-                          --prefix=${DEPENDS_PATH}
-                          --libdir=${DEPENDS_PATH}/lib
-                          "CC=${CMAKE_C_COMPILER}"
-                          "CFLAGS=${CMAKE_C_FLAGS}"
-                          "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${LIBDVDCSS_FLAGS}")
-    set(BUILD_COMMAND ${MAKE_EXECUTABLE})
-    set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
-    set(BUILD_IN_SOURCE 1)
+    find_path(LIBDVDCSS_INCLUDE_DIR NAMES dvdcss.h
+                                    PATH_SUFFIXES dvdcss
+                                    PATHS ${PC_DVDCSS_INCLUDEDIR})
+    find_library(LIBDVDCSS_LIBRARY NAMES dvdcss libdvdcss
+                                   PATHS ${PC_DVDCSS_LIBDIR})
+
+    set(LIBDVDCSS_VERSION ${PC_DVDCSS_VERSION})
   endif()
-
-  BUILD_DEP_TARGET()
-
 endif()
 
 include(SelectLibraryConfigurations)
