@@ -438,3 +438,8 @@ macro(PATCH_LF_CHECK patch)
   endif()
   unset(patch_content_hex)
 endmacro()
+
+# Property to allow a target to indicate it will be building the lib of the target
+define_property(TARGET PROPERTY LIB_BUILD
+                       BRIEF_DOCS "This target will be compiling the library"
+                       FULL_DOCS "This target will be compiling the library")

@@ -30,10 +30,6 @@ macro(buildFmt)
   BUILD_DEP_TARGET()
 endmacro()
 
-define_property(TARGET PROPERTY LIB_BUILD
-                       BRIEF_DOCS "This target will be compiling the library"
-                       FULL_DOCS "This target will be compiling the library")
-
 set(FORCE_BUILD OFF)
 
 # If target exists, no need to rerun find
