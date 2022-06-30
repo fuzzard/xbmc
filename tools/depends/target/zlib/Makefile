@@ -1,7 +1,7 @@
 include ../../Makefile.include ZLIB-VERSION ../../download-files.include
 DEPS = ../../Makefile.include Makefile ZLIB-VERSION ../../download-files.include \
                                         01-all-disable_tests.patch \
-                                        02-all-static_only.patch
+                                        02-all-cmake-version.patch
 
 # configuration settings
 CMAKE_OPTIONS=-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
@@ -15,7 +15,7 @@ $(PLATFORM): $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE) $(DEPS)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)/build
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 	cd $(PLATFORM); patch -p1 -i ../01-all-disable_tests.patch
-	cd $(PLATFORM); patch -p1 -i ../02-all-static_only.patch
+	cd $(PLATFORM); patch -p1 -i ../02-all-cmake-version.patch
 	cd $(PLATFORM)/build; $(CMAKE) $(CMAKE_OPTIONS) ..
 
 $(LIBDYLIB): $(PLATFORM)

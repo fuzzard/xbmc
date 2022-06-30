@@ -1,0 +1,74 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -188,6 +188,18 @@
+ set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+ set_target_properties(zlib PROPERTIES SOVERSION 1)
+ 
++if(MSVC)
++  set_target_properties(zlib PROPERTIES
++      PDB_NAME zlib
++      PDB_NAME_DEBUG zlibd
++  )
++  set_target_properties(zlibstatic PROPERTIES
++      COMPILE_PDB_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
++      COMPILE_PDB_NAME zlibstatic
++      COMPILE_PDB_NAME_DEBUG zlibstaticd
++  )
++endif()
++
+ if(NOT CYGWIN)
+     # This property causes shared libraries on Linux to have the full version
+     # encoded into their final filename.  We disable this on Cygwin because
+@@ -205,16 +217,44 @@
+    if(NOT APPLE)
+      set_target_properties(zlib PROPERTIES LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
+    endif()
+-elseif(BUILD_SHARED_LIBS AND WIN32)
+-    # Creates zlib1.dll when building shared library version
+-    set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
+ endif()
+ 
+ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+-    install(TARGETS zlib zlibstatic
++    install(TARGETS zlib zlibstatic export zlib
+         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
++
++    if(MSVC)
++        install(FILES $<TARGET_PDB_FILE:zlib>
++                DESTINATION lib
++        )
++        install(FILES ${CMAKE_BINARY_DIR}/RelWithDebInfo/zlibstatic.pdb
++                DESTINATION lib
++                CONFIGURATIONS RelWithDebInfo
++        )
++        install(FILES ${CMAKE_BINARY_DIR}/Debug/zlibstaticd.pdb
++                DESTINATION lib
++                CONFIGURATIONS Debug
++        )
++    endif()
++
++    include(CMakePackageConfigHelpers)
++    write_basic_package_version_file(
++      ${CMAKE_CURRENT_BINARY_DIR}/zlib-config-version.cmake
++      VERSION ${VERSION}
++      COMPATIBILITY AnyNewerVersion
++    )
++
++    install(EXPORT zlib
++            NAMESPACE zlib::
++            DESTINATION lib/cmake/zlib
++    )
++
++    install(FILES cmake/zlib-config.cmake
++                  ${CMAKE_CURRENT_BINARY_DIR}/zlib-config-version.cmake
++            DESTINATION lib/cmake/zlib
++    )
+ endif()
+ if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
+     install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
+--- /dev/null
++++ b/cmake/zlib-config.cmake
+@@ -0,0 +1 @@
++include(${CMAKE_CURRENT_LIST_DIR}/zlib.cmake)
