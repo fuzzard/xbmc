@@ -14,6 +14,7 @@ NATIVE= \
   gettext \
   giflib \
   heimdal \
+  icu \
   JsonSchemaBuilder \
   libjpeg-turbo \
   liblzo2 \

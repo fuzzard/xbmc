@@ -1,0 +1,8 @@
+LIBNAME=icu
+VERSION=71-1
+#ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+ARCHIVE=release-$(VERSION).tar.gz
+#SHA512=
+#BYPRODUCT=
+
+BASE_URL=https://github.com/unicode-org/icu/archive/refs/tags
