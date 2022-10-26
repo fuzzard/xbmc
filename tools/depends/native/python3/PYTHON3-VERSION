@@ -4,3 +4,5 @@ SOURCE=$(LIBNAME)-$(VERSION)
 #ARCHIVE=$(SOURCE).tar.xz
 ARCHIVE=v$(VERSION).tar.gz
 SHA512=c82c18adf5c13861bc1254a88cb640629e5ab59b8aa20228a5e7f7b887bf3cea2de112755267682283f03649994a5b8e0036654de52a49c4c7d07aa86cc19979
+
+BASE_URL=https://github.com/python/cpython/archive/refs/tags
