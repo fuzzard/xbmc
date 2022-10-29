@@ -20,7 +20,29 @@
          return CDLL(name)
  
      def get_c_string(c_string):
-@@ -303,7 +306,7 @@
+@@ -227,17 +230,11 @@
+             _fields_.insert(-1, ('smalltable', _c_ssize_t * 2))
+ 
+     def c_uint8_ptr(data):
+-        if byte_string(data) or isinstance(data, _Array):
++        if byte_string(data) or isinstance(data, Array):
+             return data
+-        elif isinstance(data, _buffer_type):
+-            obj = _py_object(data)
+-            buf = _Py_buffer()
+-            _PyObject_GetBuffer(obj, byref(buf), _PyBUF_SIMPLE)
+-            try:
+-                buffer_type = ctypes.c_ubyte * buf.len
+-                return buffer_type.from_address(buf.buf)
+-            finally:
+-                _PyBuffer_Release(byref(buf))
++        elif isinstance(data, bytearray):
++            local_type = c_ubyte * len(data)
++            return local_type.from_buffer(data)
+         else:
+             raise TypeError("Object type %s cannot be passed to C code" % type(data))
+ 
+@@ -303,7 +300,7 @@
              if not os.path.isfile(full_name):
                  attempts.append("Not found '%s'" % filename)
                  continue
