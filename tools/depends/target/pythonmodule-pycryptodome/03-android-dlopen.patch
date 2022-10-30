@@ -20,12 +20,19 @@
          return CDLL(name)
  
      def get_c_string(c_string):
-@@ -297,7 +300,7 @@
-             if not os.path.isfile(full_name):
-                 attempts.append("Not found '%s'" % filename)
-                 continue
+     attempts = []
+     for ext in extension_suffixes:
+         try:
+-            filename = basename + ext
+-            full_name = pycryptodome_filename(dir_comps, filename)
+-            if not os.path.isfile(full_name):
+-                attempts.append("Not found '%s'" % filename)
+-                continue
 -            return load_lib(full_name, cdecl)
 +            return load_lib("lib" + name.replace(".", "_") + ".so", cdecl)
          except OSError as exp:
-             attempts.append("Cannot load '%s': %s" % (filename, str(exp)))
+-            attempts.append("Cannot load '%s': %s" % (filename, str(exp)))
++            attempts.append("Cannot load '%s': %s" % ("lib" + name.replace(".", "_") + ".so", str(exp)))
      raise OSError("Cannot load native module '%s': %s" % (name, ", ".join(attempts)))
+ 
+ 
