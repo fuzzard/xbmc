@@ -11,12 +11,9 @@
      _py_object = ctypes.py_object
      _c_ssize_p = ctypes.POINTER(_c_ssize_t)
  
-@@ -227,17 +230,11 @@
-             _fields_.insert(-1, ('smalltable', _c_ssize_t * 2))
- 
+@@ -229,15 +230,9 @@
      def c_uint8_ptr(data):
--        if byte_string(data) or isinstance(data, _Array):
-+        if byte_string(data) or isinstance(data, Array):
+         if byte_string(data) or isinstance(data, _Array):
              return data
 -        elif isinstance(data, _buffer_type):
 -            obj = _py_object(data)
