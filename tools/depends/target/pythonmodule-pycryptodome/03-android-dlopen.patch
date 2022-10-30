@@ -41,7 +41,7 @@
 +    try:
 +        return load_lib("lib" + name.replace(".", "_") + ".so", cdecl)
 +    except OSError as exp:
-+        raise OSError("Cannot load '%s': %s" % ("lib" + name.replace(".", "_") + ".so")
++        raise OSError("Cannot load '%s': %s" % ("lib" + name.replace(".", "_") + ".so"))
  
  
  def is_buffer(x):
