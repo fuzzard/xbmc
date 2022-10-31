@@ -75,6 +75,8 @@ dependent_option(ENABLE_INTERNAL_PCRE "Enable internal pcre?")
 dependent_option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?")
 dependent_option(ENABLE_INTERNAL_TAGLIB "Enable internal taglib?")
 
+dependent_option(ENABLE_INTERNAL_PYTHON "Enable internal Python?")
+
 # Internal Depends - supported on UNIX platforms
 if(UNIX)
   option(FFMPEG_PATH        "Path to external ffmpeg?" "")

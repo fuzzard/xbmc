@@ -41,14 +41,15 @@ DEPENDS = \
   nghttp2 \
   openssl \
   p8-platform \
-  python3 \
-  pythonmodule-pil \
-  pythonmodule-pycryptodome \
-  pythonmodule-setuptools \
   sqlite3 \
   tinyxml \
   udfread \
   xz
+
+#  python3 \
+#  pythonmodule-pil \
+#  pythonmodule-pycryptodome \
+#  pythonmodule-setuptools \
 
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3
