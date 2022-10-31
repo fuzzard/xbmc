@@ -89,6 +89,8 @@ if(KODI_DEPENDSBUILD OR WIN32 OR WINDOWS_STORE)
   dependent_option(ENABLE_INTERNAL_TINYXML2 "Enable internal TinyXML2?")
 endif()
 
+dependent_option(ENABLE_INTERNAL_PYTHON "Enable internal Python?")
+
 # Internal Depends - supported on UNIX platforms
 if(UNIX)
   option(FFMPEG_PATH        "Path to external ffmpeg?" "")
