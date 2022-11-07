@@ -131,6 +131,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED QUIET)
 list(APPEND DEPLIBS ${CMAKE_THREAD_LIBS_INIT})
 
+file(REMOVE ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
 
 foreach(depspec ${PLATFORM_REQUIRED_DEPS})
   # We need to specify ENABLE_${PLATFORM_REQUIRED_DEPS} in order for the
