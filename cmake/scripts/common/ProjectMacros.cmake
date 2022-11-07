@@ -1,50 +1,5 @@
 # This script holds macros which are project specific
 
-# Pack a skin xbt file
-# Arguments:
-#   input  input directory to pack
-#   output output xbt file
-# On return:
-#   xbt is added to ${XBT_FILES}
-function(pack_xbt input output)
-  file(GLOB_RECURSE MEDIA_FILES ${input}/*)
-  get_filename_component(dir ${output} DIRECTORY)
-  add_custom_command(OUTPUT  ${output}
-                     COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}
-                     COMMAND TexturePacker::TexturePacker::Executable
-                     ARGS    -input ${input}
-                             -output ${output}
-                             -dupecheck
-                     DEPENDS ${MEDIA_FILES})
-  list(APPEND XBT_FILES ${output})
-  set(XBT_FILES ${XBT_FILES} PARENT_SCOPE)
-endfunction()
-
-# Add a skin to installation list, mirroring it in build tree, packing textures
-# Arguments:
-#   skin     skin directory
-# On return:
-#   xbt is added to ${XBT_FILES}, data added to ${install_data}, mirror in build tree
-function(copy_skin_to_buildtree skin)
-  file(GLOB_RECURSE FILES ${skin}/*)
-  file(GLOB_RECURSE MEDIA_FILES ${skin}/media/*)
-  list(REMOVE_ITEM FILES ${MEDIA_FILES})
-  foreach(file ${FILES})
-    copy_file_to_buildtree(${file})
-  endforeach()
-  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${dest}/media)
-  string(REPLACE "${CMAKE_SOURCE_DIR}/" "" dest ${skin})
-  pack_xbt(${skin}/media ${CMAKE_BINARY_DIR}/${dest}/media/Textures.xbt)
-
-  file(GLOB THEMES RELATIVE ${skin}/themes ${skin}/themes/*)
-  foreach(theme ${THEMES})
-    pack_xbt(${skin}/themes/${theme} ${CMAKE_BINARY_DIR}/${dest}/media/${theme}.xbt)
-  endforeach()
-
-  set(XBT_FILES ${XBT_FILES} PARENT_SCOPE)
-  set(install_data ${install_data} PARENT_SCOPE)
-endfunction()
-
 # Get GTest tests as CMake tests.
 # Copied from FindGTest.cmake
 # Thanks to Daniel Blezek <blezek@gmail.com> for the GTEST_ADD_TESTS code

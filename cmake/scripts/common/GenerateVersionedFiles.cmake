@@ -21,10 +21,15 @@ foreach(loop_var ${ADDON_XML_IN_FILE})
   list(GET loop_var 0 xml_name)
 
   string(REPLACE "/addon.xml.in" "" source_dir ${xml_name})
-  string(REPLACE ${CORE_SOURCE_DIR} ${CMAKE_BINARY_DIR} dest_dir ${source_dir})
-  file(MAKE_DIRECTORY ${dest_dir})
-
-  configure_file(${source_dir}/addon.xml.in ${dest_dir}/addon.xml @ONLY)
+  string(REPLACE ${CORE_SOURCE_DIR} "" dest_dir ${source_dir})
+  if(${CORE_SYSTEM_NAME} MATCHES "windows")
+    file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "file(MAKE_DIRECTORY \${BUNDLEDIR}${dest_dir})
+configure_file(${source_dir}/addon.xml.in \${BUNDLEDIR}${dest_dir}/addon.xml @ONLY)\n")
+  else()
+    file(MAKE_DIRECTORY ${dest_dir})
+    configure_file(${source_dir}/addon.xml.in ${dest_dir}/addon.xml @ONLY)
+  endif()
 
   unset(source_dir)
   unset(dest_dir)

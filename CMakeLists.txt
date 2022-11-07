@@ -270,9 +270,10 @@ add_custom_command(OUTPUT ${CORE_BUILD_DIR}/xbmc/CompileInfo.cpp
                                             -DKODI_WEBSERVER_EXTRA_WHITELIST="${KODI_WEBSERVER_EXTRA_WHITELIST}"
                                             -P ${CMAKE_SOURCE_DIR}/cmake/scripts/common/GenerateVersionedFiles.cmake
                    DEPENDS ${CMAKE_SOURCE_DIR}/version.txt
-                           export-files
+                           $<TARGET_EXISTS:export-files>
                            ${ADDON_XML_DEPENDS}
                            ${CMAKE_SOURCE_DIR}/xbmc/CompileInfo.cpp.in)
+
 list(APPEND install_data ${ADDON_INSTALL_DATA})
 add_library(compileinfo OBJECT ${CORE_BUILD_DIR}/xbmc/CompileInfo.cpp)
 set_target_properties(compileinfo PROPERTIES FOLDER "Build Utilities")
@@ -305,24 +306,6 @@ set(test_sources "" CACHE STRING "" FORCE)
 mark_as_advanced(core_DEPENDS)
 mark_as_advanced(test_archives)
 mark_as_advanced(test_sources)
-
-# copy files to build tree
-copy_files_from_filelist_to_buildtree(${CMAKE_SOURCE_DIR}/cmake/installdata/common/*.txt
-                                      ${CMAKE_SOURCE_DIR}/cmake/installdata/${CORE_SYSTEM_NAME}/*.txt)
-
-list(APPEND SKINS "${CMAKE_SOURCE_DIR}/addons/skin.estuary\;${CMAKE_SOURCE_DIR}")
-list(APPEND SKINS "${CMAKE_SOURCE_DIR}/addons/skin.estouchy\;${CMAKE_SOURCE_DIR}")
-
-# These are skins that are copied into place from the source tree
-foreach(skin ${SKINS})
-  list(GET skin 0 dir)
-  list(GET skin 1 relative)
-  copy_skin_to_buildtree(${dir} ${relative})
-endforeach()
-
-add_custom_target(pack-skins ALL
-                  DEPENDS TexturePacker::TexturePacker::Executable export-files ${XBT_FILES})
-set_target_properties(pack-skins PROPERTIES FOLDER "Build Utilities")
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/system/players/VideoPlayer)
 
@@ -390,7 +373,10 @@ else()
   # Related to https://stackoverflow.com/questions/46307266/including-objects-to-a-shared-library-from-a-c-archive-a
   set_target_properties(${APP_NAME_LC} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
 endif()
-add_dependencies(${APP_NAME_LC} ${APP_NAME_LC}-libraries export-files pack-skins)
+add_dependencies(${APP_NAME_LC} ${APP_NAME_LC}-libraries pack-skins)
+if(TARGET export-files)
+  add_dependencies(${APP_NAME_LC} export-files)
+endif()
 whole_archive(_MAIN_LIBRARIES ${FSTRCMP_LIBRARY} ${core_DEPENDS})
 target_link_libraries(${APP_NAME_LC} ${_MAIN_LIBRARIES} lib${APP_NAME_LC} ${DEPLIBS})
 unset(_MAIN_LIBRARIES)
@@ -487,6 +473,26 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/cmake/scripts/${CORE_SYSTEM_NAME}/ExtraTargets.cma
 endif()
 
 include(cmake/scripts/${CORE_SYSTEM_NAME}/Install.cmake)
+
+# copy files to build tree
+# ToDo: we cant use this for multiconfig generators (VS/Xcode) as the bundled files go
+# into a different file to the app target executable. check Xcode
+copy_files_from_filelist_to_buildtree(${CMAKE_SOURCE_DIR}/cmake/installdata/common/*.txt
+                                      ${CMAKE_SOURCE_DIR}/cmake/installdata/${CORE_SYSTEM_NAME}/*.txt)
+
+list(APPEND SKINS "${CMAKE_SOURCE_DIR}/addons/skin.estuary\;${CMAKE_SOURCE_DIR}")
+list(APPEND SKINS "${CMAKE_SOURCE_DIR}/addons/skin.estouchy\;${CMAKE_SOURCE_DIR}")
+
+# These are skins that are copied into place from the source tree
+foreach(skin ${SKINS})
+  list(GET skin 0 dir)
+  list(GET skin 1 relative)
+  copy_skin_to_buildtree(${dir} ${relative})
+endforeach()
+
+add_custom_target(pack-skins ALL
+                  DEPENDS TexturePacker::TexturePacker::Executable export-files ${XBT_FILES})
+set_target_properties(pack-skins PROPERTIES FOLDER "Build Utilities")
 
 # Add uninstall target
 if(CMAKE_GENERATOR MATCHES Makefile)

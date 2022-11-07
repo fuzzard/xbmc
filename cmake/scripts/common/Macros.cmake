@@ -204,6 +204,14 @@ endfunction()
 #   Files is mirrored to the build tree and added to ${install_data}
 #   (if NO_INSTALL is not given).
 function(copy_file_to_buildtree file)
+  # Exclude autotools build artefacts and other blacklisted files in source tree.
+  if(file MATCHES "(Makefile|\\.in|\\.xbt|\\.so|\\.dylib|\\.gitignore)$")
+    if(VERBOSE)
+      message(STATUS "copy_file_to_buildtree - ignoring file: ${file}")
+    endif()
+    return()
+  endif()
+
   cmake_parse_arguments(arg "NO_INSTALL" "DIRECTORY;KEEP_DIR_STRUCTURE" "" ${ARGN})
   if(arg_DIRECTORY)
     set(outdir ${arg_DIRECTORY})
@@ -222,41 +230,38 @@ function(copy_file_to_buildtree file)
     get_filename_component(outdir ${outfile} DIRECTORY)
   endif()
 
-  if(NOT TARGET export-files)
-    file(REMOVE ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
-    add_custom_target(export-files ALL COMMENT "Copying files into build tree"
-                      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
-    set_target_properties(export-files PROPERTIES FOLDER "Build Utilities")
-    file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake "# Export files to build tree\n")
-  endif()
-
-  # Exclude autotools build artefacts and other blacklisted files in source tree.
-  if(file MATCHES "(Makefile|\\.in|\\.xbt|\\.so|\\.dylib|\\.gitignore)$")
-    if(VERBOSE)
-      message(STATUS "copy_file_to_buildtree - ignoring file: ${file}")
+  if(${CORE_SYSTEM_NAME} MATCHES "windows")
+    file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "file(COPY \"${file}\" DESTINATION \"\$\{BUNDLEDIR\}/${outdir}\")\n" )
+  else()
+    if(NOT TARGET export-files)
+      file(REMOVE ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
+      add_custom_target(export-files ALL COMMENT "Copying files into build tree"
+                        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
+      set_target_properties(export-files PROPERTIES FOLDER "Build Utilities")
+      file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake "# Export files to build tree\n")
     endif()
-    return()
-  endif()
 
-  if(NOT file STREQUAL ${CMAKE_BINARY_DIR}/${outfile})
-    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows" OR NOT IS_SYMLINK "${file}")
-      if(VERBOSE)
-        message(STATUS "copy_file_to_buildtree - copying file: ${file} -> ${CMAKE_BINARY_DIR}/${outfile}")
+    if(NOT file STREQUAL ${CMAKE_BINARY_DIR}/${outfile})
+      if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows" OR NOT IS_SYMLINK "${file}")
+        if(VERBOSE)
+          message(STATUS "copy_file_to_buildtree - copying file: ${file} -> ${CMAKE_BINARY_DIR}/${outfile}")
+        endif()
+        file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "file(COPY \"${file}\" DESTINATION \"${CMAKE_BINARY_DIR}/${outdir}\")\n" )
+      else()
+        if(VERBOSE)
+          message(STATUS "copy_file_to_buildtree - copying symlinked file: ${file} -> ${CMAKE_BINARY_DIR}/${outfile}")
+        endif()
+        file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different \"${file}\" \"${CMAKE_BINARY_DIR}/${outfile}\")\n")
       endif()
-      file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
-           "file(COPY \"${file}\" DESTINATION \"${CMAKE_BINARY_DIR}/${outdir}\")\n" )
-    else()
-      if(VERBOSE)
-        message(STATUS "copy_file_to_buildtree - copying symlinked file: ${file} -> ${CMAKE_BINARY_DIR}/${outfile}")
-      endif()
-      file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
-           "execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different \"${file}\" \"${CMAKE_BINARY_DIR}/${outfile}\")\n")
     endif()
-  endif()
 
-  if(NOT arg_NO_INSTALL)
-    list(APPEND install_data ${outfile})
-    set(install_data ${install_data} PARENT_SCOPE)
+    if(NOT arg_NO_INSTALL)
+      list(APPEND install_data ${outfile})
+      set(install_data ${install_data} PARENT_SCOPE)
+    endif()
   endif()
 endfunction()
 
@@ -324,6 +329,51 @@ function(copy_files_from_filelist_to_buildtree pattern)
       endforeach()
     endforeach()
   endforeach()
+  set(install_data ${install_data} PARENT_SCOPE)
+endfunction()
+
+# Pack a skin xbt file
+# Arguments:
+#   input  input directory to pack
+#   output output xbt file
+# On return:
+#   xbt is added to ${XBT_FILES}
+function(pack_xbt input output)
+  file(GLOB_RECURSE MEDIA_FILES ${input}/*)
+  get_filename_component(dir ${output} DIRECTORY)
+  add_custom_command(OUTPUT  ${output}
+                     COMMAND ${CMAKE_COMMAND} -E make_directory ${dir}
+                     COMMAND TexturePacker::TexturePacker::Executable
+                     ARGS    -input ${input}
+                             -output ${output}
+                             -dupecheck
+                     DEPENDS ${MEDIA_FILES})
+  list(APPEND XBT_FILES ${output})
+  set(XBT_FILES ${XBT_FILES} PARENT_SCOPE)
+endfunction()
+
+# Add a skin to installation list, mirroring it in build tree, packing textures
+# Arguments:
+#   skin     skin directory
+# On return:
+#   xbt is added to ${XBT_FILES}, data added to ${install_data}, mirror in build tree
+function(copy_skin_to_buildtree skin)
+  file(GLOB_RECURSE FILES ${skin}/*)
+  file(GLOB_RECURSE MEDIA_FILES ${skin}/media/*)
+  list(REMOVE_ITEM FILES ${MEDIA_FILES})
+  foreach(file ${FILES})
+    copy_file_to_buildtree(${file})
+  endforeach()
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${dest}/media)
+  string(REPLACE "${CMAKE_SOURCE_DIR}/" "" dest ${skin})
+  pack_xbt(${skin}/media ${CMAKE_BINARY_DIR}/${dest}/media/Textures.xbt)
+
+  file(GLOB THEMES RELATIVE ${skin}/themes ${skin}/themes/*)
+  foreach(theme ${THEMES})
+    pack_xbt(${skin}/themes/${theme} ${CMAKE_BINARY_DIR}/${dest}/media/${theme}.xbt)
+  endforeach()
+
+  set(XBT_FILES ${XBT_FILES} PARENT_SCOPE)
   set(install_data ${install_data} PARENT_SCOPE)
 endfunction()
 
