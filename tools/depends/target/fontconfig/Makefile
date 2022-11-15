@@ -17,6 +17,10 @@ CONFIGURE = $(NATIVEPREFIX)/bin/python3 $(NATIVEPREFIX)/bin/meson \
                 -Dtools=disabled \
                 -Ddefault_library=static
 
+ifeq ($(OS),android)
+  CONFIGURE += -Dc_link_args='-stdlib=libc++'
+endif
+
 ifeq ($(CROSS_COMPILING), yes)
   CONFIGURE += -Dcache-build=disabled \
                --cross-file $(PREFIX)/share/cross-file.meson
