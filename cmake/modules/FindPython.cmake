@@ -78,6 +78,17 @@ endif()
 
 if(KODI_DEPENDSBUILD OR ENABLE_INTERNAL_PYTHON)
 
+  # Todo: Windows wont find in nativeprefix. will use VS installed python
+  # alternatively, nuget installed python? post build?
+  # use VALIDATOR function to test functionality?
+  find_program (Python3_EXECUTABLE
+                NAMES python3
+                HINTS ${NATIVEPREFIX}/bin
+                NO_CMAKE_PATH
+                NO_CMAKE_ENVIRONMENT_PATH
+                NO_SYSTEM_ENVIRONMENT_PATH
+                NO_CMAKE_SYSTEM_PATH)
+
   if(WIN32 OR WINDOWS_STORE)
     # ToDo: add zlib to dep link list
     # Windows is built as a dll, only require linking to zlib
@@ -282,6 +293,10 @@ if(Python3_FOUND)
 
   if(TARGET python3)
     add_dependencies(Python3::Python python3)
+
+    # If we are building internal, make sure we build binary python modules
+    find_package(PythonModule-PyCryptodome)
+    find_package(PythonModule-Pillow)
   endif()
   set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP Python3::Python)
 endif()
