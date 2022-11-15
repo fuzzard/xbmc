@@ -46,11 +46,6 @@ DEPENDS = \
   udfread \
   xz
 
-#  python3 \
-#  pythonmodule-pil \
-#  pythonmodule-pycryptodome \
-#  pythonmodule-setuptools \
-
 ifeq ($(ENABLE_GPLV3),yes)
   DEPENDS+=samba-gplv3 libcdio-gplv3
 else
@@ -77,8 +72,7 @@ endif
 
 ifeq ($(OS),android)
   EXCLUDED_DEPENDS = libcec libusb gtest
-  DEPENDS += dummy-libxbmc libuuid
-  PYMODULE_DEPS = dummy-libxbmc
+  DEPENDS += libuuid
   LIBUUID = libuuid
 endif
 
@@ -155,10 +149,6 @@ mariadb: openssl $(ICONV) $(ZLIB)
 mesa: libdrm meson-cross-file $(MESA_DEPS)
 nettle: gmp
 openssl: $(ZLIB)
-python3: expat gettext libxml2 sqlite3 openssl libffi bzip2 xz $(ICONV)
-pythonmodule-pil: bzip2 $(PYMODULE_DEPS) $(ZLIB) libjpeg-turbo libpng freetype2 python3 pythonmodule-setuptools
-pythonmodule-pycryptodome: $(PYMODULE_DEPS) python3 pythonmodule-setuptools
-pythonmodule-setuptools: $(PYMODULE_DEPS) python3
 samba-gplv3: gnutls $(ZLIB)
 taglib: $(ZLIB)
 wayland: expat libffi
