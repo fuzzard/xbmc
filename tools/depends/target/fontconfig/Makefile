@@ -18,7 +18,8 @@ CONFIGURE = $(NATIVEPREFIX)/bin/python3 $(NATIVEPREFIX)/bin/meson \
                 -Ddefault_library=static
 
 ifeq ($(OS),android)
-  CONFIGURE += -Dc_link_args='-stdlib=libstdc++'
+  CONFIGURE += -Dc_link_args='-stdlib=libc++'
+  CONFIGURE += -Dcpp_link_args='-stdlib=libc++'
 endif
 
 ifeq ($(CROSS_COMPILING), yes)
