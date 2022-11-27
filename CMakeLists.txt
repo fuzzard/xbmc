@@ -307,10 +307,6 @@ mark_as_advanced(core_DEPENDS)
 mark_as_advanced(test_archives)
 mark_as_advanced(test_sources)
 
-# copy files to build tree
-copy_files_from_filelist_to_buildtree(${CMAKE_SOURCE_DIR}/cmake/installdata/common/*.txt
-                                      ${CMAKE_SOURCE_DIR}/cmake/installdata/${CORE_SYSTEM_NAME}/*.txt)
-
 list(APPEND SKINS "${CMAKE_SOURCE_DIR}/addons/skin.estuary\;${CMAKE_SOURCE_DIR}")
 list(APPEND SKINS "${CMAKE_SOURCE_DIR}/addons/skin.estouchy\;${CMAKE_SOURCE_DIR}")
 
@@ -318,6 +314,10 @@ if(${CORE_SYSTEM_NAME} MATCHES "windows")
   file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
        "file(MAKE_DIRECTORY \$\{BUNDLEDIR\}/system/players/VideoPlayer)\n")
 else()
+  # copy files to build tree
+  copy_files_from_filelist_to_buildtree(${CMAKE_SOURCE_DIR}/cmake/installdata/common/*.txt
+                                        ${CMAKE_SOURCE_DIR}/cmake/installdata/${CORE_SYSTEM_NAME}/*.txt)
+
   file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/system/players/VideoPlayer)
 endif()
 
@@ -422,6 +422,19 @@ if(${CORE_SYSTEM_NAME} MATCHES "windows")
                      COMMAND ${CMAKE_COMMAND} -DBUNDLEDIR=$<TARGET_FILE_DIR:${APP_NAME_LC}>
                                               -DTEXTUREPACKER_EXECUTABLE=$<TARGET_FILE:TexturePacker::TexturePacker::Executable>
                                               -P ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/GeneratedPackSkins.cmake
+                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+  # copy files to build tree
+  add_custom_command(TARGET ${APP_NAME_LC}
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -DCORE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+                                              -DCMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+                                              -DCORE_SYSTEM_NAME=${CORE_SYSTEM_NAME}
+                                              -DCORE_PLATFORM_NAME_LC=${CORE_PLATFORM_NAME_LC}
+                                              -DCORE_BUILD_DIR=${CORE_BUILD_DIR}
+                                              -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
+                                              -DBUNDLEDIR=$<TARGET_FILE_DIR:${APP_NAME_LC}>
+                                              -P ${CMAKE_SOURCE_DIR}/cmake/scripts/common/PopulateBuildtree.cmake
                      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 else()
 
