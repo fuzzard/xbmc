@@ -212,6 +212,10 @@ function(copy_file_to_buildtree file)
     return()
   endif()
 
+  if(NOT DEFINED CORE_BINARY_DIR)
+    set(CORE_BINARY_DIR ${CMAKE_BINARY_DIR})
+  endif()
+
   cmake_parse_arguments(arg "NO_INSTALL" "DIRECTORY;KEEP_DIR_STRUCTURE" "" ${ARGN})
   if(arg_DIRECTORY)
     set(outdir ${arg_DIRECTORY})
@@ -231,30 +235,30 @@ function(copy_file_to_buildtree file)
   endif()
 
   if(${CORE_SYSTEM_NAME} MATCHES "windows")
-    file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
-             "file(COPY \"${file}\" DESTINATION \"\$\{BUNDLEDIR\}/${outdir}\")\n" )
+    file(APPEND ${CORE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "file(COPY \"${file}\" DESTINATION \"\${BUNDLEDIR}/${outdir}\")\n" )
   else()
     if(NOT TARGET export-files)
-      file(REMOVE ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
+      file(REMOVE ${CORE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
       add_custom_target(export-files ALL COMMENT "Copying files into build tree"
-                        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
+                        COMMAND ${CMAKE_COMMAND} -P ${CORE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake)
       set_target_properties(export-files PROPERTIES FOLDER "Build Utilities")
-      file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake "# Export files to build tree\n")
+      file(APPEND ${CORE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake "# Export files to build tree\n")
     endif()
 
-    if(NOT file STREQUAL ${CMAKE_BINARY_DIR}/${outfile})
+    if(NOT file STREQUAL ${CORE_BINARY_DIR}/${outfile})
       if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows" OR NOT IS_SYMLINK "${file}")
         if(VERBOSE)
-          message(STATUS "copy_file_to_buildtree - copying file: ${file} -> ${CMAKE_BINARY_DIR}/${outfile}")
+          message(STATUS "copy_file_to_buildtree - copying file: ${file} -> ${CORE_BINARY_DIR}/${outfile}")
         endif()
-        file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
-             "file(COPY \"${file}\" DESTINATION \"${CMAKE_BINARY_DIR}/${outdir}\")\n" )
+        file(APPEND ${CORE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "file(COPY \"${file}\" DESTINATION \"${CORE_BINARY_DIR}/${outdir}\")\n" )
       else()
         if(VERBOSE)
-          message(STATUS "copy_file_to_buildtree - copying symlinked file: ${file} -> ${CMAKE_BINARY_DIR}/${outfile}")
+          message(STATUS "copy_file_to_buildtree - copying symlinked file: ${file} -> ${CORE_BINARY_DIR}/${outfile}")
         endif()
-        file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
-             "execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different \"${file}\" \"${CMAKE_BINARY_DIR}/${outfile}\")\n")
+        file(APPEND ${CORE_BINARY_DIR}/${CORE_BUILD_DIR}/ExportFiles.cmake
+             "execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E copy_if_different \"${file}\" \"${CORE_BINARY_DIR}/${outfile}\")\n")
       endif()
     endif()
 

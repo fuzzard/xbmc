@@ -423,19 +423,6 @@ if(${CORE_SYSTEM_NAME} MATCHES "windows")
                                               -DTEXTUREPACKER_EXECUTABLE=$<TARGET_FILE:TexturePacker::TexturePacker::Executable>
                                               -P ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/GeneratedPackSkins.cmake
                      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
-  # copy files to build tree
-  add_custom_command(TARGET ${APP_NAME_LC}
-                     POST_BUILD
-                     COMMAND ${CMAKE_COMMAND} -DCORE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-                                              -DCMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-                                              -DCORE_SYSTEM_NAME=${CORE_SYSTEM_NAME}
-                                              -DCORE_PLATFORM_NAME_LC=${CORE_PLATFORM_NAME_LC}
-                                              -DCORE_BUILD_DIR=${CORE_BUILD_DIR}
-                                              -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
-                                              -DBUNDLEDIR=$<TARGET_FILE_DIR:${APP_NAME_LC}>
-                                              -P ${CMAKE_SOURCE_DIR}/cmake/scripts/common/PopulateBuildtree.cmake
-                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 else()
 
   # Generate system addons
