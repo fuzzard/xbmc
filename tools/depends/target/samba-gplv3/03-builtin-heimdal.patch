@@ -11,8 +11,8 @@
                           'tests/ldb_key_value_sub_txn_test.c',
                           cflags='-DTEST_BE=\"tdb\"',
                           deps='cmocka ldb ldb_tdb_err_map',
---- a/source4/heimdal_build/wscript_build
-+++ b/source4/heimdal_build/wscript_build
+--- a/third_party/heimdal_build/wscript_build
++++ b/third_party/heimdal_build/wscript_build
 @@ -5,6 +5,7 @@
  from samba_utils import SET_TARGET_TYPE
  from samba_autoconf import CURRENT_CFLAGS
@@ -21,25 +21,15 @@
  
  def heimdal_path(p, absolute=False):
      hpath = os.path.join("../heimdal", p)
-@@ -215,7 +216,10 @@
- def HEIMDAL_LIBRARY(libname, source, deps, vnum, version_script, includes='', cflags=[]):
-     '''define a Heimdal library'''
+@@ -272,7 +273,10 @@
+                                                         extra_cflags=cflags)
+     source = heimdal_paths(source)
  
--    obj_target = libname + '.objlist'
-+    if BUILTIN_LIBRARY(bld, libname):
-+        obj_target = libname
+-    obj_target = binname + '.heimdal.objlist'
++    if BUILTIN_LIBRARY(bld, binname):
++        obj_target = binname
 +    else:
-+        obj_target = libname + '.objlist'
++        obj_target = binname + '.objlist'
  
-     # first create a target for building the object files for this library
-     # by separating in this way, we avoid recompiling the C files
-@@ -227,6 +231,9 @@
-                         cflags         = cflags,
-                         group          = 'main')
- 
-+    if BUILTIN_LIBRARY(bld, libname):
-+        return
-+
-     if not SET_TARGET_TYPE(bld, libname, "LIBRARY"):
-         return
- 
+     HEIMDAL_SUBSYSTEM(obj_target,
+                       source         = source,
