@@ -18,7 +18,7 @@
          bld.INSTALL_FILES(dest, target, flat=True, destname=base)
 --- a/buildtools/wafsamba/wafsamba.py
 +++ b/buildtools/wafsamba/wafsamba.py
-@@ -241,7 +241,7 @@
+@@ -311,7 +311,7 @@
      if bld.env['ENABLE_RELRO'] is True:
          ldflags.extend(TO_LIST('-Wl,-z,relro,-z,now'))
  
@@ -37,9 +37,9 @@
 +Requires.private: @REQUIRES_PRIVATE@
  Cflags: -I${includedir}
  URL: http://www.samba.org/
---- a/source4/heimdal/lib/hcrypto/camellia-ntt.h
-+++ b/source4/heimdal/lib/hcrypto/camellia-ntt.h
-@@ -35,6 +35,10 @@
+--- a/third_party/heimdal/lib/hcrypto/camellia-ntt.h
++++ b/third_party/heimdal/lib/hcrypto/camellia-ntt.h
+@@ -40,6 +40,10 @@
  
  typedef u32 KEY_TABLE_TYPE[CAMELLIA_TABLE_WORD_LEN];
  

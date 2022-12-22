@@ -11,7 +11,7 @@
  		}
 --- a/lib/util/fault.c
 +++ b/lib/util/fault.c
-@@ -150,7 +150,7 @@
+@@ -151,7 +151,7 @@
  			}
  
  			DEBUG(0, ("smb_panic(): calling panic action [%s]\n", cmdstring));
@@ -81,26 +81,17 @@
  	if (res == -1) {
  		int err = errno;
  		close(fds[0]);
---- a/source3/lib/server_prefork.c
-+++ b/source3/lib/server_prefork.c
-@@ -109,7 +109,7 @@
- 		pfp->pool[i].allowed_clients = 1;
- 		pfp->pool[i].started = now;
+--- a/source3/lib/tdb_validate.c
++++ b/source3/lib/tdb_validate.c
+@@ -116,7 +116,7 @@
+ 	 * just let the child panic. we catch the signal. */
  
--		pid = fork();
-+		pid = -1;
- 		switch (pid) {
- 		case -1:
- 			DEBUG(1, ("Failed to prefork child n. %d !\n", i));
-@@ -199,7 +199,7 @@
- 		pfp->pool[i].allowed_clients = 1;
- 		pfp->pool[i].started = now;
- 
--		pid = fork();
-+		pid = -1;
- 		switch (pid) {
- 		case -1:
- 			DEBUG(1, ("Failed to prefork child n. %d !\n", j));
+ 	DEBUG(10, ("tdb_validate: forking to let child do validation.\n"));
+-	child_pid = fork();
++	child_pid = -1;
+ 	if (child_pid == 0) {
+ 		/* child code */
+ 		DEBUG(10, ("tdb_validate (validation child): created\n"));
 --- a/source3/lib/smbrun.c
 +++ b/source3/lib/smbrun.c
 @@ -98,7 +98,7 @@
@@ -148,7 +139,7 @@
  	return 1;
 --- a/source3/lib/util.c
 +++ b/source3/lib/util.c
-@@ -695,7 +695,7 @@
+@@ -704,7 +704,7 @@
  	cmd = lp_panic_action(talloc_tos(), lp_sub);
  	if (cmd && *cmd) {
  		DEBUG(0, ("smb_panic(): calling panic action [%s]\n", cmd));
@@ -157,18 +148,18 @@
  
  		if (result == -1)
  			DEBUG(0, ("smb_panic(): fork failed in panic action: %s\n",
---- a/source4/heimdal/lib/roken/simple_exec.c
-+++ b/source4/heimdal/lib/roken/simple_exec.c
-@@ -155,7 +155,7 @@
- 	pipe(out_fd);
-     if(stderr_fd != NULL)
- 	pipe(err_fd);
+--- a/third_party/heimdal/lib/roken/simple_exec.c
++++ b/third_party/heimdal/lib/roken/simple_exec.c
+@@ -169,7 +169,7 @@
+ 	return SE_E_UNSPECIFIED;
+     }
+ 
 -    pid = fork();
 +    pid = -1;
      switch(pid) {
      case 0:
  	va_start(ap, file);
-@@ -196,7 +196,6 @@
+@@ -210,7 +210,6 @@
  
  	closefrom(3);
  
@@ -176,7 +167,7 @@
  	exit((errno == ENOENT) ? EX_NOTFOUND : EX_NOEXEC);
      case -1:
  	if(stdin_fd != NULL) {
-@@ -233,12 +232,11 @@
+@@ -247,12 +246,11 @@
  simple_execvp_timed(const char *file, char *const args[],
  		    time_t (*func)(void *), void *ptr, time_t timeout)
  {
@@ -190,7 +181,7 @@
  	exit((errno == ENOENT) ? EX_NOTFOUND : EX_NOEXEC);
      default:
  	return wait_for_process_timed(pid, func, ptr, timeout);
-@@ -256,12 +254,11 @@
+@@ -270,12 +268,11 @@
  simple_execve_timed(const char *file, char *const args[], char *const envp[],
  		    time_t (*func)(void *), void *ptr, time_t timeout)
  {

@@ -25,7 +25,7 @@
  		goto fail;
 --- a/nsswitch/libwbclient/wbc_sid.c
 +++ b/nsswitch/libwbclient/wbc_sid.c
-@@ -1054,9 +1054,13 @@
+@@ -1074,9 +1074,13 @@
  
  		wbcFreeMemory(name);
  
@@ -41,7 +41,7 @@
  	wbc_status = WBC_ERR_SUCCESS;
 --- a/nsswitch/winbind_struct_protocol.h
 +++ b/nsswitch/winbind_struct_protocol.h
-@@ -188,6 +188,11 @@
+@@ -187,6 +187,11 @@
  	WINBINDD_NUM_CMDS
  };
  
@@ -53,7 +53,7 @@
  typedef struct winbindd_pw {
  	fstring pw_name;
  	fstring pw_passwd;
-@@ -198,6 +203,10 @@
+@@ -197,6 +202,10 @@
  	fstring pw_shell;
  } WINBINDD_PW;
  
