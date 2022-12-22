@@ -2,3 +2,5 @@ LIBNAME=samba
 VERSION=4.17.4
 ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
 SHA512=3f8ec51e30b1a8ef947f9bf4666fe8b30463d8ea3fa8cab6ff9dc8cfe7e71e2116eaea68aec66f18c84a8726ab628f9ee320b56e3de9d537b96f2230286a64f7
+
+BASE_URL=https://download.samba.org/pub/samba/stable
