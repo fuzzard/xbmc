@@ -154,7 +154,9 @@ foreach(lib IN LISTS required_dyload dyload_optional ITEMS Shairplay)
     add_bundle_file(${DEPENDS_PATH}/lib/${lib_so} ${libdir} "")
   endif()
 endforeach()
-add_bundle_file(${ASS_LIBRARY} ${libdir} "")
+# ASS is required, no target exists check needed
+add_bundle_file(ASS::ASS ${libdir} "")
+# If we change this to a target, will want a target exists check.
 add_bundle_file(${SHAIRPLAY_LIBRARY} ${libdir} "")
 
 # Main targets from Makefile.in

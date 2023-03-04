@@ -21,7 +21,6 @@ DEPENDS = \
   gnutls \
   gtest \
   harfbuzz \
-  libass \
   libbluray \
   libcec \
   libffi \
@@ -135,7 +134,6 @@ fribidi: meson-cross-file
 gettext: $(ICONV)
 gnutls: nettle $(ZLIB)
 harfbuzz: meson-cross-file freetype2-noharfbuzz $(ICONV)
-libass: fontconfig fribidi harfbuzz libpng libunibreak freetype2 expat $(ICONV)
 libbluray: fontconfig freetype2 $(ICONV) udfread libxml2
 libcdio-gplv3: $(ICONV)
 libcdio: $(ICONV)

@@ -83,6 +83,7 @@ dependent_option(ENABLE_INTERNAL_TAGLIB "Enable internal taglib?")
 # Internal Depends - supported on UNIX platforms
 if(UNIX)
   option(FFMPEG_PATH        "Path to external ffmpeg?" "")
+  dependent_option(ENABLE_INTERNAL_LIBASS "Enable internal libass?")
   option(ENABLE_INTERNAL_FSTRCMP "Enable internal fstrcmp?" OFF)
   option(ENABLE_INTERNAL_DAV1D "Enable internal dav1d?" OFF)
   option(ENABLE_INTERNAL_GTEST "Enable internal gtest?" OFF)
