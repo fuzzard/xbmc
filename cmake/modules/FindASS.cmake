@@ -77,6 +77,7 @@ if(ENABLE_INTERNAL_LIBASS)
                   COMMAND ./configure
                           --host=${ARCH}
                           --prefix=${DEPENDS_PATH}
+                          LD=${CMAKE_EXE_LINKER}
                           "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${LIBASS_FLAGS}"
                           ${EXTRA_FLAGS})
 
@@ -88,7 +89,7 @@ if(ENABLE_INTERNAL_LIBASS)
       set(BUILD_PATHBIN PATH=${NASM_BIN}:$ENV{PATH})
     endif()
 
-    set(BUILD_COMMAND ${CMAKE_COMMAND} -E env ${DEP_BUILDENV} ${BUILD_PATHBIN} ${MAKE_EXECUTABLE})
+    set(BUILD_COMMAND ${CMAKE_COMMAND} -E env ${DEP_BUILDENV} ${BUILD_PATHBIN} LD=${CMAKE_EXE_LINKER} ${MAKE_EXECUTABLE})
     set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
     set(BUILD_IN_SOURCE 1)
 
