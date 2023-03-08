@@ -30,7 +30,7 @@ find_package_handle_standard_args(ASS
                                   VERSION_VAR ASS_VERSION)
 
 if(ASS_FOUND)
-  set(ASS_LIBRARIES ${ASS_LIBRARY})
+  set(ASS_LIBRARIES ${ASS_LIBRARY} ${PC_ASS_LDFLAGS})
   set(ASS_INCLUDE_DIRS ${ASS_INCLUDE_DIR})
 
   if(NOT TARGET ASS::ASS)
