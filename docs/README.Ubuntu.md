@@ -148,7 +148,12 @@ sudo apt install libglew-dev libwayland-dev libxkbcommon-dev waylandpp-dev wayla
 
 Similarly, building for GBM also requires some extra packages:
 ```
-sudo apt install libgbm-dev libinput-dev libxkbcommon-dev
+sudo apt install hwdata libgbm-dev libinput-dev libxkbcommon-dev
+```
+
+libdisplay-info (Ubuntu >= 23.04)
+```
+sudo apt install libdisplay-info-dev
 ```
 
 Optional packages that you might want to install for extra functionality (generating doxygen documentation, for instance):

@@ -77,7 +77,12 @@ sudo dnf install mesa-libGLES-devel wayland-devel waylandpp-devel wayland-protoc
 
 Similarly, building for GBM also requires some extra packages:
 ```
-sudo dnf install libinput-devel libxkbcommon-devel mesa-libGLES-devel mesa-libgbm-devel
+sudo dnf install hwdata libinput-devel libxkbcommon-devel mesa-libGLES-devel mesa-libgbm-devel
+```
+
+libdisplay-info (Fedora >= 38)
+```
+sudo dnf install libdisplay-info-devel
 ```
 
 Optional packages that you might want to install for extra functionality (generating doxygen documentation, for instance):
