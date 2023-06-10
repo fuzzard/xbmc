@@ -23,11 +23,6 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 .installed-$(PLATFORM): $(PLATFORM)
 	$(MAKE) -C $(PLATFORM)
 	$(MAKE) -C $(PLATFORM) install
-
-	# remove the target wayland scanner from the sysroot. We only want to use the native one
-	rm -f $(PREFIX)/bin/wayland-scanner
-	rm -f $(PREFIX)/lib/pkgconfig/wayland-scanner.pc
-	ln -sf $(NATIVEPREFIX)/lib/pkgconfig/wayland-scanner.pc $(PREFIX)/lib/pkgconfig/wayland-scanner.pc
 	touch $@
 
 clean:

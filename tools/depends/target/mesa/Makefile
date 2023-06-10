@@ -66,6 +66,7 @@ export CXXFLAGS=$(CXXFLAGS_FOR_BUILD)
 else
 export CC CXX CFLAGS CXXFLAGS
 endif
+export PKG_CONFIG_PATH_FOR_BUILD=$(NATIVEPREFIX)/lib/pkgconfig
 export PKG_CONFIG_LIBDIR=$(PREFIX)/lib/pkgconfig
 
 LIBDYLIB=$(PLATFORM)/build/src/egl/libEGL.so

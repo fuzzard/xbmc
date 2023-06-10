@@ -22,8 +22,6 @@ pkg_check_modules(PC_WAYLANDPP_SCANNER wayland-scanner++ QUIET)
 
 if(PC_WAYLANDPP_SCANNER_FOUND)
   pkg_get_variable(PC_WAYLANDPP_SCANNER wayland-scanner++ wayland_scannerpp)
-else()
-  message(SEND_ERROR "wayland-scanner++ not found via pkg-config")
 endif()
 
 find_path(WAYLANDPP_INCLUDE_DIR wayland-client.hpp PATHS ${PC_WAYLANDPP_INCLUDEDIR})
@@ -66,9 +64,9 @@ endif()
 # Promote to cache variables so all code can access it
 set(WAYLANDPP_PROTOCOLS_DIR "${PC_WAYLANDPP_PKGDATADIR}/protocols" CACHE INTERNAL "")
 
-# wayland-scanner++ is from native/host system in case of cross-compilation, so
-# it's ok if we don't find it with pkgconfig
-find_program(WAYLANDPP_SCANNER wayland-scanner++ PATHS ${PC_WAYLANDPP_SCANNER})
+# wayland-scanner++ is from native/host system in case of cross-compilation
+find_program(WAYLANDPP_SCANNER wayland-scanner++ REQUIRED PATHS ${PC_WAYLANDPP_SCANNER}
+                                                                ${NATIVEPREFIX}/bin)
 
 include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Waylandpp
