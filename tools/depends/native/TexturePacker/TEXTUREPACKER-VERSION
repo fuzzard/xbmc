@@ -1,7 +1,7 @@
 LIBNAME=TexturePacker
 VERSION=2.0.1
 #ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
-ARCHIVE=$(VERSION).tar.gz
-SHA512=2401a99522c64b6b53f9161cadbea3f74f314f4484ce319ef824cec6bb6528bdcc4d325e0cf05b4d5371f535d31a70e73d16a340bcb0a96573007f3a50c5035b
+ARCHIVE=1d30a65950e02a5a318da5ecb93918693674fbb7.tar.gz
+SHA512=1ae01a5ca3ecdc185c3d2fad0b2642e50495f4483fecb6e19c8baee8871e52e1aeea6e0d5d9010e34048fb2c14d273442cdd9e7aea4b1a039e7102dc6d9c9bf3
 
-BASE_URL=https://github.com/fuzzard/TexturePacker/archive/refs/tags
+BASE_URL=https://github.com/fuzzard/TexturePacker/archive
