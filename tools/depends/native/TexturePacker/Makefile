@@ -1,51 +1,30 @@
-ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-include ../../Makefile.include
+include ../../Makefile.include TEXTUREPACKER-VERSION ../../download-files.include
 PREFIX=$(NATIVEPREFIX)
 PLATFORM=$(NATIVEPLATFORM)
-DEPS =../../Makefile.include Makefile
+DEPS =../../Makefile.include Makefile TEXTUREPACKER-VERSION ../../download-files.include
 
-ifeq ($(NATIVE_OS), linux)
-  EXTRA_CONFIGURE = --enable-static
-endif
-ifeq ($(NATIVE_OS), android)
-  EXTRA_CONFIGURE = --enable-static
-endif
-
-ifeq ($(CMAKE_SOURCE_DIR),)
-  CMAKE_SOURCE_DIR = $(ROOT_DIR)/../../../..
-endif
-
-SOURCE=$(ROOT_DIR)/src
-
-APP=$(PLATFORM)/TexturePacker
-APPBIN=$(PREFIX)/bin/TexturePacker
+APP=$(PLATFORM)/build/TexturePacker
 
 all: .installed-$(PLATFORM)
 
 download:
 
-$(PLATFORM): $(DEPS)
+$(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	-rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
-	cd $(PLATFORM); cp -a $(SOURCE)/* .
-	cd $(PLATFORM); ./autogen.sh
-	cd $(PLATFORM); ./configure --prefix=$(PREFIX) $(EXTRA_CONFIGURE) EXTRA_DEFINES="$(NATIVE_ARCH_DEFINES)"
-
+	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	mkdir -p $(PLATFORM)/build
+	cd $(PLATFORM)/build; $(CMAKE_FOR_BUILD) -DKODI_SOURCE_DIR=${CMAKE_SOURCE_DIR} -DARCH_DEFINES="$(NATIVE_ARCH_DEFINES)" $(CMAKE_OPTIONS) ..
 
 $(APP): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM)
+	$(MAKE) -C $(PLATFORM)/build
 
 .installed-$(PLATFORM): $(APP)
-	$(MAKE) -C $(PLATFORM) install
+	$(MAKE) -C $(PLATFORM)/build install
 	touch $@
-	#TEMP workaround for skins: create legacy link. Remove me when skins are fixed
-	@mkdir -p $(CMAKE_SOURCE_DIR)/tools/TexturePacker
-	@[ -f $(CMAKE_SOURCE_DIR)/tools/TexturePacker/TexturePacker ] && rm $(CMAKE_SOURCE_DIR)/tools/TexturePacker/TexturePacker || :
-	@ln -sf $(APPBIN) $(CMAKE_SOURCE_DIR)/tools/TexturePacker/TexturePacker
-	@echo "all:" > $(CMAKE_SOURCE_DIR)/tools/TexturePacker/Makefile
-	@echo "\t@echo "WARNING: use of tools/TexturePacker/TexturePacker is deprecated, please update your skins Makefile"" >> $(CMAKE_SOURCE_DIR)/tools/TexturePacker/Makefile
 
 clean:
-	$(MAKE) -C $(PLATFORM) clean
+	$(MAKE) -C $(PLATFORM)/build clean
+	rm -f .installed-$(PLATFORM)
 
 distclean::
 	rm -rf $(PLATFORM) .installed-$(PLATFORM)
