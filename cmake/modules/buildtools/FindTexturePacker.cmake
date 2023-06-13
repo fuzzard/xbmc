@@ -13,85 +13,109 @@
 #   TexturePacker::TexturePacker::Installable  - The TexturePacker executable shipped in the Kodi package
 
 if(NOT TARGET TexturePacker::TexturePacker::Executable)
-  if(KODI_DEPENDSBUILD)
-    get_filename_component(_tppath "${NATIVEPREFIX}/bin" ABSOLUTE)
-    find_program(TEXTUREPACKER_EXECUTABLE NAMES "${APP_NAME_LC}-TexturePacker" TexturePacker
-                                          HINTS ${_tppath})
 
-    add_executable(TexturePacker::TexturePacker::Executable IMPORTED GLOBAL)
-    set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
-                                          IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
-    message(STATUS "External TexturePacker for KODI_DEPENDSBUILD will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
-  elseif(WIN32)
-    get_filename_component(_tppath "${DEPENDS_PATH}/tools/TexturePacker" ABSOLUTE)
-    find_program(TEXTUREPACKER_EXECUTABLE NAMES "${APP_NAME_LC}-TexturePacker.exe" TexturePacker.exe
-                                          HINTS ${_tppath})
+  include(cmake/scripts/common/ModuleHelpers.cmake)
 
-    add_executable(TexturePacker::TexturePacker::Executable IMPORTED GLOBAL)
-    set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
-                                          IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
-    message(STATUS "External TexturePacker for WIN32 will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
+  # Check for existing TEXTUREPACKER
+  find_program(TEXTUREPACKER_EXECUTABLE NAMES "${APP_NAME_LC}-TexturePacker" TexturePacker
+                                              "${APP_NAME_LC}-TexturePacker.exe" TexturePacker.exe
+                                        HINTS ${NATIVEPREFIX}/bin)
+
+  if(TEXTUREPACKER_EXECUTABLE)
+    execute_process(COMMAND "${TEXTUREPACKER_EXECUTABLE}" -version
+                    OUTPUT_VARIABLE TEXTUREPACKER_EXECUTABLE_VERSION
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    string(REGEX MATCH "[^\n]* version [^\n]*" TEXTUREPACKER_EXECUTABLE_VERSION "${TEXTUREPACKER_EXECUTABLE_VERSION}")
+    string(REGEX REPLACE ".* version (.*)" "\\1" TEXTUREPACKER_EXECUTABLE_VERSION "${TEXTUREPACKER_EXECUTABLE_VERSION}")
+  endif()
+
+  set(MODULE_LC TexturePacker)
+  set(LIB_TYPE native)
+  SETUP_BUILD_VARS()
+
+  if((NOT TEXTUREPACKER_EXECUTABLE AND NOT WITH_TEXTUREPACKER) OR
+     (NOT "${TEXTUREPACKER_EXECUTABLE_VERSION}" VERSION_EQUAL "${TEXTUREPACKER_VER}" AND NOT WITH_TEXTUREPACKER))
+
+    # Override build type detection and always build as release
+    set(TEXTUREPACKER_BUILD_TYPE Release)
+
+    set(CMAKE_ARGS -DKODI_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+                   -DENABLE_STATIC=1)
+
+    if(NATIVEPREFIX)
+      set(INSTALL_DIR "${NATIVEPREFIX}/bin")
+      set(TEXTUREPACKER_INSTALL_PREFIX ${NATIVEPREFIX})
+      list(APPEND CMAKE_ARGS "-DNATIVEPREFIX=${NATIVEPREFIX}")
+    else()
+      set(INSTALL_DIR "${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/bin")
+      set(TEXTUREPACKER_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR})
+    endif()
+
+    # Set host build info for buildtool
+    if(EXISTS "${NATIVEPREFIX}/share/Toolchain-Native.cmake")
+      set(TEXTUREPACKER_TOOLCHAIN_FILE "${NATIVEPREFIX}/share/Toolchain-Native.cmake")
+    else()
+      if(WIN32)
+        # Windows ARCH_DEFINES for store has some things we probably dont want
+        # just provide a simple set of defines for all windows host builds
+        list(APPEND CMAKE_ARGS -DARCH_DEFINES=TARGET_WINDOWS;WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS")
+      else()
+        list(APPEND CMAKE_ARGS -DARCH_DEFINES=${ARCH_DEFINES})
+      endif()
+    endif()
+
+    if(WIN32 OR WINDOWS_STORE)
+      # Make sure we generate for host arch, not target
+      set(TEXTUREPACKER_GENERATOR_PLATFORM CMAKE_GENERATOR_PLATFORM WIN32)
+      set(WIN_DISABLE_PROJECT_FLAGS 1)
+      set(APP_EXTENSION ".exe")
+    endif()
+
+    set(TEXTUREPACKER_SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/depends/native/TexturePacker/src)
+    set(TEXTUREPACKER_EXECUTABLE ${INSTALL_DIR}/TexturePacker${APP_EXTENSION})
+    set(TEXTUREPACKER_EXECUTABLE_VERSION ${TEXTUREPACKER_VER})
+
+    set(BUILD_BYPRODUCTS ${TEXTUREPACKER_EXECUTABLE})
+
+    BUILD_DEP_TARGET()
+
+    # Ship TexturePacker only on Linux and FreeBSD
+    # Todo: iron on this. need further info on what its purpose is
+    if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      # But skip shipping it if build architecture can be executed on host
+      # and TEXTUREPACKER_EXECUTABLE is found
+      if(NOT (HOST_CAN_EXECUTE_TARGET AND TEXTUREPACKER_EXECUTABLE))
+        add_executable(TexturePacker::TexturePacker::Installable ALIAS TexturePacker)
+      endif()
+    endif()
+
   else()
     if(WITH_TEXTUREPACKER)
       get_filename_component(_tppath ${WITH_TEXTUREPACKER} ABSOLUTE)
       get_filename_component(_tppath ${_tppath} DIRECTORY)
       find_program(TEXTUREPACKER_EXECUTABLE NAMES "${APP_NAME_LC}-TexturePacker" TexturePacker
-                                          HINTS ${_tppath})
+                                                  "${APP_NAME_LC}-TexturePacker.exe" TexturePacker.exe
+                                            HINTS ${_tppath})
 
-      # Use external TexturePacker executable if found
-      if(TEXTUREPACKER_EXECUTABLE)
-        add_executable(TexturePacker::TexturePacker::Executable IMPORTED GLOBAL)
-        set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
-                                          IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
-        message(STATUS "Found external TexturePacker: ${TEXTUREPACKER_EXECUTABLE}")
-      else()
-        # Warn about external TexturePacker supplied but not fail fatally
-        # because we might have internal TexturePacker executable built
-        # and unset TEXTUREPACKER_EXECUTABLE variable
-        message(WARNING "Could not find '${APP_NAME_LC}-TexturePacker' or 'TexturePacker' executable in ${_tppath} supplied by -DWITH_TEXTUREPACKER. Make sure the executable file name matches these names!")
+      if(NOT TEXTUREPACKER_EXECUTABLE)
+        message(FATAL_ERROR "Could not find 'TexturePacker' executable in ${_tppath} supplied by -DWITH_TEXTUREPACKER")
       endif()
     endif()
-
-    # Ship TexturePacker only on Linux and FreeBSD
-    if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-      # But skip shipping it if build architecture can be executed on host
-      # and TEXTUREPACKER_EXECUTABLE is found
-      if(NOT (HOST_CAN_EXECUTE_TARGET AND TEXTUREPACKER_EXECUTABLE))
-        set(INTERNAL_TEXTUREPACKER_INSTALLABLE TRUE CACHE BOOL "" FORCE)
-      endif()
-    endif()
-
-    # Use it during build if build architecture can be executed on host
-    # and TEXTUREPACKER_EXECUTABLE is not found
-    if(HOST_CAN_EXECUTE_TARGET AND NOT TEXTUREPACKER_EXECUTABLE)
-      set(INTERNAL_TEXTUREPACKER_EXECUTABLE TRUE)
-    endif()
-
-    # Build and install internal TexturePacker if needed
-    if (INTERNAL_TEXTUREPACKER_EXECUTABLE OR INTERNAL_TEXTUREPACKER_INSTALLABLE)
-      set(KODI_SOURCE_DIR ${CMAKE_SOURCE_DIR})
-      set(ENABLE_STATIC 1)
-      add_subdirectory(${CMAKE_SOURCE_DIR}/tools/depends/native/TexturePacker/src build/texturepacker)
-      unset(KODI_SOURCE_DIR)
-      unset(ENABLE_STATIC)
-      message(STATUS "Building internal TexturePacker")
-    endif()
-
-    if(INTERNAL_TEXTUREPACKER_INSTALLABLE)
-      add_executable(TexturePacker::TexturePacker::Installable ALIAS TexturePacker)
-      message(STATUS "Shipping internal TexturePacker")
-    endif()
-
-    if(INTERNAL_TEXTUREPACKER_EXECUTABLE)
-      add_executable(TexturePacker::TexturePacker::Executable ALIAS TexturePacker)
-      message(STATUS "Internal TexturePacker will be executed during build")
-    else()
-      message(STATUS "External TexturePacker will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
-
-      include(FindPackageHandleStandardArgs)
-      find_package_handle_standard_args(TexturePacker DEFAULT_MSG TEXTUREPACKER_EXECUTABLE)
-    endif()
-
-    mark_as_advanced(INTERNAL_TEXTUREPACKER_EXECUTABLE INTERNAL_TEXTUREPACKER_INSTALLABLE TEXTUREPACKER)
   endif()
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(TexturePacker
+                                    REQUIRED_VARS TEXTUREPACKER_EXECUTABLE
+                                    VERSION_VAR TEXTUREPACKER_EXECUTABLE_VERSION)
+
+  # Use external TexturePacker executable if found
+  if(TEXTUREPACKER_FOUND)
+    add_executable(TexturePacker::TexturePacker::Executable IMPORTED GLOBAL)
+    set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
+                                                                   IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
+  else()
+    message(FATAL_ERROR "Could not find TexturePacker")
+  endif()
+
+  mark_as_advanced(TEXTUREPACKER_EXECUTABLE TEXTUREPACKER)
 endif()
