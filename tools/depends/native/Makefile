@@ -29,7 +29,6 @@ NATIVE= \
   pkg-config \
   python3 \
   swig \
-  TexturePacker \
   zlib
 
 ifneq ($(NATIVE_OS),osx)

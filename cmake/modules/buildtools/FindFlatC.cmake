@@ -28,10 +28,14 @@ if(NOT TARGET flatbuffers::flatc)
   endif()
 
   set(MODULE_LC flatbuffers)
+  set(LIB_TYPE native)
   # Duplicate URL may exist from FindFlatbuffers.cmake
   # unset otherwise it thinks we are providing a local file location and incorrect concatenation happens
   unset(FLATBUFFERS_URL)
   SETUP_BUILD_VARS()
+  # manually unset LIB_TYPE here as the CLEAR_BUILD_VARS macro is only run after BUILD_DEP_TARGET
+  # At this point, we may not be building the lib still
+  unset(LIB_TYPE)
 
   if(NOT FLATBUFFERS_FLATC_EXECUTABLE OR (ENABLE_INTERNAL_FLATBUFFERS AND NOT "${FLATBUFFERS_FLATC_VERSION}" VERSION_EQUAL "${FLATBUFFERS_VER}"))
 
