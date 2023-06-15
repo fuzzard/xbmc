@@ -58,7 +58,7 @@ if(NOT TARGET TexturePacker::TexturePacker::Executable)
       if(WIN32)
         # Windows ARCH_DEFINES for store has some things we probably dont want
         # just provide a simple set of defines for all windows host builds
-        list(APPEND CMAKE_ARGS -DARCH_DEFINES=TARGET_WINDOWS;WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS")
+        list(APPEND CMAKE_ARGS -DARCH_DEFINES=TARGET_WINDOWS;WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS)
       else()
         list(APPEND CMAKE_ARGS -DARCH_DEFINES=${ARCH_DEFINES})
       endif()
