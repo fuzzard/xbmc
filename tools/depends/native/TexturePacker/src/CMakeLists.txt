@@ -3,12 +3,14 @@ project(TexturePacker)
 
 list(APPEND CMAKE_MODULE_PATH ${KODI_SOURCE_DIR}/cmake/modules)
 
-if(APPLE)
+if(NATIVEPREFIX)
   set(CMAKE_FIND_ROOT_PATH ${NATIVEPREFIX})
 endif()
 
 if(ENABLE_STATIC)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+  # Requires cmake 3.24 for ZLIB_USE_STATIC_LIBS to actually do something
+  set(ZLIB_USE_STATIC_LIBS ON)
 endif()
 
 find_package(Lzo2 REQUIRED)
