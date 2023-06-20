@@ -1,12 +1,18 @@
-include ../../Makefile.include SWIG-VERSION ../../download-files.include
+include ../../Makefile.include PCRE2-VERSION ../../download-files.include
 PREFIX=$(NATIVEPREFIX)
 PLATFORM=$(NATIVEPLATFORM)
+DEPS = ../../Makefile.include Makefile PCRE2-VERSION ../../download-files.include
 
-DEPS = ../../Makefile.include Makefile SWIG-VERSION ../../download-files.include
+CMAKE_OPTIONS=-DBUILD_STATIC_LIBS=ON \
+              -DPCRE2_BUILD_PCRE2_8=ON \
+              -DPCRE2_BUILD_PCRE2_16=OFF \
+              -DPCRE2_BUILD_PCRE2_32=OFF \
+              -DPCRE2_SUPPORT_JIT=ON \
+              -DPCRE2_SUPPORT_UNICODE=ON \
+              -DPCRE2_BUILD_PCRE2GREP=OFF \
+              -DPCRE2_BUILD_TESTS=OFF
 
-CMAKE_OPTIONS := -DWITH_PCRE=ON
-
-LIBDYLIB=$(PLATFORM)/build/swig
+LIBDYLIB=$(PLATFORM)/build/libpcre2-8.a
 
 all: .installed-$(PLATFORM)
 
