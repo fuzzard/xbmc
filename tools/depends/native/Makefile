@@ -34,6 +34,11 @@ NATIVE= \
 ifneq ($(NATIVE_OS),osx)
   NATIVE += libffi
   LIBFFI = libffi
+else
+  NATIVE += bison
+  # swig 4.1.1 fails to function on macos. Bison 2.3 is shipped on upto at least macos Ventura (13.4)
+  # Swig 4.2+ will require Bison 3 as a minimum in the future
+  BISON = bison
 endif
 
 ifeq ($(OS),darwin_embedded)
@@ -65,6 +70,7 @@ download: $(DOWNLOAD_TARGETS)
 autoconf-archive: autoconf
 autoconf: m4
 automake: autoconf
+bison: automake gettext
 dpkg: automake gettext libtool pkg-config tar
 heimdal: libtool
 JsonSchemaBuilder: cmake
