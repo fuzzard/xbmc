@@ -182,7 +182,7 @@ set(required_deps ASS
                   LibDvd
                   Lzo2
                   OpenSSL>=1.1.0
-                  PCRE
+                  PCRE2
                   RapidJSON
                   Spdlog
                   Sqlite3
