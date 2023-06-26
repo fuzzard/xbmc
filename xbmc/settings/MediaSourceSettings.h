@@ -53,11 +53,11 @@ protected:
 
 private:
   bool GetSource(const std::string& category, const tinyxml2::XMLNode* source, CMediaSource& share);
-  void GetSources(const tinyxml2::XMLNode* pRootElement,
-                  const std::string& strTagName,
+  void GetSources(const tinyxml2::XMLNode* rootElement,
+                  const std::string& tagName,
                   VECSOURCES& items,
-                  std::string& strDefault);
-  bool SetSources(tinyxml2::XMLNode* root,
+                  std::string& defaultString);
+  bool SetSources(tinyxml2::XMLNode* rootNode,
                   const char* section,
                   const VECSOURCES& shares,
                   const std::string& defaultPath) const;
