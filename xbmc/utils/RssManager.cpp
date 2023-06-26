@@ -101,36 +101,36 @@ bool CRssManager::Load()
   if (!CFileUtils::Exists(rssXML))
     return false;
 
-  CXBMCTinyXML rssDoc;
+  CXBMCTinyXML2 rssDoc;
   if (!rssDoc.LoadFile(rssXML))
   {
-    CLog::Log(LOGERROR, "CRssManager: error loading {}, Line {}\n{}", rssXML, rssDoc.ErrorRow(),
-              rssDoc.ErrorDesc());
+    CLog::Log(LOGERROR, "CRssManager: error loading {}, Line {}\n{}", rssXML, rssDoc.ErrorLineNum(),
+              rssDoc.ErrorStr());
     return false;
   }
 
-  const TiXmlElement *pRootElement = rssDoc.RootElement();
-  if (pRootElement == NULL || !StringUtils::EqualsNoCase(pRootElement->ValueStr(), "rssfeeds"))
+  auto* rootElement = rssDoc.RootElement();
+  if (!rootElement || !StringUtils::EqualsNoCase(rootElement->Value(), "rssfeeds"))
   {
     CLog::Log(LOGERROR, "CRssManager: error loading {}, no <rssfeeds> node", rssXML);
     return false;
   }
 
   m_mapRssUrls.clear();
-  const TiXmlElement* pSet = pRootElement->FirstChildElement("set");
+  auto* pSet = rootElement->FirstChildElement("set");
   while (pSet != NULL)
   {
     int iId;
-    if (pSet->QueryIntAttribute("id", &iId) == TIXML_SUCCESS)
+    if (pSet->QueryIntAttribute("id", &iId) == tinyxml2::XML_SUCCESS)
     {
       RssSet set;
       set.rtl = pSet->Attribute("rtl") != NULL &&
                 StringUtils::CompareNoCase(pSet->Attribute("rtl"), "true") == 0;
-      const TiXmlElement* pFeed = pSet->FirstChildElement("feed");
+      auto* pFeed = pSet->FirstChildElement("feed");
       while (pFeed != NULL)
       {
         int iInterval;
-        if (pFeed->QueryIntAttribute("updateinterval", &iInterval) != TIXML_SUCCESS)
+        if (pFeed->QueryIntAttribute("updateinterval", &iInterval) != tinyxml2::XML_SUCCESS)
         {
           iInterval = 30; // default to 30 min
           CLog::Log(LOGDEBUG, "CRssManager: no interval set, default to 30!");
@@ -140,7 +140,7 @@ bool CRssManager::Load()
         {
           //! @todo UTF-8: Do these URLs need to be converted to UTF-8?
           //!              What about the xml encoding?
-          std::string strUrl = pFeed->FirstChild()->ValueStr();
+          std::string strUrl = pFeed->FirstChild()->Value();
           set.url.push_back(strUrl);
           set.interval.push_back(iInterval);
         }
