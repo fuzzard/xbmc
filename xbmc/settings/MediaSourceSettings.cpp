@@ -25,9 +25,9 @@
 #include <cstdlib>
 #include <string>
 
-#define SOURCES_FILE  "sources.xml"
-#define XML_SOURCES   "sources"
-#define XML_SOURCE    "source"
+#define SOURCES_FILE "sources.xml"
+#define XML_SOURCES "sources"
+#define XML_SOURCE "source"
 
 CMediaSourceSettings::CMediaSourceSettings()
 {
@@ -44,7 +44,8 @@ CMediaSourceSettings& CMediaSourceSettings::GetInstance()
 
 std::string CMediaSourceSettings::GetSourcesFile()
 {
-  const std::shared_ptr<CProfileManager> profileManager = CServiceBroker::GetSettingsComponent()->GetProfileManager();
+  const std::shared_ptr<CProfileManager> profileManager =
+      CServiceBroker::GetSettingsComponent()->GetProfileManager();
 
   std::string file;
   if (profileManager->GetCurrentProfile().hasSources())
@@ -70,7 +71,7 @@ bool CMediaSourceSettings::Load()
   return Load(GetSourcesFile());
 }
 
-bool CMediaSourceSettings::Load(const std::string &file)
+bool CMediaSourceSettings::Load(const std::string& file)
 {
   Clear();
 
@@ -88,18 +89,18 @@ bool CMediaSourceSettings::Load(const std::string &file)
     return false;
   }
 
-  auto* pRootElement = xmlDoc.RootElement();
-  if (!pRootElement || !StringUtils::EqualsNoCase(pRootElement->Value(), XML_SOURCES))
+  auto* rootElement = xmlDoc.RootElement();
+  if (!rootElement || !StringUtils::EqualsNoCase(rootElement->Value(), XML_SOURCES))
     CLog::Log(LOGERROR, "CMediaSourceSettings: sources.xml file does not contain <sources>");
 
   // parse sources
   std::string dummy;
-  GetSources(pRootElement, "video", m_videoSources, dummy);
-  GetSources(pRootElement, "programs", m_programSources, m_defaultProgramSource);
-  GetSources(pRootElement, "pictures", m_pictureSources, m_defaultPictureSource);
-  GetSources(pRootElement, "files", m_fileSources, m_defaultFileSource);
-  GetSources(pRootElement, "music", m_musicSources, m_defaultMusicSource);
-  GetSources(pRootElement, "games", m_gameSources, dummy);
+  GetSources(rootElement, "video", m_videoSources, dummy);
+  GetSources(rootElement, "programs", m_programSources, m_defaultProgramSource);
+  GetSources(rootElement, "pictures", m_pictureSources, m_defaultPictureSource);
+  GetSources(rootElement, "files", m_fileSources, m_defaultFileSource);
+  GetSources(rootElement, "music", m_musicSources, m_defaultMusicSource);
+  GetSources(rootElement, "games", m_gameSources, dummy);
 
   return true;
 }
@@ -109,22 +110,22 @@ bool CMediaSourceSettings::Save()
   return Save(GetSourcesFile());
 }
 
-bool CMediaSourceSettings::Save(const std::string &file) const
+bool CMediaSourceSettings::Save(const std::string& file) const
 {
   CXBMCTinyXML2 doc;
-  auto* root = doc.NewElement(XML_SOURCES);
-  auto* pRoot = doc.InsertFirstChild(root);
+  auto* element = doc.NewElement(XML_SOURCES);
+  auto* rootNode = doc.InsertFirstChild(element);
 
-  if (!pRoot)
+  if (!rootNode)
     return false;
 
   // ok, now run through and save each sources section
-  SetSources(pRoot, "programs", m_programSources, m_defaultProgramSource);
-  SetSources(pRoot, "video", m_videoSources, "");
-  SetSources(pRoot, "music", m_musicSources, m_defaultMusicSource);
-  SetSources(pRoot, "pictures", m_pictureSources, m_defaultPictureSource);
-  SetSources(pRoot, "files", m_fileSources, m_defaultFileSource);
-  SetSources(pRoot, "games", m_gameSources, "");
+  SetSources(rootNode, "programs", m_programSources, m_defaultProgramSource);
+  SetSources(rootNode, "video", m_videoSources, "");
+  SetSources(rootNode, "music", m_musicSources, m_defaultMusicSource);
+  SetSources(rootNode, "pictures", m_pictureSources, m_defaultPictureSource);
+  SetSources(rootNode, "files", m_fileSources, m_defaultFileSource);
+  SetSources(rootNode, "games", m_gameSources, "");
 
   CWakeOnAccess::GetInstance().QueueMACDiscoveryForAllRemotes();
 
@@ -141,7 +142,7 @@ void CMediaSourceSettings::Clear()
   m_gameSources.clear();
 }
 
-VECSOURCES* CMediaSourceSettings::GetSources(const std::string &type)
+VECSOURCES* CMediaSourceSettings::GetSources(const std::string& type)
 {
   if (type == "programs" || type == "myprograms")
     return &m_programSources;
@@ -159,7 +160,7 @@ VECSOURCES* CMediaSourceSettings::GetSources(const std::string &type)
   return NULL;
 }
 
-const std::string& CMediaSourceSettings::GetDefaultSource(const std::string &type) const
+const std::string& CMediaSourceSettings::GetDefaultSource(const std::string& type) const
 {
   if (type == "programs" || type == "myprograms")
     return m_defaultProgramSource;
@@ -173,7 +174,7 @@ const std::string& CMediaSourceSettings::GetDefaultSource(const std::string &typ
   return StringUtils::Empty;
 }
 
-void CMediaSourceSettings::SetDefaultSource(const std::string &type, const std::string &source)
+void CMediaSourceSettings::SetDefaultSource(const std::string& type, const std::string& source)
 {
   if (type == "programs" || type == "myprograms")
     m_defaultProgramSource = source;
@@ -186,9 +187,12 @@ void CMediaSourceSettings::SetDefaultSource(const std::string &type, const std::
 }
 
 // NOTE: This function does NOT save the sources.xml file - you need to call SaveSources() separately.
-bool CMediaSourceSettings::UpdateSource(const std::string &strType, const std::string &strOldName, const std::string &strUpdateChild, const std::string &strUpdateValue)
+bool CMediaSourceSettings::UpdateSource(const std::string& strType,
+                                        const std::string& strOldName,
+                                        const std::string& strUpdateChild,
+                                        const std::string& strUpdateValue)
 {
-  VECSOURCES *pShares = GetSources(strType);
+  VECSOURCES* pShares = GetSources(strType);
   if (pShares == NULL)
     return false;
 
@@ -222,9 +226,12 @@ bool CMediaSourceSettings::UpdateSource(const std::string &strType, const std::s
   return false;
 }
 
-bool CMediaSourceSettings::DeleteSource(const std::string &strType, const std::string &strName, const std::string &strPath, bool virtualSource /* = false */)
+bool CMediaSourceSettings::DeleteSource(const std::string& strType,
+                                        const std::string& strName,
+                                        const std::string& strPath,
+                                        bool virtualSource /* = false */)
 {
-  VECSOURCES *pShares = GetSources(strType);
+  VECSOURCES* pShares = GetSources(strType);
   if (pShares == NULL)
     return false;
 
@@ -247,9 +254,9 @@ bool CMediaSourceSettings::DeleteSource(const std::string &strType, const std::s
   return Save();
 }
 
-bool CMediaSourceSettings::AddShare(const std::string &type, const CMediaSource &share)
+bool CMediaSourceSettings::AddShare(const std::string& type, const CMediaSource& share)
 {
-  VECSOURCES *pShares = GetSources(type);
+  VECSOURCES* pShares = GetSources(type);
   if (pShares == NULL)
     return false;
 
@@ -284,9 +291,11 @@ bool CMediaSourceSettings::AddShare(const std::string &type, const CMediaSource 
   return true;
 }
 
-bool CMediaSourceSettings::UpdateShare(const std::string &type, const std::string &oldName, const CMediaSource &share)
+bool CMediaSourceSettings::UpdateShare(const std::string& type,
+                                       const std::string& oldName,
+                                       const CMediaSource& share)
 {
-  VECSOURCES *pShares = GetSources(type);
+  VECSOURCES* pShares = GetSources(type);
   if (pShares == NULL)
     return false;
 
@@ -315,47 +324,47 @@ bool CMediaSourceSettings::GetSource(const std::string& category,
                                      const tinyxml2::XMLNode* source,
                                      CMediaSource& share)
 {
-  const auto* pNodeName = source->FirstChildElement("name");
-  std::string strName;
-  if (pNodeName && pNodeName->FirstChild())
-    strName = pNodeName->FirstChild()->Value();
+  const auto* nodeName = source->FirstChildElement("name");
+  std::string name;
+  if (nodeName && nodeName->FirstChild())
+    name = nodeName->FirstChild()->Value();
 
   // get multiple paths
   std::vector<std::string> vecPaths;
-  const auto* pPathName = source->FirstChildElement("path");
-  while (pPathName)
+  const auto* pathName = source->FirstChildElement("path");
+  while (pathName)
   {
-    if (pPathName->FirstChild())
+    if (pathName->FirstChild())
     {
-      std::string strPath = pPathName->FirstChild()->Value();
+      std::string path = pathName->FirstChild()->Value();
 
       // make sure there are no virtualpaths or stack paths defined in sources.xml
-      if (!URIUtils::IsStack(strPath))
+      if (!URIUtils::IsStack(path))
       {
         // translate special tags
-        if (!strPath.empty() && strPath.at(0) == '$')
-          strPath = CUtil::TranslateSpecialSource(strPath);
+        if (!path.empty() && path.at(0) == '$')
+          path = CUtil::TranslateSpecialSource(path);
 
         // need to check path validity again as CUtil::TranslateSpecialSource() may have failed
-        if (!strPath.empty())
+        if (!path.empty())
         {
-          URIUtils::AddSlashAtEnd(strPath);
-          vecPaths.push_back(strPath);
+          URIUtils::AddSlashAtEnd(path);
+          vecPaths.push_back(path);
         }
       }
       else
-        CLog::Log(LOGERROR, "CMediaSourceSettings:    invalid path type ({}) in source", strPath);
+        CLog::Log(LOGERROR, "CMediaSourceSettings:    invalid path type ({}) in source", path);
     }
 
-    pPathName = pPathName->NextSiblingElement("path");
+    pathName = pathName->NextSiblingElement("path");
   }
 
-  const auto* pLockMode = source->FirstChildElement("lockmode");
-  const auto* pLockCode = source->FirstChildElement("lockcode");
-  const auto* pBadPwdCount = source->FirstChildElement("badpwdcount");
-  const auto* pThumbnailNode = source->FirstChildElement("thumbnail");
+  const auto* lockModeElement = source->FirstChildElement("lockmode");
+  const auto* lockCodeElement = source->FirstChildElement("lockcode");
+  const auto* badPwdCountElement = source->FirstChildElement("badpwdcount");
+  const auto* thumbnailNodeElement = source->FirstChildElement("thumbnail");
 
-  if (strName.empty() || vecPaths.empty())
+  if (name.empty() || vecPaths.empty())
     return false;
 
   std::vector<std::string> verifiedPaths;
@@ -367,26 +376,27 @@ bool CMediaSourceSettings::GetSource(const std::string& category,
   else // multiple paths?
   {
     // validate the paths
-    for (std::vector<std::string>::const_iterator path = vecPaths.begin(); path != vecPaths.end(); ++path)
+    for (auto path = vecPaths.begin(); path != vecPaths.end(); ++path)
     {
       CURL url(*path);
-      bool bIsInvalid = false;
+      bool isInvalid = false;
 
       // for my programs
-      if (StringUtils::EqualsNoCase(category, "programs") || StringUtils::EqualsNoCase(category, "myprograms"))
+      if (StringUtils::EqualsNoCase(category, "programs") ||
+          StringUtils::EqualsNoCase(category, "myprograms"))
       {
         // only allow HD and plugins
         if (url.IsLocal() || url.IsProtocol("plugin"))
           verifiedPaths.push_back(*path);
         else
-          bIsInvalid = true;
+          isInvalid = true;
       }
       // for others allow everything (if the user does something silly, we can't stop them)
       else
         verifiedPaths.push_back(*path);
 
       // error message
-      if (bIsInvalid)
+      if (isInvalid)
         CLog::Log(LOGERROR, "CMediaSourceSettings:    invalid path type ({}) for multipath source",
                   path->c_str());
     }
@@ -394,77 +404,80 @@ bool CMediaSourceSettings::GetSource(const std::string& category,
     // no valid paths? skip to next source
     if (verifiedPaths.empty())
     {
-      CLog::Log(LOGERROR,"CMediaSourceSettings:    missing or invalid <name> and/or <path> in source");
+      CLog::Log(LOGERROR,
+                "CMediaSourceSettings:    missing or invalid <name> and/or <path> in source");
       return false;
     }
   }
 
-  share.FromNameAndPaths(category, strName, verifiedPaths);
+  share.FromNameAndPaths(category, name, verifiedPaths);
 
   share.m_iBadPwdCount = 0;
-  if (pLockMode)
+  if (lockModeElement)
   {
-    share.m_iLockMode = (LockType)std::strtol(pLockMode->FirstChild()->Value(), NULL, 10);
+    share.m_iLockMode = (LockType)std::strtol(lockModeElement->FirstChild()->Value(), NULL, 10);
     share.m_iHasLock = LOCK_STATE_LOCKED;
   }
 
-  if (pLockCode && pLockCode->FirstChild())
-    share.m_strLockCode = pLockCode->FirstChild()->Value();
+  if (lockCodeElement && lockCodeElement->FirstChild())
+    share.m_strLockCode = lockCodeElement->FirstChild()->Value();
 
-  if (pBadPwdCount && pBadPwdCount->FirstChild())
-    share.m_iBadPwdCount = (int)std::strtol(pBadPwdCount->FirstChild()->Value(), NULL, 10);
+  if (badPwdCountElement && badPwdCountElement->FirstChild())
+    share.m_iBadPwdCount = (int)std::strtol(badPwdCountElement->FirstChild()->Value(), NULL, 10);
 
-  if (pThumbnailNode && pThumbnailNode->FirstChild())
-    share.m_strThumbnailImage = pThumbnailNode->FirstChild()->Value();
+  if (thumbnailNodeElement && thumbnailNodeElement->FirstChild())
+    share.m_strThumbnailImage = thumbnailNodeElement->FirstChild()->Value();
 
   XMLUtils::GetBoolean(source, "allowsharing", share.m_allowSharing);
 
   return true;
 }
 
-void CMediaSourceSettings::GetSources(const tinyxml2::XMLNode* pRootElement,
-                                      const std::string& strTagName,
+void CMediaSourceSettings::GetSources(const tinyxml2::XMLNode* rootElement,
+                                      const std::string& tagName,
                                       VECSOURCES& items,
-                                      std::string& strDefault)
+                                      std::string& defaultString)
 {
 
-  strDefault = "";
+  defaultString = "";
   items.clear();
 
-  const auto* pChildElement = pRootElement->FirstChildElement(strTagName.c_str());
-  if (!pChildElement)
+  const auto* childElement = rootElement->FirstChildElement(tagName.c_str());
+  if (!childElement)
   {
     CLog::Log(LOGDEBUG, "CMediaSourceSettings: <{}> tag is missing or sources.xml is malformed",
-              strTagName);
+              tagName);
     return;
   }
 
-  auto pChild = pChildElement->FirstChild();
-  while (pChild)
+  auto child = childElement->FirstChild();
+  while (child)
   {
-    std::string strValue = pChild->Value();
-    if (strValue == XML_SOURCE || strValue == "bookmark") // "bookmark" left in for backwards compatibility
+    std::string value = child->Value();
+    if (value == XML_SOURCE ||
+        value == "bookmark") // "bookmark" left in for backwards compatibility
     {
       CMediaSource share;
-      if (GetSource(strTagName, pChild, share))
+      if (GetSource(tagName, child, share))
         items.push_back(share);
       else
-        CLog::Log(LOGERROR, "CMediaSourceSettings:    Missing or invalid <name> and/or <path> in source");
+        CLog::Log(LOGERROR,
+                  "CMediaSourceSettings:    Missing or invalid <name> and/or <path> in source");
     }
-    else if (strValue == "default")
+    else if (value == "default")
     {
-      const auto* pValueNode = pChild->FirstChild();
-      if (pValueNode)
+      const auto* valueNode = child->FirstChild();
+      if (valueNode)
       {
-        std::string pszText = pChild->FirstChild()->Value();
-        if (!pszText.empty())
-          strDefault = pszText;
+        std::string text = child->FirstChild()->Value();
+        if (!text.empty())
+          defaultString = text;
         CLog::Log(LOGDEBUG, "CMediaSourceSettings:    Setting <default> source to : {}",
-                  strDefault);
+                  defaultString);
       }
     }
 
-    pChild = pChild->NextSibling();
+    child = child->NextSibling();
   }
 }
 
@@ -473,8 +486,8 @@ bool CMediaSourceSettings::SetSources(tinyxml2::XMLNode* root,
                                       const VECSOURCES& shares,
                                       const std::string& defaultPath) const
 {
-  auto* newelement = root->GetDocument()->NewElement(section);
-  auto* sectionNode = root->InsertEndChild(newelement);
+  auto* newElement = root->GetDocument()->NewElement(section);
+  auto* sectionNode = root->InsertEndChild(newElement);
 
   if (!sectionNode)
     return false;
@@ -482,30 +495,30 @@ bool CMediaSourceSettings::SetSources(tinyxml2::XMLNode* root,
   XMLUtils::SetPath(sectionNode, "default", defaultPath);
   for (CIVECSOURCES it = shares.begin(); it != shares.end(); ++it)
   {
-    const CMediaSource &share = *it;
+    const CMediaSource& share = *it;
     if (share.m_ignore)
       continue;
 
-    auto* source = root->GetDocument()->NewElement(XML_SOURCE);
+    auto* sourceElement = root->GetDocument()->NewElement(XML_SOURCE);
 
-    XMLUtils::SetString(source, "name", share.strName);
+    XMLUtils::SetString(sourceElement, "name", share.strName);
 
     for (unsigned int i = 0; i < share.vecPaths.size(); i++)
-      XMLUtils::SetPath(source, "path", share.vecPaths[i]);
+      XMLUtils::SetPath(sourceElement, "path", share.vecPaths[i]);
 
     if (share.m_iHasLock)
     {
-      XMLUtils::SetInt(source, "lockmode", share.m_iLockMode);
-      XMLUtils::SetString(source, "lockcode", share.m_strLockCode);
-      XMLUtils::SetInt(source, "badpwdcount", share.m_iBadPwdCount);
+      XMLUtils::SetInt(sourceElement, "lockmode", share.m_iLockMode);
+      XMLUtils::SetString(sourceElement, "lockcode", share.m_strLockCode);
+      XMLUtils::SetInt(sourceElement, "badpwdcount", share.m_iBadPwdCount);
     }
 
     if (!share.m_strThumbnailImage.empty())
-      XMLUtils::SetPath(source, "thumbnail", share.m_strThumbnailImage);
+      XMLUtils::SetPath(sourceElement, "thumbnail", share.m_strThumbnailImage);
 
-    XMLUtils::SetBoolean(source, "allowsharing", share.m_allowSharing);
+    XMLUtils::SetBoolean(sourceElement, "allowsharing", share.m_allowSharing);
 
-    sectionNode->InsertEndChild(source);
+    sectionNode->InsertEndChild(sourceElement);
   }
 
   return true;
