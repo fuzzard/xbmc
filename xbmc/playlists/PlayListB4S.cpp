@@ -14,7 +14,7 @@
 #include "music/tags/MusicInfoTag.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"
 
@@ -47,29 +47,34 @@ CPlayListB4S::~CPlayListB4S(void) = default;
 
 bool CPlayListB4S::LoadData(std::istream& stream)
 {
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
 
-  stream >> xmlDoc;
+  std::string streamstring(std::istreambuf_iterator<char>(stream), {});
+
+  xmlDoc.Parse(streamstring);
 
   if (xmlDoc.Error())
   {
-    CLog::Log(LOGERROR, "Unable to parse B4S info Error: {}", xmlDoc.ErrorDesc());
+    CLog::Log(LOGERROR, "Unable to parse B4S info Error: {}", xmlDoc.ErrorStr());
     return false;
   }
 
-  TiXmlElement* pRootElement = xmlDoc.RootElement();
-  if (!pRootElement ) return false;
+  auto* rootElement = xmlDoc.RootElement();
+  if (!rootElement)
+    return false;
 
-  TiXmlElement* pPlayListElement = pRootElement->FirstChildElement("playlist");
-  if (!pPlayListElement ) return false;
-  m_strPlayListName = XMLUtils::GetAttribute(pPlayListElement, "label");
+  auto* playListElement = rootElement->FirstChildElement("playlist");
+  if (!playListElement)
+    return false;
+  m_strPlayListName = XMLUtils::GetAttribute(playListElement, "label");
 
-  TiXmlElement* pEntryElement = pPlayListElement->FirstChildElement("entry");
+  auto* entryElement = playListElement->FirstChildElement("entry");
 
-  if (!pEntryElement) return false;
-  while (pEntryElement)
+  if (!entryElement)
+    return false;
+  while (entryElement)
   {
-    std::string strFileName = XMLUtils::GetAttribute(pEntryElement, "Playstring");
+    std::string strFileName = XMLUtils::GetAttribute(entryElement, "Playstring");
     size_t iColon = strFileName.find(':');
     if (iColon != std::string::npos)
     {
@@ -78,16 +83,16 @@ bool CPlayListB4S::LoadData(std::istream& stream)
     }
     if (strFileName.size())
     {
-      TiXmlNode* pNodeInfo = pEntryElement->FirstChild("Name");
-      TiXmlNode* pNodeLength = pEntryElement->FirstChild("Length");
+      auto* nodeInfo = entryElement->FirstChildElement("Name");
+      auto* nodeLength = entryElement->FirstChildElement("Length");
       long lDuration = 0;
-      if (pNodeLength)
+      if (nodeLength)
       {
-        lDuration = atol(pNodeLength->FirstChild()->Value());
+        lDuration = atol(nodeLength->FirstChild()->Value());
       }
-      if (pNodeInfo)
+      if (nodeInfo)
       {
-        std::string strInfo = pNodeInfo->FirstChild()->Value();
+        std::string strInfo = nodeInfo->FirstChild()->Value();
         strFileName = URIUtils::SubstitutePath(strFileName);
         CUtil::GetQualifiedFilename(m_strBasePath, strFileName);
         CFileItemPtr newItem(new CFileItem(strInfo));
@@ -96,7 +101,7 @@ bool CPlayListB4S::LoadData(std::istream& stream)
         Add(newItem);
       }
     }
-    pEntryElement = pEntryElement->NextSiblingElement();
+    entryElement = entryElement->NextSiblingElement();
   }
   return true;
 }

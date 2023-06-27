@@ -50,6 +50,7 @@ const std::map<std::string, std::string> CMime::m_mimetypes = {
      {"au", "audio/basic"},
      {"avi", "video/avi"},
      {"avs", "video/avs-video"},
+     {"b4s", "application/b4s+xml"},
      {"bcpio", "application/x-bcpio"},
      {"bin", "application/octet-stream"},
      {"bm", "image/bmp"},

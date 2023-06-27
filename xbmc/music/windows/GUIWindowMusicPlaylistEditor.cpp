@@ -342,7 +342,7 @@ void CGUIWindowMusicPlaylistEditor::OnLoadPlaylist()
   // Prompt user for file to load from music playlists folder
   std::string playlist;
   if (CGUIDialogFileBrowser::ShowAndGetFile("special://musicplaylists/",
-                                            ".m3u|.m3u8|.pls|.b4s|.wpl|.xspf", g_localizeStrings.Get(656),
+                                            ".b4s|.m3u|.m3u8|.pls|.b4s|.wpl|.xspf", g_localizeStrings.Get(656),
                                             playlist))
     LoadPlaylist(playlist);
 }
