@@ -11,7 +11,7 @@
 #include "settings/lib/SettingDefinitions.h"
 #include "settings/lib/SettingSection.h"
 #include "settings/lib/SettingsManager.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"
 
@@ -23,25 +23,27 @@ std::string CSettingsValueXmlSerializer::SerializeValues(
   if (settingsManager == nullptr)
     return "";
 
-  CXBMCTinyXML xmlDoc;
-  TiXmlElement rootElement(SETTINGS_XML_ROOT);
-  rootElement.SetAttribute(SETTING_XML_ROOT_VERSION, settingsManager->GetVersion());
-  TiXmlNode* xmlRoot = xmlDoc.InsertEndChild(rootElement);
-  if (xmlRoot == nullptr)
+  CXBMCTinyXML2 xmlDoc;
+  auto* rootElement = xmlDoc.NewElement(SETTINGS_XML_ROOT);
+  rootElement->SetAttribute(SETTING_XML_ROOT_VERSION, settingsManager->GetVersion());
+  auto* xmlRoot = xmlDoc.InsertEndChild(rootElement);
+  if (!xmlRoot)
     return "";
 
   const auto sections = settingsManager->GetSections();
   for (const auto& section : sections)
     SerializeSection(xmlRoot, section);
 
-  std::stringstream stream;
-  stream << *xmlDoc.RootElement();
+  std::string stream;
+  tinyxml2::XMLPrinter printer;
+  xmlDoc.RootElement()->Accept(&printer);
+  stream = printer.CStr();
 
-  return stream.str();
+  return stream;
 }
 
 void CSettingsValueXmlSerializer::SerializeSection(
-    TiXmlNode* parent, const std::shared_ptr<CSettingSection>& section) const
+    tinyxml2::XMLNode* parent, const std::shared_ptr<CSettingSection>& section) const
 {
   if (section == nullptr)
     return;
@@ -52,7 +54,7 @@ void CSettingsValueXmlSerializer::SerializeSection(
 }
 
 void CSettingsValueXmlSerializer::SerializeCategory(
-    TiXmlNode* parent, const std::shared_ptr<CSettingCategory>& category) const
+    tinyxml2::XMLNode* parent, const std::shared_ptr<CSettingCategory>& category) const
 {
   if (category == nullptr)
     return;
@@ -62,7 +64,7 @@ void CSettingsValueXmlSerializer::SerializeCategory(
     SerializeGroup(parent, group);
 }
 
-void CSettingsValueXmlSerializer::SerializeGroup(TiXmlNode* parent,
+void CSettingsValueXmlSerializer::SerializeGroup(tinyxml2::XMLNode* parent,
                                                  const std::shared_ptr<CSettingGroup>& group) const
 {
   if (group == nullptr)
@@ -73,7 +75,7 @@ void CSettingsValueXmlSerializer::SerializeGroup(TiXmlNode* parent,
     SerializeSetting(parent, setting);
 }
 
-void CSettingsValueXmlSerializer::SerializeSetting(TiXmlNode* parent,
+void CSettingsValueXmlSerializer::SerializeSetting(tinyxml2::XMLNode* parent,
                                                    const std::shared_ptr<CSetting>& setting) const
 {
   if (setting == nullptr)
@@ -83,16 +85,17 @@ void CSettingsValueXmlSerializer::SerializeSetting(TiXmlNode* parent,
   if (setting->IsReference() || setting->GetType() == SettingType::Action)
     return;
 
-  TiXmlElement settingElement(SETTING_XML_ELM_SETTING);
-  settingElement.SetAttribute(SETTING_XML_ATTR_ID, setting->GetId());
+  auto* xmlDoc = parent->GetDocument();
+  auto settingElement = xmlDoc->NewElement(SETTING_XML_ELM_SETTING);
+  settingElement->SetAttribute(SETTING_XML_ATTR_ID, setting->GetId().c_str());
 
   // add the default attribute
   if (setting->IsDefault())
-    settingElement.SetAttribute(SETTING_XML_ELM_DEFAULT, "true");
+    settingElement->SetAttribute(SETTING_XML_ELM_DEFAULT, "true");
 
   // add the value
-  TiXmlText value(setting->ToString());
-  settingElement.InsertEndChild(value);
+  auto value = xmlDoc->NewText(setting->ToString().c_str());
+  settingElement->InsertEndChild(value);
 
   if (parent->InsertEndChild(settingElement) == nullptr)
     CLog::Log(LOGWARNING,

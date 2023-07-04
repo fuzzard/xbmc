@@ -23,8 +23,9 @@
 #include "utils/SortUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/TimeUtils.h"
-#include "utils/XBMCTinyXML.h"
 #include "utils/log.h"
+
+#include <tinyxml2.h>
 
 #define HOLD_TIME_START 100
 #define HOLD_TIME_END   3000
@@ -1178,17 +1179,19 @@ void CGUIBaseContainer::ScrollToOffset(int offset)
   SetOffset(offset);
 }
 
-void CGUIBaseContainer::SetAutoScrolling(const TiXmlNode *node)
+void CGUIBaseContainer::SetAutoScrolling(const tinyxml2::XMLNode* node)
 {
   if (!node) return;
-  const TiXmlElement *scroll = node->FirstChildElement("autoscroll");
+  const auto* scroll = node->FirstChildElement("autoscroll");
   if (scroll)
   {
-    scroll->Attribute("time", &m_autoScrollMoveTime);
+    const char* time = scroll->Attribute("time");
+    m_autoScrollMoveTime = std::stoi(time);
     if (scroll->Attribute("reverse"))
       m_autoScrollIsReversed = true;
     if (scroll->FirstChild())
-      m_autoScrollCondition = CServiceBroker::GetGUI()->GetInfoManager().Register(scroll->FirstChild()->ValueStr(), GetParentID());
+      m_autoScrollCondition = CServiceBroker::GetGUI()->GetInfoManager().Register(
+          scroll->FirstChild()->Value(), GetParentID());
   }
 }
 
@@ -1245,9 +1248,9 @@ void CGUIBaseContainer::Reset()
   ResetAutoScrolling();
 }
 
-void CGUIBaseContainer::LoadLayout(TiXmlElement *layout)
+void CGUIBaseContainer::LoadLayout(tinyxml2::XMLElement* layout)
 {
-  TiXmlElement *itemElement = layout->FirstChildElement("itemlayout");
+  auto* itemElement = layout->FirstChildElement("itemlayout");
   while (itemElement)
   { // we have a new item layout
     m_layouts.emplace_back();
@@ -1265,7 +1268,9 @@ void CGUIBaseContainer::LoadLayout(TiXmlElement *layout)
   }
 }
 
-void CGUIBaseContainer::LoadListProvider(TiXmlElement *content, int defaultItem, bool defaultAlways)
+void CGUIBaseContainer::LoadListProvider(tinyxml2::XMLElement* content,
+                                         int defaultItem,
+                                         bool defaultAlways)
 {
   m_listProvider = IListProvider::Create(content, GetParentID());
   if (m_listProvider)

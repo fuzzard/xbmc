@@ -14,7 +14,7 @@
 
 #include "InfoScanner.h"
 #include "addons/Scraper.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 
 #include <string>
 #include <utility>
@@ -36,11 +36,11 @@ public:
     bool GetDetails(T& details, const char* document=NULL,
                     bool prioritise=false)
   {
-    CXBMCTinyXML doc;
+    CXBMCTinyXML2 doc;
     if (document)
-      doc.Parse(document, TIXML_ENCODING_UNKNOWN);
+      doc.Parse(static_cast<std::string_view>(document));
     else if (m_headPos < m_doc.size())
-      doc.Parse(m_doc.substr(m_headPos), TIXML_ENCODING_UNKNOWN);
+      doc.Parse(m_doc.substr(m_headPos));
     else
       return false;
 

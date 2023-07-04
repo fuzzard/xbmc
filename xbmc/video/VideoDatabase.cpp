@@ -49,6 +49,7 @@
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/Variant.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"
 #include "video/VideoDbUrl.h"
@@ -62,6 +63,8 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+
+#include <tinyxml2.h>
 
 using namespace dbiplus;
 using namespace XFILE;
@@ -10029,17 +10032,16 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
     int current = 0;
 
     // create our xml document
-    CXBMCTinyXML xmlDoc;
-    TiXmlDeclaration decl("1.0", "UTF-8", "yes");
-    xmlDoc.InsertEndChild(decl);
-    TiXmlNode *pMain = NULL;
+    CXBMCTinyXML2 xmlDoc;
+    xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
+    tinyxml2::XMLNode* mainNode = nullptr;
     if (!singleFile)
-      pMain = &xmlDoc;
+      mainNode = &xmlDoc;
     else
     {
-      TiXmlElement xmlMainElement("videodb");
-      pMain = xmlDoc.InsertEndChild(xmlMainElement);
-      XMLUtils::SetInt(pMain,"version", GetExportVersion());
+      auto* node = xmlDoc.NewElement("videodb");
+      mainNode = xmlDoc.InsertEndChild(node);
+      XMLUtils::SetInt(mainNode, "version", GetExportVersion());
     }
 
     while (!m_pDS->eof())
@@ -10051,13 +10053,13 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       std::map<std::string, std::string> artwork;
       if (GetArtForItem(movie.m_iDbId, movie.m_type, artwork) && singleFile)
       {
-        TiXmlElement additionalNode("art");
+        auto* additionalNode = xmlDoc.NewElement("art");
         for (const auto &i : artwork)
-          XMLUtils::SetString(&additionalNode, i.first.c_str(), i.second);
-        movie.Save(pMain, "movie", true, &additionalNode);
+          XMLUtils::SetString(additionalNode, i.first.c_str(), i.second);
+        movie.Save(mainNode, "movie", true, additionalNode);
       }
       else
-        movie.Save(pMain, "movie", singleFile);
+        movie.Save(mainNode, "movie", singleFile);
 
       // reset old skip state
       bool bSkip = false;
@@ -10109,8 +10111,7 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       if (!singleFile)
       {
         xmlDoc.Clear();
-        TiXmlDeclaration decl("1.0", "UTF-8", "yes");
-        xmlDoc.InsertEndChild(decl);
+        xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
       }
 
       if (images && !bSkip)
@@ -10202,13 +10203,13 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       std::map<std::string, std::string> artwork;
       if (GetArtForItem(movie.m_iDbId, movie.m_type, artwork) && singleFile)
       {
-        TiXmlElement additionalNode("art");
+        auto* additionalNode = xmlDoc.NewElement("art");
         for (const auto &i : artwork)
-          XMLUtils::SetString(&additionalNode, i.first.c_str(), i.second);
-        movie.Save(pMain, "musicvideo", true, &additionalNode);
+          XMLUtils::SetString(additionalNode, i.first.c_str(), i.second);
+        movie.Save(mainNode, "musicvideo", true, additionalNode);
       }
       else
-        movie.Save(pMain, "musicvideo", singleFile);
+        movie.Save(mainNode, "musicvideo", singleFile);
 
       // reset old skip state
       bool bSkip = false;
@@ -10254,8 +10255,7 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       if (!singleFile)
       {
         xmlDoc.Clear();
-        TiXmlDeclaration decl("1.0", "UTF-8", "yes");
-        xmlDoc.InsertEndChild(decl);
+        xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
       }
       if (images && !bSkip)
       {
@@ -10295,21 +10295,21 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       std::map<std::string, std::string> artwork;
       if (GetArtForItem(tvshow.m_iDbId, tvshow.m_type, artwork) && singleFile)
       {
-        TiXmlElement additionalNode("art");
+        auto* additionalNode = xmlDoc.NewElement("art");
         for (const auto &i : artwork)
-          XMLUtils::SetString(&additionalNode, i.first.c_str(), i.second);
+          XMLUtils::SetString(additionalNode, i.first.c_str(), i.second);
         for (const auto &i : seasonArt)
         {
-          TiXmlElement seasonNode("season");
-          seasonNode.SetAttribute("num", i.first);
+          auto* seasonNode = xmlDoc.NewElement("season");
+          seasonNode->SetAttribute("num", i.first);
           for (const auto &j : i.second)
-            XMLUtils::SetString(&seasonNode, j.first.c_str(), j.second);
-          additionalNode.InsertEndChild(seasonNode);
+            XMLUtils::SetString(seasonNode, j.first.c_str(), j.second);
+          additionalNode->InsertEndChild(seasonNode);
         }
-        tvshow.Save(pMain, "tvshow", true, &additionalNode);
+        tvshow.Save(mainNode, "tvshow", true, additionalNode);
       }
       else
-        tvshow.Save(pMain, "tvshow", singleFile);
+        tvshow.Save(mainNode, "tvshow", singleFile);
 
       // reset old skip state
       bool bSkip = false;
@@ -10354,8 +10354,7 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       if (!singleFile)
       {
         xmlDoc.Clear();
-        TiXmlDeclaration decl("1.0", "UTF-8", "yes");
-        xmlDoc.InsertEndChild(decl);
+        xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
       }
       if (images && !bSkip)
       {
@@ -10401,22 +10400,22 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
         std::map<std::string, std::string> artwork;
         if (GetArtForItem(episode.m_iDbId, MediaTypeEpisode, artwork) && singleFile)
         {
-          TiXmlElement additionalNode("art");
+          auto* additionalNode = xmlDoc.NewElement("art");
           for (const auto &i : artwork)
-            XMLUtils::SetString(&additionalNode, i.first.c_str(), i.second);
-          episode.Save(pMain->LastChild(), "episodedetails", true, &additionalNode);
+            XMLUtils::SetString(additionalNode, i.first.c_str(), i.second);
+          episode.Save(mainNode->LastChild(), "episodedetails", true, additionalNode);
         }
         else if (singleFile)
-          episode.Save(pMain->LastChild(), "episodedetails", singleFile);
+          episode.Save(mainNode->LastChild(), "episodedetails", singleFile);
         else
-          episode.Save(pMain, "episodedetails", singleFile);
+          episode.Save(mainNode, "episodedetails", singleFile);
         pDS->next();
         // multi-episode files need dumping to the same XML
         while (!singleFile && !pDS->eof() &&
                episode.m_iFileId == pDS->fv("idFile").get_asInt())
         {
           episode = GetDetailsForEpisode(pDS, VideoDbDetailsAll);
-          episode.Save(pMain, "episodedetails", singleFile);
+          episode.Save(mainNode, "episodedetails", singleFile);
           pDS->next();
         }
 
@@ -10450,8 +10449,7 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
         if (!singleFile)
         {
           xmlDoc.Clear();
-          TiXmlDeclaration decl("1.0", "UTF-8", "yes");
-          xmlDoc.InsertEndChild(decl);
+          xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
         }
 
         if (images && !bSkip)
@@ -10488,8 +10486,8 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
       // now dump path info
       std::set<std::string> paths;
       GetPaths(paths);
-      TiXmlElement xmlPathElement("paths");
-      TiXmlNode *pPaths = pMain->InsertEndChild(xmlPathElement);
+      auto* xmlPathElement = xmlDoc.NewElement("paths");
+      auto* pPaths = mainNode->InsertEndChild(xmlPathElement);
       for (const auto &i : paths)
       {
         bool foundDirectly = false;
@@ -10497,8 +10495,8 @@ void CVideoDatabase::ExportToXML(const std::string &path, bool singleFile /* = t
         ScraperPtr info = GetScraperForPath(i, settings, foundDirectly);
         if (info && foundDirectly)
         {
-          TiXmlElement xmlPathElement2("path");
-          TiXmlNode *pPath = pPaths->InsertEndChild(xmlPathElement2);
+          auto* xmlPathElement2 = xmlDoc.NewElement("path");
+          auto* pPath = pPaths->InsertEndChild(xmlPathElement2);
           XMLUtils::SetString(pPath,"url", i);
           XMLUtils::SetInt(pPath,"scanrecursive", settings.recurse);
           XMLUtils::SetBoolean(pPath,"usefoldernames", settings.parent_name);
@@ -10568,11 +10566,11 @@ void CVideoDatabase::ImportFromXML(const std::string &path)
     if (nullptr == m_pDS)
       return;
 
-    CXBMCTinyXML xmlDoc;
+    CXBMCTinyXML2 xmlDoc;
     if (!xmlDoc.LoadFile(URIUtils::AddFileToFolder(path, "videodb.xml")))
       return;
 
-    TiXmlElement *root = xmlDoc.RootElement();
+    auto* root = xmlDoc.RootElement();
     if (!root) return;
 
     progress = CServiceBroker::GetGUI()->GetWindowManager().GetWindow<CGUIDialogProgress>(WINDOW_DIALOG_PROGRESS);
@@ -10592,7 +10590,7 @@ void CVideoDatabase::ImportFromXML(const std::string &path)
 
     CLog::Log(LOGINFO, "{}: Starting import (export version = {})", __FUNCTION__, iVersion);
 
-    TiXmlElement *movie = root->FirstChildElement();
+    auto* movie = root->FirstChildElement();
     int current = 0;
     int total = 0;
     // first count the number of items...
@@ -10612,7 +10610,7 @@ void CVideoDatabase::ImportFromXML(const std::string &path)
     std::string tvshowsDir(URIUtils::AddFileToFolder(path, "tvshows"));
     CVideoInfoScanner scanner;
     // add paths first (so we have scraper settings available)
-    TiXmlElement *path = root->FirstChildElement("paths");
+    auto* path = root->FirstChildElement("paths");
     path = path->FirstChildElement();
     while (path)
     {
@@ -10718,7 +10716,7 @@ void CVideoDatabase::ImportFromXML(const std::string &path)
         }
         current++;
         // now load the episodes
-        TiXmlElement *episode = movie->FirstChildElement("episodedetails");
+        auto* episode = movie->FirstChildElement("episodedetails");
         while (episode)
         {
           // no need to delete the episode info, due to the above deletion
@@ -10757,13 +10755,14 @@ void CVideoDatabase::ImportFromXML(const std::string &path)
     progress->Close();
 }
 
-bool CVideoDatabase::ImportArtFromXML(const TiXmlNode *node, std::map<std::string, std::string> &artwork)
+bool CVideoDatabase::ImportArtFromXML(const tinyxml2::XMLNode* node,
+                                      std::map<std::string, std::string>& artwork)
 {
   if (!node) return false;
-  const TiXmlNode *art = node->FirstChild();
+  const auto* art = node->FirstChild();
   while (art && art->FirstChild())
   {
-    artwork.insert(make_pair(art->ValueStr(), art->FirstChild()->ValueStr()));
+    artwork.insert(std::make_pair(art->Value(), art->FirstChild()->Value()));
     art = art->NextSibling();
   }
   return !artwork.empty();

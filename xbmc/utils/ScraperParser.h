@@ -18,8 +18,11 @@ namespace ADDON
   class CScraper;
 }
 
-class TiXmlElement;
-class CXBMCTinyXML;
+namespace tinyxml2
+{
+class XMLElement;
+} // namespace tinyxml2
+class CXBMCTinyXML2;
 
 class CScraperSettings;
 
@@ -40,14 +43,17 @@ public:
   const std::string Parse(const std::string& strTag,
                          ADDON::CScraper* scraper);
 
-  void AddDocument(const CXBMCTinyXML* doc);
+  void AddDocument(const CXBMCTinyXML2* doc);
 
   std::string m_param[MAX_SCRAPER_BUFFERS];
 
 private:
   bool LoadFromXML();
   void ReplaceBuffers(std::string& strDest);
-  void ParseExpression(const std::string& input, std::string& dest, TiXmlElement* element, bool bAppend);
+  void ParseExpression(const std::string& input,
+                       std::string& dest,
+                       tinyxml2::XMLElement* element,
+                       bool bAppend);
 
   /*! \brief Parse an 'XSLT' declaration from the scraper
    This allow us to transform an inbound XML document using XSLT
@@ -58,16 +64,18 @@ private:
    \param element the current XML element
    \param bAppend append or clear the buffer
    */
-  void ParseXSLT(const std::string& input, std::string& dest, TiXmlElement* element, bool bAppend);
-  void ParseNext(TiXmlElement* element);
+  void ParseXSLT(const std::string& input,
+                 std::string& dest,
+                 tinyxml2::XMLElement* element,
+                 bool bAppend);
+  void ParseNext(tinyxml2::XMLElement* element);
   void Clean(std::string& strDirty);
   void ConvertJSON(std::string &string);
   void ClearBuffers();
   void GetBufferParams(bool* result, const char* attribute, bool defvalue);
   void InsertToken(std::string& strOutput, int buf, const char* token);
 
-  CXBMCTinyXML* m_document;
-  TiXmlElement* m_pRootElement;
+  std::unique_ptr<CXBMCTinyXML2> m_document;
 
   const char* m_SearchStringEncoding;
   bool m_isNoop;

@@ -63,6 +63,8 @@
 
 #include <inttypes.h>
 
+#include <tinyxml2.h>
+
 using namespace XFILE;
 using namespace MUSICDATABASEDIRECTORY;
 using namespace KODI::MESSAGING;
@@ -11770,16 +11772,15 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
       return;
 
     // Create our xml document
-    CXBMCTinyXML xmlDoc;
-    TiXmlDeclaration decl("1.0", "UTF-8", "yes");
-    xmlDoc.InsertEndChild(decl);
-    TiXmlNode* pMain = NULL;
+    CXBMCTinyXML2 xmlDoc;
+    xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
+    tinyxml2::XMLNode* mainNode = nullptr;
     if ((settings.IsToLibFolders() || settings.IsSeparateFiles()) && !artistfoldersonly)
-      pMain = &xmlDoc;
+      mainNode = &xmlDoc;
     else if (settings.IsSingleFile())
     {
-      TiXmlElement xmlMainElement("musicdb");
-      pMain = xmlDoc.InsertEndChild(xmlMainElement);
+      tinyxml2::XMLElement* xmlMainElement = xmlDoc.NewElement("musicdb");
+      mainNode = xmlDoc.InsertEndChild(xmlMainElement);
     }
 
     if (settings.IsItemExported(ELIBEXPORT_ALBUMS) && !artistfoldersonly)
@@ -11817,7 +11818,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
         if (settings.IsSingleFile())
         {
           // Save album to xml, including album path
-          album.Save(pMain, "album", strAlbumPath);
+          album.Save(mainNode, "album", strAlbumPath);
         }
         else
         { // Separate files and artwork
@@ -11882,7 +11883,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
             if (!settings.m_skipnfo)
             {
               // Save album to NFO, including album path
-              album.Save(pMain, "album", strAlbumPath);
+              album.Save(mainNode, "album", strAlbumPath);
               std::string nfoFile = URIUtils::AddFileToFolder(strPath, "album.nfo");
               if (settings.m_overwrite || !CFile::Exists(nfoFile))
               {
@@ -11916,7 +11917,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
               }
             }
             xmlDoc.Clear();
-            xmlDoc.InsertEndChild(decl); // TiXmlDeclaration ("1.0", "UTF-8", "yes")
+            xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
           }
         }
 
@@ -11934,7 +11935,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
     // Export song playback history to single file only
     if (settings.IsSingleFile() && settings.IsItemExported(ELIBEXPORT_SONGS))
     {
-      if (!ExportSongHistory(pMain, progressDialog))
+      if (!ExportSongHistory(mainNode, progressDialog))
         return;
     }
 
@@ -11995,14 +11996,14 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
         {
           // Save artist to xml, and old path (common to music files) if it has one
           GetOldArtistPath(artist.idArtist, strPath);
-          artist.Save(pMain, "artist", strPath);
+          artist.Save(mainNode, "artist", strPath);
 
           if (GetArtForItem(artist.idArtist, MediaTypeArtist, artwork))
           { // append to the XML
-            TiXmlElement additionalNode("art");
+            auto* additionalNode = xmlDoc.NewElement("art");
             for (const auto& i : artwork)
-              XMLUtils::SetString(&additionalNode, i.first.c_str(), i.second);
-            pMain->LastChild()->InsertEndChild(additionalNode);
+              XMLUtils::SetString(additionalNode, i.first.c_str(), i.second);
+            mainNode->LastChild()->InsertEndChild(additionalNode);
           }
         }
         else
@@ -12026,7 +12027,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
             {
               if (!settings.m_skipnfo)
               {
-                artist.Save(pMain, "artist", strPath);
+                artist.Save(mainNode, "artist", strPath);
                 std::string nfoFile = URIUtils::AddFileToFolder(strPath, "artist.nfo");
                 if (settings.m_overwrite || !CFile::Exists(nfoFile))
                 {
@@ -12057,7 +12058,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
                 }
               }
               xmlDoc.Clear();
-              xmlDoc.InsertEndChild(decl); // TiXmlDeclaration ("1.0", "UTF-8", "yes")
+              xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
             }
           }
         }
@@ -12103,7 +12104,7 @@ void CMusicDatabase::ExportToXML(const CLibExportSettings& settings,
         CVariant{20196}, CVariant{StringUtils::Format(g_localizeStrings.Get(15011), iFailCount)});
 }
 
-bool CMusicDatabase::ExportSongHistory(TiXmlNode* pNode, CGUIDialogProgress* progressDialog)
+bool CMusicDatabase::ExportSongHistory(tinyxml2::XMLNode* node, CGUIDialogProgress* progressDialog)
 {
   try
   {
@@ -12121,10 +12122,11 @@ bool CMusicDatabase::ExportSongHistory(TiXmlNode* pNode, CGUIDialogProgress* pro
 
     int total = m_pDS->num_rows();
     int current = 0;
+    auto doc = node->GetDocument();
     while (!m_pDS->eof())
     {
-      TiXmlElement songElement("song");
-      TiXmlNode* song = pNode->InsertEndChild(songElement);
+      tinyxml2::XMLElement* songElement = doc->NewElement("song");
+      auto* song = node->InsertEndChild(songElement);
 
       XMLUtils::SetInt(song, "idsong", m_pDS->fv("idSong").get_asInt());
       XMLUtils::SetString(song, "artistdesc", m_pDS->fv("strArtistDisp").get_asString());
@@ -12182,18 +12184,18 @@ void CMusicDatabase::ImportFromXML(const std::string& xmlFile, CGUIDialogProgres
     if (nullptr == m_pDS)
       return;
 
-    CXBMCTinyXML xmlDoc;
+    CXBMCTinyXML2 xmlDoc;
     if (!xmlDoc.LoadFile(xmlFile) && progressDialog)
     {
       HELPERS::ShowOKDialogLines(CVariant{20197}, CVariant{38354}); //"Unable to read xml file"
       return;
     }
 
-    TiXmlElement* root = xmlDoc.RootElement();
+    auto* root = xmlDoc.RootElement();
     if (!root)
       return;
 
-    TiXmlElement* entry = root->FirstChildElement();
+    auto* entry = root->FirstChildElement();
     int current = 0;
     int total = 0;
     int songtotal = 0;
@@ -12294,15 +12296,15 @@ bool CMusicDatabase::ImportSongHistory(const std::string& xmlFile,
   bool bHistSongExists = false;
   try
   {
-    CXBMCTinyXML xmlDoc;
+    CXBMCTinyXML2 xmlDoc;
     if (!xmlDoc.LoadFile(xmlFile))
       return false;
 
-    TiXmlElement* root = xmlDoc.RootElement();
+    auto* root = xmlDoc.RootElement();
     if (!root)
       return false;
 
-    TiXmlElement* entry = root->FirstChildElement();
+    auto* entry = root->FirstChildElement();
     int current = 0;
 
     if (progressDialog)
@@ -12343,26 +12345,27 @@ bool CMusicDatabase::ImportSongHistory(const std::string& xmlFile,
         XMLUtils::GetString(entry, "albumartistdesc", strAlbumArtistDisp);
         XMLUtils::GetInt(entry, "timesplayed", iTimesplayed);
         XMLUtils::GetString(entry, "lastplayed", lastplayed);
-        const TiXmlElement* rElement = entry->FirstChildElement("rating");
-        if (rElement)
+        const auto* ratingElement = entry->FirstChildElement("rating");
+        if (ratingElement)
         {
           float rating = 0;
           float max_rating = 10;
           XMLUtils::GetFloat(entry, "rating", rating);
-          if (rElement->QueryFloatAttribute("max", &max_rating) == TIXML_SUCCESS && max_rating >= 1)
+          if (ratingElement->QueryFloatAttribute("max", &max_rating) == tinyxml2::XML_SUCCESS &&
+              max_rating >= 1)
             rating *= (10.f / max_rating); // Normalise the value to between 0 and 10
           if (rating > 10.f)
             rating = 10.f;
           fRating = rating;
         }
         XMLUtils::GetInt(entry, "votes", iVotes);
-        const TiXmlElement* userrating = entry->FirstChildElement("userrating");
+        const auto* userrating = entry->FirstChildElement("userrating");
         if (userrating)
         {
           float rating = 0;
           float max_rating = 10;
           XMLUtils::GetFloat(entry, "userrating", rating);
-          if (userrating->QueryFloatAttribute("max", &max_rating) == TIXML_SUCCESS &&
+          if (userrating->QueryFloatAttribute("max", &max_rating) == tinyxml2::XML_SUCCESS &&
               max_rating >= 1)
             rating *= (10.f / max_rating); // Normalise the value to between 0 and 10
           if (rating > 10.f)

@@ -16,6 +16,11 @@ namespace ADDON
 enum class AddonType;
 }
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 class CSettingAddon : public CSettingString
 {
 public:
@@ -26,7 +31,7 @@ public:
 
   SettingPtr Clone(const std::string &id) const override;
 
-  bool Deserialize(const TiXmlNode *node, bool update = false) override;
+  bool Deserialize(const tinyxml2::XMLNode* node, bool update = false) override;
 
   ADDON::AddonType GetAddonType() const { return m_addonType; }
   void SetAddonType(ADDON::AddonType addonType) { m_addonType = addonType; }

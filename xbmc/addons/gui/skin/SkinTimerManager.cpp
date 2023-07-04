@@ -13,7 +13,7 @@
 #include "guilib/GUIAction.h"
 #include "guilib/GUIComponent.h"
 #include "utils/StringUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
 #include <chrono>
@@ -23,22 +23,22 @@ using namespace std::chrono_literals;
 
 void CSkinTimerManager::LoadTimers(const std::string& path)
 {
-  CXBMCTinyXML doc;
+  CXBMCTinyXML2 doc;
   if (!doc.LoadFile(path))
   {
-    CLog::LogF(LOGWARNING, "Could not load timers file {}: {} (row: {}, col: {})", path,
-               doc.ErrorDesc(), doc.ErrorRow(), doc.ErrorCol());
+    CLog::LogF(LOGWARNING, "Could not load timers file {}: {} (Line: {})", path, doc.ErrorStr(),
+               doc.ErrorLineNum());
     return;
   }
 
-  TiXmlElement* root = doc.RootElement();
+  auto* root = doc.RootElement();
   if (!root || !StringUtils::EqualsNoCase(root->Value(), "timers"))
   {
     CLog::LogF(LOGERROR, "Error loading timers file {}: Root element <timers> required.", path);
     return;
   }
 
-  const TiXmlElement* timerNode = root->FirstChildElement("timer");
+  auto* timerNode = root->FirstChildElement("timer");
   while (timerNode)
   {
     LoadTimerInternal(timerNode);
@@ -46,16 +46,16 @@ void CSkinTimerManager::LoadTimers(const std::string& path)
   }
 }
 
-void CSkinTimerManager::LoadTimerInternal(const TiXmlElement* node)
+void CSkinTimerManager::LoadTimerInternal(const tinyxml2::XMLElement* node)
 {
-  if ((!node->FirstChild("name") || !node->FirstChild("name")->FirstChild() ||
-       node->FirstChild("name")->FirstChild()->ValueStr().empty()))
+  if ((!node->FirstChildElement("name") || !node->FirstChildElement("name")->FirstChild() ||
+       strcmp(node->FirstChildElement("name")->FirstChild()->Value(), "\0") == 0))
   {
     CLog::LogF(LOGERROR, "Missing required field name for valid skin. Ignoring timer.");
     return;
   }
 
-  std::string timerName = node->FirstChild("name")->FirstChild()->Value();
+  std::string timerName = node->FirstChildElement("name")->FirstChild()->Value();
   if (m_timers.count(timerName) > 0)
   {
     CLog::LogF(LOGWARNING,
@@ -67,11 +67,11 @@ void CSkinTimerManager::LoadTimerInternal(const TiXmlElement* node)
   // timer start
   INFO::InfoPtr startInfo{nullptr};
   bool resetOnStart{false};
-  if (node->FirstChild("start") && node->FirstChild("start")->FirstChild() &&
-      !node->FirstChild("start")->FirstChild()->ValueStr().empty())
+  if (node->FirstChildElement("start") && node->FirstChildElement("start")->FirstChild() &&
+      strcmp(node->FirstChildElement("start")->FirstChild()->Value(), "\0") != 0)
   {
     startInfo = CServiceBroker::GetGUI()->GetInfoManager().Register(
-        node->FirstChild("start")->FirstChild()->ValueStr());
+        node->FirstChildElement("start")->FirstChild()->Value());
     // check if timer needs to be reset after start
     if (node->FirstChildElement("start")->Attribute("reset") &&
         StringUtils::EqualsNoCase(node->FirstChildElement("start")->Attribute("reset"), "true"))
@@ -82,25 +82,25 @@ void CSkinTimerManager::LoadTimerInternal(const TiXmlElement* node)
 
   // timer reset
   INFO::InfoPtr resetInfo{nullptr};
-  if (node->FirstChild("reset") && node->FirstChild("reset")->FirstChild() &&
-      !node->FirstChild("reset")->FirstChild()->ValueStr().empty())
+  if (node->FirstChildElement("reset") && node->FirstChildElement("reset")->FirstChild() &&
+      strcmp(node->FirstChildElement("reset")->FirstChild()->Value(), "\0") != 0)
   {
     resetInfo = CServiceBroker::GetGUI()->GetInfoManager().Register(
-        node->FirstChild("reset")->FirstChild()->ValueStr());
+        node->FirstChildElement("reset")->FirstChild()->Value());
   }
   // timer stop
   INFO::InfoPtr stopInfo{nullptr};
-  if (node->FirstChild("stop") && node->FirstChild("stop")->FirstChild() &&
-      !node->FirstChild("stop")->FirstChild()->ValueStr().empty())
+  if (node->FirstChildElement("stop") && node->FirstChildElement("stop")->FirstChild() &&
+      strcmp(node->FirstChildElement("stop")->FirstChild()->Value(), "\0") != 0)
   {
     stopInfo = CServiceBroker::GetGUI()->GetInfoManager().Register(
-        node->FirstChild("stop")->FirstChild()->ValueStr());
+        node->FirstChildElement("stop")->FirstChild()->Value());
   }
 
   // process onstart actions
   CGUIAction startActions;
   startActions.EnableSendThreadMessageMode();
-  const TiXmlElement* onStartElement = node->FirstChildElement("onstart");
+  const auto* onStartElement = node->FirstChildElement("onstart");
   while (onStartElement)
   {
     if (onStartElement->FirstChild())
@@ -117,7 +117,7 @@ void CSkinTimerManager::LoadTimerInternal(const TiXmlElement* node)
   // process onstop actions
   CGUIAction stopActions;
   stopActions.EnableSendThreadMessageMode();
-  const TiXmlElement* onStopElement = node->FirstChildElement("onstop");
+  const auto* onStopElement = node->FirstChildElement("onstop");
   while (onStopElement)
   {
     if (onStopElement->FirstChild())

@@ -28,8 +28,13 @@
  */
 
 class IListProvider;
-class TiXmlNode;
 class CGUIListItemLayout;
+
+namespace tinyxml2
+{
+class XMLNode;
+class XMLElement;
+} // namespace tinyxml2
 
 class CGUIBaseContainer : public IGUIContainer
 {
@@ -65,8 +70,8 @@ public:
   void DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyregions) override;
   void Process(unsigned int currentTime, CDirtyRegionList &dirtyregions) override;
 
-  void LoadLayout(TiXmlElement *layout);
-  void LoadListProvider(TiXmlElement *content, int defaultItem, bool defaultAlways);
+  void LoadLayout(tinyxml2::XMLElement* layout);
+  void LoadListProvider(tinyxml2::XMLElement* content, int defaultItem, bool defaultAlways);
 
   CGUIListItemPtr GetListItem(int offset, unsigned int flag = 0) const override;
 
@@ -89,7 +94,7 @@ public:
   void SetFocusActions(const CGUIAction& focusActions) { m_focusActions = focusActions; }
   void SetUnFocusActions(const CGUIAction& unfocusActions) { m_unfocusActions = unfocusActions; }
 
-  void SetAutoScrolling(const TiXmlNode *node);
+  void SetAutoScrolling(const tinyxml2::XMLNode* node);
   void ResetAutoScrolling();
   void UpdateAutoScrolling(unsigned int currentTime);
 

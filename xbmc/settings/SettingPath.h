@@ -14,6 +14,11 @@
 
 class CFileExtensionProvider;
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 class CSettingPath : public CSettingString
 {
 public:
@@ -24,7 +29,7 @@ public:
 
   SettingPtr Clone(const std::string &id) const override;
 
-  bool Deserialize(const TiXmlNode *node, bool update = false) override;
+  bool Deserialize(const tinyxml2::XMLNode* node, bool update = false) override;
   bool SetValue(const std::string &value) override;
 
   bool Writable() const { return m_writable; }
