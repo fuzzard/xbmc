@@ -13,10 +13,15 @@
 
 #include <vector>
 
+namespace tinyxml2
+{
+class XMLElement;
+}
+
 class CStaticListProvider : public IListProvider
 {
 public:
-  CStaticListProvider(const TiXmlElement *element, int parentID);
+  CStaticListProvider(const tinyxml2::XMLElement* element, int parentID);
   explicit CStaticListProvider(const std::vector<CGUIStaticItemPtr> &items); // for python
   explicit CStaticListProvider(const CStaticListProvider& other);
   ~CStaticListProvider() override;

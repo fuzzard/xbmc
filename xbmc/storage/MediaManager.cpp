@@ -43,7 +43,7 @@
 #include "utils/FileUtils.h"
 #include "utils/JobManager.h"
 #include "utils/StringUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"
 
@@ -88,33 +88,33 @@ bool CMediaManager::LoadSources()
   m_locations.clear();
 
   // load xml file...
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
   if ( !xmlDoc.LoadFile( MEDIA_SOURCES_XML ) )
     return false;
 
-  TiXmlElement* pRootElement = xmlDoc.RootElement();
-  if (!pRootElement || StringUtils::CompareNoCase(pRootElement->Value(), "mediasources") != 0)
+  auto* rootElement = xmlDoc.RootElement();
+  if (!rootElement || StringUtils::CompareNoCase(rootElement->Value(), "mediasources") != 0)
   {
-    CLog::Log(LOGERROR, "Error loading {}, Line {} ({})", MEDIA_SOURCES_XML, xmlDoc.ErrorRow(),
-              xmlDoc.ErrorDesc());
+    CLog::Log(LOGERROR, "Error loading {}, Line {} ({})", MEDIA_SOURCES_XML, xmlDoc.ErrorLineNum(),
+              xmlDoc.ErrorStr());
     return false;
   }
 
   // load the <network> block
-  TiXmlNode *pNetwork = pRootElement->FirstChild("network");
-  if (pNetwork)
+  auto* networkElement = rootElement->FirstChildElement("network");
+  if (networkElement)
   {
-    TiXmlElement *pLocation = pNetwork->FirstChildElement("location");
-    while (pLocation)
+    auto* locationElement = networkElement->FirstChildElement("location");
+    while (locationElement)
     {
       CNetworkLocation location;
-      pLocation->Attribute("id", &location.id);
-      if (pLocation->FirstChild())
+      locationElement->Attribute("id", std::to_string(location.id).c_str());
+      if (locationElement->FirstChild())
       {
-        location.path = pLocation->FirstChild()->Value();
+        location.path = locationElement->FirstChild()->Value();
         m_locations.push_back(location);
       }
-      pLocation = pLocation->NextSiblingElement("location");
+      locationElement = locationElement->NextSiblingElement("location");
     }
   }
   LoadAddonSources();
@@ -123,22 +123,24 @@ bool CMediaManager::LoadSources()
 
 bool CMediaManager::SaveSources()
 {
-  CXBMCTinyXML xmlDoc;
-  TiXmlElement xmlRootElement("mediasources");
-  TiXmlNode *pRoot = xmlDoc.InsertEndChild(xmlRootElement);
-  if (!pRoot) return false;
+  CXBMCTinyXML2 xmlDoc;
+  auto* xmlRootElement = xmlDoc.NewElement("mediasources");
+  auto* rootNode = xmlDoc.InsertEndChild(xmlRootElement);
 
-  TiXmlElement networkNode("network");
-  TiXmlNode *pNetworkNode = pRoot->InsertEndChild(networkNode);
-  if (pNetworkNode)
+  if (!rootNode)
+    return false;
+
+  auto* networkElement = xmlDoc.NewElement("network");
+  auto* networkNode = rootNode->InsertEndChild(networkElement);
+  if (networkNode)
   {
     for (std::vector<CNetworkLocation>::iterator it = m_locations.begin(); it != m_locations.end(); ++it)
     {
-      TiXmlElement locationNode("location");
-      locationNode.SetAttribute("id", (*it).id);
-      TiXmlText value((*it).path);
-      locationNode.InsertEndChild(value);
-      pNetworkNode->InsertEndChild(locationNode);
+      auto locationNode = xmlDoc.NewElement("location");
+      locationNode->SetAttribute("id", (*it).id);
+      auto value = xmlDoc.NewText((*it).path.c_str());
+      locationNode->InsertEndChild(value);
+      networkNode->InsertEndChild(locationNode);
     }
   }
   return xmlDoc.SaveFile(MEDIA_SOURCES_XML);
@@ -789,17 +791,17 @@ bool CMediaManager::playStubFile(const CFileItem& item)
   strLine1 = g_localizeStrings.Get(435).c_str();
   strLine2 = g_localizeStrings.Get(436).c_str();
 
-  CXBMCTinyXML discStubXML;
+  CXBMCTinyXML2 discStubXML;
   if (discStubXML.LoadFile(item.GetPath()))
   {
-    TiXmlElement* pRootElement = discStubXML.RootElement();
-    if (!pRootElement || StringUtils::CompareNoCase(pRootElement->Value(), "discstub") != 0)
+    auto* rootElement = discStubXML.RootElement();
+    if (!rootElement || StringUtils::CompareNoCase(rootElement->Value(), "discstub") != 0)
       CLog::Log(LOGINFO, "No <discstub> node found for {}. Using default info dialog message",
                 item.GetPath());
     else
     {
-      XMLUtils::GetString(pRootElement, "title", strLine1);
-      XMLUtils::GetString(pRootElement, "message", strLine2);
+      XMLUtils::GetString(rootElement, "title", strLine1);
+      XMLUtils::GetString(rootElement, "message", strLine2);
       // no title? use the label of the CFileItem as line 1
       if (strLine1.empty())
         strLine1 = item.GetLabel();

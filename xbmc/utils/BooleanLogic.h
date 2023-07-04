@@ -19,6 +19,11 @@ typedef enum {
   BooleanLogicOperationAnd
 } BooleanLogicOperation;
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 class CBooleanLogicValue : public IXmlDeserializable
 {
 public:
@@ -27,7 +32,7 @@ public:
   { }
   ~CBooleanLogicValue() override = default;
 
-  bool Deserialize(const TiXmlNode *node) override;
+  bool Deserialize(const tinyxml2::XMLNode* node) override;
 
   virtual const std::string& GetValue() const { return m_value; }
   virtual bool IsNegated() const { return m_negated; }
@@ -56,7 +61,7 @@ public:
   { }
   ~CBooleanLogicOperation() override = default;
 
-  bool Deserialize(const TiXmlNode *node) override;
+  bool Deserialize(const tinyxml2::XMLNode* node) override;
 
   virtual BooleanLogicOperation GetOperation() const { return m_operation; }
   virtual const CBooleanLogicOperations& GetOperations() const { return m_operations; }
@@ -80,7 +85,7 @@ protected:
   ~CBooleanLogic() override = default;
 
 public:
-  bool Deserialize(const TiXmlNode *node) override;
+  bool Deserialize(const tinyxml2::XMLNode* node) override;
 
   const CBooleanLogicOperationPtr& Get() const { return m_operation; }
   CBooleanLogicOperationPtr Get() { return m_operation; }

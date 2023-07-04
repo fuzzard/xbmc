@@ -12,9 +12,12 @@
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
 #include "utils/Fanart.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 
 #include <algorithm>
+
+#include <tinyxml2.h>
 
 void CArtist::MergeScrapedArtist(const CArtist& source, bool override /* = true */)
 {
@@ -64,8 +67,7 @@ void CArtist::MergeScrapedArtist(const CArtist& source, bool override /* = true 
   discography = source.discography;
 }
 
-
-bool CArtist::Load(const TiXmlElement *artist, bool append, bool prioritise)
+bool CArtist::Load(const tinyxml2::XMLElement* artist, bool append, bool prioritise)
 {
   if (!artist) return false;
   if (!append)
@@ -95,15 +97,17 @@ bool CArtist::Load(const TiXmlElement *artist, bool append, bool prioritise)
   std::string xmlAdd = thumbURL.GetData();
 
   // Available artist thumbs
-  const TiXmlElement* thumb = artist->FirstChildElement("thumb");
+  tinyxml2::XMLPrinter printer;
+  const auto* thumb = artist->FirstChildElement("thumb");
+
   while (thumb)
   {
     thumbURL.ParseAndAppendUrl(thumb);
     if (prioritise)
     {
-      std::string temp;
-      temp << *thumb;
-      xmlAdd = temp+xmlAdd;
+      thumb->Accept(&printer);
+      const char* temp{printer.CStr()};
+      xmlAdd = temp + xmlAdd;
     }
     thumb = thumb->NextSiblingElement("thumb");
   }
@@ -117,7 +121,7 @@ bool CArtist::Load(const TiXmlElement *artist, bool append, bool prioritise)
   }
 
   // Discography
-  const TiXmlElement* node = artist->FirstChildElement("album");
+  const auto* node = artist->FirstChildElement("album");
   if (node)
     discography.clear();
   while (node)
@@ -134,19 +138,20 @@ bool CArtist::Load(const TiXmlElement *artist, bool append, bool prioritise)
   }
 
   // Support old style <fanart></fanart> for backwards compatibility of old nfo files and scrapers
-  const TiXmlElement *fanart2 = artist->FirstChildElement("fanart");
+  const auto* fanart2 = artist->FirstChildElement("fanart");
   if (fanart2)
   {
     CFanart fanart;
     // we prefix to handle mixed-mode nfo's with fanart set
+    fanart2->Accept(&printer);
+
     if (prioritise)
     {
-      std::string temp;
-      temp << *fanart2;
-      fanart.m_xml = temp+fanart.m_xml;
+      const char* temp{printer.CStr()};
+      fanart.m_xml = temp + fanart.m_xml;
     }
     else
-      fanart.m_xml << *fanart2;
+      fanart.m_xml.append(printer.CStr());
     fanart.Unpack();
     // Append fanart to other image URLs
     for (unsigned int i = 0; i < fanart.GetNumFanarts(); i++)
@@ -157,10 +162,10 @@ bool CArtist::Load(const TiXmlElement *artist, bool append, bool prioritise)
   node = artist->FirstChildElement("art");
   if (node)
   {
-    const TiXmlNode *artdetailNode = node->FirstChild();
+    const auto* artdetailNode = node->FirstChild();
     while (artdetailNode && artdetailNode->FirstChild())
     {
-      art.insert(make_pair(artdetailNode->ValueStr(), artdetailNode->FirstChild()->ValueStr()));
+      art.insert(std::make_pair(artdetailNode->Value(), artdetailNode->FirstChild()->Value()));
       artdetailNode = artdetailNode->NextSibling();
     }
   }
@@ -168,13 +173,14 @@ bool CArtist::Load(const TiXmlElement *artist, bool append, bool prioritise)
   return true;
 }
 
-bool CArtist::Save(TiXmlNode *node, const std::string &tag, const std::string& strPath)
+bool CArtist::Save(tinyxml2::XMLNode* node, const std::string& tag, const std::string& strPath)
 {
   if (!node) return false;
 
   // we start with a <tag> tag
-  TiXmlElement artistElement(tag.c_str());
-  TiXmlNode *artist = node->InsertEndChild(artistElement);
+  auto nodeDoc = node->GetDocument();
+  tinyxml2::XMLElement* artistElement = nodeDoc->NewElement(tag.c_str());
+  auto* artist = node->InsertEndChild(artistElement);
 
   if (!artist) return false;
 
@@ -197,13 +203,13 @@ bool CArtist::Save(TiXmlNode *node, const std::string &tag, const std::string& s
   // Available remote art
   if (thumbURL.HasData())
   {
-    CXBMCTinyXML doc;
+    CXBMCTinyXML2 doc;
     doc.Parse(thumbURL.GetData());
-    const TiXmlNode* thumb = doc.FirstChild("thumb");
+    auto* thumb = doc.FirstChildElement("thumb");
     while (thumb)
     {
-      artist->InsertEndChild(*thumb);
-      thumb = thumb->NextSibling("thumb");
+      artist->InsertEndChild(thumb);
+      thumb = thumb->NextSiblingElement("thumb");
     }
   }
   XMLUtils::SetString(artist,        "path", strPath);
@@ -212,8 +218,8 @@ bool CArtist::Save(TiXmlNode *node, const std::string &tag, const std::string& s
   for (const auto& it : discography)
   {
     // add a <album> tag
-    TiXmlElement discoElement("album");
-    TiXmlNode* node = artist->InsertEndChild(discoElement);
+    tinyxml2::XMLElement* discoElement = nodeDoc->NewElement("album");
+    auto* node = artist->InsertEndChild(discoElement);
     XMLUtils::SetString(node, "title", it.strAlbum);
     XMLUtils::SetString(node, "year", it.strYear);
     XMLUtils::SetString(node, "musicbrainzreleasegroupid", it.strReleaseGroupMBID);

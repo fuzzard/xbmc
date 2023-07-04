@@ -33,7 +33,7 @@
 #include <string>
 #include <utility>
 
-#include <tinyxml.h>
+#include <tinyxml2.h>
 
 using namespace PVR;
 
@@ -1584,10 +1584,10 @@ void CGUIEPGGridContainer::ValidateOffset()
   }
 }
 
-void CGUIEPGGridContainer::LoadLayout(TiXmlElement* layout)
+void CGUIEPGGridContainer::LoadLayout(tinyxml2::XMLElement* layout)
 {
   /* layouts for the channel column */
-  TiXmlElement* itemElement = layout->FirstChildElement("channellayout");
+  auto* itemElement = layout->FirstChildElement("channellayout");
   while (itemElement)
   {
     m_channelLayouts.emplace_back();

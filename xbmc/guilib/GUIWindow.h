@@ -34,9 +34,13 @@ enum RenderOrder {
 };
 
 // forward
-class TiXmlNode;
-class TiXmlElement;
-class CXBMCTinyXML;
+namespace tinyxml2
+{
+class XMLElement;
+class XMLNode;
+class XMLDocument;
+} // namespace tinyxml2
+
 class CVariant;
 
 class COrigin
@@ -206,14 +210,15 @@ protected:
    \param pRootElement the XML element
    \return true if the window is loaded from the given XML otherwise false.
    */
-  virtual bool Load(TiXmlElement *pRootElement);
+  virtual bool Load(tinyxml2::XMLElement* pRootElement);
 
   /*!
    \brief Prepare the XML for load
    \param rootElement the original XML element
    \return the prepared XML (resolved includes, constants and expression)
    */
-  virtual std::unique_ptr<TiXmlElement> Prepare(const std::unique_ptr<TiXmlElement>& rootElement);
+  virtual std::unique_ptr<tinyxml2::XMLDocument> Prepare(
+      const std::unique_ptr<tinyxml2::XMLDocument>& rootElement);
 
   /*!
    \brief Check if window needs a (re)load. The window need to be (re)loaded when window is not loaded or include conditions values were changed
@@ -237,7 +242,7 @@ protected:
   void OnEditChanged(int id, std::string &text);
   bool SendMessage(int message, int id, int param1 = 0, int param2 = 0);
 
-  void LoadControl(TiXmlElement* pControl, CGUIControlGroup *pGroup, const CRect &rect);
+  void LoadControl(tinyxml2::XMLElement* pControl, CGUIControlGroup* pGroup, const CRect& rect);
 
   std::vector<int> m_idRange;
   RESOLUTION_INFO m_coordsRes; // resolution that the window coordinates are in.
@@ -276,7 +281,7 @@ protected:
   /*! \brief window root xml definition after resolving any skin includes.
     Stored to avoid parsing the XML every time the window is loaded.
    */
-  std::unique_ptr<TiXmlElement> m_windowXMLRootElement;
+  std::unique_ptr<tinyxml2::XMLDocument> m_windowXMLRootElement;
 
   bool m_manualRunActions;
 

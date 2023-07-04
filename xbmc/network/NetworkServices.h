@@ -26,6 +26,11 @@ class CHTTPWebinterfaceAddonsHandler;
 #endif // HAS_WEB_INTERFACE
 #endif // HAS_WEB_SERVER
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 class CNetworkServices : public ISettingCallback
 {
 public:
@@ -36,7 +41,7 @@ public:
   void OnSettingChanged(const std::shared_ptr<const CSetting>& setting) override;
   bool OnSettingUpdate(const std::shared_ptr<CSetting>& setting,
                        const char* oldSettingId,
-                       const TiXmlNode* oldSettingNode) override;
+                       const tinyxml2::XMLNode* oldSettingNode) override;
 
   void Start();
   void Stop(bool bWait);

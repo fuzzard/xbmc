@@ -10,7 +10,7 @@
 
 #include "utils/StringUtils.h"
 #include "utils/TimeUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 
 bool CGUIControlProfiler::m_bIsRunning = false;
 
@@ -73,10 +73,11 @@ void CGUIControlProfilerItem::EndRender(void)
   m_renderTime += (unsigned int)(m_pProfiler->m_fPerfScale * (CurrentHostCounter() - m_i64RenderStart));
 }
 
-void CGUIControlProfilerItem::SaveToXML(TiXmlElement *parent)
+void CGUIControlProfilerItem::SaveToXML(tinyxml2::XMLElement* parent)
 {
-  TiXmlElement *xmlControl = new TiXmlElement("control");
-  parent->LinkEndChild(xmlControl);
+  auto parentDoc = parent->GetDocument();
+  auto* xmlControl = parentDoc->NewElement("control");
+  parent->InsertEndChild(xmlControl);
 
   const char *lpszType = NULL;
   switch (m_ControlType)
@@ -163,10 +164,10 @@ void CGUIControlProfilerItem::SaveToXML(TiXmlElement *parent)
 
   if (!m_strDescription.empty())
   {
-    TiXmlElement *elem = new TiXmlElement("description");
-    xmlControl->LinkEndChild(elem);
-    TiXmlText *text = new TiXmlText(m_strDescription.c_str());
-    elem->LinkEndChild(text);
+    auto* elem = parentDoc->NewElement("description");
+    auto* text = parentDoc->NewText(m_strDescription.c_str());
+    elem->InsertEndChild(text);
+    xmlControl->InsertEndChild(elem);
   }
 
   // Note time is stored in 1/100 milliseconds but reported in ms
@@ -174,23 +175,22 @@ void CGUIControlProfilerItem::SaveToXML(TiXmlElement *parent)
   unsigned int rend = m_renderTime / 100;
   if (vis || rend)
   {
-    std::string val;
-    TiXmlElement *elem = new TiXmlElement("rendertime");
-    xmlControl->LinkEndChild(elem);
-    val = std::to_string(rend);
-    TiXmlText *text = new TiXmlText(val.c_str());
-    elem->LinkEndChild(text);
+    std::string val = std::to_string(rend);
+    auto* elem = parentDoc->NewElement("rendertime");
+    auto* text = parentDoc->NewText(val.c_str());
+    elem->InsertEndChild(text);
+    xmlControl->InsertEndChild(elem);
 
-    elem = new TiXmlElement("visibletime");
-    xmlControl->LinkEndChild(elem);
     val = std::to_string(vis);
-    text = new TiXmlText(val.c_str());
+    elem = parentDoc->NewElement("visibletime");
+    text = parentDoc->NewText(val.c_str());
     elem->LinkEndChild(text);
+    xmlControl->LinkEndChild(elem);
   }
 
   if (m_vecChildren.size())
   {
-    TiXmlElement *xmlChilds = new TiXmlElement("children");
+    auto* xmlChilds = parentDoc->NewElement("children");
     xmlControl->LinkEndChild(xmlChilds);
     const unsigned int dwSize = m_vecChildren.size();
     for (unsigned int i=0; i<dwSize; ++i)
@@ -324,16 +324,15 @@ bool CGUIControlProfiler::SaveResults(void)
   if (m_strOutputFile.empty())
     return false;
 
-  CXBMCTinyXML doc;
-  TiXmlDeclaration decl("1.0", "", "yes");
-  doc.InsertEndChild(decl);
+  CXBMCTinyXML2 xmlDoc;
+  xmlDoc.InsertEndChild(xmlDoc.NewDeclaration());
 
-  TiXmlElement *root = new TiXmlElement("guicontrolprofiler");
+  auto* root = xmlDoc.NewElement("guicontrolprofiler");
   std::string str = std::to_string(m_iFrameCount);
   root->SetAttribute("framecount", str.c_str());
   root->SetAttribute("timeunit", "ms");
-  doc.LinkEndChild(root);
+  xmlDoc.InsertEndChild(root);
 
   m_ItemHead.SaveToXML(root);
-  return doc.SaveFile(m_strOutputFile);
+  return xmlDoc.SaveFile(m_strOutputFile);
 }

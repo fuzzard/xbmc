@@ -14,6 +14,11 @@
 #include <map>
 #include <vector>
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 typedef std::unique_ptr<IListProvider> IListProviderPtr;
 
 /*!
@@ -23,7 +28,7 @@ typedef std::unique_ptr<IListProvider> IListProviderPtr;
 class CMultiProvider : public IListProvider
 {
 public:
-  CMultiProvider(const TiXmlNode *first, int parentID);
+  CMultiProvider(const tinyxml2::XMLNode* first, int parentID);
   explicit CMultiProvider(const CMultiProvider& other);
 
   // Implementation of IListProvider

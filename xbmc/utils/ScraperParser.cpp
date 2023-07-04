@@ -8,28 +8,30 @@
 
 #include "ScraperParser.h"
 
-#include "guilib/LocalizeStrings.h"
-#include "RegExp.h"
-#include "HTMLUtil.h"
-#include "addons/Scraper.h"
-#include "URL.h"
-#include "utils/StringUtils.h"
-#include "log.h"
 #include "CharsetConverter.h"
+#include "HTMLUtil.h"
+#include "RegExp.h"
+#include "URL.h"
+#include "addons/Scraper.h"
+#include "guilib/LocalizeStrings.h"
+#include "log.h"
+#include "utils/StringUtils.h"
+#include "utils/XBMCTinyXML2.h"
 #ifdef HAVE_LIBXSLT
 #include "utils/XSLTUtils.h"
 #endif
 #include "utils/XMLUtils.h"
-#include <sstream>
+
 #include <cstring>
+#include <sstream>
+
+#include <tinyxml2.h>
 
 using namespace ADDON;
 using namespace XFILE;
 
 CScraperParser::CScraperParser()
 {
-  m_pRootElement = NULL;
-  m_document = NULL;
   m_SearchStringEncoding = "UTF-8";
   m_scraper = NULL;
   m_isNoop = true;
@@ -37,8 +39,6 @@ CScraperParser::CScraperParser()
 
 CScraperParser::CScraperParser(const CScraperParser& parser)
 {
-  m_pRootElement = NULL;
-  m_document = NULL;
   m_SearchStringEncoding = "UTF-8";
   m_scraper = NULL;
   m_isNoop = true;
@@ -53,7 +53,10 @@ CScraperParser &CScraperParser::operator=(const CScraperParser &parser)
     if (parser.m_document)
     {
       m_scraper = parser.m_scraper;
-      m_document = new CXBMCTinyXML(*parser.m_document);
+      // store XML for further processing if window's load type is LOAD_EVERY_TIME or a reload is needed
+      CXBMCTinyXML2* cloneDoc = nullptr;
+      parser.m_document->DeepCopy(cloneDoc);
+      m_document.reset(cloneDoc);
       LoadFromXML();
     }
     else
@@ -69,10 +72,7 @@ CScraperParser::~CScraperParser()
 
 void CScraperParser::Clear()
 {
-  m_pRootElement = NULL;
-  delete m_document;
-
-  m_document = NULL;
+  m_document.reset();
   m_strFile.clear();
 }
 
@@ -80,18 +80,16 @@ bool CScraperParser::Load(const std::string& strXMLFile)
 {
   Clear();
 
-  m_document = new CXBMCTinyXML();
+  m_document = std::make_unique<CXBMCTinyXML2>();
 
   if (!m_document)
     return false;
 
   m_strFile = strXMLFile;
 
-  if (m_document->LoadFile(strXMLFile))
+  if (m_document->LoadFile(strXMLFile.c_str()))
     return LoadFromXML();
 
-  delete m_document;
-  m_document = NULL;
   return false;
 }
 
@@ -100,39 +98,35 @@ bool CScraperParser::LoadFromXML()
   if (!m_document)
     return false;
 
-  m_pRootElement = m_document->RootElement();
-  std::string strValue = m_pRootElement->ValueStr();
+  auto rootElement = m_document->RootElement();
+  std::string strValue = rootElement->Value();
   if (strValue == "scraper")
   {
-    TiXmlElement* pChildElement = m_pRootElement->FirstChildElement("CreateSearchUrl");
-    if (pChildElement)
+    auto* childElement = rootElement->FirstChildElement("CreateSearchUrl");
+    if (childElement)
     {
       m_isNoop = false;
-      if (!(m_SearchStringEncoding = pChildElement->Attribute("SearchStringEncoding")))
+      if (!(m_SearchStringEncoding = childElement->Attribute("SearchStringEncoding")))
         m_SearchStringEncoding = "UTF-8";
     }
 
-    pChildElement = m_pRootElement->FirstChildElement("CreateArtistSearchUrl");
-    if (pChildElement)
+    childElement = rootElement->FirstChildElement("CreateArtistSearchUrl");
+    if (childElement)
     {
       m_isNoop = false;
-      if (!(m_SearchStringEncoding = pChildElement->Attribute("SearchStringEncoding")))
+      if (!(m_SearchStringEncoding = childElement->Attribute("SearchStringEncoding")))
         m_SearchStringEncoding = "UTF-8";
     }
-    pChildElement = m_pRootElement->FirstChildElement("CreateAlbumSearchUrl");
-    if (pChildElement)
+    childElement = rootElement->FirstChildElement("CreateAlbumSearchUrl");
+    if (childElement)
     {
       m_isNoop = false;
-      if (!(m_SearchStringEncoding = pChildElement->Attribute("SearchStringEncoding")))
+      if (!(m_SearchStringEncoding = childElement->Attribute("SearchStringEncoding")))
         m_SearchStringEncoding = "UTF-8";
     }
 
     return true;
   }
-
-  delete m_document;
-  m_document = NULL;
-  m_pRootElement = NULL;
   return false;
 }
 
@@ -179,21 +173,24 @@ void CScraperParser::ReplaceBuffers(std::string& strDest)
     strDest.replace(strDest.begin()+iIndex,strDest.begin()+iIndex+2,"\n");
 }
 
-void CScraperParser::ParseExpression(const std::string& input, std::string& dest, TiXmlElement* element, bool bAppend)
+void CScraperParser::ParseExpression(const std::string& input,
+                                     std::string& dest,
+                                     tinyxml2::XMLElement* element,
+                                     bool bAppend)
 {
   std::string strOutput = XMLUtils::GetAttribute(element, "output");
 
-  TiXmlElement* pExpression = element->FirstChildElement("expression");
-  if (pExpression)
+  auto* expressionElement = element->FirstChildElement("expression");
+  if (expressionElement)
   {
     bool bInsensitive=true;
-    const char* sensitive = pExpression->Attribute("cs");
+    const char* sensitive = expressionElement->Attribute("cs");
     if (sensitive)
       if (StringUtils::CompareNoCase(sensitive, "yes") == 0)
         bInsensitive=false; // match case sensitive
 
     CRegExp::utf8Mode eUtf8 = CRegExp::autoUtf8;
-    const char* const strUtf8 = pExpression->Attribute("utf8");
+    const char* const strUtf8 = expressionElement->Attribute("utf8");
     if (strUtf8)
     {
       if (StringUtils::CompareNoCase(strUtf8, "yes") == 0)
@@ -206,8 +203,8 @@ void CScraperParser::ParseExpression(const std::string& input, std::string& dest
 
     CRegExp reg(bInsensitive, eUtf8);
     std::string strExpression;
-    if (pExpression->FirstChild())
-      strExpression = pExpression->FirstChild()->Value();
+    if (expressionElement->FirstChild())
+      strExpression = expressionElement->FirstChild()->Value();
     else
       strExpression = "(.*)";
     ReplaceBuffers(strExpression);
@@ -219,33 +216,33 @@ void CScraperParser::ParseExpression(const std::string& input, std::string& dest
     }
 
     bool bRepeat = false;
-    const char* szRepeat = pExpression->Attribute("repeat");
+    const char* szRepeat = expressionElement->Attribute("repeat");
     if (szRepeat)
       if (StringUtils::CompareNoCase(szRepeat, "yes") == 0)
         bRepeat = true;
 
-    const char* szClear = pExpression->Attribute("clear");
+    const char* szClear = expressionElement->Attribute("clear");
     if (szClear)
       if (StringUtils::CompareNoCase(szClear, "yes") == 0)
         dest=""; // clear no matter if regexp fails
 
     bool bClean[MAX_SCRAPER_BUFFERS];
-    GetBufferParams(bClean,pExpression->Attribute("noclean"),true);
+    GetBufferParams(bClean, expressionElement->Attribute("noclean"), true);
 
     bool bTrim[MAX_SCRAPER_BUFFERS];
-    GetBufferParams(bTrim,pExpression->Attribute("trim"),false);
+    GetBufferParams(bTrim, expressionElement->Attribute("trim"), false);
 
     bool bFixChars[MAX_SCRAPER_BUFFERS];
-    GetBufferParams(bFixChars,pExpression->Attribute("fixchars"),false);
+    GetBufferParams(bFixChars, expressionElement->Attribute("fixchars"), false);
 
     bool bEncode[MAX_SCRAPER_BUFFERS];
-    GetBufferParams(bEncode,pExpression->Attribute("encode"),false);
+    GetBufferParams(bEncode, expressionElement->Attribute("encode"), false);
 
     int iOptional = -1;
-    pExpression->QueryIntAttribute("optional",&iOptional);
+    expressionElement->QueryIntAttribute("optional", &iOptional);
 
     int iCompare = -1;
-    pExpression->QueryIntAttribute("compare",&iCompare);
+    expressionElement->QueryIntAttribute("compare", &iCompare);
     if (iCompare > -1)
       StringUtils::ToLower(m_param[iCompare-1]);
     std::string curInput = input;
@@ -326,15 +323,20 @@ void CScraperParser::ParseExpression(const std::string& input, std::string& dest
   }
 }
 
-void CScraperParser::ParseXSLT(const std::string& input, std::string& dest, TiXmlElement* element, bool bAppend)
+void CScraperParser::ParseXSLT(const std::string& input,
+                               std::string& dest,
+                               tinyxml2::XMLElement* element,
+                               bool bAppend)
 {
 #ifdef HAVE_LIBXSLT
-  TiXmlElement* pSheet = element->FirstChildElement();
-  if (pSheet)
+  auto* sheet = element->FirstChildElement();
+  if (sheet)
   {
+    tinyxml2::XMLPrinter printer;
     XSLTUtils xsltUtils;
-    std::string strXslt;
-    strXslt << *pSheet;
+    sheet->Accept(&printer);
+    const char* charXslt{printer.CStr()};
+    std::string strXslt{charXslt};
     ReplaceBuffers(strXslt);
 
     if (!xsltUtils.SetInput(input))
@@ -348,45 +350,45 @@ void CScraperParser::ParseXSLT(const std::string& input, std::string& dest, TiXm
 #endif
 }
 
-TiXmlElement *FirstChildScraperElement(TiXmlElement *element)
+tinyxml2::XMLElement* FirstChildScraperElement(tinyxml2::XMLElement* element)
 {
-  for (TiXmlElement *child = element->FirstChildElement(); child; child = child->NextSiblingElement())
+  for (auto* child = element->FirstChildElement(); child; child = child->NextSiblingElement())
   {
 #ifdef HAVE_LIBXSLT
-    if (child->ValueStr() == "XSLT")
+    if (strcmp(child->Value(), "XSLT") == 0)
       return child;
 #endif
-    if (child->ValueStr() == "RegExp")
+    if (strcmp(child->Value(), "RegExp") == 0)
       return child;
+  }
+  return nullptr;
+}
+
+tinyxml2::XMLElement* NextSiblingScraperElement(tinyxml2::XMLElement* element)
+{
+  for (auto* next = element->NextSiblingElement(); next; next = next->NextSiblingElement())
+  {
+#ifdef HAVE_LIBXSLT
+    if (strcmp(next->Value(), "XSLT") == 0)
+      return next;
+#endif
+    if (strcmp(next->Value(), "RegExp") == 0)
+      return next;
   }
   return NULL;
 }
 
-TiXmlElement *NextSiblingScraperElement(TiXmlElement *element)
+void CScraperParser::ParseNext(tinyxml2::XMLElement* element)
 {
-  for (TiXmlElement *next = element->NextSiblingElement(); next; next = next->NextSiblingElement())
-  {
-#ifdef HAVE_LIBXSLT
-    if (next->ValueStr() == "XSLT")
-      return next;
-#endif
-    if (next->ValueStr() == "RegExp")
-      return next;
-  }
-  return NULL;
-}
-
-void CScraperParser::ParseNext(TiXmlElement* element)
-{
-  TiXmlElement* pReg = element;
+  auto* pReg = element;
   while (pReg)
   {
-    TiXmlElement* pChildReg = FirstChildScraperElement(pReg);
+    auto* pChildReg = FirstChildScraperElement(pReg);
     if (pChildReg)
       ParseNext(pChildReg);
     else
     {
-      TiXmlElement* pChildReg = pReg->FirstChildElement("clear");
+      auto* pChildReg = pReg->FirstChildElement("clear");
       if (pChildReg)
         ParseNext(pChildReg);
     }
@@ -433,7 +435,7 @@ void CScraperParser::ParseNext(TiXmlElement* element)
       if (iDest-1 < MAX_SCRAPER_BUFFERS && iDest-1 > -1)
       {
 #ifdef HAVE_LIBXSLT
-        if (pReg->ValueStr() == "XSLT")
+        if (strcmp(pReg->Value(), "XSLT") == 0)
           ParseXSLT(strInput, m_param[iDest - 1], pReg, bAppend);
         else
 #endif
@@ -450,20 +452,20 @@ void CScraperParser::ParseNext(TiXmlElement* element)
 const std::string CScraperParser::Parse(const std::string& strTag,
                                        CScraper* scraper)
 {
-  TiXmlElement* pChildElement = m_pRootElement->FirstChildElement(strTag.c_str());
-  if(pChildElement == NULL)
+  auto* childElement = m_document->RootElement()->FirstChildElement(strTag.c_str());
+  if (!childElement)
   {
     CLog::Log(LOGERROR, "{}: Could not find scraper function {}", __FUNCTION__, strTag);
     return "";
   }
   int iResult = 1; // default to param 1
-  pChildElement->QueryIntAttribute("dest",&iResult);
-  TiXmlElement* pChildStart = FirstChildScraperElement(pChildElement);
+  childElement->QueryIntAttribute("dest", &iResult);
+  auto* pChildStart = FirstChildScraperElement(childElement);
   m_scraper = scraper;
   ParseNext(pChildStart);
   std::string tmp = m_param[iResult-1];
 
-  const char* szClearBuffers = pChildElement->Attribute("clearbuffers");
+  const char* szClearBuffers = childElement->Attribute("clearbuffers");
   if (!szClearBuffers || StringUtils::CompareNoCase(szClearBuffers, "no") != 0)
     ClearBuffers();
 
@@ -603,12 +605,14 @@ void CScraperParser::InsertToken(std::string& strOutput, int buf, const char* to
   }
 }
 
-void CScraperParser::AddDocument(const CXBMCTinyXML* doc)
+void CScraperParser::AddDocument(const CXBMCTinyXML2* doc)
 {
-  const TiXmlNode* node = doc->RootElement()->FirstChild();
+  auto* node = doc->RootElement()->FirstChild();
+  auto rootElement = m_document->RootElement();
   while (node)
   {
-    m_pRootElement->InsertEndChild(*node);
+    auto* clonedNode = node->DeepClone(reinterpret_cast<tinyxml2::XMLDocument*>(m_document.get()));
+    rootElement->InsertEndChild(clonedNode);
     node = node->NextSibling();
   }
 }

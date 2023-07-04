@@ -13,7 +13,7 @@
 #include "utils/ColorUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
 CGUIColorManager::CGUIColorManager(void) = default;
@@ -34,7 +34,7 @@ void CGUIColorManager::Load(const std::string &colorFile)
   Clear();
 
   // load the global color map if it exists
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
   if (xmlDoc.LoadFile(CSpecialProtocol::TranslatePathConvertCase("special://xbmc/system/colors.xml")))
     LoadXML(xmlDoc);
 
@@ -57,18 +57,18 @@ void CGUIColorManager::Load(const std::string &colorFile)
     LoadXML(xmlDoc);
 }
 
-bool CGUIColorManager::LoadXML(CXBMCTinyXML &xmlDoc)
+bool CGUIColorManager::LoadXML(CXBMCTinyXML2& xmlDoc)
 {
-  TiXmlElement* pRootElement = xmlDoc.RootElement();
+  auto* rootElement = xmlDoc.RootElement();
 
-  std::string strValue = pRootElement->Value();
+  std::string strValue = rootElement->Value();
   if (strValue != std::string("colors"))
   {
     CLog::Log(LOGERROR, "color file doesn't start with <colors>");
     return false;
   }
 
-  const TiXmlElement *color = pRootElement->FirstChildElement("color");
+  const auto* color = rootElement->FirstChildElement("color");
 
   while (color)
   {
@@ -110,22 +110,22 @@ bool CGUIColorManager::LoadColorsListFromXML(
     bool sortColors)
 {
   CLog::Log(LOGDEBUG, "Loading colors from file {}", filePath);
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
   if (!xmlDoc.LoadFile(filePath))
   {
     CLog::Log(LOGERROR, "{} - Failed to load colors from file {}", __FUNCTION__, filePath);
     return false;
   }
 
-  TiXmlElement* pRootElement = xmlDoc.RootElement();
-  std::string strValue = pRootElement->Value();
+  auto* rootElement = xmlDoc.RootElement();
+  std::string strValue = rootElement->Value();
   if (strValue != std::string("colors"))
   {
     CLog::Log(LOGERROR, "{} - Color file doesn't start with <colors>", __FUNCTION__);
     return false;
   }
 
-  const TiXmlElement* xmlColor = pRootElement->FirstChildElement("color");
+  const auto* xmlColor = rootElement->FirstChildElement("color");
   while (xmlColor)
   {
     if (xmlColor->FirstChild() && xmlColor->Attribute("name"))

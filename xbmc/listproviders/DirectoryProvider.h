@@ -20,8 +20,12 @@
 #include <string>
 #include <vector>
 
-class TiXmlElement;
 class CVariant;
+
+namespace tinyxml2
+{
+class XMLElement;
+}
 
 namespace PVR
 {
@@ -50,7 +54,7 @@ public:
     DONE
   } UpdateState;
 
-  CDirectoryProvider(const TiXmlElement *element, int parentID);
+  CDirectoryProvider(const tinyxml2::XMLElement* element, int parentID);
   explicit CDirectoryProvider(const CDirectoryProvider& other);
   ~CDirectoryProvider() override;
 

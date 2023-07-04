@@ -41,7 +41,7 @@
 #include "settings/lib/Setting.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 #include "video/dialogs/GUIDialogFullScreenInfo.h"
 
@@ -275,17 +275,17 @@ bool CApplicationSkinHandling::LoadCustomWindows()
         std::string skinFile = URIUtils::GetFileName(item->GetPath());
         if (StringUtils::StartsWithNoCase(skinFile, "custom"))
         {
-          CXBMCTinyXML xmlDoc;
+          CXBMCTinyXML2 xmlDoc;
           if (!xmlDoc.LoadFile(item->GetPath()))
           {
             CLog::Log(LOGERROR, "Unable to load custom window XML {}. Line {}\n{}", item->GetPath(),
-                      xmlDoc.ErrorRow(), xmlDoc.ErrorDesc());
+                      xmlDoc.ErrorLineNum(), xmlDoc.ErrorStr());
             continue;
           }
 
           // Root element should be <window>
-          TiXmlElement* pRootElement = xmlDoc.RootElement();
-          std::string strValue = pRootElement->Value();
+          auto* rootElement = xmlDoc.RootElement();
+          std::string strValue = rootElement->Value();
           if (!StringUtils::EqualsNoCase(strValue, "window"))
           {
             CLog::Log(LOGERROR, "No <window> root element found for custom window in {}", skinFile);
@@ -297,21 +297,26 @@ bool CApplicationSkinHandling::LoadCustomWindows()
           // Read the type attribute or element to get the window type to create
           // If no type is specified, create a CGUIWindow as default
           std::string strType;
-          if (pRootElement->Attribute("type"))
-            strType = pRootElement->Attribute("type");
+          if (rootElement->Attribute("type"))
+            strType = rootElement->Attribute("type");
           else
           {
-            const TiXmlNode* pType = pRootElement->FirstChild("type");
-            if (pType && pType->FirstChild())
-              strType = pType->FirstChild()->Value();
+            const auto* typeElement = rootElement->FirstChildElement("type");
+            if (typeElement && typeElement->FirstChild())
+              strType = typeElement->FirstChild()->Value();
           }
 
           // Read the id attribute or element to get the window id
-          if (!pRootElement->Attribute("id", &id))
+          const char* idchar = rootElement->Attribute("id");
+          if (!idchar)
           {
-            const TiXmlNode* pType = pRootElement->FirstChild("id");
-            if (pType && pType->FirstChild())
-              id = atol(pType->FirstChild()->Value());
+            const auto* typeElement = rootElement->FirstChildElement("id");
+            if (typeElement && typeElement->FirstChild())
+              id = std::atoi(typeElement->FirstChild()->Value());
+          }
+          else
+          {
+            id = std::atoi(idchar);
           }
 
           int windowId = id + WINDOW_HOME;
@@ -330,12 +335,12 @@ bool CApplicationSkinHandling::LoadCustomWindows()
           if (StringUtils::EqualsNoCase(strType, "dialog"))
           {
             DialogModalityType modality = DialogModalityType::MODAL;
-            hasVisibleCondition = pRootElement->FirstChildElement("visible") != nullptr;
+            hasVisibleCondition = rootElement->FirstChildElement("visible") != nullptr;
             // By default dialogs that have visible conditions are considered modeless unless explicitly
             // set to "modal" by the skinner using the "modality" attribute in the root XML element of the window
             if (hasVisibleCondition &&
-                (!pRootElement->Attribute("modality") ||
-                 !StringUtils::EqualsNoCase(pRootElement->Attribute("modality"), "modal")))
+                (!rootElement->Attribute("modality") ||
+                 !StringUtils::EqualsNoCase(rootElement->Attribute("modality"), "modal")))
               modality = DialogModalityType::MODELESS;
 
             pWindow = new CGUIDialog(windowId, skinFile, modality);

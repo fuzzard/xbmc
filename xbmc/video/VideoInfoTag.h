@@ -20,9 +20,13 @@
 #include <vector>
 
 class CArchive;
-class TiXmlNode;
-class TiXmlElement;
 class CVariant;
+
+namespace tinyxml2
+{
+class XMLNode;
+class XMLElement;
+} // namespace tinyxml2
 
 struct SActorInfo
 {
@@ -69,8 +73,11 @@ public:
 
    \sa ParseNative
    */
-  bool Load(const TiXmlElement *element, bool append = false, bool prioritise = false);
-  bool Save(TiXmlNode *node, const std::string &tag, bool savePathInfo = true, const TiXmlElement *additionalNode = NULL);
+  bool Load(const tinyxml2::XMLElement* element, bool append = false, bool prioritise = false);
+  bool Save(tinyxml2::XMLNode* node,
+            const std::string& tag,
+            bool savePathInfo = true,
+            const tinyxml2::XMLElement* additionalNode = NULL);
   void Merge(CVideoInfoTag& other);
   void Archive(CArchive& ar) override;
   void Serialize(CVariant& value) const override;
@@ -291,7 +298,7 @@ private:
    \param prioritise whether additive tags should be replaced (or prepended) by the content of the tags, or appended to.
    \sa Load
    */
-  void ParseNative(const TiXmlElement* element, bool prioritise);
+  void ParseNative(const tinyxml2::XMLElement* element, bool prioritise);
 
   std::string m_strDefaultRating;
   std::string m_strDefaultUniqueID;

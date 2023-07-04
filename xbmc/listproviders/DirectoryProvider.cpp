@@ -33,7 +33,6 @@
 #include "utils/SortUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/Variant.h"
-#include "utils/XMLUtils.h"
 #include "utils/log.h"
 #include "video/VideoThumbLoader.h"
 #include "video/dialogs/GUIDialogVideoInfo.h"
@@ -42,6 +41,8 @@
 #include <memory>
 #include <mutex>
 #include <utility>
+
+#include <tinyxml2.h>
 
 using namespace XFILE;
 using namespace KODI::MESSAGING;
@@ -154,7 +155,7 @@ private:
   std::map<InfoTagType, std::shared_ptr<CThumbLoader> > m_thumbloaders;
 };
 
-CDirectoryProvider::CDirectoryProvider(const TiXmlElement* element, int parentID)
+CDirectoryProvider::CDirectoryProvider(const tinyxml2::XMLElement* element, int parentID)
   : IListProvider(parentID)
 {
   assert(element);
@@ -176,7 +177,7 @@ CDirectoryProvider::CDirectoryProvider(const TiXmlElement* element, int parentID
     if (limit)
       m_limit.SetLabel(limit, "", parentID);
 
-    m_url.SetLabel(element->FirstChild()->ValueStr(), "", parentID);
+    m_url.SetLabel(element->FirstChild()->Value(), "", parentID);
   }
 }
 
