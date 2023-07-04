@@ -14,6 +14,11 @@
 #include <memory>
 #include <string>
 
+namespace tinyxml2
+{
+class XMLNode;
+}
+
 /*! \brief CSkinTimerManager is the container and manager for Skin timers. Its role is that of
  * checking if the timer boolean conditions are valid, start or stop timers and execute the respective
  * builtin actions linked to the timer lifecycle
@@ -70,7 +75,7 @@ private:
   * \note Called internally from LoadTimers
   * \param node - the XML representation of a skin timer object
   */
-  void LoadTimerInternal(const TiXmlElement* node);
+  void LoadTimerInternal(const tinyxml2::XMLNode* node);
 
   /*! Container for the skin timers */
   std::map<std::string, std::unique_ptr<CSkinTimer>> m_timers;
