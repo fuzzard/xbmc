@@ -14,7 +14,7 @@
 #include "filesystem/Directory.h"
 #include "settings/lib/Setting.h"
 #include "settings/lib/SettingDefinitions.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
 #include <algorithm>
@@ -60,14 +60,14 @@ bool CKeyboardLayoutManager::Load(const std::string& path /* = "" */)
     if (layoutPath.empty())
       continue;
 
-    CXBMCTinyXML xmlDoc;
+    CXBMCTinyXML2 xmlDoc;
     if (!xmlDoc.LoadFile(layoutPath))
     {
       CLog::Log(LOGWARNING, "CKeyboardLayoutManager: unable to open {}", layoutPath);
       continue;
     }
 
-    const TiXmlElement* rootElement = xmlDoc.RootElement();
+    const auto* rootElement = xmlDoc.RootElement();
     if (rootElement == NULL)
     {
       CLog::Log(LOGWARNING, "CKeyboardLayoutManager: missing or invalid XML root element in {}",
@@ -75,14 +75,14 @@ bool CKeyboardLayoutManager::Load(const std::string& path /* = "" */)
       continue;
     }
 
-    if (rootElement->ValueStr() != "keyboardlayouts")
+    if (strcmp(rootElement->Value(), "keyboardlayouts") != 0)
     {
       CLog::Log(LOGWARNING, "CKeyboardLayoutManager: unexpected XML root element \"{}\" in {}",
                 rootElement->Value(), layoutPath);
       continue;
     }
 
-    const TiXmlElement* layoutElement = rootElement->FirstChildElement("layout");
+    const auto* layoutElement = rootElement->FirstChildElement("layout");
     while (layoutElement != NULL)
     {
       CKeyboardLayout layout;
