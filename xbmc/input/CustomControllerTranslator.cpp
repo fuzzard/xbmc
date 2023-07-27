@@ -11,15 +11,16 @@
 #include "WindowTranslator.h" //! @todo
 #include "input/actions/ActionIDs.h"
 #include "input/actions/ActionTranslator.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
-void CCustomControllerTranslator::MapActions(int windowID, const TiXmlNode* pCustomController)
+void CCustomControllerTranslator::MapActions(int windowID,
+                                             const tinyxml2::XMLNode* pCustomController)
 {
   CustomControllerButtonMap buttonMap;
   std::string controllerName;
 
-  const TiXmlElement* pController = pCustomController->ToElement();
+  const auto* pController = pCustomController->ToElement();
   if (pController != nullptr)
   {
     // Transform loose name to new family, including altnames
@@ -35,15 +36,15 @@ void CCustomControllerTranslator::MapActions(int windowID, const TiXmlNode* pCus
   }
 
   // Parse map
-  const TiXmlElement* pButton = pCustomController->FirstChildElement();
+  const auto* pButton = pCustomController->FirstChildElement();
   int id = 0;
   while (pButton != nullptr)
   {
     std::string action;
     if (!pButton->NoChildren())
-      action = pButton->FirstChild()->ValueStr();
+      action = pButton->FirstChild()->Value();
 
-    if ((pButton->QueryIntAttribute("id", &id) == TIXML_SUCCESS) && id >= 0)
+    if ((pButton->QueryIntAttribute("id", &id) == tinyxml2::XML_SUCCESS) && id >= 0)
     {
       buttonMap[id] = action;
     }

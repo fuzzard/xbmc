@@ -29,6 +29,7 @@
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "utils/Variant.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/XTimeUtils.h"
 #include "utils/log.h"
@@ -799,7 +800,7 @@ void CWakeOnAccess::LoadFromXML()
 {
   bool enabled = CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_POWERMANAGEMENT_WAKEONACCESS);
 
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
   if (!xmlDoc.LoadFile(GetSettingFile()))
   {
     if (enabled)
@@ -807,8 +808,8 @@ void CWakeOnAccess::LoadFromXML()
     return;
   }
 
-  TiXmlElement* pRootElement = xmlDoc.RootElement();
-  if (StringUtils::CompareNoCase(pRootElement->Value(), "onaccesswakeup"))
+  auto* rootElement = xmlDoc.RootElement();
+  if (StringUtils::CompareNoCase(rootElement->Value(), "onaccesswakeup"))
   {
     CLog::Log(LOGERROR, "{} - XML file {} doesn't contain <onaccesswakeup>", __FUNCTION__,
               GetSettingFile());
@@ -822,15 +823,15 @@ void CWakeOnAccess::LoadFromXML()
   SetEnabled(enabled);
 
   int tmp;
-  if (XMLUtils::GetInt(pRootElement, "netinittimeout", tmp, 0, 5 * 60))
+  if (XMLUtils::GetInt(rootElement, "netinittimeout", tmp, 0, 5 * 60))
     m_netinit_sec = tmp;
   CLog::Log(LOGINFO, "  -Network init timeout : [{}] sec", m_netinit_sec);
 
-  if (XMLUtils::GetInt(pRootElement, "netsettletime", tmp, 0, 5 * 1000))
+  if (XMLUtils::GetInt(rootElement, "netsettletime", tmp, 0, 5 * 1000))
     m_netsettle_ms = tmp;
   CLog::Log(LOGINFO, "  -Network settle time  : [{}] ms", m_netsettle_ms);
 
-  const TiXmlNode* pWakeUp = pRootElement->FirstChildElement("wakeup");
+  const auto* pWakeUp = rootElement->FirstChildElement("wakeup");
   while (pWakeUp)
   {
     WakeUpEntry entry;
@@ -885,7 +886,7 @@ void CWakeOnAccess::LoadFromXML()
   // load upnp server map
   m_UPnPServers.clear();
 
-  const TiXmlNode* pUPnPNode = pRootElement->FirstChildElement("upnp_map");
+  const auto* pUPnPNode = rootElement->FirstChildElement("upnp_map");
   while (pUPnPNode)
   {
     UPnPServer server;
@@ -913,18 +914,19 @@ void CWakeOnAccess::LoadFromXML()
 
 void CWakeOnAccess::SaveToXML()
 {
-  CXBMCTinyXML xmlDoc;
-  TiXmlElement xmlRootElement("onaccesswakeup");
-  TiXmlNode *pRoot = xmlDoc.InsertEndChild(xmlRootElement);
-  if (!pRoot) return;
+  CXBMCTinyXML2 xmlDoc;
+  auto xmlRootElement = xmlDoc.NewElement("onaccesswakeup");
+  auto* root = xmlDoc.InsertEndChild(xmlRootElement);
+  if (!root)
+    return;
 
-  XMLUtils::SetInt(pRoot, "netinittimeout", m_netinit_sec);
-  XMLUtils::SetInt(pRoot, "netsettletime", m_netsettle_ms);
+  XMLUtils::SetInt(root, "netinittimeout", m_netinit_sec);
+  XMLUtils::SetInt(root, "netsettletime", m_netsettle_ms);
 
   for (const auto& i : m_entries)
   {
-    TiXmlElement xmlSetting("wakeup");
-    TiXmlNode* pWakeUpNode = pRoot->InsertEndChild(xmlSetting);
+    auto* xmlSetting = xmlDoc.NewElement("wakeup");
+    auto* pWakeUpNode = root->InsertEndChild(xmlSetting);
     if (pWakeUpNode)
     {
       XMLUtils::SetString(pWakeUpNode, "host", i.host);
@@ -940,8 +942,8 @@ void CWakeOnAccess::SaveToXML()
 
   for (const auto& upnp : m_UPnPServers)
   {
-    TiXmlElement xmlSetting("upnp_map");
-    TiXmlNode* pUPnPNode = pRoot->InsertEndChild(xmlSetting);
+    auto* xmlSetting = xmlDoc.NewElement("upnp_map");
+    auto* pUPnPNode = root->InsertEndChild(xmlSetting);
     if (pUPnPNode)
     {
       XMLUtils::SetString(pUPnPNode, "name", upnp.m_name);

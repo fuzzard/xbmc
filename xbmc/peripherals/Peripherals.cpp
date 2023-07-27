@@ -57,7 +57,7 @@
 #include "settings/SettingsComponent.h"
 #include "settings/lib/Setting.h"
 #include "utils/StringUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"
 
@@ -503,21 +503,21 @@ bool CPeripherals::LoadMappings()
 {
   std::unique_lock<CCriticalSection> lock(m_critSectionMappings);
 
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
   if (!xmlDoc.LoadFile("special://xbmc/system/peripherals.xml"))
   {
     CLog::Log(LOGWARNING, "{} - peripherals.xml does not exist", __FUNCTION__);
     return true;
   }
 
-  TiXmlElement* pRootElement = xmlDoc.RootElement();
+  auto* pRootElement = xmlDoc.RootElement();
   if (!pRootElement || StringUtils::CompareNoCase(pRootElement->Value(), "peripherals") != 0)
   {
     CLog::Log(LOGERROR, "{} - peripherals.xml does not contain <peripherals>", __FUNCTION__);
     return false;
   }
 
-  for (TiXmlElement* currentNode = pRootElement->FirstChildElement("peripheral"); currentNode;
+  for (auto* currentNode = pRootElement->FirstChildElement("peripheral"); currentNode;
        currentNode = currentNode->NextSiblingElement("peripheral"))
   {
     PeripheralID id;
@@ -563,9 +563,9 @@ bool CPeripherals::LoadMappings()
 }
 
 void CPeripherals::GetSettingsFromMappingsFile(
-    TiXmlElement* xmlNode, std::map<std::string, PeripheralDeviceSetting>& settings)
+    tinyxml2::XMLElement* xmlNode, std::map<std::string, PeripheralDeviceSetting>& settings)
 {
-  TiXmlElement* currentNode = xmlNode->FirstChildElement("setting");
+  auto* currentNode = xmlNode->FirstChildElement("setting");
   int iMaxOrder = 0;
 
   while (currentNode)
@@ -640,7 +640,7 @@ void CPeripherals::GetSettingsFromMappingsFile(
 
       /* set the order */
       int iOrder = 0;
-      currentNode->Attribute("order", &iOrder);
+      currentNode->Attribute("order", std::to_string(iOrder).c_str());
       /* if the order attribute is invalid or 0, then the setting will be added at the end */
       if (iOrder < 0)
         iOrder = 0;

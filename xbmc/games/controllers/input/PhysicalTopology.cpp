@@ -14,6 +14,8 @@
 
 #include <utility>
 
+#include <tinyxml2.h>
+
 using namespace KODI;
 using namespace GAME;
 
@@ -28,7 +30,7 @@ void CPhysicalTopology::Reset()
   *this = std::move(defaultTopology);
 }
 
-bool CPhysicalTopology::Deserialize(const TiXmlElement* pElement)
+bool CPhysicalTopology::Deserialize(const tinyxml2::XMLElement* pElement)
 {
   Reset();
 
@@ -37,10 +39,10 @@ bool CPhysicalTopology::Deserialize(const TiXmlElement* pElement)
 
   m_bProvidesInput = (XMLUtils::GetAttribute(pElement, LAYOUT_XML_ATTR_PROVIDES_INPUT) != "false");
 
-  for (const TiXmlElement* pChild = pElement->FirstChildElement(); pChild != nullptr;
+  for (const auto* pChild = pElement->FirstChildElement(); pChild;
        pChild = pChild->NextSiblingElement())
   {
-    if (pChild->ValueStr() == LAYOUT_XML_ELM_PORT)
+    if (strcmp(pChild->Value(), LAYOUT_XML_ELM_PORT) == 0)
     {
       CPhysicalPort port;
       if (port.Deserialize(pChild))
@@ -48,7 +50,7 @@ bool CPhysicalTopology::Deserialize(const TiXmlElement* pElement)
     }
     else
     {
-      CLog::Log(LOGDEBUG, "Unknown physical topology tag: <{}>", pChild->ValueStr());
+      CLog::Log(LOGDEBUG, "Unknown physical topology tag: <{}>", pChild->Value());
     }
   }
 

@@ -12,7 +12,7 @@
 #include "guilib/LocalizeStrings.h"
 #include "utils/CharsetConverter.h"
 #include "utils/StringUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
 #include <algorithm>
@@ -20,7 +20,7 @@
 
 CKeyboardLayout::~CKeyboardLayout() = default;
 
-bool CKeyboardLayout::Load(const TiXmlElement* element)
+bool CKeyboardLayout::Load(const tinyxml2::XMLElement* element)
 {
   const char* language = element->Attribute("language");
   if (language == NULL)
@@ -50,7 +50,7 @@ bool CKeyboardLayout::Load(const TiXmlElement* element)
     return false;
   }
 
-  const TiXmlElement* keyboard = element->FirstChildElement("keyboard");
+  const auto* keyboard = element->FirstChildElement("keyboard");
   if (element->Attribute("codingtable"))
     m_codingtable = IInputCodingTablePtr(
         CInputCodingTableFactory::CreateCodingTable(element->Attribute("codingtable")));
@@ -85,12 +85,12 @@ bool CKeyboardLayout::Load(const TiXmlElement* element)
     }
 
     // parse keyboard rows
-    const TiXmlNode* row = keyboard->FirstChild("row");
+    const auto* row = keyboard->FirstChildElement("row");
     while (row != NULL)
     {
       if (!row->NoChildren())
       {
-        std::string strRow = row->FirstChild()->ValueStr();
+        std::string strRow = row->FirstChild()->Value();
         std::vector<std::string> chars = BreakCharacters(strRow);
         if (!modifierKeysSet.empty())
         {
@@ -101,7 +101,7 @@ bool CKeyboardLayout::Load(const TiXmlElement* element)
           m_keyboards[ModifierKeyNone].push_back(chars);
       }
 
-      row = row->NextSibling();
+      row = row->NextSiblingElement();
     }
 
     keyboard = keyboard->NextSiblingElement();
