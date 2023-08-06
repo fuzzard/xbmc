@@ -37,7 +37,7 @@ bool CLibraryDirectory::GetDirectory(const CURL& url, CFileItemList &items)
 
   if (URIUtils::HasExtension(libNode, ".xml"))
   { // a filter or folder node
-    TiXmlElement *node = LoadXML(libNode);
+    auto* node = LoadXML(libNode);
     if (node)
     {
       std::string type = XMLUtils::GetAttribute(node, "type");
@@ -91,7 +91,7 @@ bool CLibraryDirectory::GetDirectory(const CURL& url, CFileItemList &items)
   std::string basePath = url.Get();
   for (int i = 0; i < nodes.Size(); i++)
   {
-    const TiXmlElement *node = NULL;
+    const tinyxml2::XMLElement* node = nullptr;
     std::string xml = nodes[i]->GetPath();
     if (nodes[i]->m_bIsFolder)
       node = LoadXML(URIUtils::AddFileToFolder(xml, "index.xml"));
@@ -114,7 +114,7 @@ bool CLibraryDirectory::GetDirectory(const CURL& url, CFileItemList &items)
         label = CGUIControlFactory::FilterLabel(label);
       XMLUtils::GetString(node, "icon", icon);
       int order = 0;
-      node->Attribute("order", &order);
+      node->IntAttribute("order", order);
 
       // create item
       URIUtils::RemoveSlashAtEnd(xml);
@@ -132,7 +132,7 @@ bool CLibraryDirectory::GetDirectory(const CURL& url, CFileItemList &items)
   return true;
 }
 
-TiXmlElement *CLibraryDirectory::LoadXML(const std::string &xmlFile)
+tinyxml2::XMLElement* CLibraryDirectory::LoadXML(const std::string& xmlFile)
 {
   if (!CFileUtils::Exists(xmlFile))
     return nullptr;
@@ -140,8 +140,8 @@ TiXmlElement *CLibraryDirectory::LoadXML(const std::string &xmlFile)
   if (!m_doc.LoadFile(xmlFile))
     return nullptr;
 
-  TiXmlElement *xml = m_doc.RootElement();
-  if (!xml || xml->ValueStr() != "node")
+  auto* xml = m_doc.RootElement();
+  if (!xml || strcmp(xml->Value(), "node") != 0)
     return nullptr;
 
   // check the condition

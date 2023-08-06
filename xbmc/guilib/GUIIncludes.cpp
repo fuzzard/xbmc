@@ -334,7 +334,9 @@ void CGUIIncludes::Resolve(tinyxml2::XMLElement* node,
   ResolveConstants(node);
   ResolveExpressions(node);
   ResolveIncludes(node, xmlIncludeConditions);
-
+  tinyxml2::XMLPrinter printer;
+  node->Accept(&printer);
+  CLog::Log(LOGDEBUG, "XML Node processed: {}", printer.CStr());
   auto* child = node->FirstChildElement();
   while (child)
   {
@@ -458,7 +460,12 @@ void CGUIIncludes::ResolveIncludes(tinyxml2::XMLElement* node,
         value = conditionID->Get(INFO::DEFAULT_CONTEXT);
 
         if (xmlIncludeConditions)
+        {
+          tinyxml2::XMLPrinter printer;
+          node->Accept(&printer);
+          CLog::Log(LOGDEBUG, "XML Node processed: {}", printer.CStr());
           xmlIncludeConditions->insert(std::make_pair(conditionID, value));
+        }
       }
 
       if (!value)

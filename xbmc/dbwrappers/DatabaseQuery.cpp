@@ -14,7 +14,7 @@
 #include "utils/CharsetConverter.h"
 #include "utils/StringUtils.h"
 #include "utils/Variant.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 
 typedef struct
 {
@@ -46,13 +46,13 @@ CDatabaseQueryRule::CDatabaseQueryRule()
   m_operator = OPERATOR_CONTAINS;
 }
 
-bool CDatabaseQueryRule::Load(const TiXmlNode* node, const std::string& encoding /* = "UTF-8" */)
+bool CDatabaseQueryRule::Load(const tinyxml2::XMLNode* node)
 {
-  if (node == NULL)
+  if (!node)
     return false;
 
-  const TiXmlElement* element = node->ToElement();
-  if (element == NULL)
+  const auto* element = node->ToElement();
+  if (!element)
     return false;
 
   // format is:
@@ -70,40 +70,32 @@ bool CDatabaseQueryRule::Load(const TiXmlNode* node, const std::string& encoding
   if (m_operator == OPERATOR_TRUE || m_operator == OPERATOR_FALSE)
     return true;
 
-  const TiXmlNode* parameter = element->FirstChild();
-  if (parameter == NULL)
+  const auto* parameter = element->FirstChild();
+  if (!parameter)
     return false;
 
-  if (parameter->Type() == TiXmlNode::TINYXML_TEXT)
+  if (parameter->ToText())
   {
-    std::string utf8Parameter;
-    if (encoding.empty()) // utf8
-      utf8Parameter = parameter->ValueStr();
-    else
-      g_charsetConverter.ToUtf8(encoding, parameter->ValueStr(), utf8Parameter);
+    std::string utf8Parameter = parameter->Value();
 
     if (!utf8Parameter.empty())
       m_parameter.push_back(utf8Parameter);
   }
-  else if (parameter->Type() == TiXmlNode::TINYXML_ELEMENT)
+  else if (parameter->ToElement())
   {
-    const TiXmlNode* valueNode = element->FirstChild("value");
-    while (valueNode != NULL)
+    const auto* valueNode = element->FirstChildElement("value");
+    while (valueNode)
     {
-      const TiXmlNode* value = valueNode->FirstChild();
-      if (value != NULL && value->Type() == TiXmlNode::TINYXML_TEXT)
+      const auto* value = valueNode->FirstChild();
+      if (value && value->ToText())
       {
-        std::string utf8Parameter;
-        if (encoding.empty()) // utf8
-          utf8Parameter = value->ValueStr();
-        else
-          g_charsetConverter.ToUtf8(encoding, value->ValueStr(), utf8Parameter);
+        std::string utf8Parameter = value->Value();
 
         if (!utf8Parameter.empty())
           m_parameter.push_back(utf8Parameter);
       }
 
-      valueNode = valueNode->NextSibling("value");
+      valueNode = valueNode->NextSiblingElement("value");
     }
   }
   else
@@ -146,22 +138,22 @@ bool CDatabaseQueryRule::Load(const CVariant& obj)
   return true;
 }
 
-bool CDatabaseQueryRule::Save(TiXmlNode* parent) const
+bool CDatabaseQueryRule::Save(tinyxml2::XMLNode* parent) const
 {
   if (parent == NULL ||
       (m_parameter.empty() && m_operator != OPERATOR_TRUE && m_operator != OPERATOR_FALSE))
     return false;
 
-  TiXmlElement rule("rule");
-  rule.SetAttribute("field", TranslateField(m_field).c_str());
-  rule.SetAttribute("operator", TranslateOperator(m_operator).c_str());
+  auto rule = parent->GetDocument()->NewElement("rule");
+  rule->SetAttribute("field", TranslateField(m_field).c_str());
+  rule->SetAttribute("operator", TranslateOperator(m_operator).c_str());
 
   for (const auto& it : m_parameter)
   {
-    TiXmlElement value("value");
-    TiXmlText text(it);
-    value.InsertEndChild(text);
-    rule.InsertEndChild(value);
+    auto value = parent->GetDocument()->NewElement("value");
+    auto text = parent->GetDocument()->NewText(it.c_str());
+    value->InsertEndChild(text);
+    rule->InsertEndChild(value);
   }
 
   parent->InsertEndChild(rule);
@@ -528,7 +520,7 @@ bool CDatabaseQueryRuleCombination::Load(const CVariant& obj,
   return true;
 }
 
-bool CDatabaseQueryRuleCombination::Save(TiXmlNode* parent) const
+bool CDatabaseQueryRuleCombination::Save(tinyxml2::XMLNode* parent) const
 {
   for (const auto& it : m_rules)
     it->Save(parent);

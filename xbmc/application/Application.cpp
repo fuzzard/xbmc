@@ -229,8 +229,6 @@ CApplication::CApplication(void)
     m_pInertialScrollingHandler(new CInertialScrollingHandler()),
     m_WaitingExternalCalls(0)
 {
-  TiXmlBase::SetCondenseWhiteSpace(false);
-
 #ifdef HAVE_X11
   XInitThreads();
 #endif

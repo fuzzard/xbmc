@@ -9,7 +9,12 @@
 #pragma once
 
 #include "IDirectory.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
+
+namespace tinyxml2
+{
+class XMLElement;
+}
 
 namespace XFILE
 {
@@ -33,8 +38,8 @@ namespace XFILE
      \param xmlFile the XML file to load and parse
      \return the TiXmlElement pointer to the node, if it should be visible.
      */
-    TiXmlElement *LoadXML(const std::string &xmlFile);
+    tinyxml2::XMLElement* LoadXML(const std::string& xmlFile);
 
-    CXBMCTinyXML m_doc;
+    CXBMCTinyXML2 m_doc;
   };
 }
