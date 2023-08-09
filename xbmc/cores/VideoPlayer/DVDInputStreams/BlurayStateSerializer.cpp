@@ -9,7 +9,7 @@
 #include "BlurayStateSerializer.h"
 
 #include "utils/StringUtils.h"
-#include "utils/XBMCTinyXML.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
 #include <charconv>
@@ -24,39 +24,39 @@ constexpr int BLURAYSTATESERIALIZER_VERSION = 1;
 
 bool CBlurayStateSerializer::BlurayStateToXML(std::string& xmlstate, const BlurayState& state)
 {
-  CXBMCTinyXML xmlDoc{"libbluraystate"};
+  CXBMCTinyXML2 xmlDoc;
 
-  TiXmlElement eRoot{"libbluraystate"};
-  eRoot.SetAttribute("version", BLURAYSTATESERIALIZER_VERSION);
+  auto* eRoot = xmlDoc.NewElement("libbluraystate");
+  eRoot->SetAttribute("version", BLURAYSTATESERIALIZER_VERSION);
 
-  TiXmlElement xmlElement{"playlistId"};
-  TiXmlText xmlElementValue = std::to_string(state.playlistId);
-  xmlElement.InsertEndChild(xmlElementValue);
-  eRoot.InsertEndChild(xmlElement);
+  auto* xmlElement = xmlDoc.NewElement("playlistId");
+  auto* xmlElementValue = xmlDoc.NewText(std::to_string(state.playlistId).c_str());
+  xmlElement->InsertEndChild(xmlElementValue);
+  eRoot->InsertEndChild(xmlElement);
   xmlDoc.InsertEndChild(eRoot);
 
-  std::stringstream stream;
-  stream << xmlDoc;
-  xmlstate = stream.str();
+  tinyxml2::XMLPrinter printer;
+  xmlDoc.Accept(&printer);
+  xmlstate = printer.CStr();
   return true;
 }
 
 bool CBlurayStateSerializer::XMLToBlurayState(BlurayState& state, const std::string& xmlstate)
 {
-  CXBMCTinyXML xmlDoc;
+  CXBMCTinyXML2 xmlDoc;
 
-  xmlDoc.Parse(xmlstate);
-  if (xmlDoc.Error())
+  if(!xmlDoc.Parse(xmlstate))
     return false;
 
-  TiXmlHandle hRoot(xmlDoc.RootElement());
-  if (!hRoot.Element() || !StringUtils::EqualsNoCase(hRoot.Element()->Value(), "libbluraystate"))
+  tinyxml2::XMLHandle hRoot(xmlDoc.RootElement());
+  if (!hRoot.ToElement() ||
+      !StringUtils::EqualsNoCase(hRoot.ToElement()->Value(), "libbluraystate"))
   {
     CLog::LogF(LOGERROR, "Failed to deserialize bluray state - failed to detect root element.");
     return false;
   }
 
-  auto version = hRoot.Element()->Attribute("version");
+  auto version = hRoot.ToElement()->Attribute("version");
   if (!version ||
       !StringUtils::EqualsNoCase(version, std::to_string(BLURAYSTATESERIALIZER_VERSION)))
   {
@@ -64,7 +64,7 @@ bool CBlurayStateSerializer::XMLToBlurayState(BlurayState& state, const std::str
     return false;
   }
 
-  const TiXmlElement* childElement = hRoot.Element()->FirstChildElement();
+  const auto* childElement = hRoot.ToElement()->FirstChildElement();
   while (childElement)
   {
     const std::string property = childElement->Value();
