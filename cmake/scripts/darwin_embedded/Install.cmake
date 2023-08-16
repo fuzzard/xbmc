@@ -84,9 +84,10 @@ set_target_properties(${APP_NAME_LC} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTI
 if(ADDONS_TO_BUILD)
   set(_addons "ADDONS=${ADDONS_TO_BUILD}")
 endif()
+find_program(MAKE_EXECUTABLE make REQUIRED)
 add_custom_target(binary-addons
-  COMMAND $(MAKE) -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons clean
-  COMMAND $(MAKE) -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons VERBOSE=1 V=99
+  COMMAND ${MAKE_EXECUTABLE} -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons clean
+  COMMAND ${MAKE_EXECUTABLE} -C ${CMAKE_SOURCE_DIR}/tools/depends/target/binary-addons VERBOSE=1 V=99
         INSTALL_PREFIX="${CMAKE_BINARY_DIR}/addons" CROSS_COMPILING=yes ${_addons})
 if(ENABLE_XCODE_ADDONBUILD)
   add_dependencies(${APP_NAME_LC} binary-addons)
