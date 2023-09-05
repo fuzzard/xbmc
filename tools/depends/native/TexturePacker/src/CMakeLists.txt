@@ -68,7 +68,7 @@ target_link_libraries(TexturePacker
                               ${GIF_LIBRARIES}
                               ${PNG_LIBRARIES}
                               ${JPEG_LIBRARIES}
-                              ${LZO2_LIBRARIES})
+                              Lzo2::Lzo2)
 
 target_compile_definitions(TexturePacker PRIVATE ${ARCH_DEFINES} ${SYSTEM_DEFINES})
 target_compile_features(TexturePacker PUBLIC cxx_std_17)
