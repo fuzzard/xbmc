@@ -3,78 +3,70 @@
 # -----------
 # Finds the LibZip library
 #
-# This will define the following variables::
-#
-# LIBZIP_FOUND - system has LibZip
-# LIBZIP_INCLUDE_DIRS - the LibZip include directory
-# LIBZIP_LIBRARIES - the LibZip libraries
-#
-# and the following imported targets:
+# This will define the following target:
 #
 #   libzip::zip - The LibZip library
 
-include(cmake/scripts/common/ModuleHelpers.cmake)
+if(NOT TARGET libzip::zip)
 
-set(MODULE_LC libzip)
-SETUP_BUILD_VARS()
+  include(cmake/scripts/common/ModuleHelpers.cmake)
 
-# Check for existing lib
-find_package(LIBZIP CONFIG QUIET)
+  set(MODULE_LC libzip)
+  SETUP_BUILD_VARS()
 
-if(NOT LIBZIP_FOUND OR LIBZIP_VERSION VERSION_LESS ${${MODULE}_VER})
-  # Check for dependencies
-  find_package(GnuTLS MODULE REQUIRED)
+  # Check for existing lib
+  find_package(LIBZIP CONFIG QUIET)
 
-  # Eventually we will want Find modules for the following deps
-  # bzip2 
-  # ZLIB
+  if(NOT LIBZIP_FOUND OR LIBZIP_VERSION VERSION_LESS ${${MODULE}_VER})
+    # Check for dependencies
+    find_package(GnuTLS MODULE REQUIRED)
 
-  set(CMAKE_ARGS -DBUILD_DOC=OFF
-                 -DBUILD_EXAMPLES=OFF
-                 -DBUILD_REGRESS=OFF
-                 -DBUILD_SHARED_LIBS=OFF
-                 -DBUILD_TOOLS=OFF)
+    # Eventually we will want Find modules for the following deps
+    # bzip2 
+    # ZLIB
 
-  set(LIBZIP_VERSION ${${MODULE}_VER})
+    set(CMAKE_ARGS -DBUILD_DOC=OFF
+                   -DBUILD_EXAMPLES=OFF
+                   -DBUILD_REGRESS=OFF
+                   -DBUILD_SHARED_LIBS=OFF
+                   -DBUILD_TOOLS=OFF)
 
-  BUILD_DEP_TARGET()
-else()
-  find_path(LIBZIP_INCLUDE_DIR NAMES zip.h)
+    set(LIBZIP_VERSION ${${MODULE}_VER})
 
-  find_library(LIBZIP_LIBRARY NAMES zip)
-endif()
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(LibZip
-                                  REQUIRED_VARS LIBZIP_LIBRARY LIBZIP_INCLUDE_DIR
-                                  VERSION_VAR LIBZIP_VERSION)
-
-if(LIBZIP_FOUND)
-  set(LIBZIP_LIBRARIES ${LIBZIP_LIBRARY})
-  set(LIBZIP_INCLUDE_DIRS ${LIBZIP_INCLUDE_DIR})
-
-  if(NOT TARGET libzip::zip)
-    add_library(libzip::zip UNKNOWN IMPORTED)
-
-    set_target_properties(libzip::zip PROPERTIES
-                                         INTERFACE_INCLUDE_DIRECTORIES "${LIBZIP_INCLUDE_DIR}"
-                                         IMPORTED_LOCATION "${LIBZIP_LIBRARY}")
-
-    if(TARGET libzip)
-      add_dependencies(libzip::zip libzip)
-    endif()
+    BUILD_DEP_TARGET()
   else()
-    # ToDo: When we correctly import dependencies cmake targets for the following
-    # BZip2::BZip2, LibLZMA::LibLZMA, GnuTLS::GnuTLS, Nettle::Nettle,ZLIB::ZLIB
-    # For now, we just override 
-    set_target_properties(libzip::zip PROPERTIES
-                                      INTERFACE_LINK_LIBRARIES "")
+    find_path(LIBZIP_INCLUDE_DIR NAMES zip.h NO_CACHE)
+
+    find_library(LIBZIP_LIBRARY NAMES zip NO_CACHE)
   endif()
-  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP libzip::zip)
-else()
-  if(LIBZIP_FIND_REQUIRED)
-    message(FATAL_ERROR "LibZip not found.")
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(LibZip
+                                    REQUIRED_VARS LIBZIP_LIBRARY LIBZIP_INCLUDE_DIR
+                                    VERSION_VAR LIBZIP_VERSION)
+
+  if(LIBZIP_FOUND)
+    if(NOT TARGET libzip::zip)
+      add_library(libzip::zip UNKNOWN IMPORTED)
+
+      set_target_properties(libzip::zip PROPERTIES
+                                           INTERFACE_INCLUDE_DIRECTORIES "${LIBZIP_INCLUDE_DIR}"
+                                           IMPORTED_LOCATION "${LIBZIP_LIBRARY}")
+
+      if(TARGET libzip)
+        add_dependencies(libzip::zip libzip)
+      endif()
+    else()
+      # ToDo: When we correctly import dependency cmake targets for the following
+      # BZip2::BZip2, LibLZMA::LibLZMA, GnuTLS::GnuTLS, Nettle::Nettle,ZLIB::ZLIB
+      # For now, we overwrite with the traditional link library names
+      set_target_properties(libzip::zip PROPERTIES
+                                        INTERFACE_LINK_LIBRARIES "nettle;z;gnutls;bz2;lzma")
+    endif()
+    set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP libzip::zip)
+  else()
+    if(LIBZIP_FIND_REQUIRED)
+      message(FATAL_ERROR "LibZip not found.")
+    endif()
   endif()
 endif()
-
-mark_as_advanced(LIBZIP_INCLUDE_DIR LIBZIP_LIBRARY)
