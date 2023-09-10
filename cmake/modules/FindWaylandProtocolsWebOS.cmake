@@ -13,6 +13,6 @@ find_path(WAYLAND_PROTOCOLS_WEBOS_PROTOCOLDIR NAMES webos-shell.xml
                                               REQUIRED)
 
 include(FindPackageMessage)
-find_package_message(udfread "Found WaylandProtocols-WebOS: ${WAYLAND_PROTOCOLS_WEBOS_PROTOCOLDIR}"[${WAYLAND_PROTOCOLS_WEBOS_PROTOCOLDIR}]")
+find_package_message(WaylandProtocolsWebOS "Found WaylandProtocols-WebOS: ${WAYLAND_PROTOCOLS_WEBOS_PROTOCOLDIR}"[${WAYLAND_PROTOCOLS_WEBOS_PROTOCOLDIR}]")
 
 mark_as_advanced(WAYLANDPROTOCOLSWEBOS_PROTOCOLSDIR)
