@@ -84,10 +84,6 @@ set(gtest_force_shared_crt ON CACHE STRING "" FORCE)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 
-# For #pragma comment(lib X)
-# TODO: It would certainly be better to handle these libraries via CMake modules.
-link_directories(${DEPENDS_PATH}/lib)
-
 # Additional libraries
 list(APPEND DEPLIBS bcrypt.lib d3d11.lib DInput8.lib DSound.lib winmm.lib Mpr.lib Iphlpapi.lib WS2_32.lib
                     PowrProf.lib setupapi.lib Shlwapi.lib dwmapi.lib dxguid.lib DelayImp.lib version.lib
