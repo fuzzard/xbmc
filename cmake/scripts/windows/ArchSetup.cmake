@@ -104,11 +104,8 @@ foreach(_lib ${_nodefaultlibs_DEBUG})
 endforeach()
 
 # DELAYLOAD option
-set(_delayloadlibs zlib.dll libmariadb.dll libxslt.dll dnssd.dll dwmapi.dll sqlite3.dll
-                   d3dcompiler_47.dll)
-foreach(_lib ${_delayloadlibs})
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DELAYLOAD:\"${_lib}\"")
-endforeach()
+set(_delayloadlibs ZLIB::ZLIB MariaDBClient::MariaDBClient XSLT::XSLT MDNS::MDNS SQLite3::SQLite3
+                   dwmapi.dll d3dcompiler_47.dll)
 
 # Make the Release version create a PDB
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
