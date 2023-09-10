@@ -13,14 +13,22 @@ if(NOT TARGET OpenGL::GLES)
     pkg_check_modules(PC_OPENGLES glesv2 QUIET)
   endif()
 
+  if(NOT CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+    set(SEARCH_CONDITIONS NO_DEFAULT_PATH)
+  endif()
+
   find_library(OPENGLES_gl_LIBRARY NAMES GLESv2 OpenGLES
                                    HINTS ${PC_OPENGLES_LIBDIR} ${CMAKE_OSX_SYSROOT}/System/Library
+                                   PATH_SUFFIXES Frameworks
+                                   ${SEARCH_CONDITIONS}
                                    NO_CACHE)
   find_path(OPENGLES_INCLUDE_DIR NAMES GLES2/gl2.h ES2/gl.h
-                                 HINTS ${PC_OPENGLES_INCLUDEDIR} ${CMAKE_OSX_SYSROOT}/System/Library/Headers
+                                 HINTS ${PC_OPENGLES_INCLUDEDIR} ${OPENGLES_gl_LIBRARY}/Headers
+                                 ${SEARCH_CONDITIONS}
                                  NO_CACHE)
   find_path(OPENGLES3_INCLUDE_DIR NAMES GLES3/gl3.h ES3/gl.h
-                                  HINTS ${PC_OPENGLES_INCLUDEDIR} ${CMAKE_OSX_SYSROOT}/System/Library/Headers
+                                  HINTS ${PC_OPENGLES_INCLUDEDIR} ${OPENGLES_gl_LIBRARY}/Headers
+                                  ${SEARCH_CONDITIONS}
                                   NO_CACHE)
 
   include(FindPackageHandleStandardArgs)
