@@ -3,38 +3,40 @@
 # ----------
 # Finds the FindOpenGl library
 #
-# This will define the following variables::
+# This will define the following target:
 #
-# OPENGL_FOUND - system has OpenGl
-# OPENGL_INCLUDE_DIRS - the OpenGl include directory
-# OPENGL_LIBRARIES - the OpenGl libraries
-# OPENGL_DEFINITIONS - the OpenGl definitions
+#   OpenGL::GL - The OpenGL library
 
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_OPENGL gl QUIET)
-endif()
+if(NOT TARGET OpenGL::GL)
+  find_package(PkgConfig)
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_OPENGL gl QUIET)
+  endif()
 
-if(NOT CORE_SYSTEM_NAME STREQUAL osx)
-  find_path(OPENGL_INCLUDE_DIR GL/gl.h
-                               PATHS ${PC_OPENGL_gl_INCLUDEDIR})
-  find_library(OPENGL_gl_LIBRARY NAMES GL
-                                 PATHS ${PC_OPENGL_gl_LIBDIR})
-else()
-  find_library(OPENGL_gl_LIBRARY NAMES OpenGL
-                                 PATHS ${CMAKE_OSX_SYSROOT}/System/Library
+  if(CORE_SYSTEM_NAME STREQUAL osx)
+    set(SEARCH_CONDITIONS NO_DEFAULT_PATH)
+  endif()
+
+  find_library(OPENGL_gl_LIBRARY NAMES GL OpenGL
+                                 HINTS ${PC_OPENGL_gl_LIBDIR} ${CMAKE_OSX_SYSROOT}/System/Library
                                  PATH_SUFFIXES Frameworks
-                                 NO_DEFAULT_PATH)
-  set(OPENGL_INCLUDE_DIR ${OPENGL_gl_LIBRARY}/Headers)
+                                 ${SEARCH_CONDITIONS}
+                                 NO_CACHE)
+  find_path(OPENGL_INCLUDE_DIR NAMES GL/gl.h gl.h
+                               HINTS ${PC_OPENGL_gl_INCLUDEDIR} ${CMAKE_OSX_SYSROOT}/System/Library/Headers
+                               ${SEARCH_CONDITIONS}
+                               NO_CACHE)
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(OpenGl
+                                    REQUIRED_VARS OPENGL_gl_LIBRARY OPENGL_INCLUDE_DIR)
+
+  if(OPENGL_FOUND)
+    add_library(OpenGL::GL UNKNOWN IMPORTED)
+    set_target_properties(OpenGL::GL PROPERTIES
+                                     IMPORTED_LOCATION "${OPENGL_gl_LIBRARY}"
+                                     INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}"
+                                     INTERFACE_COMPILE_DEFINITIONS HAS_GL=1)
+    set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP OpenGL::GL)
+  endif()
 endif()
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(OpenGl
-                                  REQUIRED_VARS OPENGL_gl_LIBRARY OPENGL_INCLUDE_DIR)
-
-if(OPENGL_FOUND)
-  set(OPENGL_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
-  set(OPENGL_LIBRARIES ${OPENGL_gl_LIBRARY})
-  set(OPENGL_DEFINITIONS -DHAS_GL=1)
-endif()
-
-mark_as_advanced(OPENGL_INCLUDE_DIR OPENGL_gl_LIBRARY)
