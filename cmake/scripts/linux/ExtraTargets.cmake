@@ -37,4 +37,5 @@ if("wayland" IN_LIST CORE_PLATFORM_NAME_LC)
   # ToDo: turn this into a TARGET OBJECT. For now, a custum target doesnt play nice with
   # our PLATFORM_GLOBAL_TARGET_DEPS usage in macros
   add_dependencies(lib${APP_NAME_LC} generate-wayland-extra-protocols)
+  target_link_libraries(lib${APP_NAME_LC} PUBLIC generate-wayland-extra-protocols)
 endif()
