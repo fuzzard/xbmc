@@ -10,4 +10,4 @@ add_custom_target(generate-wayland-webos-protocols DEPENDS wayland-webos-protoco
 # ToDo: turn this into a TARGET OBJECT. For now, a custum target doesnt play nice with
 # our PLATFORM_GLOBAL_TARGET_DEPS usage in macros
 add_dependencies(lib${APP_NAME_LC} generate-wayland-webos-protocols)
-target_link_libraries(lib${APP_NAME_LC} PUBLIC generate-wayland-webos-protocols)
+target_link_libraries(lib${APP_NAME_LC} PUBLIC ${WAYLAND_EXTRA_PROTOCOL_GENERATED_DIR}/wayland-webos-protocols.hpp)
