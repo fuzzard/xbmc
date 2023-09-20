@@ -210,7 +210,7 @@ set(optional_deps Alsa
                   CEC
                   Dav1d
                   DBus
-                  Iso9660pp
+                  Iso9660pp>=2.1.0
                   LCMS2
                   LircClient
                   MDNS
