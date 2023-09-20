@@ -205,7 +205,7 @@ set(required_deps ASS>=0.15.0
 set(optional_deps Alsa
                   Avahi
                   Bluetooth
-                  Bluray
+                  Bluray>=0.9.3
                   CAP
                   CEC
                   Dav1d
