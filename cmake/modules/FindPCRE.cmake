@@ -148,6 +148,8 @@ if(NOT PCRE::pcre)
   include(SelectLibraryConfigurations)
   select_library_configurations(PCRECPP)
   select_library_configurations(PCRE)
+  unset(PCRECPP_LIBRARIES)
+  unset(PCRE_LIBRARIES)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(PCRE
