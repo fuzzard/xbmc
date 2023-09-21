@@ -78,6 +78,7 @@ option(ENABLE_INTERNAL_FFMPEG "Enable internal ffmpeg?" OFF)
 # These are built for all platforms not using system libs or disabled by user
 dependent_option(ENABLE_INTERNAL_FLATBUFFERS "Enable internal flatbuffers?")
 dependent_option(ENABLE_INTERNAL_FMT "Enable internal fmt?")
+dependent_option(ENABLE_INTERNAL_KISSFFT "Enable internal kissfft?")
 dependent_option(ENABLE_INTERNAL_NFS "Enable internal libnfs?")
 dependent_option(ENABLE_INTERNAL_PCRE "Enable internal pcre?")
 dependent_option(ENABLE_INTERNAL_SPDLOG "Enable internal spdlog?")
@@ -94,8 +95,7 @@ if(UNIX)
   option(ENABLE_INTERNAL_GTEST "Enable internal gtest?" OFF)
   option(ENABLE_INTERNAL_UDFREAD "Enable internal udfread?" OFF)
 endif()
-# prefer kissfft from xbmc/contrib but let use system one on unices
-cmake_dependent_option(ENABLE_INTERNAL_KISSFFT "Enable internal kissfft?" ON "UNIX" ON)
+
 # System options
 if(NOT WIN32)
   option(WITH_ARCH              "build with given arch" OFF)
