@@ -207,7 +207,7 @@ set(optional_deps Alsa
                   Bluetooth
                   Bluray>=0.9.3
                   CAP
-                  CEC
+                  CEC>=4.0.0
                   Dav1d
                   DBus
                   Iso9660pp>=2.1.0

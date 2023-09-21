@@ -8,30 +8,37 @@
 #   CEC::CEC - The libCEC library
 
 if(NOT TARGET CEC::CEC)
-  find_package(PkgConfig)
-  if(PKG_CONFIG_FOUND)
-    pkg_check_modules(PC_CEC libcec QUIET)
+  if(CEC_FIND_VERSION)
+    if(CEC_FIND_VERSION_EXACT)
+      set(CEC_FIND_SPEC "=${CEC_FIND_VERSION_COMPLETE}")
+    else()
+      set(CEC_FIND_SPEC ">=${CEC_FIND_VERSION_COMPLETE}")
+    endif()
   endif()
 
+  find_package(PkgConfig)
+  # Do not use pkgconfig on windows
+  if(PKG_CONFIG_FOUND AND NOT WIN32)
+    pkg_check_modules(PC_CEC libcec${CEC_FIND_SPEC} QUIET)
+  endif()
+
+  find_library(CEC_LIBRARY NAMES cec
+                           HINTS ${DEPENDS_PATH}/lib ${PC_CEC_LIBDIR}
+                           ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
+                           NO_CACHE)
+
   find_path(CEC_INCLUDE_DIR NAMES libcec/cec.h libCEC/CEC.h
-                            PATHS ${PC_CEC_INCLUDEDIR}
+                            HINTS ${DEPENDS_PATH}/include ${PC_CEC_INCLUDEDIR}
+                            ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
                             NO_CACHE)
 
   if(PC_CEC_VERSION)
     set(CEC_VERSION ${PC_CEC_VERSION})
-  elseif(CEC_INCLUDE_DIR AND EXISTS "${CEC_INCLUDE_DIR}/libcec/version.h")
+  elseif(CEC_INCLUDE_DIR AND EXISTS "${CEC_INCLUDE_DIR}/version.h")
     file(STRINGS "${CEC_INCLUDE_DIR}/libcec/version.h" cec_version_str REGEX "^[\t ]+LIBCEC_VERSION_TO_UINT\\(.*\\)")
     string(REGEX REPLACE "^[\t ]+LIBCEC_VERSION_TO_UINT\\(([0-9]+), ([0-9]+), ([0-9]+)\\)" "\\1.\\2.\\3" CEC_VERSION "${cec_version_str}")
     unset(cec_version_str)
   endif()
-
-  if(NOT CEC_FIND_VERSION)
-    set(CEC_FIND_VERSION 4.0.0)
-  endif()
-
-  find_library(CEC_LIBRARY NAMES cec
-                           PATHS ${PC_CEC_LIBDIR}
-                           NO_CACHE)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(CEC
