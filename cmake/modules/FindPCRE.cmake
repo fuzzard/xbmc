@@ -67,7 +67,7 @@ if(NOT PCRE::pcre)
 
   # Check for existing PCRE. If version >= PCRE-VERSION file version, dont build
   find_package(PCRE CONFIG QUIET
-                           HINTS ${DEPENDS_PATH}/lib
+                           HINTS ${DEPENDS_PATH}/lib/cmake
                            ${${CORE_PLATFORM_NAME_LC}_SEARCH_CONFIG})
 
   if((PCRE_VERSION VERSION_LESS ${${MODULE}_VER} AND ENABLE_INTERNAL_PCRE) OR
@@ -77,7 +77,8 @@ if(NOT PCRE::pcre)
 
   else()
     if(NOT TARGET PCRE::pcre)
-      if(PKG_CONFIG_FOUND)
+      # Do not use pkgconfig on windows
+      if(PKG_CONFIG_FOUND AND NOT WIN32)
         pkg_check_modules(PC_PCRE pcre pcrecpp QUIET)
       endif()
 
