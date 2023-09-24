@@ -9,15 +9,16 @@
 
 if(NOT TARGET LCMS2::LCMS2)
   find_package(PkgConfig)
-  if(PKG_CONFIG_FOUND)
+  # Do not use pkgconfig on windows
+  if(PKG_CONFIG_FOUND AND NOT WIN32)
     pkg_check_modules(PC_LCMS2 lcms2>=2.10 QUIET)
   endif()
 
   find_path(LCMS2_INCLUDE_DIR NAMES lcms2.h
-                              HINTS ${PC_LCMS2_INCLUDEDIR}
+                              HINTS ${DEPENDS_PATH}/include ${PC_LCMS2_INCLUDEDIR}
                               NO_CACHE)
   find_library(LCMS2_LIBRARY NAMES lcms2 liblcms2
-                             HINTS ${PC_LCMS2_LIBDIR}
+                             HINTS ${DEPENDS_PATH}/lib ${PC_LCMS2_LIBDIR}
                              NO_CACHE)
 
   set(LCMS2_VERSION ${PC_LCMS2_VERSION})
