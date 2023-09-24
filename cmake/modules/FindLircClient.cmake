@@ -8,12 +8,17 @@
 
 if(NOT TARGET LIRCCLIENT::LIRCCLIENT)
   find_package(PkgConfig)
-  if(PKG_CONFIG_FOUND)
+  # Do not use pkgconfig on windows
+  if(PKG_CONFIG_FOUND AND NOT WIN32)
     pkg_check_modules(PC_LIRC lirc QUIET)
   endif()
 
-  find_path(LIRCCLIENT_INCLUDE_DIR lirc/lirc_client.h PATHS ${PC_LIRC_INCLUDEDIR})
-  find_library(LIRCCLIENT_LIBRARY lirc_client PATHS ${PC_LIRC_LIBDIR})
+  find_path(LIRCCLIENT_INCLUDE_DIR NAMES lirc/lirc_client.h
+                                   HINTS ${PC_LIRC_INCLUDEDIR}
+                                   NO_CACHE)
+  find_library(LIRCCLIENT_LIBRARY NAMES lirc_client
+                                  HINTS ${PC_LIRC_LIBDIR}
+                                  NO_CACHE)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(LircClient
@@ -25,8 +30,7 @@ if(NOT TARGET LIRCCLIENT::LIRCCLIENT)
                                                  IMPORTED_LOCATION "${LIRCCLIENT_LIBRARY}"
                                                  INTERFACE_INCLUDE_DIRECTORIES "${LIRCCLIENT_INCLUDE_DIR}"
                                                  INTERFACE_COMPILE_DEFINITIONS "HAS_LIRC=1")
+
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP LIRCCLIENT::LIRCCLIENT)
   endif()
-
-  mark_as_advanced(LIRCCLIENT_LIBRARY LIRCCLIENT_INCLUDE_DIR)
 endif()
