@@ -15,10 +15,12 @@ if(NOT TARGET LIBDRM::LIBDRM)
 
   find_path(LIBDRM_INCLUDE_DIR NAMES drm.h
                                PATH_SUFFIXES libdrm drm
-                               PATHS ${PC_LIBDRM_INCLUDEDIR}
+                               HINTS ${PC_LIBDRM_INCLUDEDIR}
+                               ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
                                NO_CACHE)
   find_library(LIBDRM_LIBRARY NAMES drm
                               PATHS ${PC_LIBDRM_LIBDIR}
+                              ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
                               NO_CACHE)
 
   set(LIBDRM_VERSION ${PC_LIBDRM_VERSION})
