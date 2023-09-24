@@ -1,34 +1,40 @@
-# - Try to find gnutls
-# Once done this will define
+#.rst:
+# FindGnuTLS
+# -----
+# Finds the GnuTLS library
 #
-# GNUTLS_FOUND - system has gnutls
-# GNUTLS_INCLUDE_DIRS - the gnutls include directory
-# GNUTLS_LIBRARIES - The gnutls libraries
+# This will define the following target:
+#
+#   GnuTLS::GnuTLS - The GnuTLS library
 
-# Suppress PkgConfig Mismatch warning, see https://cmake.org/cmake/help/latest/module/FindPackageHandleStandardArgs.html
-set(FPHSA_NAME_MISMATCHED 1)
-include(FindPkgConfig)
-find_package(PkgConfig QUIET)
-unset(FPHSA_NAME_MISMATCHED)
+if(NOT TARGET GnuTLS::GnuTLS)
+  find_package(PkgConfig)
+  # Do not use pkgconfig on windows
+  if(PKG_CONFIG_FOUND AND NOT WIN32)
+    pkg_check_modules(PC_GNUTLS gnutls QUIET)
+  endif()
 
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(GNUTLS gnutls QUIET)
-endif()
+  find_path(GNUTLS_INCLUDE_DIR NAMES gnutls/gnutls.h
+                               HINTS ${DEPENDS_PATH}/include ${PC_GNUTLS_INCLUDEDIR}
+                               ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
+                               NO_CACHE)
+  find_library(GNUTLS_LIBRARY NAMES gnutls
+                              HINTS ${DEPENDS_PATH}/lib ${PC_GNUTLS_LIBDIR}
+                              ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
+                              NO_CACHE)
 
-if(NOT GNUTLS_FOUND)
-  find_path(GNUTLS_INCLUDE_DIRS gnutls/gnutls.h)
-  find_library(GNUTLS_LIBRARIES gnutls)
-endif()
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(GnuTLS DEFAULT_MSG GNUTLS_LIBRARY GNUTLS_INCLUDE_DIR)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GnuTLS DEFAULT_MSG GNUTLS_INCLUDE_DIRS GNUTLS_LIBRARIES)
-
-if(GNUTLS_FOUND)
-  list(APPEND GNUTLS_DEFINITIONS -DHAVE_GNUTLS=1)
-else()
-  if(GNUTLS_FIND_REQUIRED)
-    message(FATAL_ERROR "GNUTLS Not Found.")
+  if(GNUTLS_FOUND)
+    add_library(GnuTLS::GnuTLS UNKNOWN IMPORTED)
+    set_target_properties(GnuTLS::GnuTLS PROPERTIES
+                                         IMPORTED_LOCATION "${GNUTLS_LIBRARY}"
+                                         INTERFACE_INCLUDE_DIRECTORIES "${GNUTLS_INCLUDE_DIR}"
+                                         INTERFACE_COMPILE_DEFINITIONS HAVE_GNUTLS=1)
+  else()
+    if(GNUTLS_FIND_REQUIRED)
+      message(FATAL_ERROR "GNUTLS Not Found.")
+    endif()
   endif()
 endif()
-
-mark_as_advanced(GNUTLS_INCLUDE_DIRS GNUTLS_LIBRARIES GNUTLS_DEFINITIONS)

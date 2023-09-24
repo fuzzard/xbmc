@@ -64,6 +64,7 @@ if(NOT TARGET libzip::zip)
 
       set_target_properties(libzip::zip PROPERTIES
                                         INTERFACE_INCLUDE_DIRECTORIES "${LIBZIP_INCLUDE_DIR}"
+                                        INTERFACE_LINK_LIBRARIES "GnuTLS::GnuTLS"
                                         IMPORTED_LOCATION "${LIBZIP_LIBRARY}")
 
       if(TARGET libzip)
@@ -74,7 +75,7 @@ if(NOT TARGET libzip::zip)
       # BZip2::BZip2, LibLZMA::LibLZMA, GnuTLS::GnuTLS, Nettle::Nettle,ZLIB::ZLIB
       # For now, we just override
       set_target_properties(libzip::zip PROPERTIES
-                                        INTERFACE_LINK_LIBRARIES "")
+                                        INTERFACE_LINK_LIBRARIES "GnuTLS::GnuTLS")
     endif()
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP libzip::zip)
   else()
