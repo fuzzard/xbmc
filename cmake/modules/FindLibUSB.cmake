@@ -10,15 +10,16 @@
 if(NOT TARGET LibUSB::LibUSB)
   find_package(PkgConfig)
 
-  if(PKG_CONFIG_FOUND)
+  # Do not use pkgconfig on windows
+  if(PKG_CONFIG_FOUND AND NOT WIN32)
     pkg_check_modules(PC_LIBUSB libusb QUIET)
   endif()
 
   find_path(LIBUSB_INCLUDE_DIR usb.h
-                               PATHS ${PC_LIBUSB_INCLUDEDIR}
+                               HINTS ${PC_LIBUSB_INCLUDEDIR}
                                NO_CACHE)
   find_library(LIBUSB_LIBRARY NAMES usb
-                              PATHS ${PC_LIBUSB_INCLUDEDIR}
+                              HINTS ${PC_LIBUSB_INCLUDEDIR}
                               NO_CACHE)
   set(LIBUSB_VERSION ${PC_LIBUSB_VERSION})
 
