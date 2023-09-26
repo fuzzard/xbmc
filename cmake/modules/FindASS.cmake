@@ -66,8 +66,9 @@ if(NOT TARGET ASS::ASS)
   find_package(PkgConfig)
   # Do not use pkgconfig on windows
   if(PKG_CONFIG_FOUND AND NOT WIN32)
-    pkg_check_modules(PC_ASS libass QUIET IMPORTED_TARGET)
+message(WARNING "CMAKE_FIND_ROOT_PATH: ${CMAKE_FIND_ROOT_PATH}")
 
+    pkg_check_modules(PC_ASS libass QUIET IMPORTED_TARGET)
     # INTERFACE_LINK_OPTIONS is incorrectly populated when cmake generation is executed
     # when an existing build generation is already done. Just set this to blank
     set_target_properties(PkgConfig::PC_ASS PROPERTIES INTERFACE_LINK_OPTIONS "")
