@@ -34,5 +34,7 @@ if(NOT TARGET ICONV::ICONV)
                                        IMPORTED_LOCATION "${ICONV_LIBRARY}"
                                        INTERFACE_INCLUDE_DIRECTORIES "${ICONV_INCLUDE_DIR}")
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP ICONV::ICONV)
+  include(cmake/scripts/common/DebugHelpers.cmake)
+  print_target_properties(ICONV::ICONV)
   endif()
 endif()

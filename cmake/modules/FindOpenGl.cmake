@@ -45,5 +45,8 @@ if(NOT TARGET OpenGL::GL)
                                      INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}"
                                      INTERFACE_COMPILE_DEFINITIONS HAS_GL=1)
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP OpenGL::GL)
+
+  include(cmake/scripts/common/DebugHelpers.cmake)
+  print_target_properties(OpenGL::GL)
   endif()
 endif()

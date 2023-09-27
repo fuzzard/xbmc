@@ -58,5 +58,7 @@ if(NOT TARGET OpenGL::GLES)
     endif()
 
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP OpenGL::GLES)
+  include(cmake/scripts/common/DebugHelpers.cmake)
+  print_target_properties(OpenGL::GLES)
   endif()
 endif()
