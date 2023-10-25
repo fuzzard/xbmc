@@ -28,6 +28,8 @@ if(NOT TARGET RapidJSON::RapidJSON)
 
     set(BUILD_BYPRODUCTS ${DEPENDS_PATH}/include/rapidjson/rapidjson.h)
 
+    set(BUILD_NAME build-${MODULE_LC})
+
     BUILD_DEP_TARGET()
 
     set(RAPIDJSON_INCLUDE_DIRS ${${MODULE}_INCLUDE_DIR})
@@ -85,8 +87,8 @@ if(NOT TARGET RapidJSON::RapidJSON)
     add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
     set_target_properties(RapidJSON::RapidJSON PROPERTIES
                                                INTERFACE_INCLUDE_DIRECTORIES "${RAPIDJSON_INCLUDE_DIRS}")
-    if(TARGET rapidjson)
-      add_dependencies(RapidJSON::RapidJSON rapidjson)
+    if(TARGET build-rapidjson)
+      add_dependencies(RapidJSON::RapidJSON build-rapidjson)
     endif()
 
     # Add internal build target when a Multi Config Generator is used
@@ -98,11 +100,11 @@ if(NOT TARGET RapidJSON::RapidJSON)
     # This is mainly targeted for windows who required different runtime libs for different
     # types, and they arent compatible
     if(_multiconfig_generator)
-      if(NOT TARGET rapidjson)
+      if(NOT TARGET build-rapidjson)
         buildrapidjson()
-        set_target_properties(rapidjson PROPERTIES EXCLUDE_FROM_ALL TRUE)
+        set_target_properties(build-rapidjson PROPERTIES EXCLUDE_FROM_ALL TRUE)
       endif()
-      add_dependencies(build_internal_depends rapidjson)
+      add_dependencies(build_internal_depends build-rapidjson)
     endif()
 
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP RapidJSON::RapidJSON)
