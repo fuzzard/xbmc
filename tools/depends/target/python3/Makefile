@@ -3,6 +3,11 @@ DEPS = ../../Makefile.include Makefile PYTHON3-VERSION ../../download-files.incl
                                  01-py312-cpython118618-1.patch \
                                  01-py312-cpython118618-2.patch \
                                  02-android-cpython114875.patch \
+                                 01-win-cmake.patch \
+                                 02-win-modules.patch \
+                                 03-win-PC.patch \
+                                 04-win-Python.patch \
+                                 05-win-winregistryfinder.patch \
                                  apple.patch \
                                  darwin_embedded.patch \
                                  10-android-modules.patch
@@ -107,7 +112,11 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../darwin_embedded.patch
 endif
-
+	cd $(PLATFORM); patch -p1 -i ../01-win-cmake.patch
+	cd $(PLATFORM); patch -p1 -i ../02-win-modules.patch
+	cd $(PLATFORM); patch -p1 -i ../03-win-PC.patch
+	cd $(PLATFORM); patch -p1 -i ../04-win-Python.patch
+	cd $(PLATFORM); patch -p1 -i ../05-win-winregistryfinder.patch
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../02-android-cpython114875.patch
 	cd $(PLATFORM); patch -p1 -i ../10-android-modules.patch
