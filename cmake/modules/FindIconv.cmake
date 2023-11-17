@@ -5,9 +5,9 @@
 #
 # This will define the following target:
 #
-#   ${APP_NAME_LC}::ICONV - The ICONV library
+#   Iconv::Iconv - The ICONV library
 
-if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
+if(NOT TARGET Iconv::Iconv)
   find_path(ICONV_INCLUDE_DIR NAMES iconv.h
                               HINTS ${DEPENDS_PATH}/include)
 
@@ -31,14 +31,11 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     # Libc causes grief for linux, so search if found library is libc.* and only
     # create imported TARGET if its not
     if(NOT ${ICONV_LIBRARY} MATCHES ".*libc\..*")
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
-      set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                       IMPORTED_LOCATION "${ICONV_LIBRARY}"
-                                                                       INTERFACE_INCLUDE_DIRECTORIES "${ICONV_INCLUDE_DIR}")
-    endif()
-  else()
-    if(Iconv_FIND_REQUIRED)
-      message(FATAL_ERROR "Iconv libraries were not found.")
+      add_library(Iconv::Iconv UNKNOWN IMPORTED)
+      set_target_properties(Iconv::Iconv PROPERTIES
+                                         IMPORTED_LOCATION "${ICONV_LIBRARY}"
+                                         INTERFACE_INCLUDE_DIRECTORIES "${ICONV_INCLUDE_DIR}")
+      set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP Iconv::Iconv)
     endif()
   endif()
 endif()
