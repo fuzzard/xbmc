@@ -95,5 +95,11 @@ if(NOT TARGET Python::Python3)
     endif()
 
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP Python::Python3)
+
+    if(KODI_DEPENDSBUILD OR WIN32)
+      if(NOT WIN32)
+        find_package(Pythonmodule-Setuptools)
+      endif()
+    endif()
   endif()
 endif()
