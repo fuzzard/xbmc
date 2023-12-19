@@ -114,6 +114,10 @@ if(NOT TARGET CrossGUID::CrossGUID)
   # This is mainly targeted for windows who required different runtime libs for different
   # types, and they arent compatible
   if(_multiconfig_generator)
+    if(WIN32)
+      set_target_properties(CrossGUID::CrossGUID PROPERTIES
+                                                 MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+    endif()
     if(NOT TARGET crossguid)
       buildCrossGUID()
       set_target_properties(crossguid PROPERTIES EXCLUDE_FROM_ALL TRUE)
