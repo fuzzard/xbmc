@@ -174,8 +174,9 @@ mesa: libdrm $(MESA_DEPS) $(ZLIB)
 nettle: gmp
 openssl: $(ZLIB)
 python3: expat gettext libxml2 sqlite3 openssl libffi bzip2 xz $(ICONV)
-pythonmodule-pil: bzip2 $(PYMODULE_DEPS) $(ZLIB) libjpeg-turbo libpng freetype2 python3
-pythonmodule-pycryptodome: $(PYMODULE_DEPS) python3
+pythonmodule-pil: bzip2 $(PYMODULE_DEPS) $(ZLIB) libjpeg-turbo libpng freetype2 python3 pythonmodule-setuptools
+pythonmodule-pycryptodome: $(PYMODULE_DEPS) python3 pythonmodule-setuptools
+pythonmodule-setuptools: $(PYMODULE_DEPS) python3
 samba-gplv3: gnutls $(ZLIB)
 taglib: $(ZLIB)
 wayland: expat libffi
