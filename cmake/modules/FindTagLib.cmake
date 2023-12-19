@@ -124,6 +124,10 @@ if(NOT TARGET TagLib::TagLib)
     # This is mainly targeted for windows who required different runtime libs for different
     # types, and they arent compatible
     if(_multiconfig_generator)
+      if(WIN32)
+        set_target_properties(TagLib::TagLib PROPERTIES
+                                             MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+      endif()
       if(NOT TARGET taglib)
         buildTagLib()
         set_target_properties(taglib PROPERTIES EXCLUDE_FROM_ALL TRUE)
