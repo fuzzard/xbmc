@@ -61,7 +61,75 @@
  #else
  #define PYD_DEBUG_SUFFIX ""
  #endif
-@@ -240,23 +242,39 @@
+@@ -182,13 +184,31 @@
+     }
+     python3_checked = 1;
+ 
++#ifndef MS_DESKTOP
++    wchar_t* programPath = Py_GetProgramFullPath();
++    // LoadPackagedLibrary doesn't accept absolute paths so we need to trim
++    // the base path
++    wchar_t* prefix_length = wcsrchr(programPath, L'\\');
++    wchar_t* ptr_py3path;
++#endif
++
+     /* If there is a python3.dll next to the python3y.dll,
+        use that DLL */
+     if (PyWin_DLLhModule && GetModuleFileNameW(PyWin_DLLhModule, py3path, MAXPATHLEN)) {
+         wchar_t *p = wcsrchr(py3path, L'\\');
+         if (p) {
+             wcscpy(p + 1, PY3_DLLNAME);
++#ifdef MS_DESKTOP
+             hPython3 = LoadLibraryExW(py3path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
++#else
++            // LoadPackagedLibrary doesn't accept absolute paths so we need to trim
++            // the base path
++            ptr_py3path = py3path;
++            ptr_py3path += (prefix_length - programPath);
++            ptr_py3path++;
++
++            hPython3 = LoadPackagedLibrary(ptr_py3path, 0);
++#endif
+             if (hPython3 != NULL) {
+                 return 1;
+             }
+@@ -197,7 +217,17 @@
+ 
+     /* If we can locate python3.dll in our application dir,
+        use that DLL */
++#ifdef MS_DESKTOP
+     hPython3 = LoadLibraryExW(PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
++#else
++    // LoadPackagedLibrary doesn't accept absolute paths so we need to trim
++    // the base path
++    wchar_t* ptr_PY3_DLLNAME = PY3_DLLNAME;
++    ptr_PY3_DLLNAME += (prefix_length - programPath);
++    ptr_PY3_DLLNAME++;
++
++    hPython3 = LoadPackagedLibrary(ptr_PY3_DLLNAME, 0);
++#endif
+     if (hPython3 != NULL) {
+         return 1;
+     }
+@@ -210,7 +240,17 @@
+     if (config->prefix) {
+         wcscpy_s(py3path, MAXPATHLEN, config->prefix);
+         if (py3path[0] && _Py_add_relfile(py3path, L"DLLs\\" PY3_DLLNAME, MAXPATHLEN) >= 0) {
++#ifdef MS_DESKTOP
+             hPython3 = LoadLibraryExW(py3path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
++#else
++            // LoadPackagedLibrary doesn't accept absolute paths so we need to trim
++            // the base path
++            ptr_py3path = py3path;
++            ptr_py3path += (prefix_length - programPath);
++            ptr_py3path++;
++
++            hPython3 = LoadPackagedLibrary(ptr_py3path, 0);
++#endif
+         }
+     }
+     return hPython3 != NULL;
+@@ -241,23 +281,39 @@
          unsigned int old_mode;
  
          /* Don't display a message box when Python can't load a DLL */
@@ -83,7 +151,7 @@
 +
 +        // LoadPackagedLibrary doesn't accept absolute paths so we need to trim
 +        // the base path
-+        auto prefix_length = wcsrchr(programPath, L'\\');
++        wchar_t* prefix_length = wcsrchr(programPath, L'\\');
 +        wpathname += (prefix_length - programPath);
 +        wpathname++;
 +
@@ -101,16 +169,15 @@
  
          if (hDLL==NULL){
              PyObject *message;
-@@ -315,11 +333,7 @@
+@@ -316,11 +372,7 @@
              char buffer[256];
  
              PyOS_snprintf(buffer, sizeof(buffer),
 -#ifdef _DEBUG
 -                          "python%d%d_d.dll",
 -#else
--                          "python%d%d.dll",
+                           "python%d%d.dll",
 -#endif
-+                          "python%d%d.dll",
                            PY_MAJOR_VERSION,PY_MINOR_VERSION);
              import_python = GetPythonImport(hDLL);
  
