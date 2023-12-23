@@ -67,6 +67,8 @@ if(NOT TARGET Python::Pycryptodome)
                      -DCMAKE_INSTALL_PREFIX=${DEPENDS_PATH}
                      -DSEPARATE_NAMESPACE=ON
                      ${ADDITIONAL_ARGS})
+
+      set(BUILD_BYPRODUCTS "${DEPENDS_PATH}/bin/Python/Lib/site-packages/Cryptodome/Cipher/${${MODULE}_BYPRODUCT}")
     else()
 
       set(LDFLAGS ${CMAKE_EXE_LINKER_FLAGS})
@@ -131,16 +133,20 @@ if(NOT TARGET Python::Pycryptodome)
                                   ${PYTHON_EXECUTABLE} setup.py install --prefix=${DEPENDS_PATH})
       set(BUILD_IN_SOURCE 1)
 
-    endif()
-
-    BUILD_DEP_TARGET()
-
-    if(NOT ${CORE_SYSTEM_NAME} MATCHES "windows")
       if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
         set(PIL_OUTPUT_DIR ${DEPENDS_PATH}/share/${APP_NAME_LC}/addons/script.module.pil/lib)
       else()
         set(PIL_OUTPUT_DIR ${PYTHON_SITE_PKG})
       endif()
+
+      set(BUILD_BYPRODUCTS "${PIL_OUTPUT_DIR}/Cryptodome/Cipher/${${MODULE}_BYPRODUCT}")
+
+    endif()
+
+    BUILD_DEP_TARGET()
+
+    if(NOT ${CORE_SYSTEM_NAME} MATCHES "windows")
+
 
       add_custom_command(TARGET ${MODULE_LC} POST_BUILD
                          COMMAND mv -f ${PYTHON_SITE_PKG}/pycryptodomex-${${MODULE}_VER}-*.egg/Cryptodome ${PYTHON_SITE_PKG}/Cryptodome && rm -rf ${PYTHON_SITE_PKG}/pycryptodomex-${${MODULE}_VER}-*.egg || (exit 0))
