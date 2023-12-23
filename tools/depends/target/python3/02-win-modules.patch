@@ -288,10 +288,11 @@
          Py_END_ALLOW_THREADS
      }
  
-@@ -447,6 +428,17 @@
+@@ -446,6 +427,17 @@
+ 
      Py_RETURN_NONE;
  }
- 
++
 +HANDLE
 +_Py_win_create_file(
 +	_In_ LPCWSTR lpFileName,
@@ -302,10 +303,9 @@
 +	_In_ DWORD dwFlagsAndAttributes,
 +	_In_opt_ HANDLE hTemplateFile
 +);
-+
+ 
  /*[clinic input]
  _winapi.CreateFile -> HANDLE
- 
 @@ -461,7 +453,7 @@
  [clinic start generated code]*/
  
@@ -348,7 +348,7 @@
  }
  
  /*[clinic input]
-@@ -931,7 +927,7 @@
+@@ -943,7 +939,7 @@
      Py_XDECREF(value_fast);
      return ret;
  }
@@ -357,16 +357,16 @@
  typedef struct {
      LPPROC_THREAD_ATTRIBUTE_LIST attribute_list;
      LPHANDLE handle_list;
-@@ -1167,6 +1163,8 @@
+@@ -1178,6 +1174,8 @@
+ 
      return ret;
  }
- 
-+#endif
 +
++#endif
+ 
  /*[clinic input]
  _winapi.DuplicateHandle -> HANDLE
- 
-@@ -1367,7 +1365,16 @@
+@@ -1379,7 +1377,16 @@
  #pragma warning(disable:4996)
  
  {
@@ -384,7 +384,25 @@
  }
  
  #pragma warning(pop)
-@@ -2077,8 +2084,10 @@
+@@ -2016,6 +2023,9 @@
+                                               PyObject *on_type_read)
+ /*[clinic end generated code: output=20829f00bebce55b input=cd357896d6501f68]*/
+ {
++#ifdef MS_APP
++	Py_RETURN_NOTIMPLEMENTED;
++#else
+ #define CCH_EXT 128
+ #define CB_TYPE 510
+     struct {
+@@ -2105,6 +2115,7 @@
+     Py_RETURN_NONE;
+ #undef CCH_EXT
+ #undef CB_TYPE
++#endif
+ }
+ 
+ 
+@@ -2115,8 +2126,10 @@
      _WINAPI_CREATEFILEMAPPING_METHODDEF
      _WINAPI_CREATENAMEDPIPE_METHODDEF
      _WINAPI_CREATEPIPE_METHODDEF
@@ -395,7 +413,7 @@
      _WINAPI_DUPLICATEHANDLE_METHODDEF
      _WINAPI_EXITPROCESS_METHODDEF
      _WINAPI_GETCURRENTPROCESS_METHODDEF
-@@ -2200,8 +2209,13 @@
+@@ -2239,8 +2252,13 @@
      WINAPI_CONSTANT(F_DWORD, SEC_NOCACHE);
      WINAPI_CONSTANT(F_DWORD, SEC_RESERVE);
      WINAPI_CONSTANT(F_DWORD, SEC_WRITECOMBINE);
@@ -1239,15 +1257,30 @@
      PyObject *dict;
      OSVERSIONINFOEX info;
      DWORDLONG dwlConditionMask;
-@@ -961,6 +962,7 @@
-         /* else: err was already set before */
-         return -1;
+@@ -384,6 +385,7 @@
+         }
      }
+     return 0;
 +#endif
  }
  
- static int
-@@ -2761,11 +2763,13 @@
+ #endif
+@@ -491,12 +493,13 @@
+ #endif
+ 
+ #ifdef MS_WINDOWS
++#ifdef MS_DESKTOP
+ #define sockaddr_rc SOCKADDR_BTH_REDEF
+-
+ #define USE_BLUETOOTH 1
+ #define AF_BLUETOOTH AF_BTH
+ #define BTPROTO_RFCOMM BTHPROTO_RFCOMM
+ #define _BT_RC_MEMB(sa, memb) ((sa)->memb)
++#endif
+ #endif
+ 
+ /* Convert "sock_addr_t *" to "struct sockaddr *". */
+@@ -2761,11 +2765,13 @@
      newfd = ctx.result;
  
  #ifdef MS_WINDOWS
@@ -1261,7 +1294,7 @@
  #else
  
  #if defined(HAVE_ACCEPT4) && defined(SOCK_CLOEXEC)
-@@ -5350,11 +5354,13 @@
+@@ -5352,11 +5358,13 @@
          }
  
          if (!support_wsa_no_inherit) {
@@ -1275,7 +1308,7 @@
          }
  #else
          /* UNIX */
-@@ -5466,7 +5472,7 @@
+@@ -5468,7 +5476,7 @@
          return NULL;
      }
  
@@ -1284,7 +1317,7 @@
      /* Don't use winsock's gethostname, as this returns the ANSI
         version of the hostname, whereas we need a Unicode string.
         Otherwise, gethostname apparently also returns the DNS name. */
-@@ -6083,11 +6089,13 @@
+@@ -6086,11 +6094,13 @@
      if (newfd == INVALID_SOCKET)
          return set_error();
  
@@ -1298,7 +1331,7 @@
  #else
      /* On UNIX, dup can be used to duplicate the file descriptor of a socket */
      newfd = _Py_dup(fd);
-@@ -6830,6 +6838,9 @@
+@@ -6833,6 +6843,9 @@
          return NULL;
      }
  #ifdef MS_WINDOWS
@@ -1308,7 +1341,7 @@
      PMIB_IF_TABLE2 tbl;
      int ret;
      if ((ret = GetIfTable2Ex(MibIfTableRaw, &tbl)) != NO_ERROR) {
-@@ -6858,6 +6869,7 @@
+@@ -6861,6 +6874,7 @@
      }
      FreeMibTable(tbl);
      return list;
@@ -1316,7 +1349,7 @@
  #else
      int i;
      struct if_nameindex *ni;
-@@ -6917,6 +6929,9 @@
+@@ -6920,6 +6934,9 @@
  #else
      unsigned long index;
  #endif
@@ -1326,7 +1359,7 @@
      if (!PyArg_ParseTuple(args, "O&:if_nametoindex",
                            PyUnicode_FSConverter, &oname))
          return NULL;
-@@ -6930,6 +6945,7 @@
+@@ -6933,6 +6950,7 @@
      }
  
      return PyLong_FromUnsignedLong(index);
@@ -1334,7 +1367,7 @@
  }
  
  PyDoc_STRVAR(if_nametoindex_doc,
-@@ -6945,6 +6961,9 @@
+@@ -6948,6 +6966,9 @@
  #else
      unsigned long index;
  #endif
@@ -1344,7 +1377,7 @@
      char name[IF_NAMESIZE + 1];
  
      index = PyLong_AsUnsignedLong(arg);
-@@ -6957,6 +6976,7 @@
+@@ -6960,6 +6981,7 @@
      }
  
      return PyUnicode_DecodeFSDefault(name);
@@ -1352,7 +1385,7 @@
  }
  
  PyDoc_STRVAR(if_indextoname_doc,
-@@ -7245,7 +7265,11 @@
+@@ -7248,7 +7270,11 @@
  
  #ifdef MS_WINDOWS
      if (support_wsa_no_inherit == -1) {

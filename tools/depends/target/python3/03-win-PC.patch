@@ -178,7 +178,25 @@
  }
  
  #ifdef _DEBUG
-@@ -593,10 +629,12 @@
+@@ -477,6 +513,9 @@
+ msvcrt_GetErrorMode_impl(PyObject *module)
+ /*[clinic end generated code: output=3103fc6145913591 input=5a7fb083b6dd71fd]*/
+ {
++#ifdef MS_APP
++  return 0;
++#else
+     unsigned int res;
+ 
+     _Py_BEGIN_SUPPRESS_IPH
+@@ -484,6 +523,7 @@
+     _Py_END_SUPPRESS_IPH
+ 
+     return PyLong_FromUnsignedLong(res);
++#endif
+ }
+ 
+ /*[clinic input]
+@@ -593,10 +633,12 @@
      insertint(d, "LK_NBRLCK", _LK_NBRLCK);
      insertint(d, "LK_RLCK", _LK_RLCK);
      insertint(d, "LK_UNLCK", _LK_UNLCK);
@@ -204,33 +222,13 @@
  
  #define HAVE_STRFTIME
  #define DONT_HAVE_SIG_ALARM
-@@ -72,6 +76,16 @@
- #define USE_SOCKET
- #endif
- 
-+#ifdef MS_WINDOWS
-+#	if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-+#		define MS_DESKTOP
-+#		undef MS_APP
-+#	else
-+#		undef MS_DESKTOP
-+#		define MS_APP
-+#	endif
-+#endif
-+
- 
- /* Compiler specific defines */
- 
-@@ -142,8 +156,13 @@
+@@ -142,8 +156,10 @@
  
  /* set the version macros for the windows headers */
  /* Python 3.9+ requires Windows 8 or greater */
 +#ifdef MS_DESKTOP
  #define Py_WINVER 0x0602 /* _WIN32_WINNT_WIN8 */
  #define Py_NTDDI NTDDI_WIN8
-+#else
-+#define PY_WINVER 0x0A00 /* _WIN32_WINNT_WIN10 */
-+#define PyNTDDI NTDDI_WIN10
 +#endif
  
  /* We only set these values when building Python - we don't want to force
@@ -256,19 +254,6 @@
  #ifdef MS_WIN32
  
  #define SIZEOF_SHORT 2
---- a/PC/pyshellext.cpp
-+++ b/PC/pyshellext.cpp
-@@ -8,7 +8,9 @@
- 
- #include <windows.h>
- #include <shlobj.h>
--#include <shlwapi.h>
-+#ifdef MS_DESKTOP
-+  #include <shlwapi.h>
-+#endif
- #include <olectl.h>
- #include <strsafe.h>
- 
 --- /dev/null
 +++ b/PC/uwp_compat.cpp
 @@ -0,0 +1,25 @@
