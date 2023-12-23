@@ -162,6 +162,11 @@ if(NOT TARGET Python::Python3)
       string(REGEX REPLACE "/ax_c_float_words_bigendian.m4" "" AUTOCONF-ARCHIVE ${AUTOCONF-ARCHIVE})
       set(ACLOCAL_PATH_VAR "ACLOCAL_PATH=${AUTOCONF-ARCHIVE}")
 
+      if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
+        set(_tmp_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -liconv")
+      endif()
+
       set(CONFIGURE_COMMAND ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
                     COMMAND ${CMAKE_COMMAND} -E env ${PROJECT_TARGETENV}
                             ./configure
@@ -187,6 +192,10 @@ if(NOT TARGET Python::Python3)
     endif()
 
     BUILD_DEP_TARGET()
+
+    if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
+      set(CMAKE_EXE_LINKER_FLAGS ${_tmp_CMAKE_EXE_LINKER_FLAGS})
+    endif()
 
     if(WIN32)
       set(PYTHON_SITE_PKG "${DEPENDS_PATH}/bin/python/Lib/site-packages" CACHE INTERNAL "" FORCE)
