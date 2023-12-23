@@ -165,6 +165,7 @@ if(NOT TARGET Python::Python3)
       if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
         set(_tmp_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -liconv")
+message(FATAL_ERROR "WEBOS PYTHON")
       endif()
 
       set(CONFIGURE_COMMAND ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
