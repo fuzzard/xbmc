@@ -164,10 +164,41 @@ if(NOT TARGET Python::Python3)
 
       if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
         set(OPT_LDFLAGS -liconv)
+        # Prepare buildenv - we need custom CFLAGS/LDFLAGS not in Toolchain.cmake
+        set(PYTHON_TARGETENV ${CMAKE_COMMAND} -E env 
+                            "AS=${CMAKE_AS}"
+                            "AR=${CMAKE_AR}"
+                            "CC=${CMAKE_C_COMPILER}"
+                            "CXX=${CMAKE_CXX_COMPILER}"
+                            "NM=${CMAKE_NM}"
+                            "LD=${CMAKE_LINKER}"
+                            "STRIP=${CMAKE_STRIP}"
+                            "RANLIB=${CMAKE_RANLIB}"
+                            "OBJDUMP=${CMAKE_OBJDUMP}"
+                            "CFLAGS=${CFLAGS}"
+                            "CPPFLAGS=${CMAKE_CPP_FLAGS}"
+                            # These are additional/changed compared to PROJECT_TARGETENV
+                            "LDFLAGS=${LDFLAGS} -liconv"
+                            "PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}"
+                            "PKG_CONFIG_PATH="
+                            "PKG_CONFIG_SYSROOT_DIR=${SDKROOT}"
+                            "AUTOM4TE=${AUTOM4TE}"
+                            "AUTOMAKE=${AUTOMAKE}"
+                            "AUTOCONF=${AUTOCONF}"
+                            "ACLOCAL=${ACLOCAL}"
+                            "ACLOCAL_PATH=${ACLOCAL_PATH}"
+                            "AUTOPOINT=${AUTOPOINT}"
+                            "AUTOHEADER=${AUTOHEADER}"
+                            "LIBTOOL=${LIBTOOL}"
+                            "LIBTOOLIZE=${LIBTOOLIZE}"
+                            ${PROJECT_BUILDENV}
+                            )
+
+        set(BYPASS_DEP_BUILDENV ON)
       endif()
 
-      set(CONFIGURE_COMMAND ${OPT_LDFLAGS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
-                    COMMAND ${OPT_LDFLAGS} ./configure
+      set(CONFIGURE_COMMAND ${PYTHON_TARGETENV} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
+                    COMMAND ${PYTHON_TARGETENV} ./configure
                               --prefix=${DEPENDS_PATH}
                               --disable-shared
                               --without-ensurepip
@@ -181,9 +212,9 @@ if(NOT TARGET Python::Python3)
                               MODULE_BUILDTYPE=static
                               ${EXTRA_CONFIGURE})
 
-      set(BUILD_COMMAND ${OPT_LDFLAGS} ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
+      set(BUILD_COMMAND ${PYTHON_TARGETENV} ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
 
-      set(INSTALL_COMMAND ${OPT_LDFLAGS} ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes install)
+      set(INSTALL_COMMAND ${PYTHON_TARGETENV} ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes install)
 
       set(BUILD_IN_SOURCE 1)
     endif()
