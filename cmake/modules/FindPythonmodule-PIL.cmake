@@ -63,6 +63,8 @@ if(NOT TARGET Python::PIL)
                      -DDEPENDS_PATH=${DEPENDS_PATH}
                      -DCMAKE_INSTALL_PREFIX=${DEPENDS_PATH}
                      ${ADDITIONAL_ARGS})
+
+      set(BUILD_BYPRODUCTS "${DEPENDS_PATH}/bin/Python/Lib/site-packages/PIL/${${MODULE}_BYPRODUCT}")
     else()
       # ToDo: Dont hardcode *_ROOT in PYMOD_TARGETENV. We should find the libraries
       #       and then populate the ROOT paths based off that information.
@@ -147,17 +149,18 @@ if(NOT TARGET Python::PIL)
       set(INSTALL_COMMAND COMMAND ${CMAKE_COMMAND} -E env ${PYMOD_TARGETENV} ${PROJECT_BUILDENV} echo Empty Install_command)
       set(BUILD_IN_SOURCE 1)
 
-    endif()
-
-    BUILD_DEP_TARGET()
-
-    if(NOT ${CORE_SYSTEM_NAME} MATCHES "windows")
       if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
         set(PIL_OUTPUT_DIR ${DEPENDS_PATH}/share/${APP_NAME_LC}/addons/script.module.pil/lib)
       else()
         set(PIL_OUTPUT_DIR ${PYTHON_SITE_PKG})
       endif()
 
+      set(BUILD_BYPRODUCTS "${PIL_OUTPUT_DIR}/PIL/${${MODULE}_BYPRODUCT}")
+    endif()
+
+    BUILD_DEP_TARGET()
+
+    if(NOT ${CORE_SYSTEM_NAME} MATCHES "windows")
       add_custom_command(TARGET ${MODULE_LC} POST_BUILD
                          COMMAND unzip -o ${PYTHON_SITE_PKG}/Pillow-${${MODULE}_VER}-*.egg -d ${PIL_OUTPUT_DIR} && rm -rf ${PYTHON_SITE_PKG}/Pillow-${${MODULE}_VER}-*.egg || (exit 0))
 
