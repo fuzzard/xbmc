@@ -163,8 +163,7 @@ if(NOT TARGET Python::Python3)
       set(ACLOCAL_PATH_VAR "ACLOCAL_PATH=${AUTOCONF-ARCHIVE}")
 
       if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
-#        set(_tmp_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
-        set(OPT_LDFLAGS LDFLAGS="${CMAKE_EXE_LINKER_FLAGS} -liconv")
+        set(OPT_LDFLAGS -liconv)
       endif()
 
       set(CONFIGURE_COMMAND ${OPT_LDFLAGS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
@@ -190,6 +189,10 @@ if(NOT TARGET Python::Python3)
     endif()
 
     BUILD_DEP_TARGET()
+
+      if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
+        unset(OPT_LDFLAGS)
+      endif()
 
     if(WIN32)
       set(PYTHON_SITE_PKG "${DEPENDS_PATH}/bin/python/Lib/site-packages" CACHE INTERNAL "" FORCE)
