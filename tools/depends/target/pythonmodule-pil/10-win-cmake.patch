@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,173 @@
 +cmake_minimum_required(VERSION 3.15)
 +
 +project(pillow VERSION 8.4.0 LANGUAGES C)
@@ -24,7 +24,9 @@
 +  target_include_directories(${name} PRIVATE $<BUILD_INTERFACE:${addPythonExtension_INCLUDES};${CMAKE_CURRENT_SOURCE_DIR}/src/libImaging/>)
 +  target_compile_definitions(${name} PRIVATE ${addPythonExtension_MACROS})
 +  target_compile_options(${name} PRIVATE /sdl- /MP)
-+  if(NOT WINDOWS_STORE)
++  if(NOT CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
++    target_compile_definitions(${name} PRIVATE UWP=1)
++  else()
 +    target_link_libraries(${name}
 +      PRIVATE
 +        gdi32.lib

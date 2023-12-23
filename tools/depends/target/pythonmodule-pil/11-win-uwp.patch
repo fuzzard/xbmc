@@ -4,7 +4,7 @@
  
  static PyObject *
  _getdc(ImagingDisplayObject *display, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      HWND window;
@@ -19,7 +19,7 @@
  
  static PyObject *
  _releasedc(ImagingDisplayObject *display, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      HWND window;
@@ -37,7 +37,7 @@
  
  PyObject *
  PyImaging_GrabScreenWin32(PyObject *self, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      int x = 0, y = 0, width, height;
@@ -50,7 +50,7 @@
 +#endif
  }
  
-+#ifdef MS_DESKTOP
++#ifndef UWP
  static BOOL CALLBACK
  list_windows_callback(HWND hwnd, LPARAM lParam) {
      PyObject *window_list = (PyObject *)lParam;
@@ -62,7 +62,7 @@
  
  PyObject *
  PyImaging_ListWindowsWin32(PyObject *self, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      PyObject *window_list;
@@ -80,7 +80,7 @@
  
  PyObject *
  PyImaging_GrabClipboardWin32(PyObject *self, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      int clip;
@@ -96,7 +96,7 @@
  /* -------------------------------------------------------------------- */
  /* Windows class */
  
-+#ifdef MS_DESKTOP
++#ifndef UWP
  #ifndef WM_MOUSEWHEEL
  #define WM_MOUSEWHEEL 522
  #endif
@@ -108,7 +108,7 @@
  
  PyObject *
  PyImaging_CreateWindowWin32(PyObject *self, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      HWND wnd;
@@ -123,7 +123,7 @@
  
  PyObject *
  PyImaging_EventLoopWin32(PyObject *self, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      MSG msg;
@@ -141,7 +141,7 @@
  
  PyObject *
  PyImaging_DrawWmf(PyObject *self, PyObject *args) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_RETURN_NOTIMPLEMENTED;
 +#else
      HBITMAP bitmap;
@@ -161,7 +161,7 @@
  
  char *
  ImagingGetModeDIB(int size_out[2]) {
-+#ifdef MS_APP
++#ifdef UWP
 +    return "RGB";
 +#else
      /* Get device characteristics */
@@ -176,7 +176,7 @@
  
  ImagingDIB
  ImagingNewDIB(const char *mode, int xsize, int ysize) {
-+#ifdef MS_APP
++#ifdef UWP
 +    Py_INCREF(Py_NotImplemented);
 +    return (ImagingDIB)Py_NotImplemented;
 +#else
@@ -195,7 +195,7 @@
  
  void
  ImagingExposeDIB(ImagingDIB dib, void *dc) {
-+#ifdef MS_DESKTOP
++#ifndef UWP
      /* Copy bitmap to display */
  
      if (dib->palette != 0) {
@@ -207,7 +207,7 @@
  
  void
  ImagingDrawDIB(ImagingDIB dib, void *dc, int dst[4], int src[4]) {
-+#ifdef MS_DESKTOP
++#ifndef UWP
      /* Copy bitmap to printer/display */
  
      if (GetDeviceCaps((HDC)dc, RASTERCAPS) & RC_STRETCHDIB) {
@@ -220,7 +220,7 @@
  
  int
  ImagingQueryPaletteDIB(ImagingDIB dib, void *dc) {
-+#ifdef MS_APP
++#ifdef UWP
 +    return 0;
 +#else
      /* Install bitmap palette */
@@ -235,7 +235,7 @@
  
  void
  ImagingDeleteDIB(ImagingDIB dib) {
-+#ifdef MS_DESKTOP
++#ifndef UWP
      /* Clean up */
  
      if (dib->palette) {
