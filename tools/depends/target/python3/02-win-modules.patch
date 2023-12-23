@@ -330,24 +330,6 @@
      Py_END_ALLOW_THREADS
  
      if (handle == INVALID_HANDLE_VALUE)
-@@ -539,6 +531,9 @@
-                             LPCWSTR dst_path)
- /*[clinic end generated code: output=44b3f5e9bbcc4271 input=963d29b44b9384a7]*/
- {
-+#ifdef MS_APP
-+	Py_RETURN_NOTIMPLEMENTED;
-+#else
-     /* Privilege adjustment */
-     HANDLE token = NULL;
-     TOKEN_PRIVILEGES tp;
-@@ -664,6 +659,7 @@
-         return PyErr_SetFromWindowsErr(ret);
- 
-     Py_RETURN_NONE;
-+#endif
- }
- 
- /*[clinic input]
 @@ -931,7 +927,7 @@
      Py_XDECREF(value_fast);
      return ret;
@@ -606,7 +588,7 @@
                                            size_hi,
 --- a/Modules/overlapped.c
 +++ b/Modules/overlapped.c
-@@ -61,6 +61,10 @@
+@@ -61,6 +63,10 @@
  /*[clinic end generated code: output=da39a3ee5e6b4b0d input=92e5a799db35b96c]*/
  
  
@@ -617,88 +599,7 @@
  enum {TYPE_NONE, TYPE_NOT_STARTED, TYPE_READ, TYPE_READINTO, TYPE_WRITE,
        TYPE_ACCEPT, TYPE_CONNECT, TYPE_DISCONNECT, TYPE_CONNECT_NAMED_PIPE,
        TYPE_WAIT_NAMED_PIPE_AND_CONNECT, TYPE_TRANSMIT_FILE, TYPE_READ_FROM,
-@@ -349,6 +353,9 @@
-                                        DWORD Milliseconds)
- /*[clinic end generated code: output=c2ace732e447fe45 input=2dd4efee44abe8ee]*/
- {
-+#ifdef MS_APP
-+  Py_RETURN_NOTIMPLEMENTED;
-+#else
-     HANDLE NewWaitObject;
-     struct PostCallbackData data = {CompletionPort, Overlapped}, *pdata;
- 
-@@ -362,7 +369,7 @@
-     *pdata = data;
- 
-     if (!RegisterWaitForSingleObject(
--            &NewWaitObject, Object, PostToQueueCallback, pdata, Milliseconds,
-+            &NewWaitObject, Object, (WAITORTIMERCALLBACK)PostToQueueCallback, pdata, Milliseconds,
-             WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE))
-     {
-         PyMem_RawFree(pdata);
-@@ -370,6 +377,7 @@
-     }
- 
-     return Py_BuildValue(F_HANDLE, NewWaitObject);
-+#endif
- }
- 
- /*[clinic input]
-@@ -385,6 +393,9 @@
- _overlapped_UnregisterWait_impl(PyObject *module, HANDLE WaitHandle)
- /*[clinic end generated code: output=ec90cd955a9a617d input=a56709544cb2df0f]*/
- {
-+#ifdef MS_APP
-+  Py_RETURN_NOTIMPLEMENTED;
-+#else
-     BOOL ret;
- 
-     Py_BEGIN_ALLOW_THREADS
-@@ -394,6 +405,7 @@
-     if (!ret)
-         return SetFromWindowsErr(0);
-     Py_RETURN_NONE;
-+#endif
- }
- 
- /*[clinic input]
-@@ -411,6 +423,9 @@
-                                   HANDLE Event)
- /*[clinic end generated code: output=2e3d84c1d5f65b92 input=953cddc1de50fab9]*/
- {
-+#ifdef MS_APP
-+  Py_RETURN_NOTIMPLEMENTED;
-+#else
-     BOOL ret;
- 
-     Py_BEGIN_ALLOW_THREADS
-@@ -420,6 +435,7 @@
-     if (!ret)
-         return SetFromWindowsErr(0);
-     Py_RETURN_NONE;
-+#endif
- }
- 
- /*
-@@ -1523,6 +1539,17 @@
- Transmit file data over a connected socket.
- [clinic start generated code]*/
- 
-+PyAPI_FUNC(HANDLE)
-+_Py_win_create_file(
-+	_In_ LPCWSTR lpFileName,
-+	_In_ DWORD dwDesiredAccess,
-+	_In_ DWORD dwShareMode,
-+	_In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-+	_In_ DWORD dwCreationDisposition,
-+	_In_ DWORD dwFlagsAndAttributes,
-+	_In_opt_ HANDLE hTemplateFile
-+);
-+
- static PyObject *
- _overlapped_Overlapped_TransmitFile_impl(OverlappedObject *self,
-                                          HANDLE Socket, HANDLE File,
-@@ -1612,6 +1639,17 @@
+@@ -1613,6 +1642,17 @@
  Connect to the pipe for asynchronous I/O (overlapped).
  [clinic start generated code]*/
  
@@ -716,7 +617,7 @@
  static PyObject *
  _overlapped_Overlapped_ConnectPipe_impl(OverlappedObject *self,
                                          const Py_UNICODE *Address)
-@@ -1620,7 +1658,7 @@
+@@ -1621,7 +1661,7 @@
      HANDLE PipeHandle;
  
      Py_BEGIN_ALLOW_THREADS
@@ -891,23 +792,6 @@
          /* Fix the file execute permissions. This hack sets S_IEXEC if
             the filename has an extension that is commonly used by files
             that CreateProcessW can execute. A real implementation calls
-@@ -3994,12 +3972,16 @@
-     }
- 
- #ifdef MS_WINDOWS
-+#ifdef MS_APP
-+	Py_RETURN_NOTIMPLEMENTED;
-+#else
-     Py_BEGIN_ALLOW_THREADS
-     result = CreateHardLinkW(dst->wide, src->wide, NULL);
-     Py_END_ALLOW_THREADS
- 
-     if (!result)
-         return path_error2(src, dst);
-+#endif
- #else
-     Py_BEGIN_ALLOW_THREADS
- #ifdef HAVE_LINKAT
 @@ -4396,7 +4378,7 @@
      PyObject *result;
  
@@ -917,52 +801,6 @@
          path->wide,
          0, /* desired access */
          0, /* share mode */
-@@ -4467,6 +4449,9 @@
- os__getvolumepathname_impl(PyObject *module, path_t *path)
- /*[clinic end generated code: output=804c63fd13a1330b input=722b40565fa21552]*/
- {
-+#ifdef MS_APP
-+	Py_RETURN_NOTIMPLEMENTED;
-+#else
-     PyObject *result;
-     wchar_t *mountpath=NULL;
-     size_t buflen;
-@@ -4500,6 +4485,7 @@
- exit:
-     PyMem_Free(mountpath);
-     return result;
-+#endif
- }
- 
- 
-@@ -4620,6 +4606,27 @@
-     }
- 
- #ifdef MS_WINDOWS
-+
-+#ifdef MS_APP
-+    DWORD dwAttrib = GetFileAttributesW(path->wide);
-+
-+    // return quick if directory alredy exists
-+    if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
-+        return path_error(path);
-+
-+    // create only in AppData
-+    if (wcsstr(path->wide, L"AppData"))
-+    {
-+        Py_BEGIN_ALLOW_THREADS
-+        result = CreateDirectoryW(path->wide, NULL);
-+        Py_END_ALLOW_THREADS
-+        if (!result)
-+            return path_error(path);
-+    }
-+
-+    Py_RETURN_NONE;
-+#endif
-+
-     Py_BEGIN_ALLOW_THREADS
-     result = CreateDirectoryW(path->wide, NULL);
-     Py_END_ALLOW_THREADS
 @@ -5574,7 +5581,7 @@
  
  #ifdef MS_WINDOWS
@@ -972,24 +810,6 @@
                          NULL, OPEN_EXISTING,
                          FILE_FLAG_BACKUP_SEMANTICS, NULL);
      Py_END_ALLOW_THREADS
-@@ -6528,6 +6535,9 @@
- os_spawnv_impl(PyObject *module, int mode, path_t *path, PyObject *argv)
- /*[clinic end generated code: output=71cd037a9d96b816 input=43224242303291be]*/
- {
-+#ifdef MS_APP
-+	Py_RETURN_NOTIMPLEMENTED;
-+#else
-     EXECV_CHAR **argvlist;
-     int i;
-     Py_ssize_t argc;
-@@ -6611,6 +6621,7 @@
-         return NULL;
-     }
-     return Py_BuildValue(_Py_PARSE_INTPTR, spawnval);
-+#endif
- }
- 
- /*[clinic input]
 @@ -7617,7 +7628,7 @@
  os_getpid_impl(PyObject *module)
  /*[clinic end generated code: output=9ea6fdac01ed2b3c input=5a9a00f0ab68aa00]*/
@@ -1298,60 +1118,6 @@
  #else
      /* On UNIX, dup can be used to duplicate the file descriptor of a socket */
      newfd = _Py_dup(fd);
-@@ -6830,6 +6838,9 @@
-         return NULL;
-     }
- #ifdef MS_WINDOWS
-+#ifdef MS_APP
-+    return list;
-+#else
-     PMIB_IF_TABLE2 tbl;
-     int ret;
-     if ((ret = GetIfTable2Ex(MibIfTableRaw, &tbl)) != NO_ERROR) {
-@@ -6858,6 +6869,7 @@
-     }
-     FreeMibTable(tbl);
-     return list;
-+#endif
- #else
-     int i;
-     struct if_nameindex *ni;
-@@ -6917,6 +6929,9 @@
- #else
-     unsigned long index;
- #endif
-+#ifdef MS_APP
-+    Py_RETURN_NOTIMPLEMENTED;
-+#else
-     if (!PyArg_ParseTuple(args, "O&:if_nametoindex",
-                           PyUnicode_FSConverter, &oname))
-         return NULL;
-@@ -6930,6 +6945,7 @@
-     }
- 
-     return PyLong_FromUnsignedLong(index);
-+#endif
- }
- 
- PyDoc_STRVAR(if_nametoindex_doc,
-@@ -6945,6 +6961,9 @@
- #else
-     unsigned long index;
- #endif
-+#ifdef MS_APP
-+    Py_RETURN_NOTIMPLEMENTED;
-+#else
-     char name[IF_NAMESIZE + 1];
- 
-     index = PyLong_AsUnsignedLong(arg);
-@@ -6957,6 +6976,7 @@
-     }
- 
-     return PyUnicode_DecodeFSDefault(name);
-+#endif
- }
- 
- PyDoc_STRVAR(if_indextoname_doc,
 @@ -7245,7 +7265,11 @@
  
  #ifdef MS_WINDOWS
