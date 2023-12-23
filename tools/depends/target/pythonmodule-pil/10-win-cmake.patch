@@ -24,7 +24,7 @@
 +  target_include_directories(${name} PRIVATE $<BUILD_INTERFACE:${addPythonExtension_INCLUDES};${CMAKE_CURRENT_SOURCE_DIR}/src/libImaging/>)
 +  target_compile_definitions(${name} PRIVATE ${addPythonExtension_MACROS})
 +  target_compile_options(${name} PRIVATE /sdl- /MP)
-+  if(NOT CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
++  if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
 +    target_compile_definitions(${name} PRIVATE UWP=1)
 +  else()
 +    target_link_libraries(${name}
