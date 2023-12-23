@@ -128,7 +128,7 @@ if(NOT TARGET Python::Python3)
 
     if(CORE_SYSTEM_NAME MATCHES windows)
       if(CMAKE_SYSTEM_NAME STREQUAL WindowsStore)
-          set(ADDITIONAL_ARGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
+          set(ADDITIONAL_ARGS "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
       endif()
 
       set(CMAKE_ARGS -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
@@ -163,14 +163,12 @@ if(NOT TARGET Python::Python3)
       set(ACLOCAL_PATH_VAR "ACLOCAL_PATH=${AUTOCONF-ARCHIVE}")
 
       if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
-        set(_tmp_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -liconv")
-message(FATAL_ERROR "WEBOS PYTHON")
+#        set(_tmp_CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+        set(OPT_LDFLAGS "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} -liconv")
       endif()
 
-      set(CONFIGURE_COMMAND ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
-                    COMMAND ${CMAKE_COMMAND} -E env ${PROJECT_TARGETENV}
-                            ./configure
+      set(CONFIGURE_COMMAND LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
+                    COMMAND LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ./configure
                               --prefix=${DEPENDS_PATH}
                               --disable-shared
                               --without-ensurepip
@@ -184,19 +182,14 @@ message(FATAL_ERROR "WEBOS PYTHON")
                               MODULE_BUILDTYPE=static
                               ${EXTRA_CONFIGURE})
 
-      set(BUILD_COMMAND ${CMAKE_COMMAND} -E env ${PROJECT_TARGETENV}
-                        ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
+      set(BUILD_COMMAND ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
 
-      set(INSTALL_COMMAND ${CMAKE_COMMAND} -E env ${PROJECT_TARGETENV}
-                          ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes install)
+      set(INSTALL_COMMAND ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes install)
+
       set(BUILD_IN_SOURCE 1)
     endif()
 
     BUILD_DEP_TARGET()
-
-    if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
-      set(CMAKE_EXE_LINKER_FLAGS ${_tmp_CMAKE_EXE_LINKER_FLAGS})
-    endif()
 
     if(WIN32)
       set(PYTHON_SITE_PKG "${DEPENDS_PATH}/bin/python/Lib/site-packages" CACHE INTERNAL "" FORCE)
