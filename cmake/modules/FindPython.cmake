@@ -167,8 +167,8 @@ if(NOT TARGET Python::Python3)
         set(OPT_LDFLAGS "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} -liconv")
       endif()
 
-      set(CONFIGURE_COMMAND LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
-                    COMMAND LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ./configure
+      set(CONFIGURE_COMMAND ${OPT_LDFLAGS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
+                    COMMAND ${OPT_LDFLAGS} ./configure
                               --prefix=${DEPENDS_PATH}
                               --disable-shared
                               --without-ensurepip
@@ -182,9 +182,9 @@ if(NOT TARGET Python::Python3)
                               MODULE_BUILDTYPE=static
                               ${EXTRA_CONFIGURE})
 
-      set(BUILD_COMMAND ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
+      set(BUILD_COMMAND ${OPT_LDFLAGS} ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
 
-      set(INSTALL_COMMAND ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes install)
+      set(INSTALL_COMMAND ${OPT_LDFLAGS} ${MAKE_EXECUTABLE} ${HOSTPLATFORM} CROSS_COMPILE_TARGET=yes install)
 
       set(BUILD_IN_SOURCE 1)
     endif()
