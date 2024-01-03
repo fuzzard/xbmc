@@ -193,46 +193,6 @@
                  msg='Checking whether fcntl locking is available')
  
      conf.CHECK_CODE('''
---- a/tests/summary.c
-+++ b/tests/summary.c
-@@ -9,7 +9,7 @@
- #endif
- 
- #if !(defined(HAVE_IFACE_GETIFADDRS) || defined(HAVE_IFACE_IFCONF) || defined(HAVE_IFACE_IFREQ) || defined(HAVE_IFACE_AIX))
--#warning "WARNING: No automated network interface determination"
-+#error "ERROR: No automated network interface determination"
- #endif
- 
- #if !(defined(USE_SETEUID) || defined(USE_SETREUID) || defined(USE_SETRESUID) || defined(USE_SETUIDX) || defined(HAVE_LINUX_THREAD_CREDENTIALS))
---- a/third_party/popt/poptconfig.c
-+++ b/third_party/popt/poptconfig.c
-@@ -24,7 +24,7 @@
- #if defined(HAVE_GLOB_H)
- #include <glob.h>
- 
--#if defined(__LCLINT__)
-+#if defined(HAVE_GLOB) && defined(__LCLINT__)
- /*@-declundef -exportheader -incondefs -protoparammatch -redecl -type @*/
- extern int glob (const char *__pattern, int __flags,
- 		/*@null@*/ int (*__errfunc) (const char *, int),
-@@ -104,7 +104,7 @@
-     if (pat[0] == '@' && pat[1] != '(')
- 	pat++;
- 
--#if defined(HAVE_GLOB_H)
-+#if defined(HAVE_GLOB)
-     if (glob_pattern_p(pat, 0)) {
- 	glob_t _g, *pglob = &_g;
- 
-@@ -125,7 +125,7 @@
- 	} else
- 	    rc = POPT_ERROR_ERRNO;
-     } else
--#endif	/* HAVE_GLOB_H */
-+#endif	/* HAVE_GLOB */
-     {
- 	if (acp)
- 	    *acp = 1;
 --- a/third_party/popt/poptint.c
 +++ b/third_party/popt/poptint.c
 @@ -86,7 +86,7 @@

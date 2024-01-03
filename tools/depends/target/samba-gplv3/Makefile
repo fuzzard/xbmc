@@ -76,7 +76,6 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	cd $(PLATFORM); patch -p1 -i ../04-built-static.patch
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../samba_android.patch
-	cd $(PLATFORM); patch -p1 -i ../07-innetgr-check.patch
 endif
 ifeq ($(OS), darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../no_fork_and_exec.patch
@@ -92,7 +91,8 @@ endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	cd $(PLATFORM); WAF_MAKE=1 ./buildtools/bin/waf --targets=smbclient
+#	cd $(PLATFORM); PYTHONHASHSEED=1 WAF_MAKE=1 ./buildtools/bin/waf --targets=smbclient
+	cd $(PLATFORM); make bin/smbclient
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	cd $(PLATFORM); WAF_MAKE=1 ./buildtools/bin/waf install --targets=smbclient
