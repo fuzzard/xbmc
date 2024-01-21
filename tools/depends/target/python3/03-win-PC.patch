@@ -8,28 +8,6 @@
  #include <msi.h>
  #include <msiquery.h>
  #include <msidefs.h>
---- a/PC/config.c
-+++ b/PC/config.c
-@@ -46,7 +46,9 @@
- extern PyObject* PyInit_mmap(void);
- extern PyObject* PyInit__csv(void);
- extern PyObject* PyInit__sre(void);
-+#ifdef MS_DESKTOP
- extern PyObject* PyInit_winreg(void);
-+#endif
- extern PyObject* PyInit__struct(void);
- extern PyObject* PyInit__datetime(void);
- extern PyObject* PyInit__functools(void);
-@@ -126,7 +128,9 @@
-     {"mmap", PyInit_mmap},
-     {"_csv", PyInit__csv},
-     {"_sre", PyInit__sre},
-+#ifdef MS_DESKTOP
-     {"winreg", PyInit_winreg},
-+#endif
-     {"_struct", PyInit__struct},
-     {"_datetime", PyInit__datetime},
-     {"_functools", PyInit__functools},
 --- a/PC/msvcrtmodule.c
 +++ b/PC/msvcrtmodule.c
 @@ -218,7 +218,11 @@
@@ -196,19 +174,6 @@
  }
  
  /*[clinic input]
-@@ -593,10 +633,12 @@
-     insertint(d, "LK_NBRLCK", _LK_NBRLCK);
-     insertint(d, "LK_RLCK", _LK_RLCK);
-     insertint(d, "LK_UNLCK", _LK_UNLCK);
-+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-     insertint(d, "SEM_FAILCRITICALERRORS", SEM_FAILCRITICALERRORS);
-     insertint(d, "SEM_NOALIGNMENTFAULTEXCEPT", SEM_NOALIGNMENTFAULTEXCEPT);
-     insertint(d, "SEM_NOGPFAULTERRORBOX", SEM_NOGPFAULTERRORBOX);
-     insertint(d, "SEM_NOOPENFILEERRORBOX", SEM_NOOPENFILEERRORBOX);
-+#endif
- #ifdef _DEBUG
-     insertint(d, "CRT_WARN", _CRT_WARN);
-     insertint(d, "CRT_ERROR", _CRT_ERROR);
 --- a/PC/pyconfig.h
 +++ b/PC/pyconfig.h
 @@ -57,6 +57,10 @@
@@ -284,7 +249,7 @@
 +
 --- a/PC/winreg.c
 +++ b/PC/winreg.c
-@@ -138,6 +138,7 @@
+@@ -145,6 +145,7 @@
  static void
  PyHKEY_deallocFunc(PyObject *ob)
  {
@@ -292,17 +257,17 @@
      /* Can not call PyHKEY_Close, as the ob->tp_type
         has already been cleared, thus causing the type
         check to fail!
-@@ -146,6 +147,7 @@
-     if (obkey->hkey)
-         RegCloseKey((HKEY)obkey->hkey);
-     PyObject_Free(ob);
+@@ -157,6 +158,7 @@
+     PyObject_GC_UnTrack(ob);
+     PyObject_GC_Del(ob);
+     Py_DECREF(tp);
 +#endif
  }
  
  static int
-@@ -400,6 +402,9 @@
+@@ -415,6 +417,9 @@
  BOOL
- PyHKEY_Close(PyObject *ob_handle)
+ PyHKEY_Close(winreg_state *st, PyObject *ob_handle)
  {
 +#ifdef MS_APP
 +    return FALSE;
@@ -310,7 +275,7 @@
      LONG rc;
      HKEY key;
  
-@@ -413,6 +418,7 @@
+@@ -428,6 +433,7 @@
      if (rc != ERROR_SUCCESS)
          PyErr_SetFromWindowsErrWithFunction(rc, "RegCloseKey");
      return rc == ERROR_SUCCESS;

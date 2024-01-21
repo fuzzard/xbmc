@@ -27,6 +27,7 @@ NATIVE= \
   perlmodule-parseyapp \
   pkg-config \
   python3 \
+  pythonmodule-setuptools \
   swig \
   TexturePacker \
   zlib
@@ -77,11 +78,12 @@ libjpeg-turbo: cmake nasm
 libpng: zlib automake
 libtool: automake
 Mako: MarkupSafe
-meson: python3
+meson: python3 pythonmodule-setuptools
 ninja: meson
 openssl: zlib
 pugixml: cmake
 python3: $(EXPAT) $(LIBFFI) pkg-config zlib openssl autoconf-archive
+pythonmodule-setuptools: python3
 swig: pcre
 tar: xz automake
 TexturePacker: cmake libpng liblzo2 giflib libjpeg-turbo
