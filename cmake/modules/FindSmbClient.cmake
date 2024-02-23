@@ -43,5 +43,7 @@ if(NOT TARGET SmbClient::SmbClient)
       set_target_properties(SmbClient::SmbClient PROPERTIES
                                                  INTERFACE_LINK_LIBRARIES ${SMBCLIENT_LIBRARIES})
     endif()
+
+    set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP SmbClient::SmbClient)
   endif()
 endif()
