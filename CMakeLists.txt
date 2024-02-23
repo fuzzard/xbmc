@@ -238,7 +238,7 @@ set(optional_deps Alsa
                   LCMS2
                   LircClient
                   MDNS
-                  MicroHttpd
+                  MicroHttpd>=0.9.40
                   NFS
                   Pipewire>=0.3.50
                   Plist
