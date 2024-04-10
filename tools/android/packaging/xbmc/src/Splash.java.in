@@ -397,7 +397,11 @@ public class Splash extends Activity
     AlertDialog.Builder builder = new AlertDialog.Builder(act);
     builder.setTitle(title);
     builder.setIcon(android.R.drawable.ic_dialog_alert);
-    builder.setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY));
+    if (Build.VERSION.SDK_INT >= 24) {
+      builder.setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY));
+    } else {
+      builder.setMessage(Html.fromHtml(message));
+    }
     builder.setPositiveButton("Exit", (dialog, arg1) -> {
       dialog.dismiss();
       act.finish();
@@ -510,13 +514,16 @@ public class Splash extends Activity
         retVal = true;
       }
     }
-    else
+    else if (Build.VERSION.SDK_INT > 22)
     {
       int permissionCheck;
       permissionCheck = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
       if (permissionCheck == PERMISSION_GRANTED)
         retVal = true;
     }
+    else
+      retVal=  true;
+
     return retVal;
   }
 
