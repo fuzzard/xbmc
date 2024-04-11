@@ -82,6 +82,7 @@ ifeq ($(OS),android)
 	cd $(PILPATHLIB)/PIL && \
           sed $(SED_FLAG) -e 's/import sys/import os, sys /' \
                           -e '/__file__/ s/_imaging/lib_imaging/g' \
+                          -e 's/pkg_resources.resource_filename(__name__,/os.path.join("/data/app/org.xbmc.kodi/!lib/arm64-v8a", /' \
                               _imaging*.py
 	cd $(PILPATH) && rm -rf Pillow-*.egg
 else ifeq ($(OS),darwin_embedded)
