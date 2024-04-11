@@ -33,8 +33,6 @@ bool CPlatformAndroid::InitStageOne()
 
   setenv("OS", "Linux", true); // for python scripts that check the OS
 
-CLog::LogF(LOGDEBUG, "KODI_BINADDON_PATH: {}; KODI_ANDROID_APK: {}", getenv("KODI_BINADDON_PATH"), getenv("KODI_ANDROID_APK"));
-
   CWinSystemAndroidGLESContext::Register();
 
   CAndroidPowerSyscall::Register();

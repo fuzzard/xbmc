@@ -47,9 +47,6 @@ android {
     }
     packagingOptions{
       doNotStrip '**.setup'
-      jniLibs {
-          useLegacyPackaging = true
-      }
     }
 }
 
