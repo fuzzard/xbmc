@@ -65,7 +65,7 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 ifeq ($(OS),android)
-#	cd $(PLATFORM); patch -p1 -i ../001-android-getauxvalrevert.patch
+	cd $(PLATFORM); patch -p1 -i ../001-android-getauxvalrevert.patch
 endif
 	cd $(PLATFORM); cp ../16-kodi.conf ./Configurations/
 	cd $(PLATFORM); $(CONFIGURE)
