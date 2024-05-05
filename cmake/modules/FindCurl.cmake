@@ -97,7 +97,7 @@ if(NOT TARGET Curl::Curl)
         # First item is the full path of the library file found
         # pkg_check_modules does not populate a variable of the found library explicitly
         list(GET CURL_LINK_LIBRARIES 0 CURL_LIBRARY_RELEASE)
-message(WARNING "CURL_LINK_LIBRARIES: ${CURL_LINK_LIBRARIES}")
+
         # Add link libraries for static lib usage
         if(${CURL_LIBRARY} MATCHES ".+\.a$" AND CURL_LINK_LIBRARIES)
           # Remove duplicates
@@ -114,11 +114,10 @@ message(WARNING "CURL_LINK_LIBRARIES: ${CURL_LINK_LIBRARIES}")
         find_path(CURL_INCLUDE_DIR NAMES curl/curl.h
                                    HINTS ${DEPENDS_PATH}/include
                                    ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
-        find_library(CURL_LIBRARY NAMES curl libcurl libcurl_imp
-                                  HINTS ${DEPENDS_PATH}/lib
-                                  ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
+        find_library(CURL_LIBRARY_RELEASE NAMES curl libcurl libcurl_imp
+                                          HINTS ${DEPENDS_PATH}/lib
+                                          ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
       endif()
-      set(CURL_LIBRARY_RELEASE "${CURL_LIBRARY}")
     else()
       # CURL::libcurl is an alias. We need to get the actual aias target, as we cant make an
       # alias of an alias (ie our Curl::Curl cant be an alias of Curl::libcurl)
