@@ -97,7 +97,7 @@ if(NOT TARGET Curl::Curl)
         # First item is the full path of the library file found
         # pkg_check_modules does not populate a variable of the found library explicitly
         list(GET CURL_LINK_LIBRARIES 0 CURL_LIBRARY_RELEASE)
-
+message(WARNING "CURL_LINK_LIBRARIES: ${CURL_LINK_LIBRARIES}")
         # Add link libraries for static lib usage
         if(${CURL_LIBRARY} MATCHES ".+\.a$" AND CURL_LINK_LIBRARIES)
           # Remove duplicates
