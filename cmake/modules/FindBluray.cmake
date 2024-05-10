@@ -53,7 +53,7 @@ if(NOT TARGET Bluray::Bluray)
     add_library(Bluray::Bluray UNKNOWN IMPORTED)
     set_target_properties(Bluray::Bluray PROPERTIES
                                          IMPORTED_LOCATION "${BLURAY_LIBRARY}"
-                                         INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBBLURAY=1"
+                                         INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBBLURAY"
                                          INTERFACE_INCLUDE_DIRECTORIES "${BLURAY_INCLUDEDIR}")
 
     # Add link libraries for static lib usage
@@ -70,7 +70,7 @@ if(NOT TARGET Bluray::Bluray)
 
     if(NOT CORE_PLATFORM_NAME_LC STREQUAL windowsstore)
       set_target_properties(Bluray::Bluray PROPERTIES
-                                           INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBBLURAY_BDJ=1")
+                                           INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBBLURAY_BDJ")
     endif()
 
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP Bluray::Bluray)
