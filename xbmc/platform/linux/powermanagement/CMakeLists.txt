@@ -3,7 +3,7 @@ set(SOURCES LinuxPowerSyscall.cpp)
 set(HEADERS FallbackPowerSyscall.h
             LinuxPowerSyscall.h)
 
-if(TARGET DBus::DBus)
+if(TARGET kodi::DBus)
   list(APPEND SOURCES ConsoleUPowerSyscall.cpp
                       LogindUPowerSyscall.cpp
                       UPowerSyscall.cpp)

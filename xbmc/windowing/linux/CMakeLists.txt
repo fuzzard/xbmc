@@ -1,7 +1,7 @@
 set(SOURCES "")
 set(HEADERS "")
 
-if(TARGET DBus::DBus)
+if(TARGET kodi::DBus)
   list(APPEND SOURCES OSScreenSaverFreedesktop.cpp)
   list(APPEND HEADERS OSScreenSaverFreedesktop.h)
 endif()

@@ -27,7 +27,7 @@ if(TARGET kodi::Alsa)
   list(APPEND HEADERS FDEventMonitor.h)
 endif()
 
-if(TARGET DBus::DBus)
+if(TARGET kodi::DBus)
   list(APPEND SOURCES DBusMessage.cpp
                       DBusUtil.cpp)
   list(APPEND HEADERS DBusMessage.h

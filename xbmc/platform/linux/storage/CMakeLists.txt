@@ -2,7 +2,7 @@ set(SOURCES LinuxStorageProvider.cpp)
 
 set(HEADERS LinuxStorageProvider.h)
 
-if(TARGET DBus::DBus)
+if(TARGET kodi::DBus)
   list(APPEND SOURCES UDisksProvider.cpp
                       UDisks2Provider.cpp)
   list(APPEND HEADERS UDisksProvider.h
