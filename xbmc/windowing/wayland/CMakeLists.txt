@@ -49,7 +49,7 @@ set(HEADERS Connection.h
             WinSystemWayland.h
             XkbcommonKeymap.h)
 
-if(TARGET EGL::EGL)
+if(TARGET kodi::EGL)
   list(APPEND SOURCES WinSystemWaylandEGLContext.cpp)
   list(APPEND HEADERS WinSystemWaylandEGLContext.h)
 endif()

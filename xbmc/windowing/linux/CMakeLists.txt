@@ -6,7 +6,7 @@ if(TARGET kodi::DBus)
   list(APPEND HEADERS OSScreenSaverFreedesktop.h)
 endif()
 
-if(TARGET EGL::EGL)
+if(TARGET kodi::EGL)
   list(APPEND SOURCES WinSystemEGL.cpp)
   list(APPEND HEADERS WinSystemEGL.h)
 endif()
