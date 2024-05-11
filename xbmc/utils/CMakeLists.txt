@@ -237,7 +237,7 @@ if("gbm" IN_LIST CORE_PLATFORM_NAME_LC OR "wayland" IN_LIST CORE_PLATFORM_NAME_L
     list(APPEND HEADERS EGLImage.h)
   endif()
 
-  if(TARGET LIBDRM::LIBDRM)
+  if(TARGET kodi::LibDRM)
     list(APPEND SOURCES DRMHelpers.cpp)
     list(APPEND HEADERS DRMHelpers.h)
   endif()
