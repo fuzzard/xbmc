@@ -7,7 +7,7 @@ if(TARGET X::X AND TARGET XRandR::XRandR)
 endif()
 
 # WiiRemote
-if(ENABLE_EVENTCLIENTS AND TARGET Bluetooth::Bluetooth)
+if(ENABLE_EVENTCLIENTS AND TARGET kodi::Bluetooth)
   find_package(CWiid QUIET)
   find_package(GLU QUIET)
   if(CWIID_FOUND AND GLU_FOUND)
