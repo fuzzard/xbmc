@@ -1,4 +1,4 @@
-if(TARGET Avahi::Avahi)
+if(TARGET kodi::Avahi)
   set(SOURCES ZeroconfAvahi.cpp
               ZeroconfBrowserAvahi.cpp)
   set(HEADERS ZeroconfAvahi.h
