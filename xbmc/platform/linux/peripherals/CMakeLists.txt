@@ -1,7 +1,7 @@
 if(TARGET UDEV::UDEV)
   list(APPEND SOURCES PeripheralBusUSBLibUdev.cpp)
   list(APPEND HEADERS PeripheralBusUSBLibUdev.h)
-elseif(TARGET LibUSB::LibUSB)
+elseif(TARGET kodi::LibUSB)
   list(APPEND SOURCES PeripheralBusUSBLibUSB.cpp)
   list(APPEND HEADERS PeripheralBusUSBLibUSB.h)
 endif()
