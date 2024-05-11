@@ -22,7 +22,7 @@ set(HEADERS Peripheral.h
             PeripheralNyxboard.h
             PeripheralTuner.h)
 
-if(TARGET CEC::CEC)
+if(TARGET kodi::CEC)
   list(APPEND SOURCES PeripheralCecAdapter.cpp)
   list(APPEND HEADERS PeripheralCecAdapter.h)
 endif()
