@@ -22,7 +22,7 @@ if(TARGET_WEBOS)
                       PlatformWebOS.h)
 endif()
 
-if(TARGET ALSA::ALSA)
+if(TARGET kodi::Alsa)
   list(APPEND SOURCES FDEventMonitor.cpp)
   list(APPEND HEADERS FDEventMonitor.h)
 endif()

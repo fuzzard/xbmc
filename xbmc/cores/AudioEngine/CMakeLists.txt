@@ -48,7 +48,7 @@ set(HEADERS AEResampleFactory.h
             Utils/AEUtil.h
             Utils/PackerMAT.h)
 
-if(TARGET ALSA::ALSA)
+if(TARGET kodi::Alsa)
   list(APPEND SOURCES Sinks/AESinkALSA.cpp
                       Utils/AEELDParser.cpp)
   list(APPEND HEADERS Sinks/AESinkALSA.h
