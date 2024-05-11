@@ -4,7 +4,7 @@
 #
 # This will define the following target:
 #
-#   CrossGUID::CrossGUID   - The CrossGUID library
+#   kodi::CrossGUID   - The CrossGUID library
 
 macro(buildCrossGUID)
   include(cmake/scripts/common/ModuleHelpers.cmake)
@@ -34,7 +34,7 @@ macro(buildCrossGUID)
   BUILD_DEP_TARGET()
 endmacro()
 
-if(NOT TARGET CrossGUID::CrossGUID)
+if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
   if(ENABLE_INTERNAL_CROSSGUID)
     buildCrossGUID()
   else()
@@ -47,16 +47,13 @@ if(NOT TARGET CrossGUID::CrossGUID)
 
     find_path(CROSSGUID_INCLUDE_DIR NAMES crossguid/guid.hpp guid.h
                                     HINTS ${DEPENDS_PATH}/include ${PC_CROSSGUID_INCLUDEDIR}
-                                    ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
-                                    NO_CACHE)
+                                    ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
     find_library(CROSSGUID_LIBRARY_RELEASE NAMES crossguid
                                            HINTS ${DEPENDS_PATH}/lib ${PC_CROSSGUID_LIBDIR}
-                                           ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
-                                           NO_CACHE)
+                                           ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
     find_library(CROSSGUID_LIBRARY_DEBUG NAMES crossguidd crossguid-dgb
                                          HINTS ${DEPENDS_PATH}/lib ${PC_CROSSGUID_LIBDIR}
-                                         ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
-                                         NO_CACHE)
+                                         ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
 
     # NEW_CROSSGUID >= 0.2.0 release
     if(EXISTS "${CROSSGUID_INCLUDE_DIR}/crossguid/guid.hpp")
@@ -74,20 +71,20 @@ if(NOT TARGET CrossGUID::CrossGUID)
                                     REQUIRED_VARS CROSSGUID_LIBRARY CROSSGUID_INCLUDE_DIR
                                     VERSION_VAR CROSSGUID_VERSION)
 
-  add_library(CrossGUID::CrossGUID UNKNOWN IMPORTED)
+  add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
   if(CROSSGUID_LIBRARY_RELEASE)
-    set_target_properties(CrossGUID::CrossGUID PROPERTIES
-                                               IMPORTED_CONFIGURATIONS RELEASE
-                                               IMPORTED_LOCATION_RELEASE "${CROSSGUID_LIBRARY_RELEASE}")
+    set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                     IMPORTED_CONFIGURATIONS RELEASE
+                                                                     IMPORTED_LOCATION_RELEASE "${CROSSGUID_LIBRARY_RELEASE}")
   endif()
   if(CROSSGUID_LIBRARY_DEBUG)
-    set_target_properties(CrossGUID::CrossGUID PROPERTIES
-                                               IMPORTED_CONFIGURATIONS DEBUG
-                                               IMPORTED_LOCATION_DEBUG "${CROSSGUID_LIBRARY_DEBUG}")
+    set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                     IMPORTED_CONFIGURATIONS DEBUG
+                                                                     IMPORTED_LOCATION_DEBUG "${CROSSGUID_LIBRARY_DEBUG}")
   endif()
-  set_target_properties(CrossGUID::CrossGUID PROPERTIES
-                                             INTERFACE_INCLUDE_DIRECTORIES "${CROSSGUID_INCLUDE_DIRS}"
-                                             INTERFACE_COMPILE_DEFINITIONS "${_crossguid_definitions}")
+  set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                   INTERFACE_INCLUDE_DIRECTORIES "${CROSSGUID_INCLUDE_DIRS}"
+                                                                   INTERFACE_COMPILE_DEFINITIONS "${_crossguid_definitions}")
 
   if(UNIX AND NOT (APPLE OR ANDROID))
     # Suppress mismatch warning, see https://cmake.org/cmake/help/latest/module/FindPackageHandleStandardArgs.html
@@ -96,13 +93,13 @@ if(NOT TARGET CrossGUID::CrossGUID)
     unset(FPHSA_NAME_MISMATCHED)
 
     if(TARGET UUID::UUID)
-      add_dependencies(CrossGUID::CrossGUID UUID::UUID)
-      target_link_libraries(CrossGUID::CrossGUID INTERFACE UUID::UUID)
+      add_dependencies(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UUID::UUID)
+      target_link_libraries(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} INTERFACE UUID::UUID)
     endif()
   endif()
 
   if(TARGET crossguid)
-    add_dependencies(CrossGUID::CrossGUID crossguid)
+    add_dependencies(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} crossguid)
   endif()
 
   # Add internal build target when a Multi Config Generator is used
@@ -120,7 +117,4 @@ if(NOT TARGET CrossGUID::CrossGUID)
     endif()
     add_dependencies(build_internal_depends crossguid)
   endif()
-
-  set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP CrossGUID::CrossGUID)
 endif()
-mark_as_advanced(CROSSGUID_INCLUDE_DIR CROSSGUID_LIBRARY)
