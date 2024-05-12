@@ -10,7 +10,7 @@ set(HEADERS Database.h
             qry_dat.h
             sqlitedataset.h)
 
-if(TARGET MySqlClient::MySqlClient OR TARGET kodi::MariaDBClient)
+if(TARGET kodi::MySqlClient OR TARGET kodi::MariaDBClient)
   list(APPEND SOURCES mysqldataset.cpp)
   list(APPEND HEADERS mysqldataset.h)
 endif()
