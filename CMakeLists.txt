@@ -271,7 +271,7 @@ if(NOT TARGET kodi::MariaDBClient)
   core_optional_dep(MySqlClient)
 endif()
 
-if(NOT TARGET UDEV::UDEV)
+if(NOT TARGET kodi::UDEV)
   core_optional_dep(LibUSB)
 endif()
 

@@ -9,7 +9,7 @@ if(TARGET kodi::DBus)
                       UDisks2Provider.h)
 endif()
 
-if(TARGET UDEV::UDEV)
+if(TARGET kodi::UDEV)
   list(APPEND SOURCES UDevProvider.cpp)
   list(APPEND HEADERS UDevProvider.h)
 endif()

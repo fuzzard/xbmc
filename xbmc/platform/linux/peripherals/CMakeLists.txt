@@ -1,4 +1,4 @@
-if(TARGET UDEV::UDEV)
+if(TARGET kodi::UDEV)
   list(APPEND SOURCES PeripheralBusUSBLibUdev.cpp)
   list(APPEND HEADERS PeripheralBusUSBLibUdev.h)
 elseif(TARGET kodi::LibUSB)
