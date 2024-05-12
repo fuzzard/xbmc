@@ -34,7 +34,7 @@ if(TARGET kodi::OpenGl)
   list(APPEND HEADERS SlideShowPictureGL.h)
 endif()
 
-if(TARGET OpenGL::GLES)
+if(TARGET kodi::OpenGLES)
   list(APPEND SOURCES SlideShowPictureGLES.cpp)
   list(APPEND HEADERS SlideShowPictureGLES.h)
 endif()

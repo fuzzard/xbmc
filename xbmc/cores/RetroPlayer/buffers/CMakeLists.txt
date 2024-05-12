@@ -10,7 +10,7 @@ set(HEADERS BaseRenderBuffer.h
             RenderBufferManager.h
 )
 
-if(TARGET kodi::Gl OR TARGET OpenGL::GLES)
+if(TARGET kodi::Gl OR TARGET kodi::OpenGLES)
   list(APPEND SOURCES RenderBufferOpenGLES.cpp
                       RenderBufferPoolOpenGLES.cpp)
   list(APPEND HEADERS RenderBufferOpenGLES.h

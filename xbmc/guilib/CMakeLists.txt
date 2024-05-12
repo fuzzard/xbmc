@@ -159,7 +159,7 @@ set(HEADERS DDSImage.h
             XBTF.h
             XBTFReader.h)
 
-if(TARGET kodi::Gl OR TARGET OpenGL::GLES)
+if(TARGET kodi::Gl OR TARGET kodi::OpenGLES)
   list(APPEND SOURCES Shader.cpp
                       TextureGL.cpp)
   list(APPEND HEADERS Shader.h
@@ -172,7 +172,7 @@ if(TARGET kodi::Gl OR TARGET OpenGL::GLES)
                         GUITextureGL.h)
   endif()
 
-  if(TARGET OpenGL::GLES)
+  if(TARGET kodi::OpenGLES)
     list(APPEND SOURCES GUIFontTTFGLES.cpp
                         GUITextureGLES.cpp)
     list(APPEND HEADERS GUIFontTTFGLES.h

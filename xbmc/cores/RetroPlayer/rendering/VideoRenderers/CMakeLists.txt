@@ -8,7 +8,7 @@ if(CORE_SYSTEM_NAME STREQUAL windows)
   list(APPEND HEADERS RPWinRenderer.h)
 endif()
 
-if(TARGET kodi::Gl OR TARGET OpenGL::GLES)
+if(TARGET kodi::Gl OR TARGET kodi::OpenGLES)
   list(APPEND SOURCES RPRendererOpenGLES.cpp)
   list(APPEND HEADERS RPRendererOpenGLES.h)
 endif()

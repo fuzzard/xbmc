@@ -1,4 +1,4 @@
-if(TARGET OpenGL::GLES)
+if(TARGET kodi::OpenGLES)
   set(SOURCES RenderSystemGLES.cpp
               ScreenshotSurfaceGLES.cpp
               GLESShader.cpp)

@@ -14,7 +14,7 @@ if(CORE_SYSTEM_NAME STREQUAL windows OR CORE_SYSTEM_NAME STREQUAL windowsstore)
 endif()
 
 
-if(TARGET kodi::Gl OR TARGET OpenGL::GLES)
+if(TARGET kodi::Gl OR TARGET kodi::OpenGLES)
   list(APPEND SOURCES ConversionMatrix.cpp
                       ToneMappers.cpp)
   list(APPEND HEADERS ConversionMatrix.h
@@ -30,7 +30,7 @@ if(TARGET kodi::OpenGl)
                       YUV2RGBShaderGL.h)
 endif()
 
-if(TARGET OpenGL::GLES AND ("android" IN_LIST CORE_PLATFORM_NAME_LC OR
+if(TARGET kodi::OpenGLES AND ("android" IN_LIST CORE_PLATFORM_NAME_LC OR
                             "ios" IN_LIST CORE_PLATFORM_NAME_LC OR
                             "tvos" IN_LIST CORE_PLATFORM_NAME_LC OR
                             "gbm" IN_LIST CORE_PLATFORM_NAME_LC OR
