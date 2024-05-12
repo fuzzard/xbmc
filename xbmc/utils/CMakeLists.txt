@@ -185,7 +185,7 @@ set(HEADERS ActorProtocol.h
             XMLUtils.h
             XTimeUtils.h)
 
-if(TARGET XSLT::XSLT)
+if(TARGET kodi::XSLT)
   list(APPEND SOURCES XSLTUtils.cpp)
   list(APPEND HEADERS XSLTUtils.h)
 endif()
