@@ -285,7 +285,7 @@ endif()
 
 if(ENABLE_AIRTUNES)
   find_package(Shairplay)
-  if(TARGET Shairplay::Shairplay)
+  if(TARGET kodi::Shairplay)
     core_require_dep(Shairplay)
   endif()
 endif()
