@@ -296,7 +296,7 @@ endif()
 set(outputFilterRegex "addons/xbmc.json")
 find_addon_xml_in_files(${outputFilterRegex})
 
-if(TARGET kodi::Alsa AND TARGET PulseAudio::PulseAudio)
+if(TARGET kodi::Alsa AND TARGET kodi::PulseAudio)
   list(APPEND AUDIO_BACKENDS_LIST "alsa+pulseaudio")
 endif()
 

@@ -65,7 +65,7 @@ if(TARGET kodi::Alsa)
   endif()
 endif()
 
-if(TARGET PulseAudio::PulseAudio)
+if(TARGET kodi::PulseAudio)
   list(APPEND SOURCES Sinks/AESinkPULSE.cpp)
   list(APPEND HEADERS Sinks/AESinkPULSE.h)
 endif()
