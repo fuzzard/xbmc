@@ -23,7 +23,7 @@ if(GLX_FOUND)
                       VideoSyncGLX.h)
 endif()
 
-if(TARGET OpenGL::GL)
+if(TARGET kodi::OpenGl)
   list(APPEND SOURCES WinSystemX11GLContext.cpp)
   list(APPEND HEADERS WinSystemX11GLContext.h)
   list(APPEND SOURCES VideoSyncOML.cpp)

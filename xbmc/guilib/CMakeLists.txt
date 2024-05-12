@@ -159,13 +159,13 @@ set(HEADERS DDSImage.h
             XBTF.h
             XBTFReader.h)
 
-if(TARGET OpenGL::GL OR TARGET OpenGL::GLES)
+if(TARGET kodi::Gl OR TARGET OpenGL::GLES)
   list(APPEND SOURCES Shader.cpp
                       TextureGL.cpp)
   list(APPEND HEADERS Shader.h
                       TextureGL.h)
 
-  if(TARGET OpenGL::GL)
+  if(TARGET kodi::OpenGl)
     list(APPEND SOURCES GUIFontTTFGL.cpp
                         GUITextureGL.cpp)
     list(APPEND HEADERS GUIFontTTFGL.h

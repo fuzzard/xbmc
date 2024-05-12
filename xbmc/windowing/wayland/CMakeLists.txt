@@ -54,7 +54,7 @@ if(TARGET kodi::EGL)
   list(APPEND HEADERS WinSystemWaylandEGLContext.h)
 endif()
 
-if(TARGET OpenGL::GL)
+if(TARGET kodi::OpenGl)
   list(APPEND SOURCES WinSystemWaylandEGLContextGL.cpp)
   list(APPEND HEADERS WinSystemWaylandEGLContextGL.h)
 endif()

@@ -14,7 +14,7 @@ set(HEADERS OptionalsReg.h
             WinSystemGbmEGLContext.h
             GBMDPMSSupport.h)
 
-if(TARGET OpenGL::GL)
+if(TARGET kodi::OpenGl)
   list(APPEND SOURCES WinSystemGbmGLContext.cpp)
   list(APPEND HEADERS WinSystemGbmGLContext.h)
 endif()

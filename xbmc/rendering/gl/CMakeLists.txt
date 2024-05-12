@@ -1,4 +1,4 @@
-if(TARGET OpenGL::GL)
+if(TARGET kodi::OpenGl)
   set(SOURCES RenderSystemGL.cpp
               ScreenshotSurfaceGL.cpp
               GLShader.cpp)
