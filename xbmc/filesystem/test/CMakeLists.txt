@@ -8,7 +8,7 @@ if(MICROHTTPD_FOUND)
   list(APPEND SOURCES TestHTTPDirectory.cpp)
 endif()
 
-if(TARGET libnfs::nfs)
+if(TARGET kodi::NFS)
   list(APPEND SOURCES TestNfsFile.cpp)
 endif()
 
