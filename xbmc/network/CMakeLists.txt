@@ -33,7 +33,7 @@ if(ENABLE_OPTICAL)
   list(APPEND HEADERS cddb.h)
 endif()
 
-if(TARGET Plist::Plist)
+if(TARGET kodi::Plist)
   list(APPEND SOURCES AirPlayServer.cpp)
   list(APPEND HEADERS AirPlayServer.h)
 endif()
