@@ -162,21 +162,7 @@ if(NOT TARGET libnfs::nfs)
     # Need to manually set this, as libnfs cmake config does not provide INTERFACE_INCLUDE_DIRECTORIES
     set_target_properties(libnfs::nfs PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${LIBNFS_INCLUDE_DIR})
 
-    # Add internal build target when a Multi Config Generator is used
-    # We cant add a dependency based off a generator expression for targeted build types,
-    # https://gitlab.kitware.com/cmake/cmake/-/issues/19467
-    # therefore if the find heuristics only find the library, we add the internal build
-    # target to the project to allow user to manually trigger for any build type they need
-    # in case only a specific build type is actually available (eg Release found, Debug Required)
-    # This is mainly targeted for windows who required different runtime libs for different
-    # types, and they arent compatible
-    if(_multiconfig_generator)
-      if(NOT TARGET libnfs)
-        buildlibnfs()
-        set_target_properties(libnfs PROPERTIES EXCLUDE_FROM_ALL TRUE)
-      endif()
-      add_dependencies(build_internal_depends libnfs)
-    endif()
+    mcgenBuildInternal(libnfs buildlibnfs)
 
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP libnfs::nfs)
   endif()

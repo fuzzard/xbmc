@@ -196,21 +196,7 @@ if(NOT TARGET Curl::Curl)
       add_dependencies(Curl::Curl curl)
     endif()
 
-    # Add internal build target when a Multi Config Generator is used
-    # We cant add a dependency based off a generator expression for targeted build types,
-    # https://gitlab.kitware.com/cmake/cmake/-/issues/19467
-    # therefore if the find heuristics only find the library, we add the internal build
-    # target to the project to allow user to manually trigger for any build type they need
-    # in case only a specific build type is actually available (eg Release found, Debug Required)
-    # This is mainly targeted for windows who required different runtime libs for different
-    # types, and they arent compatible
-    if(_multiconfig_generator)
-      if(NOT TARGET curl)
-        buildCurl()
-        set_target_properties(curl PROPERTIES EXCLUDE_FROM_ALL TRUE)
-      endif()
-      add_dependencies(build_internal_depends curl)
-    endif()
+    mcgenBuildInternal(curl buildCurl)
 
     set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP Curl::Curl)
 

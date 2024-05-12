@@ -90,21 +90,8 @@ if(NOT P8Platform::P8Platform OR P8Platform_FIND_REQUIRED)
       set_target_properties(P8Platform::P8Platform PROPERTIES LIB_BUILD ON)
     endif()
 
-    # Add internal build target when a Multi Config Generator is used
-    # We cant add a dependency based off a generator expression for targeted build types,
-    # https://gitlab.kitware.com/cmake/cmake/-/issues/19467
-    # therefore if the find heuristics only find the library, we add the internal build
-    # target to the project to allow user to manually trigger for any build type they need
-    # in case only a specific build type is actually available (eg Release found, Debug Required)
-    # This is mainly targeted for windows who required different runtime libs for different
-    # types, and they arent compatible
-    if(_multiconfig_generator)
-      if(NOT TARGET build-p8-platform)
-        buildlibp8platform()
-        set_target_properties(build-p8-platform PROPERTIES EXCLUDE_FROM_ALL TRUE)
-      endif()
-      add_dependencies(build_internal_depends build-p8-platform)
-    endif()
+    mcgenBuildInternal(build-p8-platform buildlibp8platform)
+
   else()
     if(P8PLATFORM_FIND_REQUIRED)
       message(FATAL_ERROR "P8-PLATFORM not found.")
