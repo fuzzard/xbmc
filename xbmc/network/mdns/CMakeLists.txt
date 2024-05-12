@@ -1,4 +1,4 @@
-if(TARGET MDNS::MDNS)
+if(TARGET kodi::MDNS)
   set(SOURCES ZeroconfBrowserMDNS.cpp
               ZeroconfMDNS.cpp)
 
