@@ -216,11 +216,11 @@ set(required_deps ASS>=0.15.0
                   Iconv
                   LibDvd
                   Lzo2
-                  OpenSSL>=1.1.0
                   PCRE
                   RapidJSON>=1.0.2
                   Spdlog
                   Sqlite3
+                  SSL>=1.1.0
                   TagLib>=1.9.0
                   TinyXML
                   TinyXML2
