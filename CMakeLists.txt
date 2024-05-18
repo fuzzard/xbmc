@@ -215,6 +215,7 @@ set(required_deps ASS>=0.15.0
                   HarfBuzz
                   Iconv
                   LibDvd
+                  libZlib
                   Lzo2
                   PCRE
                   RapidJSON>=1.0.2
@@ -224,7 +225,6 @@ set(required_deps ASS>=0.15.0
                   TagLib>=1.9.0
                   TinyXML
                   TinyXML2
-                  ZLIB
                   ${PLATFORM_REQUIRED_DEPS})
 
 # Optional dependencies. Keep in alphabetical order please
