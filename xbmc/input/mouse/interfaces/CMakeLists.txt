@@ -3,6 +3,4 @@ set(HEADERS IMouseDriverHandler.h
             IMouseInputProvider.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-  core_add_library(input_mouse_interfaces)
-endif()
+core_add_library(input_mouse_interfaces)

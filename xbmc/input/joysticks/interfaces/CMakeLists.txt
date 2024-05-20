@@ -9,6 +9,4 @@ set(HEADERS IButtonMap.h
             IInputReceiver.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-  core_add_library(input_joysticks_interfaces)
-endif()
+core_add_library(input_joysticks_interfaces)

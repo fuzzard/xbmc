@@ -6,6 +6,4 @@ set(HEADERS IKeyMapper.h
             IKeymap.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-  core_add_library(input_keymaps_interfaces)
-endif()
+core_add_library(input_keymaps_interfaces)
