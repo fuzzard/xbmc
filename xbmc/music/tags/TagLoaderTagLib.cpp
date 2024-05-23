@@ -1013,13 +1013,13 @@ void CTagLoaderTagLib::SetArtistSort(CMusicInfoTag &tag, const std::vector<std::
   if (values.size() == 1)
     tag.SetArtistSort(values[0]);
   else
-    tag.SetArtistSort(StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    tag.SetArtistSort(KODI::StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 }
 
 void CTagLoaderTagLib::SetArtistHints(CMusicInfoTag &tag, const std::vector<std::string> &values)
 {
   if (values.size() == 1)
-    tag.SetMusicBrainzArtistHints(StringUtils::Split(values[0], CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    tag.SetMusicBrainzArtistHints(KODI::StringUtils::Split(values[0], CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   else
     tag.SetMusicBrainzArtistHints(values);
 }
@@ -1033,7 +1033,7 @@ std::vector<std::string> CTagLoaderTagLib::SplitMBID(const std::vector<std::stri
   // MBIDs to make sure we hit them all...
   std::vector<std::string> ret;
   std::string value = values[0];
-  StringUtils::ToLower(value);
+  KODI::StringUtils::ToLower(value);
   CRegExp reg;
   if (reg.RegComp("([[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12})"))
   {
@@ -1060,13 +1060,13 @@ void CTagLoaderTagLib::SetAlbumArtistSort(CMusicInfoTag &tag, const std::vector<
   if (values.size() == 1)
     tag.SetAlbumArtistSort(values[0]);
   else
-    tag.SetAlbumArtistSort(StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    tag.SetAlbumArtistSort(KODI::StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 }
 
 void CTagLoaderTagLib::SetAlbumArtistHints(CMusicInfoTag &tag, const std::vector<std::string> &values)
 {
   if (values.size() == 1)
-    tag.SetMusicBrainzAlbumArtistHints(StringUtils::Split(values[0], CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    tag.SetMusicBrainzAlbumArtistHints(KODI::StringUtils::Split(values[0], CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   else
     tag.SetMusicBrainzAlbumArtistHints(values);
 }
@@ -1077,7 +1077,7 @@ void CTagLoaderTagLib::SetComposerSort(CMusicInfoTag &tag, const std::vector<std
   if (values.size() == 1)
     tag.SetComposerSort(values[0]);
   else
-    tag.SetComposerSort(StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    tag.SetComposerSort(KODI::StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 }
 
 void CTagLoaderTagLib::SetGenre(CMusicInfoTag &tag, const std::vector<std::string> &values)
@@ -1090,7 +1090,7 @@ void CTagLoaderTagLib::SetGenre(CMusicInfoTag &tag, const std::vector<std::strin
   for (const std::string& i : values)
   {
     std::string genre = i;
-    if (StringUtils::IsNaturalNumber(genre))
+    if (KODI::StringUtils::IsNaturalNumber(genre))
     {
       int number = strtol(i.c_str(), nullptr, 10);
       if (number >= 0 && number < 256)
@@ -1109,7 +1109,7 @@ void CTagLoaderTagLib::SetReleaseType(CMusicInfoTag &tag, const std::vector<std:
   if (values.size() == 1)
     tag.SetMusicBrainzReleaseType(values[0]);
   else
-    tag.SetMusicBrainzReleaseType(StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    tag.SetMusicBrainzReleaseType(KODI::StringUtils::Join(values, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 }
 
 void CTagLoaderTagLib::AddArtistRole(CMusicInfoTag &tag, const std::string& strRole, const std::vector<std::string> &values)
@@ -1144,12 +1144,12 @@ void CTagLoaderTagLib::AddArtistRole(CMusicInfoTag &tag, const std::vector<std::
   {
     std::vector<std::string> roles;
     //Split into individual roles
-    roles = StringUtils::Split(values[i], separators);
+    roles = KODI::StringUtils::Split(values[i], separators);
     for (auto role : roles)
     {
-      StringUtils::Trim(role);
-      StringUtils::ToCapitalize(role);
-      tag.AddArtistRole(role, StringUtils::Split(values[i + 1], ","));
+      KODI::StringUtils::Trim(role);
+      KODI::StringUtils::ToCapitalize(role);
+      tag.AddArtistRole(role, KODI::StringUtils::Split(values[i + 1], ","));
     }
   }
 }
@@ -1179,16 +1179,16 @@ void CTagLoaderTagLib::AddArtistInstrument(CMusicInfoTag &tag, const std::vector
       strArtist.erase(firstLim, lastLim - firstLim + 1);
       std::string strRole = values[i].substr(firstLim + 1, lastLim - firstLim - 1);
       //Split into individual roles
-      roles = StringUtils::Split(strRole, separators);
+      roles = KODI::StringUtils::Split(strRole, separators);
     }
-    StringUtils::Trim(strArtist);
+    KODI::StringUtils::Trim(strArtist);
     if (roles.empty())
       tag.AddArtistRole("Performer", strArtist);
     else
       for (auto role : roles)
       {
-        StringUtils::Trim(role);
-        StringUtils::ToCapitalize(role);
+        KODI::StringUtils::Trim(role);
+        KODI::StringUtils::ToCapitalize(role);
         tag.AddArtistRole(role, strArtist);
       }
   }
@@ -1197,7 +1197,7 @@ void CTagLoaderTagLib::AddArtistInstrument(CMusicInfoTag &tag, const std::vector
 bool CTagLoaderTagLib::Load(const std::string& strFileName, CMusicInfoTag& tag, const std::string& fallbackFileExtension, EmbeddedArt *art /* = NULL */)
 {
   std::string strExtension = URIUtils::GetExtension(strFileName);
-  StringUtils::TrimLeft(strExtension, ".");
+  KODI::StringUtils::TrimLeft(strExtension, ".");
 
   if (strExtension.empty())
   {
@@ -1206,7 +1206,7 @@ bool CTagLoaderTagLib::Load(const std::string& strFileName, CMusicInfoTag& tag, 
       return false;
   }
 
-  StringUtils::ToLower(strExtension);
+  KODI::StringUtils::ToLower(strExtension);
   TagLibVFSStream*           stream = new TagLibVFSStream(strFileName, true);
   if (!stream)
   {

@@ -172,7 +172,7 @@ namespace XBMCAddon
     {
       DelayedCallGuard dcguard(languageHook);
       ADDON::AddonPtr addon(pAddon);
-      if (UpdateSettingInActiveDialog(id, StringUtils::Format("{:f}", value)))
+      if (UpdateSettingInActiveDialog(id, KODI::StringUtils::Format("{:f}", value)))
         return true;
 
       if (!addon->UpdateSettingNumber(id, value))
@@ -208,33 +208,33 @@ namespace XBMCAddon
 
     String Addon::getAddonInfo(const char* id)
     {
-      if (StringUtils::CompareNoCase(id, "author") == 0)
+      if (KODI::StringUtils::CompareNoCase(id, "author") == 0)
         return pAddon->Author();
-      else if (StringUtils::CompareNoCase(id, "changelog") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "changelog") == 0)
         return pAddon->ChangeLog();
-      else if (StringUtils::CompareNoCase(id, "description") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "description") == 0)
         return pAddon->Description();
-      else if (StringUtils::CompareNoCase(id, "disclaimer") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "disclaimer") == 0)
         return pAddon->Disclaimer();
-      else if (StringUtils::CompareNoCase(id, "fanart") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "fanart") == 0)
         return pAddon->FanArt();
-      else if (StringUtils::CompareNoCase(id, "icon") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "icon") == 0)
         return pAddon->Icon();
-      else if (StringUtils::CompareNoCase(id, "id") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "id") == 0)
         return pAddon->ID();
-      else if (StringUtils::CompareNoCase(id, "name") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "name") == 0)
         return pAddon->Name();
-      else if (StringUtils::CompareNoCase(id, "path") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "path") == 0)
         return pAddon->Path();
-      else if (StringUtils::CompareNoCase(id, "profile") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "profile") == 0)
         return pAddon->Profile();
-      else if (StringUtils::CompareNoCase(id, "stars") == 0)
-        return StringUtils::Format("-1");
-      else if (StringUtils::CompareNoCase(id, "summary") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "stars") == 0)
+        return KODI::StringUtils::Format("-1");
+      else if (KODI::StringUtils::CompareNoCase(id, "summary") == 0)
         return pAddon->Summary();
-      else if (StringUtils::CompareNoCase(id, "type") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "type") == 0)
         return ADDON::CAddonInfo::TranslateType(pAddon->Type());
-      else if (StringUtils::CompareNoCase(id, "version") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "version") == 0)
         return pAddon->Version().asString();
       else
         throw AddonException("'%s' is an invalid Id", id);

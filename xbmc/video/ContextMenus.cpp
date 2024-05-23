@@ -200,7 +200,7 @@ protected:
   bool OnPlayPartSelected(unsigned int part) override
   {
     // part numbers are 1-based
-    ExecuteAction({"PlayMedia", *m_item, StringUtils::Format("playoffset={}", part - 1)});
+    ExecuteAction({"PlayMedia", *m_item, KODI::StringUtils::Format("playoffset={}", part - 1)});
     return true;
   }
 

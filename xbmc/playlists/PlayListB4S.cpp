@@ -116,21 +116,21 @@ void CPlayListB4S::Save(const std::string& strFileName) const
     return ;
   }
   std::string write;
-  write += StringUtils::Format("<?xml version={}1.0{} encoding='UTF-8' standalone={}yes{}?>\n", 34,
+  write += KODI::StringUtils::Format("<?xml version={}1.0{} encoding='UTF-8' standalone={}yes{}?>\n", 34,
                                34, 34, 34);
-  write += StringUtils::Format("<WinampXML>\n");
-  write += StringUtils::Format("  <playlist num_entries=\"{0}\" label=\"{1}\">\n",
+  write += KODI::StringUtils::Format("<WinampXML>\n");
+  write += KODI::StringUtils::Format("  <playlist num_entries=\"{0}\" label=\"{1}\">\n",
                                m_vecItems.size(), m_strPlayListName);
   for (int i = 0; i < (int)m_vecItems.size(); ++i)
   {
     const CFileItemPtr item = m_vecItems[i];
-    write += StringUtils::Format("    <entry Playstring={}file:{}{}>\n", 34, item->GetPath(), 34);
-    write += StringUtils::Format("      <Name>{}</Name>\n", item->GetLabel().c_str());
+    write += KODI::StringUtils::Format("    <entry Playstring={}file:{}{}>\n", 34, item->GetPath(), 34);
+    write += KODI::StringUtils::Format("      <Name>{}</Name>\n", item->GetLabel().c_str());
     write +=
-        StringUtils::Format("      <Length>{}</Length>\n", item->GetMusicInfoTag()->GetDuration());
+        KODI::StringUtils::Format("      <Length>{}</Length>\n", item->GetMusicInfoTag()->GetDuration());
   }
-  write += StringUtils::Format("  </playlist>\n");
-  write += StringUtils::Format("</WinampXML>\n");
+  write += KODI::StringUtils::Format("  </playlist>\n");
+  write += KODI::StringUtils::Format("</WinampXML>\n");
   file.Write(write.c_str(), write.size());
   file.Close();
 }

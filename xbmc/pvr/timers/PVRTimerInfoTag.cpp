@@ -110,7 +110,7 @@ CPVRTimerInfoTag::CPVRTimerInfoTag(const PVR_TIMER& timer,
     m_iPreventDupEpisodes(timer.iPreventDuplicateEpisodes),
     m_iRecordingGroup(timer.iRecordingGroup),
     m_strFileNameAndPath(
-        StringUtils::Format("pvr://client{}/timers/{}", m_iClientId, m_iClientIndex)),
+        KODI::StringUtils::Format("pvr://client{}/timers/{}", m_iClientId, m_iClientIndex)),
     m_bIsRadio(channel && channel->IsRadio()),
     m_iMarginStart(timer.iMarginStart),
     m_iMarginEnd(timer.iMarginEnd),
@@ -374,7 +374,7 @@ void CPVRTimerInfoTag::UpdateSummary()
 
   if (m_bEndAnyTime)
   {
-    m_strSummary = StringUtils::Format(
+    m_strSummary = KODI::StringUtils::Format(
         "{} {} {}",
         m_iWeekdays != PVR_WEEKDAY_NONE ? GetWeekdaysString()
                                         : startDate, //for "Any day" set PVR_WEEKDAY_ALLDAYS
@@ -384,7 +384,7 @@ void CPVRTimerInfoTag::UpdateSummary()
   }
   else if ((m_iWeekdays != PVR_WEEKDAY_NONE) || (startDate == endDate))
   {
-    m_strSummary = StringUtils::Format(
+    m_strSummary = KODI::StringUtils::Format(
         "{} {} {} {} {}",
         m_iWeekdays != PVR_WEEKDAY_NONE ? GetWeekdaysString()
                                         : startDate, //for "Any day" set PVR_WEEKDAY_ALLDAYS
@@ -398,7 +398,7 @@ void CPVRTimerInfoTag::UpdateSummary()
   else
   {
     m_strSummary =
-        StringUtils::Format("{} {} {} {} {} {}", startDate,
+        KODI::StringUtils::Format("{} {} {} {} {} {}", startDate,
                             g_localizeStrings.Get(19159), // "from"
                             m_bStartAnyTime ? g_localizeStrings.Get(19161) /* "any time" */
                                             : StartAsLocalTime().GetAsLocalizedTime("", false),
@@ -465,7 +465,7 @@ std::string CPVRTimerInfoTag::GetStatus(bool bRadio) const
              (m_iRadioChildTimersConflictNOK > 0 && bRadio))
       strReturn = g_localizeStrings.Get(19276); // "Conflict error"
     else if ((m_iTVChildTimersActive > 0 && !bRadio) || (m_iRadioChildTimersActive > 0 && bRadio))
-      strReturn = StringUtils::Format(g_localizeStrings.Get(19255),
+      strReturn = KODI::StringUtils::Format(g_localizeStrings.Get(19255),
                                       bRadio ? m_iRadioChildTimersActive
                                              : m_iTVChildTimersActive); // "{} scheduled"
   }
@@ -742,7 +742,7 @@ std::string CPVRTimerInfoTag::ChannelName() const
   if (channeltag)
     strReturn = channeltag->ChannelName();
   else if (m_timerType->IsEpgBasedTimerRule())
-    strReturn = StringUtils::Format("({})", g_localizeStrings.Get(809)); // "Any channel"
+    strReturn = KODI::StringUtils::Format("({})", g_localizeStrings.Get(809)); // "Any channel"
 
   return strReturn;
 }
@@ -893,7 +893,7 @@ std::shared_ptr<CPVRTimerInfoTag> CPVRTimerInfoTag::CreateFromDate(
   if (bInstantStart)
   {
     // "Instant recording: <summary>
-    newTimer->m_strSummary = StringUtils::Format(g_localizeStrings.Get(19093), newTimer->Summary());
+    newTimer->m_strSummary = KODI::StringUtils::Format(g_localizeStrings.Get(19093), newTimer->Summary());
 
     // now that we have a nice summary, we can set the "special" start time value that indicates an instant recording
     newTimer->SetStartFromUTC(start);
@@ -1253,7 +1253,7 @@ std::string CPVRTimerInfoTag::GetNotificationText() const
   }
 
   if (stringID != 0)
-    return StringUtils::Format("{}: '{}'", g_localizeStrings.Get(stringID), m_strTitle);
+    return KODI::StringUtils::Format("{}: '{}'", g_localizeStrings.Get(stringID), m_strTitle);
 
   return {};
 }
@@ -1277,7 +1277,7 @@ std::string CPVRTimerInfoTag::GetDeletedNotificationText() const
         stringID = 19228; // Timer deleted
   }
 
-  return StringUtils::Format("{}: '{}'", g_localizeStrings.Get(stringID), m_strTitle);
+  return KODI::StringUtils::Format("{}: '{}'", g_localizeStrings.Get(stringID), m_strTitle);
 }
 
 void CPVRTimerInfoTag::SetEpgInfoTag(const std::shared_ptr<CPVREpgInfoTag>& tag)

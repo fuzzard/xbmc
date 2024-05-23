@@ -72,8 +72,8 @@ CCPUInfoWin32::CCPUInfoWin32()
           m_cpuModel = FromW(buf, bufSize / sizeof(wchar_t));
           m_cpuModel =
               m_cpuModel.substr(0, m_cpuModel.find(char(0))); // remove extra null terminations
-          StringUtils::RemoveDuplicatedSpacesAndTabs(m_cpuModel);
-          StringUtils::Trim(m_cpuModel);
+          KODI::StringUtils::RemoveDuplicatedSpacesAndTabs(m_cpuModel);
+          KODI::StringUtils::Trim(m_cpuModel);
           modelfound = true;
         }
         bufSize = sizeof(buf);
@@ -116,7 +116,7 @@ CCPUInfoWin32::CCPUInfoWin32()
     {
       if (i < m_coreCounters.size() &&
           PdhAddEnglishCounterW(
-              m_cpuQueryLoad, StringUtils::Format(L"\\Processor({})\\% Idle Time", int(i)).c_str(),
+              m_cpuQueryLoad, KODI::StringUtils::Format(L"\\Processor({})\\% Idle Time", int(i)).c_str(),
               0, &m_coreCounters[i]) != ERROR_SUCCESS)
         m_coreCounters[i] = nullptr;
     }

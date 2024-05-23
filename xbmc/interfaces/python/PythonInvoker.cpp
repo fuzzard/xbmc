@@ -672,7 +672,7 @@ void CPythonInvoker::onError(const std::string& exceptionType /* = "" */,
   {
     std::string message;
     if (m_addon && !m_addon->Name().empty())
-      message = StringUtils::Format(g_localizeStrings.Get(2102), m_addon->Name());
+      message = KODI::StringUtils::Format(g_localizeStrings.Get(2102), m_addon->Name());
     else
       message = g_localizeStrings.Get(2103);
     pDlgToast->QueueNotification(CGUIDialogKaiToast::Error, message, g_localizeStrings.Get(2104));

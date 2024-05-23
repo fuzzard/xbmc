@@ -105,7 +105,7 @@ bool CWSDiscoveryPosix::GetCached(const std::string& strHostName, std::string& s
   std::unique_lock<CCriticalSection> lock(m_critWSD);
   for (const auto& item : m_vecWSDInfo)
   {
-    if (!item.computer.empty() && StringUtils::StartsWithNoCase(item.computer, match))
+    if (!item.computer.empty() && KODI::StringUtils::StartsWithNoCase(item.computer, match))
     {
       strIpAddress = item.xaddrs_host;
       CLog::Log(LOGDEBUG, LOGWSDISCOVERY, "CWSDiscoveryPosix::Lookup - {} -> {}", strHostName,

@@ -90,7 +90,7 @@ bool CMediaSourceSettings::Load(const std::string& file)
   }
 
   auto* rootElement = xmlDoc.RootElement();
-  if (!rootElement || !StringUtils::EqualsNoCase(rootElement->Value(), XML_SOURCES))
+  if (!rootElement || !KODI::StringUtils::EqualsNoCase(rootElement->Value(), XML_SOURCES))
     CLog::Log(LOGERROR, "CMediaSourceSettings: sources.xml file does not contain <sources>");
 
   // parse sources
@@ -171,7 +171,7 @@ const std::string& CMediaSourceSettings::GetDefaultSource(const std::string& typ
   else if (type == "pictures")
     return m_defaultPictureSource;
 
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 void CMediaSourceSettings::SetDefaultSource(const std::string& type, const std::string& source)
@@ -267,7 +267,7 @@ bool CMediaSourceSettings::AddShare(const std::string& type, const CMediaSource&
     CLog::Log(LOGERROR, "CMediaSourceSettings: unable to add empty path");
     return false;
   }
-  StringUtils::ToUpper(strPath1);
+  KODI::StringUtils::ToUpper(strPath1);
 
   CMediaSource shareToAdd = share;
   if (strPath1.at(0) == '$')
@@ -372,7 +372,7 @@ bool CMediaSourceSettings::GetSource(const std::string& category,
 
   std::vector<std::string> verifiedPaths;
   // disallowed for files, or there's only a single path in the vector
-  if (StringUtils::EqualsNoCase(category, "files") || vecPaths.size() == 1)
+  if (KODI::StringUtils::EqualsNoCase(category, "files") || vecPaths.size() == 1)
   {
     verifiedPaths.push_back(vecPaths[0]);
   }
@@ -385,8 +385,8 @@ bool CMediaSourceSettings::GetSource(const std::string& category,
       bool isInvalid = false;
 
       // for my programs
-      if (StringUtils::EqualsNoCase(category, "programs") ||
-          StringUtils::EqualsNoCase(category, "myprograms"))
+      if (KODI::StringUtils::EqualsNoCase(category, "programs") ||
+          KODI::StringUtils::EqualsNoCase(category, "myprograms"))
       {
         // only allow HD and plugins
         if (url.IsLocal() || url.IsProtocol("plugin"))

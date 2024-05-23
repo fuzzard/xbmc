@@ -32,7 +32,7 @@ void CAlarmClock::Start(const std::string& strName, float n_secs, const std::str
 {
   // make lower case so that lookups are case-insensitive
   std::string lowerName(strName);
-  StringUtils::ToLower(lowerName);
+  KODI::StringUtils::ToLower(lowerName);
   Stop(lowerName);
   SAlarmClockEvent event;
   event.m_fSecs = static_cast<double>(n_secs);
@@ -47,7 +47,7 @@ void CAlarmClock::Start(const std::string& strName, float n_secs, const std::str
 
   uint32_t labelAlarmClock;
   uint32_t labelStarted;
-  if (StringUtils::EqualsNoCase(strName, "shutdowntimer"))
+  if (KODI::StringUtils::EqualsNoCase(strName, "shutdowntimer"))
   {
     labelAlarmClock = 20144;
     labelStarted = 20146;
@@ -60,7 +60,7 @@ void CAlarmClock::Start(const std::string& strName, float n_secs, const std::str
 
   EventPtr alarmClockActivity(new CNotificationEvent(
       labelAlarmClock,
-      StringUtils::Format(g_localizeStrings.Get(labelStarted), static_cast<int>(event.m_fSecs) / 60,
+      KODI::StringUtils::Format(g_localizeStrings.Get(labelStarted), static_cast<int>(event.m_fSecs) / 60,
                           static_cast<int>(event.m_fSecs) % 60)));
 
   auto eventLog = CServiceBroker::GetEventLog();
@@ -83,14 +83,14 @@ void CAlarmClock::Stop(const std::string& strName, bool bSilent /* false */)
   std::unique_lock<CCriticalSection> lock(m_events);
 
   std::string lowerName(strName);
-  StringUtils::ToLower(lowerName);          // lookup as lowercase only
+  KODI::StringUtils::ToLower(lowerName);          // lookup as lowercase only
   std::map<std::string,SAlarmClockEvent>::iterator iter = m_event.find(lowerName);
 
   if (iter == m_event.end())
     return;
 
   uint32_t labelAlarmClock;
-  if (StringUtils::EqualsNoCase(strName, "shutdowntimer"))
+  if (KODI::StringUtils::EqualsNoCase(strName, "shutdowntimer"))
     labelAlarmClock = 20144;
   else
     labelAlarmClock = 13208;
@@ -106,7 +106,7 @@ void CAlarmClock::Stop(const std::string& strName, bool bSilent /* false */)
   else
   {
     float remaining = static_cast<float>(iter->second.m_fSecs) - elapsed;
-    strMessage = StringUtils::Format(g_localizeStrings.Get(13212), static_cast<int>(remaining) / 60,
+    strMessage = KODI::StringUtils::Format(g_localizeStrings.Get(13212), static_cast<int>(remaining) / 60,
                                      static_cast<int>(remaining) % 60);
   }
 

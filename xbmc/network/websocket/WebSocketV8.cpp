@@ -51,7 +51,7 @@ bool CWebSocketV8::Handshake(const char* data, size_t length, std::string &respo
   // The request must be GET
   value = header.getMethod();
   if (value == NULL ||
-      StringUtils::CompareNoCase(value, WS_HTTP_METHOD, strlen(WS_HTTP_METHOD)) != 0)
+      KODI::StringUtils::CompareNoCase(value, WS_HTTP_METHOD, strlen(WS_HTTP_METHOD)) != 0)
   {
     CLog::Log(LOGINFO, "WebSocket [hybi-10]: invalid HTTP method received (GET expected)");
     return false;
@@ -98,10 +98,10 @@ bool CWebSocketV8::Handshake(const char* data, size_t length, std::string &respo
   value = header.getValue(WS_HEADER_PROTOCOL_LC);
   if (value && strlen(value) > 0)
   {
-    std::vector<std::string> protocols = StringUtils::Split(value, ",");
+    std::vector<std::string> protocols = KODI::StringUtils::Split(value, ",");
     for (auto& protocol : protocols)
     {
-      StringUtils::Trim(protocol);
+      KODI::StringUtils::Trim(protocol);
       if (protocol == WS_PROTOCOL_JSONRPC)
       {
         websocketProtocol = WS_PROTOCOL_JSONRPC;

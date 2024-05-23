@@ -159,7 +159,7 @@ void CSMB::Init()
 
         // set wins server if there's one. name resolve order defaults to 'lmhosts host wins bcast'.
         // if no WINS server has been specified the wins method will be ignored.
-        if (settings->GetString(CSettings::SETTING_SMB_WINSSERVER).length() > 0 && !StringUtils::EqualsNoCase(settings->GetString(CSettings::SETTING_SMB_WINSSERVER), "0.0.0.0") )
+        if (settings->GetString(CSettings::SETTING_SMB_WINSSERVER).length() > 0 && !KODI::StringUtils::EqualsNoCase(settings->GetString(CSettings::SETTING_SMB_WINSSERVER), "0.0.0.0") )
         {
           fprintf(f, "\twins server = %s\n", settings->GetString(CSettings::SETTING_SMB_WINSSERVER).c_str());
           fprintf(f, "\tname resolve order = bcast wins host\n");
@@ -278,12 +278,12 @@ std::string CSMB::URLEncode(const CURL &url)
 
   if (url.HasPort())
   {
-    flat += StringUtils::Format(":{}", url.GetPort());
+    flat += KODI::StringUtils::Format(":{}", url.GetPort());
   }
 
   /* okey sadly since a slash is an invalid name we have to tokenize */
   std::vector<std::string> parts;
-  StringUtils::Tokenize(url.GetFileName(), parts, "/");
+  KODI::StringUtils::Tokenize(url.GetFileName(), parts, "/");
   for (const std::string& it : parts)
   {
     flat += "/";
@@ -715,8 +715,8 @@ bool CSMBFile::OpenForWrite(const CURL& url, bool bOverWrite)
 bool CSMBFile::IsValidFile(const std::string& strFileName)
 {
   if (strFileName.find('/') == std::string::npos || /* doesn't have sharename */
-      StringUtils::EndsWith(strFileName, "/.") || /* not current folder */
-      StringUtils::EndsWith(strFileName, "/.."))  /* not parent folder */
+      KODI::StringUtils::EndsWith(strFileName, "/.") || /* not current folder */
+      KODI::StringUtils::EndsWith(strFileName, "/.."))  /* not parent folder */
       return false;
   return true;
 }

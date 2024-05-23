@@ -147,24 +147,24 @@ std::string DatabaseUtils::GetField(Field field, const MediaType &mediaType, Dat
     std::string result;
     if (field == FieldId) return "musicvideo_view.idMVideo";
     else if (field == FieldTitle)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TITLE);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TITLE);
     else if (field == FieldTime)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_RUNTIME);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_RUNTIME);
     else if (field == FieldDirector)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_DIRECTOR);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_DIRECTOR);
     else if (field == FieldStudio)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_STUDIOS);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_STUDIOS);
     else if (field == FieldYear) return "musicvideo_view.premiered";
     else if (field == FieldPlot)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_PLOT);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_PLOT);
     else if (field == FieldAlbum)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ALBUM);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ALBUM);
     else if (field == FieldArtist)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ARTIST);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ARTIST);
     else if (field == FieldGenre)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_GENRE);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_GENRE);
     else if (field == FieldTrackNumber)
-      result = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TRACK);
+      result = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TRACK);
     else if (field == FieldFilename) return "musicvideo_view.strFilename";
     else if (field == FieldPath) return "musicvideo_view.strPath";
     else if (field == FieldPlaycount) return "musicvideo_view.playCount";
@@ -183,44 +183,44 @@ std::string DatabaseUtils::GetField(Field field, const MediaType &mediaType, Dat
     {
       // We need some extra logic to get the title value if sorttitle isn't set
       if (queryPart == DatabaseQueryPartOrderBy)
-        result = StringUtils::Format("CASE WHEN length(movie_view.c{:02}) > 0 THEN "
+        result = KODI::StringUtils::Format("CASE WHEN length(movie_view.c{:02}) > 0 THEN "
                                      "movie_view.c{:02} ELSE movie_view.c{:02} END",
                                      VIDEODB_ID_SORTTITLE, VIDEODB_ID_SORTTITLE, VIDEODB_ID_TITLE);
       else
-        result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TITLE);
+        result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TITLE);
     }
     else if (field == FieldPlot)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOT);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOT);
     else if (field == FieldPlotOutline)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOTOUTLINE);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOTOUTLINE);
     else if (field == FieldTagline)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TAGLINE);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TAGLINE);
     else if (field == FieldVotes) return "movie_view.votes";
     else if (field == FieldRating) return "movie_view.rating";
     else if (field == FieldWriter)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_CREDITS);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_CREDITS);
     else if (field == FieldYear) return "movie_view.premiered";
     else if (field == FieldSortTitle)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_SORTTITLE);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_SORTTITLE);
     else if (field == FieldOriginalTitle)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_ORIGINALTITLE);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_ORIGINALTITLE);
     else if (field == FieldTime)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_RUNTIME);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_RUNTIME);
     else if (field == FieldMPAA)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_MPAA);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_MPAA);
     else if (field == FieldTop250)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TOP250);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TOP250);
     else if (field == FieldSet) return "movie_view.strSet";
     else if (field == FieldGenre)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_GENRE);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_GENRE);
     else if (field == FieldDirector)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_DIRECTOR);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_DIRECTOR);
     else if (field == FieldStudio)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_STUDIOS);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_STUDIOS);
     else if (field == FieldTrailer)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TRAILER);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TRAILER);
     else if (field == FieldCountry)
-      result = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_COUNTRY);
+      result = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_COUNTRY);
     else if (field == FieldFilename) return "movie_view.strFilename";
     else if (field == FieldPath) return "movie_view.strPath";
     else if (field == FieldPlaycount) return "movie_view.playCount";
@@ -239,31 +239,31 @@ std::string DatabaseUtils::GetField(Field field, const MediaType &mediaType, Dat
     {
       // We need some extra logic to get the title value if sorttitle isn't set
       if (queryPart == DatabaseQueryPartOrderBy)
-        result = StringUtils::Format("CASE WHEN length(tvshow_view.c{:02}) > 0 THEN "
+        result = KODI::StringUtils::Format("CASE WHEN length(tvshow_view.c{:02}) > 0 THEN "
                                      "tvshow_view.c{:02} ELSE tvshow_view.c{:02} END",
                                      VIDEODB_ID_TV_SORTTITLE, VIDEODB_ID_TV_SORTTITLE,
                                      VIDEODB_ID_TV_TITLE);
       else
-        result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_TITLE);
+        result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_TITLE);
     }
     else if (field == FieldPlot)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PLOT);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PLOT);
     else if (field == FieldTvShowStatus)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STATUS);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STATUS);
     else if (field == FieldVotes) return "tvshow_view.votes";
     else if (field == FieldRating) return "tvshow_view.rating";
     else if (field == FieldYear)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PREMIERED);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PREMIERED);
     else if (field == FieldGenre)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_GENRE);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_GENRE);
     else if (field == FieldMPAA)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_MPAA);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_MPAA);
     else if (field == FieldStudio)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STUDIOS);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STUDIOS);
     else if (field == FieldSortTitle)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_SORTTITLE);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_SORTTITLE);
     else if (field == FieldOriginalTitle)
-      result = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_ORIGINALTITLE);
+      result = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_ORIGINALTITLE);
     else if (field == FieldPath) return "tvshow_view.strPath";
     else if (field == FieldDateAdded) return "tvshow_view.dateAdded";
     else if (field == FieldLastPlayed) return "tvshow_view.lastPlayed";
@@ -280,29 +280,29 @@ std::string DatabaseUtils::GetField(Field field, const MediaType &mediaType, Dat
     std::string result;
     if (field == FieldId) return "episode_view.idEpisode";
     else if (field == FieldTitle)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_TITLE);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_TITLE);
     else if (field == FieldPlot)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_PLOT);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_PLOT);
     else if (field == FieldVotes) return "episode_view.votes";
     else if (field == FieldRating) return "episode_view.rating";
     else if (field == FieldWriter)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_CREDITS);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_CREDITS);
     else if (field == FieldAirDate)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_AIRED);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_AIRED);
     else if (field == FieldTime)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_RUNTIME);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_RUNTIME);
     else if (field == FieldDirector)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_DIRECTOR);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_DIRECTOR);
     else if (field == FieldSeason)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SEASON);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SEASON);
     else if (field == FieldEpisodeNumber)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_EPISODE);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_EPISODE);
     else if (field == FieldUniqueId)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_IDENT_ID);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_IDENT_ID);
     else if (field == FieldEpisodeNumberSpecialSort)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SORTEPISODE);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SORTEPISODE);
     else if (field == FieldSeasonSpecialSort)
-      result = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SORTSEASON);
+      result = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SORTSEASON);
     else if (field == FieldFilename) return "episode_view.strFilename";
     else if (field == FieldPath) return "episode_view.strPath";
     else if (field == FieldPlaycount) return "episode_view.playCount";

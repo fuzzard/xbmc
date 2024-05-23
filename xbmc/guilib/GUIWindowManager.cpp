@@ -1701,12 +1701,12 @@ bool CGUIWindowManager::IsWindowActive(const std::string &xmlFile, bool ignoreCl
 {
   std::unique_lock<CCriticalSection> lock(CServiceBroker::GetWinSystem()->GetGfxContext());
   CGUIWindow *window = GetWindow(GetActiveWindow());
-  if (window && StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), xmlFile))
+  if (window && KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), xmlFile))
     return true;
   // run through the dialogs
   for (const auto& window : m_activeDialogs)
   {
-    if (StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), xmlFile) &&
+    if (KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), xmlFile) &&
         (!ignoreClosing || !window->IsAnimating(ANIM_TYPE_WINDOW_CLOSE)))
       return true;
   }
@@ -1815,7 +1815,7 @@ bool CGUIWindowManager::IsDialogTopmost(int id, bool modal /* = false */) const
 bool CGUIWindowManager::IsDialogTopmost(const std::string &xmlFile, bool modal /* = false */) const
 {
   CGUIWindow *topmost = GetWindow(GetTopmostDialog(modal, false));
-  if (topmost && StringUtils::EqualsNoCase(URIUtils::GetFileName(topmost->GetProperty("xmlfile").asString()), xmlFile))
+  if (topmost && KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(topmost->GetProperty("xmlfile").asString()), xmlFile))
     return true;
   return false;
 }

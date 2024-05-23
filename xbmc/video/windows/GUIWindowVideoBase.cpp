@@ -227,7 +227,7 @@ bool CGUIWindowVideoBase::OnItemInfo(const CFileItem& fileItem)
   // Movie set
   if (fileItem.m_bIsFolder && VIDEO::IsVideoDb(fileItem) &&
       fileItem.GetPath() != "videodb://movies/sets/" &&
-      StringUtils::StartsWith(fileItem.GetPath(), "videodb://movies/sets/"))
+      KODI::StringUtils::StartsWith(fileItem.GetPath(), "videodb://movies/sets/"))
     return ShowInfoAndRefresh(std::make_shared<CFileItem>(fileItem), nullptr);
 
   // Music video. Match visibility test of CMusicInfo::IsVisible
@@ -551,12 +551,12 @@ bool CGUIWindowVideoBase::OnSelect(int iItem)
 
   const std::string path = item->GetPath();
   if (!item->m_bIsFolder && path != "add" &&
-      ((!StringUtils::StartsWith(path, "newsmartplaylist://") &&
-        !StringUtils::StartsWith(path, "newplaylist://") &&
-        !StringUtils::StartsWith(path, "newtag://") &&
-        !StringUtils::StartsWith(path, "script://") &&
-        !StringUtils::StartsWith(path, "plugin://")) ||
-       (StringUtils::StartsWith(path, "plugin://") &&
+      ((!KODI::StringUtils::StartsWith(path, "newsmartplaylist://") &&
+        !KODI::StringUtils::StartsWith(path, "newplaylist://") &&
+        !KODI::StringUtils::StartsWith(path, "newtag://") &&
+        !KODI::StringUtils::StartsWith(path, "script://") &&
+        !KODI::StringUtils::StartsWith(path, "plugin://")) ||
+       (KODI::StringUtils::StartsWith(path, "plugin://") &&
         item->GetProperty("IsPlayable").asBoolean(false))))
     return OnFileAction(
         iItem, VIDEO::GUILIB::CVideoSelectActionProcessorBase::GetDefaultSelectAction(), "");
@@ -1249,7 +1249,7 @@ void CGUIWindowVideoBase::GetGroupedItems(CFileItemList &items)
     mixed = items.GetProperty(PROPERTY_GROUP_MIXED).asBoolean();
 
   // group == "none" completely suppresses any grouping
-  if (!StringUtils::EqualsNoCase(group, "none"))
+  if (!KODI::StringUtils::EqualsNoCase(group, "none"))
   {
     CQueryParams params;
     CVideoDatabaseDirectory dir;
@@ -1259,7 +1259,7 @@ void CGUIWindowVideoBase::GetGroupedItems(CFileItemList &items)
     if (items.GetContent() == "movies" && params.GetSetId() <= 0 &&
         params.GetVideoVersionId() < 0 && nodeType == NODE_TYPE_TITLE_MOVIES &&
         (settings->GetBool(CSettings::SETTING_VIDEOLIBRARY_GROUPMOVIESETS) ||
-         (StringUtils::EqualsNoCase(group, "sets") && mixed)))
+         (KODI::StringUtils::EqualsNoCase(group, "sets") && mixed)))
     {
       CFileItemList groupedItems;
       GroupAttribute groupAttributes = settings->GetBool(CSettings::SETTING_VIDEOLIBRARY_GROUPSINGLEITEMSETS) ? GroupAttributeNone : GroupAttributeIgnoreSingleItems;
@@ -1282,10 +1282,10 @@ bool CGUIWindowVideoBase::CheckFilterAdvanced(CFileItemList &items) const
 {
   const std::string& content = items.GetContent();
   if ((VIDEO::IsVideoDb(items) || CanContainFilter(m_strFilterPath)) &&
-      (StringUtils::EqualsNoCase(content, "movies") ||
-       StringUtils::EqualsNoCase(content, "tvshows") ||
-       StringUtils::EqualsNoCase(content, "episodes") ||
-       StringUtils::EqualsNoCase(content, "musicvideos")))
+      (KODI::StringUtils::EqualsNoCase(content, "movies") ||
+       KODI::StringUtils::EqualsNoCase(content, "tvshows") ||
+       KODI::StringUtils::EqualsNoCase(content, "episodes") ||
+       KODI::StringUtils::EqualsNoCase(content, "musicvideos")))
     return true;
 
   return false;
@@ -1303,7 +1303,7 @@ void CGUIWindowVideoBase::OnSearch()
   if (!CGUIKeyboardFactory::ShowAndGetInput(strSearch, CVariant{g_localizeStrings.Get(16017)}, false))
     return ;
 
-  StringUtils::ToLower(strSearch);
+  KODI::StringUtils::ToLower(strSearch);
   if (m_dlgProgress)
   {
     m_dlgProgress->SetHeading(CVariant{194});
@@ -1438,7 +1438,7 @@ void CGUIWindowVideoBase::OnScan(const std::string& strPath, bool scanAll)
 
 std::string CGUIWindowVideoBase::GetStartFolder(const std::string &dir)
 {
-  std::string lower(dir); StringUtils::ToLower(lower);
+  std::string lower(dir); KODI::StringUtils::ToLower(lower);
   if (lower == "$playlists" || lower == "playlists")
     return "special://videoplaylists/";
   else if (lower == "plugins" || lower == "addons")
@@ -1557,7 +1557,7 @@ void CGUIWindowVideoBase::UpdateVideoVersionItems()
 
         CVideoDbUrl itemUrl;
         itemUrl.FromString(
-            StringUtils::Format("videodb://movies/videoversions/{}", videoVersionId));
+            KODI::StringUtils::Format("videodb://movies/videoversions/{}", videoVersionId));
         itemUrl.AddOption("mediaid", item->GetVideoInfoTag()->m_iDbId);
         item->SetPath(itemUrl.ToString());
       }

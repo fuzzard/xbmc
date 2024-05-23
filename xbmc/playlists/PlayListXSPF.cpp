@@ -93,7 +93,7 @@ bool CPlayListXSPF::Load(const std::string& strFileName)
       // at the time of writing CURL doesn't handle file:// URI scheme the way
       // it's presented in this format, parse to local path instead
       std::string localpath;
-      if (StringUtils::StartsWith(location, "file:///"))
+      if (KODI::StringUtils::StartsWith(location, "file:///"))
       {
 #ifndef TARGET_WINDOWS
         // Linux absolute path must start with root
@@ -112,7 +112,7 @@ bool CPlayListXSPF::Load(const std::string& strFileName)
         // We don't use URIUtils::CanonicalizePath because m_strBasePath may be a
         // protocol e.g. smb
 #ifdef TARGET_WINDOWS
-        StringUtils::Replace(localpath, "/", "\\");
+        KODI::StringUtils::Replace(localpath, "/", "\\");
 #endif
         localpath = URIUtils::GetRealPath(localpath);
 

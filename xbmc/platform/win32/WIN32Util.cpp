@@ -211,7 +211,7 @@ bool CWIN32Util::XBMCShellExecute(const std::string &strPath, bool bWaitForScrip
   std::string strParams;
   std::string strWorkingDir;
 
-  StringUtils::Trim(strCommand);
+  KODI::StringUtils::Trim(strCommand);
   if (strCommand.empty())
   {
     return false;
@@ -229,7 +229,7 @@ bool CWIN32Util::XBMCShellExecute(const std::string &strPath, bool bWaitForScrip
     strParams = strCommand.substr(iIndex + 1);
   }
 
-  StringUtils::Replace(strExe, "\"", "");
+  KODI::StringUtils::Replace(strExe, "\"", "");
 
   strWorkingDir = strExe;
   iIndex = strWorkingDir.rfind('\\');
@@ -285,21 +285,21 @@ std::string CWIN32Util::GetResInfoString()
   if (hdmiInfo) // Xbox
   {
     auto mode = hdmiInfo.GetCurrentDisplayMode();
-    return StringUtils::Format(
+    return KODI::StringUtils::Format(
         "Desktop Resolution: {}x{} {}Bit at {:.2f}Hz", mode.ResolutionWidthInRawPixels(),
         mode.ResolutionHeightInRawPixels(), mode.BitsPerPixel(), mode.RefreshRate());
   }
   else // Windows 10 UWP
   {
     auto info = DisplayInformation::GetForCurrentView();
-    return StringUtils::Format("Desktop Resolution: {}x{}", info.ScreenWidthInRawPixels(),
+    return KODI::StringUtils::Format("Desktop Resolution: {}x{}", info.ScreenWidthInRawPixels(),
                                info.ScreenHeightInRawPixels());
   }
 #else
   DEVMODE devmode = {};
   devmode.dmSize = sizeof(devmode);
   EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devmode);
-  return StringUtils::Format("Desktop Resolution: {}x{} {}Bit at {}Hz", devmode.dmPelsWidth,
+  return KODI::StringUtils::Format("Desktop Resolution: {}x{} {}Bit at {}Hz", devmode.dmPelsWidth,
                              devmode.dmPelsHeight, devmode.dmBitsPerPel,
                              devmode.dmDisplayFrequency);
 #endif
@@ -388,10 +388,10 @@ std::string CWIN32Util::GetProfilePath(const bool platformDirectories)
 std::string CWIN32Util::UncToSmb(const std::string &strPath)
 {
   std::string strRetPath(strPath);
-  if(StringUtils::StartsWith(strRetPath, "\\\\"))
+  if(KODI::StringUtils::StartsWith(strRetPath, "\\\\"))
   {
     strRetPath = "smb:" + strPath;
-    StringUtils::Replace(strRetPath, '\\', '/');
+    KODI::StringUtils::Replace(strRetPath, '\\', '/');
   }
   return strRetPath;
 }
@@ -399,10 +399,10 @@ std::string CWIN32Util::UncToSmb(const std::string &strPath)
 std::string CWIN32Util::SmbToUnc(const std::string &strPath)
 {
   std::string strRetPath(strPath);
-  if(StringUtils::StartsWithNoCase(strRetPath, "smb://"))
+  if(KODI::StringUtils::StartsWithNoCase(strRetPath, "smb://"))
   {
-    StringUtils::Replace(strRetPath, "smb://", "\\\\");
-    StringUtils::Replace(strRetPath, '/', '\\');
+    KODI::StringUtils::Replace(strRetPath, "smb://", "\\\\");
+    KODI::StringUtils::Replace(strRetPath, '/', '\\');
   }
   return strRetPath;
 }
@@ -537,10 +537,10 @@ HRESULT CWIN32Util::ToggleTray(const char cDriveLetter)
     cDL = dvdDevice[0];
   }
 
-  auto strVolFormat = ToW(StringUtils::Format("\\\\.\\{}:", cDL));
+  auto strVolFormat = ToW(KODI::StringUtils::Format("\\\\.\\{}:", cDL));
   HANDLE hDrive= CreateFile( strVolFormat.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
                              NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  auto strRootFormat = ToW(StringUtils::Format("{}:\\", cDL));
+  auto strRootFormat = ToW(KODI::StringUtils::Format("{}:\\", cDL));
   if( ( hDrive != INVALID_HANDLE_VALUE || GetLastError() == NO_ERROR) &&
     ( GetDriveType( strRootFormat.c_str() ) == DRIVE_CDROM ) )
   {
@@ -553,7 +553,7 @@ HRESULT CWIN32Util::ToggleTray(const char cDriveLetter)
   if(dwReq == IOCTL_STORAGE_EJECT_MEDIA && bRet == 1)
   {
     CMediaSource share;
-    share.strPath = StringUtils::Format("{}:", cDL);
+    share.strPath = KODI::StringUtils::Format("{}:", cDL);
     share.strName = share.strPath;
     CServiceBroker::GetMediaManager().RemoveAutoSource(share);
   }
@@ -573,7 +573,7 @@ HRESULT CWIN32Util::EjectTray(const char cDriveLetter)
     cDL = dvdDevice[0];
   }
 
-  std::string strVolFormat = StringUtils::Format("\\\\.\\{}:", cDL);
+  std::string strVolFormat = KODI::StringUtils::Format("\\\\.\\{}:", cDL);
 
   if(GetDriveStatus(strVolFormat, true) != 1)
     return ToggleTray(cDL);
@@ -592,7 +592,7 @@ HRESULT CWIN32Util::CloseTray(const char cDriveLetter)
     cDL = dvdDevice[0];
   }
 
-  std::string strVolFormat = StringUtils::Format("\\\\.\\{}:", cDL);
+  std::string strVolFormat = KODI::StringUtils::Format("\\\\.\\{}:", cDL);
 
   if(GetDriveStatus(strVolFormat, true) == 1)
     return ToggleTray(cDL);
@@ -987,7 +987,7 @@ extern "C" {
     for (; n1 != NULL; n1 = n2, n2 = NULL) {
       for (i = 0; i < c; i++, n1++) {
         len = strlen(*n1);
-        if (StringUtils::CompareNoCase(*n1, (const char*)bp, len) == 0)
+        if (KODI::StringUtils::CompareNoCase(*n1, (const char*)bp, len) == 0)
         {
           *tgt = i;
           return bp + len;
@@ -1181,9 +1181,9 @@ std::string CWIN32Util::WUSysMsg(DWORD dwError)
 
   if ( 0 != ::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwError,
                              SS_DEFLANGID, szBuf, 511, NULL) )
-    return StringUtils::Format("{} (0x{:X})", szBuf, dwError);
+    return KODI::StringUtils::Format("{} (0x{:X})", szBuf, dwError);
   else
-    return StringUtils::Format("Unknown error (0x{:X})", dwError);
+    return KODI::StringUtils::Format("Unknown error (0x{:X})", dwError);
 }
 
 bool CWIN32Util::SetThreadLocalLocale(bool enable /* = true */)
@@ -1626,7 +1626,7 @@ VideoDriverInfo CWIN32Util::GetVideoDriverInfo(const UINT vendorId, const std::w
     if (vendorId == PCIV_NVIDIA)
     {
       std::string ver(info.version);
-      StringUtils::Replace(ver, ".", "");
+      KODI::StringUtils::Replace(ver, ".", "");
       info.majorVersion = std::stoi(ver.substr(ver.length() - 5, 3));
       info.minorVersion = std::stoi(ver.substr(ver.length() - 2, 2));
     }

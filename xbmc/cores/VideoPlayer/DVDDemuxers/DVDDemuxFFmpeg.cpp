@@ -255,7 +255,7 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
   if (m_pInput->GetContent().length() > 0)
   {
     std::string content = m_pInput->GetContent();
-    StringUtils::ToLower(content);
+    KODI::StringUtils::ToLower(content);
 
     /* check if we can get a hint from content */
     if (content.compare("video/x-vobsub") == 0)
@@ -369,8 +369,8 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
       m_ioContext->seekable = 0;
 
     std::string content = m_pInput->GetContent();
-    StringUtils::ToLower(content);
-    if (StringUtils::StartsWith(content, "audio/l16"))
+    KODI::StringUtils::ToLower(content);
+    if (KODI::StringUtils::StartsWith(content, "audio/l16"))
       iformat = av_find_input_format("s16be");
 
     if (iformat == nullptr)
@@ -485,7 +485,7 @@ bool CDVDDemuxFFmpeg::Open(const std::shared_ptr<CDVDInputStream>& pInput, bool 
       av_dict_set(&options, "usetoc", "0", 0);
     }
 
-    if (StringUtils::StartsWith(content, "audio/l16"))
+    if (KODI::StringUtils::StartsWith(content, "audio/l16"))
     {
       int channels = 2;
       int samplerate = 44100;
@@ -789,7 +789,7 @@ AVDictionary* CDVDDemuxFFmpeg::GetFFMpegOptionsFromInput()
     for(std::map<std::string, std::string>::const_iterator it = protocolOptions.begin(); it != protocolOptions.end(); ++it)
     {
       std::string name = it->first;
-      StringUtils::ToLower(name);
+      KODI::StringUtils::ToLower(name);
       const std::string &value = it->second;
 
       // set any of these ffmpeg options
@@ -961,15 +961,15 @@ AVDictionary* CDVDDemuxFFmpeg::GetFFMpegOptionsFromInput()
       }
 
       CURL tmpUrl = url;
-      std::vector<std::string> opts = StringUtils::Split(tmpUrl.Get(), " ");
+      std::vector<std::string> opts = KODI::StringUtils::Split(tmpUrl.Get(), " ");
       if (opts.size() > 1) // inline rtmp options
       {
         std::string swfurl;
         bool swfvfy=false;
         for (size_t i = 1; i < opts.size(); ++i)
         {
-          std::vector<std::string> value = StringUtils::Split(opts[i], "=", 2);
-          StringUtils::ToLower(value[0]);
+          std::vector<std::string> value = KODI::StringUtils::Split(opts[i], "=", 2);
+          KODI::StringUtils::ToLower(value[0]);
           auto it = optionmap.find(value[0]);
           if (it != optionmap.end())
           {
@@ -2498,7 +2498,7 @@ void CDVDDemuxFFmpeg::GetL16Parameters(int &channels, int &samplerate)
   std::string content;
   if (XFILE::CCurlFile::GetContentType(m_pInput->GetURL(), content))
   {
-    StringUtils::ToLower(content);
+    KODI::StringUtils::ToLower(content);
     const size_t len = content.length();
     size_t pos = content.find(';');
     while (pos < len)
@@ -2516,7 +2516,7 @@ void CDVDDemuxFFmpeg::GetL16Parameters(int &channels, int &samplerate)
             len -= pos;
           std::string no_channels(content, pos, len);
           // as we don't support any charset with ';' in name
-          StringUtils::Trim(no_channels, " \t");
+          KODI::StringUtils::Trim(no_channels, " \t");
           if (!no_channels.empty())
           {
             int val = strtol(no_channels.c_str(), NULL, 0);
@@ -2534,7 +2534,7 @@ void CDVDDemuxFFmpeg::GetL16Parameters(int &channels, int &samplerate)
             len -= pos;
           std::string rate(content, pos, len);
           // as we don't support any charset with ';' in name
-          StringUtils::Trim(rate, " \t");
+          KODI::StringUtils::Trim(rate, " \t");
           if (!rate.empty())
           {
             int val = strtol(rate.c_str(), NULL, 0);

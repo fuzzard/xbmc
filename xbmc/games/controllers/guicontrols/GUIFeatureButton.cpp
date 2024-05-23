@@ -64,9 +64,9 @@ bool CGUIFeatureButton::DoPrompt(const std::string& strPrompt,
     std::string strLabel;
 
     if (bWarn)
-      strLabel = StringUtils::Format(strWarn, strFeature, secondsRemaining);
+      strLabel = KODI::StringUtils::Format(strWarn, strFeature, secondsRemaining);
     else
-      strLabel = StringUtils::Format(strPrompt, strFeature, secondsRemaining);
+      strLabel = KODI::StringUtils::Format(strPrompt, strFeature, secondsRemaining);
 
     msgLabel.SetLabel(strLabel);
     CServiceBroker::GetAppMessenger()->SendGUIMessage(msgLabel, WINDOW_INVALID, false);

@@ -264,7 +264,7 @@ PipesManager &PipesManager::GetInstance()
 std::string   PipesManager::GetUniquePipeName()
 {
   std::unique_lock<CCriticalSection> lock(m_lock);
-  return StringUtils::Format("pipe://{}/", m_nGenIdHelper++);
+  return KODI::StringUtils::Format("pipe://{}/", m_nGenIdHelper++);
 }
 
 XFILE::Pipe *PipesManager::CreatePipe(const std::string &name, int nMaxPipeSize)

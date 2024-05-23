@@ -70,9 +70,9 @@ void CWinSystemBase::UpdateDesktopResolution(RESOLUTION_INFO& newRes,
   newRes.iHeight = height;
   newRes.iScreenWidth = screenWidth;
   newRes.iScreenHeight = screenHeight;
-  newRes.strMode = StringUtils::Format("{}: {}x{}", output, width, height);
+  newRes.strMode = KODI::StringUtils::Format("{}: {}x{}", output, width, height);
   if (refreshRate > 1)
-    newRes.strMode += StringUtils::Format(" @ {:.2f}Hz", refreshRate);
+    newRes.strMode += KODI::StringUtils::Format(" @ {:.2f}Hz", refreshRate);
   if (dwFlags & D3DPRESENTFLAG_INTERLACED)
     newRes.strMode += "i";
   if (dwFlags & D3DPRESENTFLAG_MODE3DTB)

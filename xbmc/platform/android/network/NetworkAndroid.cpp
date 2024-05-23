@@ -79,7 +79,7 @@ std::string CNetworkInterfaceAndroid::GetMacAddress() const
   }
   if (interfaceMacAddrRaw.size() >= 6)
   {
-    return (StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
+    return (KODI::StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
                                 (uint8_t)interfaceMacAddrRaw[0], (uint8_t)interfaceMacAddrRaw[1],
                                 (uint8_t)interfaceMacAddrRaw[2], (uint8_t)interfaceMacAddrRaw[3],
                                 (uint8_t)interfaceMacAddrRaw[4], (uint8_t)interfaceMacAddrRaw[5]));
@@ -133,7 +133,7 @@ bool CNetworkInterfaceAndroid::GetHostMacAddress(unsigned long host_ip, std::str
     return false;
 
   struct sockaddr* res = &areq.arp_ha;
-  mac = StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", (uint8_t)res->sa_data[0],
+  mac = KODI::StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", (uint8_t)res->sa_data[0],
                             (uint8_t)res->sa_data[1], (uint8_t)res->sa_data[2],
                             (uint8_t)res->sa_data[3], (uint8_t)res->sa_data[4],
                             (uint8_t)res->sa_data[5]);
@@ -185,7 +185,7 @@ std::string CNetworkInterfaceAndroid::GetCurrentNetmask() const
 
   int prefix = la.getPrefixLength();
   unsigned long mask = (0xFFFFFFFF << (32 - prefix)) & 0xFFFFFFFF;
-  return StringUtils::Format("{}.{}.{}.{}", mask >> 24, (mask >> 16) & 0xFF, (mask >> 8) & 0xFF,
+  return KODI::StringUtils::Format("{}.{}.{}.{}", mask >> 24, (mask >> 16) & 0xFF, (mask >> 8) & 0xFF,
                              mask & 0xFF);
 }
 

@@ -74,7 +74,7 @@ bool CTextureBundleXBT::OpenBundle()
     // if we are the theme bundle, we only load if the user has chosen
     // a valid theme (or the skin has a default one)
     std::string theme = CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_LOOKANDFEEL_SKINTHEME);
-    if (!theme.empty() && !StringUtils::EqualsNoCase(theme, "SKINDEFAULT"))
+    if (!theme.empty() && !KODI::StringUtils::EqualsNoCase(theme, "SKINDEFAULT"))
     {
       std::string themeXBT(URIUtils::ReplaceExtension(theme, ".xbt"));
       m_path = URIUtils::AddFileToFolder(CServiceBroker::GetWinSystem()->GetGfxContext().GetMediaDir(), "media", themeXBT);
@@ -141,7 +141,7 @@ std::vector<std::string> CTextureBundleXBT::GetTexturesFromPath(const std::strin
   for (size_t i = 0; i < files.size(); i++)
   {
     std::string filePath = files[i].GetPath();
-    if (StringUtils::StartsWithNoCase(filePath, testPath))
+    if (KODI::StringUtils::StartsWithNoCase(filePath, testPath))
       textures.emplace_back(std::move(filePath));
   }
 
@@ -252,9 +252,9 @@ void CTextureBundleXBT::SetThemeBundle(bool themeBundle)
 // lower case + using forward slash rather than back slash
 std::string CTextureBundleXBT::Normalize(std::string name)
 {
-  StringUtils::Trim(name);
-  StringUtils::ToLower(name);
-  StringUtils::Replace(name, '\\', '/');
+  KODI::StringUtils::Trim(name);
+  KODI::StringUtils::ToLower(name);
+  KODI::StringUtils::Replace(name, '\\', '/');
 
   return name;
 }

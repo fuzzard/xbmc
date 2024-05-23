@@ -54,7 +54,7 @@ uint32_t CMouseTranslator::TranslateCommand(const tinyxml2::XMLElement* pButton)
     std::string szKey = pButton->Value();
     if (!szKey.empty())
     {
-      StringUtils::ToLower(szKey);
+      KODI::StringUtils::ToLower(szKey);
 
       auto it = MouseKeys.find(szKey);
       if (it != MouseKeys.end())

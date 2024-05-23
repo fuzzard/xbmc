@@ -50,7 +50,7 @@ bool CPVRGUIActionsPowerManagement::CanSystemPowerdown(bool bAskUser /*= true*/)
         {
           if (cause->IsRecording())
           {
-            text = StringUtils::Format(
+            text = KODI::StringUtils::Format(
                 g_localizeStrings.Get(19691), // "PVR is currently recording...."
                 cause->Title(), cause->ChannelName());
           }
@@ -69,7 +69,7 @@ bool CPVRGUIActionsPowerManagement::CanSystemPowerdown(bool bAskUser /*= true*/)
             if (mins > 1)
             {
               // "%d minutes"
-              dueStr = StringUtils::Format(g_localizeStrings.Get(19694), mins);
+              dueStr = KODI::StringUtils::Format(g_localizeStrings.Get(19694), mins);
             }
             else
             {
@@ -77,7 +77,7 @@ bool CPVRGUIActionsPowerManagement::CanSystemPowerdown(bool bAskUser /*= true*/)
               dueStr = g_localizeStrings.Get(19695);
             }
 
-            text = StringUtils::Format(
+            text = KODI::StringUtils::Format(
                 cause->IsReminder()
                     ? g_localizeStrings.Get(19690) // "PVR has scheduled a reminder...."
                     : g_localizeStrings.Get(19692), // "PVR will start recording...."
@@ -101,7 +101,7 @@ bool CPVRGUIActionsPowerManagement::CanSystemPowerdown(bool bAskUser /*= true*/)
           if (mins > 1)
           {
             // "%d minutes"
-            dueStr = StringUtils::Format(g_localizeStrings.Get(19694), mins);
+            dueStr = KODI::StringUtils::Format(g_localizeStrings.Get(19694), mins);
           }
           else
           {
@@ -109,7 +109,7 @@ bool CPVRGUIActionsPowerManagement::CanSystemPowerdown(bool bAskUser /*= true*/)
             dueStr = g_localizeStrings.Get(19695);
           }
 
-          text = StringUtils::Format(g_localizeStrings.Get(19693), // "Daily wakeup is due in...."
+          text = KODI::StringUtils::Format(g_localizeStrings.Get(19693), // "Daily wakeup is due in...."
                                      dueStr);
         }
 

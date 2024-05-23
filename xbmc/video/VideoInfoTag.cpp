@@ -762,15 +762,15 @@ void CVideoInfoTag::Serialize(CVariant& value) const
   value["originaltitle"] = m_strOriginalTitle;
   value["sorttitle"] = m_strSortTitle;
   value["episodeguide"] = m_strEpisodeGuide;
-  value["premiered"] = m_premiered.IsValid() ? m_premiered.GetAsDBDate() : StringUtils::Empty;
+  value["premiered"] = m_premiered.IsValid() ? m_premiered.GetAsDBDate() : KODI::StringUtils::Empty;
   value["status"] = m_strStatus;
   value["productioncode"] = m_strProductionCode;
-  value["firstaired"] = m_firstAired.IsValid() ? m_firstAired.GetAsDBDate() : StringUtils::Empty;
+  value["firstaired"] = m_firstAired.IsValid() ? m_firstAired.GetAsDBDate() : KODI::StringUtils::Empty;
   value["showtitle"] = m_strShowTitle;
   value["album"] = m_strAlbum;
   value["artist"] = m_artist;
   value["playcount"] = GetPlayCount();
-  value["lastplayed"] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : StringUtils::Empty;
+  value["lastplayed"] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : KODI::StringUtils::Empty;
   value["top250"] = m_iTop250;
   value["year"] = GetYear();
   value["season"] = m_iSeason;
@@ -801,7 +801,7 @@ void CVideoInfoTag::Serialize(CVariant& value) const
   resume["total"] = m_resumePoint.totalTimeInSeconds;
   value["resume"] = resume;
   value["tvshowid"] = m_iIdShow;
-  value["dateadded"] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : StringUtils::Empty;
+  value["dateadded"] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : KODI::StringUtils::Empty;
   value["type"] = m_type;
   value["seasonid"] = m_iIdSeason;
   value["specialsortseason"] = m_iSpecialSortSeason;
@@ -846,7 +846,7 @@ void CVideoInfoTag::ToSortable(SortItem& sortable, Field field) const
   {
     // seasons with a custom name/title need special handling as they should be sorted by season number
     if (m_type == MediaTypeSeason && !m_strSortTitle.empty())
-      sortable[FieldSortTitle] = StringUtils::Format(g_localizeStrings.Get(20358), m_iSeason);
+      sortable[FieldSortTitle] = KODI::StringUtils::Format(g_localizeStrings.Get(20358), m_iSeason);
     else
       sortable[FieldSortTitle] = m_strSortTitle;
     break;
@@ -856,19 +856,19 @@ void CVideoInfoTag::ToSortable(SortItem& sortable, Field field) const
     // seasons with a custom name/title need special handling as they should be sorted by season number
     if (m_type == MediaTypeSeason && !m_strOriginalTitle.empty())
       sortable[FieldOriginalTitle] =
-          StringUtils::Format(g_localizeStrings.Get(20358).c_str(), m_iSeason);
+          KODI::StringUtils::Format(g_localizeStrings.Get(20358).c_str(), m_iSeason);
     else
       sortable[FieldOriginalTitle] = m_strOriginalTitle;
     break;
   }
   case FieldTvShowStatus:             sortable[FieldTvShowStatus] = m_strStatus; break;
   case FieldProductionCode:           sortable[FieldProductionCode] = m_strProductionCode; break;
-  case FieldAirDate:                  sortable[FieldAirDate] = m_firstAired.IsValid() ? m_firstAired.GetAsDBDate() : (m_premiered.IsValid() ? m_premiered.GetAsDBDate() : StringUtils::Empty); break;
+  case FieldAirDate:                  sortable[FieldAirDate] = m_firstAired.IsValid() ? m_firstAired.GetAsDBDate() : (m_premiered.IsValid() ? m_premiered.GetAsDBDate() : KODI::StringUtils::Empty); break;
   case FieldTvShowTitle:              sortable[FieldTvShowTitle] = m_strShowTitle; break;
   case FieldAlbum:                    sortable[FieldAlbum] = m_strAlbum; break;
   case FieldArtist:                   sortable[FieldArtist] = m_artist; break;
   case FieldPlaycount:                sortable[FieldPlaycount] = GetPlayCount(); break;
-  case FieldLastPlayed:               sortable[FieldLastPlayed] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : StringUtils::Empty; break;
+  case FieldLastPlayed:               sortable[FieldLastPlayed] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : KODI::StringUtils::Empty; break;
   case FieldTop250:                   sortable[FieldTop250] = m_iTop250; break;
   case FieldYear:                     sortable[FieldYear] = GetYear(); break;
   case FieldSeason:                   sortable[FieldSeason] = m_iSeason; break;
@@ -898,7 +898,7 @@ void CVideoInfoTag::ToSortable(SortItem& sortable, Field field) const
   case FieldSubtitleLanguage:         sortable[FieldSubtitleLanguage] = m_streamDetails.GetSubtitleLanguage(); break;
 
   case FieldInProgress:               sortable[FieldInProgress] = m_resumePoint.IsPartWay(); break;
-  case FieldDateAdded:                sortable[FieldDateAdded] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : StringUtils::Empty; break;
+  case FieldDateAdded:                sortable[FieldDateAdded] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : KODI::StringUtils::Empty; break;
   case FieldMediaType:                sortable[FieldMediaType] = m_type; break;
   case FieldRelevance:                sortable[FieldRelevance] = m_relevance; break;
   default: break;
@@ -987,13 +987,13 @@ const std::string CVideoInfoTag::GetCast(bool bIncludeRole /*= false*/) const
   {
     std::string character;
     if (it->strRole.empty() || !bIncludeRole)
-      character = StringUtils::Format("{}\n", it->strName);
+      character = KODI::StringUtils::Format("{}\n", it->strName);
     else
       character =
-          StringUtils::Format("{} {} {}\n", it->strName, g_localizeStrings.Get(20347), it->strRole);
+          KODI::StringUtils::Format("{} {} {}\n", it->strName, g_localizeStrings.Get(20347), it->strRole);
     strLabel += character;
   }
-  return StringUtils::TrimRight(strLabel, "\n");
+  return KODI::StringUtils::TrimRight(strLabel, "\n");
 }
 
 void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
@@ -1024,7 +1024,7 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
         name = "default";
       XMLUtils::GetFloat(child, "value", r.rating);
       if (XMLUtils::GetString(child, "votes", value))
-        r.votes = StringUtils::ReturnDigits(value);
+        r.votes = KODI::StringUtils::ReturnDigits(value);
       int max_value = 10;
       if ((child->QueryIntAttribute("max", &max_value) == TIXML_SUCCESS) && max_value >= 1)
         r.rating = r.rating / max_value * 10; // Normalise the Movie Rating to between 1 and 10
@@ -1041,7 +1041,7 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
   {
     CRating r(fValue, 0);
     if (XMLUtils::GetString(movie, "votes", value))
-      r.votes = StringUtils::ReturnDigits(value);
+      r.votes = KODI::StringUtils::ReturnDigits(value);
     int max_value = 10;
     const TiXmlElement* rElement = movie->FirstChildElement("rating");
     if (rElement && (rElement->QueryIntAttribute("max", &max_value) == TIXML_SUCCESS) && max_value >= 1)
@@ -1096,7 +1096,7 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
 
 
   if (XMLUtils::GetString(movie, "runtime", value) && !value.empty())
-    m_duration = GetDurationFromMinuteString(StringUtils::Trim(value));
+    m_duration = GetDurationFromMinuteString(KODI::StringUtils::Trim(value));
 
   if (XMLUtils::GetString(movie, "mpaa", value))
     SetMPAARating(value);
@@ -1244,7 +1244,7 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
       info.strName = actor->FirstChild()->Value();
 
       if (XMLUtils::GetString(node, "role", value))
-        info.strRole = StringUtils::Trim(value);
+        info.strRole = KODI::StringUtils::Trim(value);
 
       XMLUtils::GetInt(node, "order", info.order);
       const TiXmlElement* thumb = node->FirstChildElement("thumb");
@@ -1254,7 +1254,7 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
         thumb = thumb->NextSiblingElement("thumb");
       }
       const char* clear=node->Attribute("clear");
-      if (clear && StringUtils::CompareNoCase(clear, "true"))
+      if (clear && KODI::StringUtils::CompareNoCase(clear, "true"))
         m_cast.clear();
       m_cast.push_back(info);
     }
@@ -1309,9 +1309,9 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
     if (pValue)
     {
       const char* clear=node->Attribute("clear");
-      if (clear && StringUtils::CompareNoCase(clear, "true") == 0)
+      if (clear && KODI::StringUtils::CompareNoCase(clear, "true") == 0)
         artist.clear();
-      std::vector<std::string> newArtists = StringUtils::Split(pValue, itemSeparator);
+      std::vector<std::string> newArtists = KODI::StringUtils::Split(pValue, itemSeparator);
       artist.insert(artist.end(), newArtists.begin(), newArtists.end());
     }
     node = node->NextSiblingElement("artist");
@@ -1330,14 +1330,14 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
       {
         CStreamDetailAudio *p = new CStreamDetailAudio();
         if (XMLUtils::GetString(nodeDetail, "codec", value))
-          p->m_strCodec = StringUtils::Trim(value);
+          p->m_strCodec = KODI::StringUtils::Trim(value);
 
         if (XMLUtils::GetString(nodeDetail, "language", value))
-          p->m_strLanguage = StringUtils::Trim(value);
+          p->m_strLanguage = KODI::StringUtils::Trim(value);
 
         XMLUtils::GetInt(nodeDetail, "channels", p->m_iChannels);
-        StringUtils::ToLower(p->m_strCodec);
-        StringUtils::ToLower(p->m_strLanguage);
+        KODI::StringUtils::ToLower(p->m_strCodec);
+        KODI::StringUtils::ToLower(p->m_strLanguage);
         m_streamDetails.AddStream(p);
       }
       nodeDetail = NULL;
@@ -1345,23 +1345,23 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
       {
         CStreamDetailVideo *p = new CStreamDetailVideo();
         if (XMLUtils::GetString(nodeDetail, "codec", value))
-          p->m_strCodec = StringUtils::Trim(value);
+          p->m_strCodec = KODI::StringUtils::Trim(value);
 
         XMLUtils::GetFloat(nodeDetail, "aspect", p->m_fAspect);
         XMLUtils::GetInt(nodeDetail, "width", p->m_iWidth);
         XMLUtils::GetInt(nodeDetail, "height", p->m_iHeight);
         XMLUtils::GetInt(nodeDetail, "durationinseconds", p->m_iDuration);
         if (XMLUtils::GetString(nodeDetail, "stereomode", value))
-          p->m_strStereoMode = StringUtils::Trim(value);
+          p->m_strStereoMode = KODI::StringUtils::Trim(value);
         if (XMLUtils::GetString(nodeDetail, "language", value))
-          p->m_strLanguage = StringUtils::Trim(value);
+          p->m_strLanguage = KODI::StringUtils::Trim(value);
         if (XMLUtils::GetString(nodeDetail, "hdrtype", value))
-          p->m_strHdrType = StringUtils::Trim(value);
+          p->m_strHdrType = KODI::StringUtils::Trim(value);
 
-        StringUtils::ToLower(p->m_strCodec);
-        StringUtils::ToLower(p->m_strStereoMode);
-        StringUtils::ToLower(p->m_strLanguage);
-        StringUtils::ToLower(p->m_strHdrType);
+        KODI::StringUtils::ToLower(p->m_strCodec);
+        KODI::StringUtils::ToLower(p->m_strStereoMode);
+        KODI::StringUtils::ToLower(p->m_strLanguage);
+        KODI::StringUtils::ToLower(p->m_strHdrType);
         m_streamDetails.AddStream(p);
       }
       nodeDetail = NULL;
@@ -1369,8 +1369,8 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
       {
         CStreamDetailSubtitle *p = new CStreamDetailSubtitle();
         if (XMLUtils::GetString(nodeDetail, "language", value))
-          p->m_strLanguage = StringUtils::Trim(value);
-        StringUtils::ToLower(p->m_strLanguage);
+          p->m_strLanguage = KODI::StringUtils::Trim(value);
+        KODI::StringUtils::ToLower(p->m_strLanguage);
         m_streamDetails.AddStream(p);
       }
     }
@@ -1384,7 +1384,7 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
     {
       // DEPRECIATE ME - support for old XML-encoded <episodeguide> blocks.
       if (epguide->FirstChild() &&
-          StringUtils::CompareNoCase("<episodeguide", epguide->FirstChild()->Value(), 13) == 0)
+          KODI::StringUtils::CompareNoCase("<episodeguide", epguide->FirstChild()->Value(), 13) == 0)
       {
         m_strEpisodeGuide = epguide->FirstChild()->Value();
       }
@@ -1688,11 +1688,11 @@ void CVideoInfoTag::SetOriginalTitle(std::string originalTitle)
 
 void CVideoInfoTag::SetEpisodeGuide(std::string episodeGuide)
 {
-  if (StringUtils::StartsWith(episodeGuide, "<episodeguide"))
+  if (KODI::StringUtils::StartsWith(episodeGuide, "<episodeguide"))
     m_strEpisodeGuide = Trim(std::move(episodeGuide));
   else
     m_strEpisodeGuide =
-        StringUtils::Format("<episodeguide>{}</episodeguide>", Trim(std::move(episodeGuide)));
+        KODI::StringUtils::Format("<episodeguide>{}</episodeguide>", Trim(std::move(episodeGuide)));
 }
 
 void CVideoInfoTag::SetStatus(std::string status)
@@ -1762,13 +1762,13 @@ void CVideoInfoTag::SetUserrating(int userrating)
 
 std::string CVideoInfoTag::Trim(std::string &&value)
 {
-  return StringUtils::Trim(value);
+  return KODI::StringUtils::Trim(value);
 }
 
 std::vector<std::string> CVideoInfoTag::Trim(std::vector<std::string>&& items)
 {
   std::for_each(items.begin(), items.end(), [](std::string &str){
-    str = StringUtils::Trim(str);
+    str = KODI::StringUtils::Trim(str);
   });
   return std::move(items);
 }
@@ -1891,7 +1891,7 @@ void CVideoInfoTag::CAssetInfo::Serialize(CVariant& value) const
 void CVideoInfoTag::CAssetInfo::SetTitle(const std::string& assetTitle)
 {
   std::string title{assetTitle};
-  m_title = StringUtils::Trim(title);
+  m_title = KODI::StringUtils::Trim(title);
 }
 
 void CVideoInfoTag::CAssetInfo::SetId(int assetId)

@@ -217,7 +217,7 @@ static void xkbLogger(xkb_context* context,
                       const char* format,
                       va_list args)
 {
-  const std::string message = StringUtils::FormatV(format, args);
+  const std::string message = KODI::StringUtils::FormatV(format, args);
   auto logLevel = logLevelMap.find(priority);
   CLog::Log(logLevel != logLevelMap.cend() ? logLevel->second : LOGDEBUG, "[xkb] {}", message);
 }

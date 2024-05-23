@@ -622,7 +622,7 @@ void CGUIDialogPVRGroupManager::Update()
     SET_CONTROL_LABEL(CONTROL_UNGROUPED_LABEL, g_localizeStrings.Get(19219));
     SET_CONTROL_LABEL(
         CONTROL_IN_GROUP_LABEL,
-        StringUtils::Format("{} {}", g_localizeStrings.Get(19220), m_selectedGroup->GroupName()));
+        KODI::StringUtils::Format("{} {}", g_localizeStrings.Get(19220), m_selectedGroup->GroupName()));
 
     const std::vector<std::shared_ptr<CPVRChannelGroupMember>> groupMembers =
         m_selectedGroup->GetMembers(CPVRChannelGroup::Include::ONLY_VISIBLE);

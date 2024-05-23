@@ -44,7 +44,7 @@ bool CPeripheralBusUSB::PerformDeviceScan(PeripheralScanResults &results)
 #ifdef TARGET_FREEBSD
       result.m_strLocation = std::to_string(dev->filename);
 #else
-      result.m_strLocation = StringUtils::Format("/bus{}/dev{}", bus->dirname, dev->filename);
+      result.m_strLocation = KODI::StringUtils::Format("/bus{}/dev{}", bus->dirname, dev->filename);
 #endif
       result.m_iSequence   = GetNumberOfPeripheralsWithId(result.m_iVendorId, result.m_iProductId);
       if (!results.ContainsResult(result))

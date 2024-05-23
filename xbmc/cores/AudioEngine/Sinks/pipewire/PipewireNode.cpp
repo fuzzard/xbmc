@@ -70,7 +70,7 @@ static T Parse(uint32_t type, void* body, uint32_t size)
       return *reinterpret_cast<T*>(body);
 
     default:
-      throw std::runtime_error(StringUtils::Format("unhandled type: {}", type));
+      throw std::runtime_error(KODI::StringUtils::Format("unhandled type: {}", type));
   }
 }
 
@@ -108,7 +108,7 @@ static std::set<T> ParseArray(uint32_t type, void* body, uint32_t size)
       return values;
     }
     default:
-      throw std::runtime_error(StringUtils::Format("unhandled array: {}", type));
+      throw std::runtime_error(KODI::StringUtils::Format("unhandled array: {}", type));
   }
 }
 

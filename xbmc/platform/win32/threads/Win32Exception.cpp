@@ -69,7 +69,7 @@ bool win32_exception::write_minidump(EXCEPTION_POINTERS* pEp)
   KODI::TIME::SystemTime stLocalTime;
   KODI::TIME::GetLocalTime(&stLocalTime);
 
-  dumpFileName = StringUtils::Format("kodi_crashlog-{}-{:04}{:02}{:02}-{:02}{:02}{:02}.dmp",
+  dumpFileName = KODI::StringUtils::Format("kodi_crashlog-{}-{:04}{:02}{:02}-{:02}{:02}{:02}.dmp",
                                      mVersion, stLocalTime.year, stLocalTime.month, stLocalTime.day,
                                      stLocalTime.hour, stLocalTime.minute, stLocalTime.second);
 
@@ -186,7 +186,7 @@ bool win32_exception::write_stacktrace(EXCEPTION_POINTERS* pEp)
      pSFTA == NULL || pSGMB == NULL)
     goto cleanup;
 
-  dumpFileName = StringUtils::Format("kodi_stacktrace-{}-{:04}{:02}{:02}-{:02}{:02}{:02}.txt",
+  dumpFileName = KODI::StringUtils::Format("kodi_stacktrace-{}-{:04}{:02}{:02}-{:02}{:02}{:02}.txt",
                                      mVersion, stLocalTime.year, stLocalTime.month, stLocalTime.day,
                                      stLocalTime.hour, stLocalTime.minute, stLocalTime.second);
 
@@ -234,7 +234,7 @@ bool win32_exception::write_stacktrace(EXCEPTION_POINTERS* pEp)
   pSym->MaxNameLength = STACKWALK_MAX_NAMELEN;
 
 
-  strOutput = StringUtils::Format("Thread {} (process {})\r\n", GetCurrentThreadId(),
+  strOutput = KODI::StringUtils::Format("Thread {} (process {})\r\n", GetCurrentThreadId(),
                                   GetCurrentProcessId());
   WriteFile(hDumpFile, strOutput.c_str(), strOutput.size(), &dwBytes, NULL);
 
@@ -244,15 +244,15 @@ bool win32_exception::write_stacktrace(EXCEPTION_POINTERS* pEp)
     {
       DWORD64 symoffset=0;
       DWORD   lineoffset=0;
-      strOutput = StringUtils::Format("#{:2}", seq++);
+      strOutput = KODI::StringUtils::Format("#{:2}", seq++);
 
       if(pSGSFA(hCurProc, frame.AddrPC.Offset, &symoffset, pSym))
       {
         if(pUDSN(pSym->Name, cTemp, STACKWALK_MAX_NAMELEN, UNDNAME_COMPLETE)>0)
-          strOutput.append(StringUtils::Format(" {}", cTemp));
+          strOutput.append(KODI::StringUtils::Format(" {}", cTemp));
       }
       if(pSGLFA(hCurProc, frame.AddrPC.Offset, &lineoffset, &Line))
-        strOutput.append(StringUtils::Format(" at {}:{}", Line.FileName, Line.LineNumber));
+        strOutput.append(KODI::StringUtils::Format(" at {}:{}", Line.FileName, Line.LineNumber));
 
       strOutput.append("\r\n");
       WriteFile(hDumpFile, strOutput.c_str(), strOutput.size(), &dwBytes, NULL);

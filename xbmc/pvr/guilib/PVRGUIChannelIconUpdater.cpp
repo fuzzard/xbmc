@@ -53,7 +53,7 @@ void CPVRGUIChannelIconUpdater::SearchAndUpdateMissingChannelIcons() const
   {
     std::string baseName = URIUtils::GetFileName(item->GetPath());
     URIUtils::RemoveExtension(baseName);
-    StringUtils::ToLower(baseName);
+    KODI::StringUtils::ToLower(baseName);
     fileItemMap.insert({baseName, item->GetPath()});
   }
 
@@ -79,12 +79,12 @@ void CPVRGUIChannelIconUpdater::SearchAndUpdateMissingChannelIcons() const
       // reset icon before searching for a new one
       channel->SetIconPath("");
 
-      const std::string strChannelUid = StringUtils::Format("{:08}", channel->UniqueID());
+      const std::string strChannelUid = KODI::StringUtils::Format("{:08}", channel->UniqueID());
       std::string strLegalClientChannelName =
           CUtil::MakeLegalFileName(channel->ClientChannelName());
-      StringUtils::ToLower(strLegalClientChannelName);
+      KODI::StringUtils::ToLower(strLegalClientChannelName);
       std::string strLegalChannelName = CUtil::MakeLegalFileName(channel->ChannelName());
-      StringUtils::ToLower(strLegalChannelName);
+      KODI::StringUtils::ToLower(strLegalChannelName);
 
       std::map<std::string, std::string>::iterator itItem;
       if ((itItem = fileItemMap.find(strLegalClientChannelName)) != fileItemMap.end() ||

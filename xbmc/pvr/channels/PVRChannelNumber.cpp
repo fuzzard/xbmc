@@ -32,5 +32,5 @@ std::string CPVRChannelNumber::ToString(char separator) const
   if (m_iSubChannelNumber == 0)
     return std::to_string(m_iChannelNumber);
   else
-    return StringUtils::Format("{}{}{}", m_iChannelNumber, separator, m_iSubChannelNumber);
+    return KODI::StringUtils::Format("{}{}{}", m_iChannelNumber, separator, m_iSubChannelNumber);
 }

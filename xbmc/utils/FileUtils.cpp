@@ -105,39 +105,39 @@ bool CFileUtils::RemoteAccessAllowed(const std::string &strPath)
   while (URIUtils::IsInArchive(realPath))
     realPath = CURL(realPath).GetHostName();
 
-  if (StringUtils::StartsWithNoCase(realPath, "virtualpath://upnproot/"))
+  if (KODI::StringUtils::StartsWithNoCase(realPath, "virtualpath://upnproot/"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "musicdb://"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "musicdb://"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "videodb://"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "videodb://"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "library://video"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "library://video"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "library://music"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "library://music"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "sources://video"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "sources://video"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "special://musicplaylists"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "special://musicplaylists"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "special://profile/playlists"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "special://profile/playlists"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "special://videoplaylists"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "special://videoplaylists"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "special://skin"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "special://skin"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "special://profile/addon_data"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "special://profile/addon_data"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "addons://sources"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "addons://sources"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "upnp://"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "upnp://"))
     return true;
-  else if (StringUtils::StartsWithNoCase(realPath, "plugin://"))
+  else if (KODI::StringUtils::StartsWithNoCase(realPath, "plugin://"))
     return true;
   else
   {
     std::string strPlaylistsPath = CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_SYSTEM_PLAYLISTSPATH);
     URIUtils::RemoveSlashAtEnd(strPlaylistsPath);
-    if (StringUtils::StartsWithNoCase(realPath, strPlaylistsPath))
+    if (KODI::StringUtils::StartsWithNoCase(realPath, strPlaylistsPath))
       return true;
   }
   bool isSource;
@@ -283,7 +283,7 @@ bool CFileUtils::CheckFileAccessAllowed(const std::string &filePath)
     isImage = true;
     decodePath.erase(pos, 8);
     URIUtils::RemoveSlashAtEnd(decodePath);
-    if (StringUtils::StartsWith(decodePath, "music@") || StringUtils::StartsWith(decodePath, "video@"))
+    if (KODI::StringUtils::StartsWith(decodePath, "music@") || KODI::StringUtils::StartsWith(decodePath, "video@"))
       decodePath.erase(pos, 6);
   }
 
@@ -316,7 +316,7 @@ bool CFileUtils::CheckFileAccessAllowed(const std::string &filePath)
         whiteEntry = realtemp;
         free(realtemp);
       }
-      if (StringUtils::StartsWith(realPath, whiteEntry))
+      if (KODI::StringUtils::StartsWith(realPath, whiteEntry))
         return true;
     }
     // check sources with realPath
@@ -341,7 +341,7 @@ bool CFileUtils::CheckFileAccessAllowed(const std::string &filePath)
         g_charsetConverter.wToUTF8(fullpathW, fullpath, false);
         for (const std::string& whiteEntry : whitelist)
         {
-          if (StringUtils::StartsWith(fullpath, whiteEntry))
+          if (KODI::StringUtils::StartsWith(fullpath, whiteEntry))
             return true;
         }
         return CFileUtils::RemoteAccessAllowed(fullpath);

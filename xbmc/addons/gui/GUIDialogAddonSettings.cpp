@@ -238,7 +238,7 @@ bool CGUIDialogAddonSettings::ShowForMultipleInstances(const ADDON::AddonPtr& ad
       bool enabled = false;
       addon->GetSettingBool(ADDON_SETTING_INSTANCE_ENABLED_VALUE, enabled, id);
 
-      const std::string label = StringUtils::Format(
+      const std::string label = KODI::StringUtils::Format(
           g_localizeStrings.Get(10020), name,
           g_localizeStrings.Get(enabled ? 305 : 13106)); // Edit "config name" [enabled state]
 
@@ -336,7 +336,7 @@ bool CGUIDialogAddonSettings::ShowForMultipleInstances(const ADDON::AddonPtr& ad
       if (!dialog->IsButtonPressed() && dialog->IsConfirmed())
       {
         item = dialog->GetSelectedFileItem();
-        const std::string label = StringUtils::Format(
+        const std::string label = KODI::StringUtils::Format(
             g_localizeStrings.Get(10019),
             item->GetProperty("name")
                 .asString()); // Do you want to remove the add-on configuration "config name"?
@@ -422,7 +422,7 @@ void CGUIDialogAddonSettings::SetupView()
   SetProperty("Addon.ID", m_addon->ID());
 
   // set heading
-  SetHeading(StringUtils::Format("$LOCALIZE[10004] - {}",
+  SetHeading(KODI::StringUtils::Format("$LOCALIZE[10004] - {}",
                                  m_addon->Name())); // "Settings - AddonName"
 
   // set control labels

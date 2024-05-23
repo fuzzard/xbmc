@@ -406,7 +406,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerLabel(const CFileItem* item,
       case LISTITEM_DURATION:
         if (timer->GetDuration() > 0)
         {
-          strValue = StringUtils::SecondsToTimeString(timer->GetDuration(),
+          strValue = KODI::StringUtils::SecondsToTimeString(timer->GetDuration(),
                                                       static_cast<TIME_FORMAT>(info.GetData4()));
           return true;
         }
@@ -495,7 +495,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerLabel(const CFileItem* item,
       case LISTITEM_EPISODENAME:
         strValue = recording->EpisodeName();
         // fixup multiline episode name strings (which do not fit in any way in our GUI)
-        StringUtils::Replace(strValue, "\n", ", ");
+        KODI::StringUtils::Replace(strValue, "\n", ", ");
         return true;
       case VIDEOPLAYER_CHANNEL_NAME:
       case LISTITEM_CHANNEL_NAME:
@@ -574,7 +574,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerLabel(const CFileItem* item,
       case LISTITEM_SIZE:
         if (recording->GetSizeInBytes() > 0)
         {
-          strValue = StringUtils::SizeToString(recording->GetSizeInBytes());
+          strValue = KODI::StringUtils::SizeToString(recording->GetSizeInBytes());
           return true;
         }
         return false;
@@ -710,7 +710,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerLabel(const CFileItem* item,
       case LISTITEM_NEXT_DURATION:
         if (epgTag->GetDuration() > 0)
         {
-          strValue = StringUtils::SecondsToTimeString(epgTag->GetDuration(),
+          strValue = KODI::StringUtils::SecondsToTimeString(epgTag->GetDuration(),
                                                       static_cast<TIME_FORMAT>(info.GetData4()));
           return true;
         }
@@ -754,7 +754,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerLabel(const CFileItem* item,
         {
           strValue = epgTag->EpisodeName();
           // fixup multiline episode name strings (which do not fit in any way in our GUI)
-          StringUtils::Replace(strValue, "\n", ", ");
+          KODI::StringUtils::Replace(strValue, "\n", ", ");
         }
         return true;
       case VIDEOPLAYER_CAST:
@@ -808,7 +808,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerLabel(const CFileItem* item,
         int iStarRating = epgTag->StarRating();
         if (iStarRating > 0)
         {
-          strValue = StringUtils::FormatNumber(iStarRating);
+          strValue = KODI::StringUtils::FormatNumber(iStarRating);
           return true;
         }
         return false;
@@ -1634,7 +1634,7 @@ bool CPVRGUIInfo::GetListItemAndPlayerBool(const CFileItem* item,
     case VIDEOPLAYER_CONTENT:
       if (item->IsPVRChannel())
       {
-        bValue = StringUtils::EqualsNoCase(info.GetData3(), "livetv");
+        bValue = KODI::StringUtils::EqualsNoCase(info.GetData3(), "livetv");
         return bValue; // if no match for this provider, other providers shall be asked.
       }
       break;
@@ -1801,7 +1801,7 @@ void CPVRGUIInfo::CharInfoBackendNumber(std::string& strValue) const
   size_t numBackends = m_backendProperties.size();
 
   if (numBackends > 0)
-    strValue = StringUtils::Format("{0} {1} {2}", m_iCurrentActiveClient + 1,
+    strValue = KODI::StringUtils::Format("{0} {1} {2}", m_iCurrentActiveClient + 1,
                                    g_localizeStrings.Get(20163), numBackends);
   else
     strValue = g_localizeStrings.Get(14023);
@@ -1809,27 +1809,27 @@ void CPVRGUIInfo::CharInfoBackendNumber(std::string& strValue) const
 
 void CPVRGUIInfo::CharInfoTotalDiskSpace(std::string& strValue) const
 {
-  strValue = StringUtils::SizeToString(m_iBackendDiskTotal).c_str();
+  strValue = KODI::StringUtils::SizeToString(m_iBackendDiskTotal).c_str();
 }
 
 void CPVRGUIInfo::CharInfoSignal(std::string& strValue) const
 {
-  strValue = StringUtils::Format("{} %", m_qualityInfo.iSignal / 655);
+  strValue = KODI::StringUtils::Format("{} %", m_qualityInfo.iSignal / 655);
 }
 
 void CPVRGUIInfo::CharInfoSNR(std::string& strValue) const
 {
-  strValue = StringUtils::Format("{} %", m_qualityInfo.iSNR / 655);
+  strValue = KODI::StringUtils::Format("{} %", m_qualityInfo.iSNR / 655);
 }
 
 void CPVRGUIInfo::CharInfoBER(std::string& strValue) const
 {
-  strValue = StringUtils::Format("{:08X}", m_qualityInfo.iBER);
+  strValue = KODI::StringUtils::Format("{:08X}", m_qualityInfo.iBER);
 }
 
 void CPVRGUIInfo::CharInfoUNC(std::string& strValue) const
 {
-  strValue = StringUtils::Format("{:08X}", m_qualityInfo.iUNC);
+  strValue = KODI::StringUtils::Format("{:08X}", m_qualityInfo.iUNC);
 }
 
 void CPVRGUIInfo::CharInfoFrontendName(std::string& strValue) const
@@ -1875,9 +1875,9 @@ void CPVRGUIInfo::CharInfoBackendDiskspace(std::string& strValue) const
 
   if (diskTotal > 0)
   {
-    strValue = StringUtils::Format(g_localizeStrings.Get(802),
-                                   StringUtils::SizeToString(diskTotal - diskUsed),
-                                   StringUtils::SizeToString(diskTotal));
+    strValue = KODI::StringUtils::Format(g_localizeStrings.Get(802),
+                                   KODI::StringUtils::SizeToString(diskTotal - diskUsed),
+                                   KODI::StringUtils::SizeToString(diskTotal));
   }
   else
     strValue = g_localizeStrings.Get(13205);

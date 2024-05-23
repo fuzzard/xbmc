@@ -103,8 +103,8 @@ namespace XBMCAddon
       const std::string execute = exec.GetFunction();
       const std::vector<std::string> params = exec.GetParams();
 
-      if (StringUtils::EqualsNoCase(execute, "activatewindow") ||
-          StringUtils::EqualsNoCase(execute, "closedialog"))
+      if (KODI::StringUtils::EqualsNoCase(execute, "activatewindow") ||
+          KODI::StringUtils::EqualsNoCase(execute, "closedialog"))
       {
         int win = CWindowTranslator::TranslateWindow(params[0]);
         if (win == WINDOW_DIALOG_BUSY)
@@ -383,7 +383,7 @@ namespace XBMCAddon
     {
       XBMC_TRACE;
       auto crc = Crc32::ComputeFromLowerCase(path);
-      return StringUtils::Format("{:08x}.tbn", crc);
+      return KODI::StringUtils::Format("{:08x}.tbn", crc);
     }
 
     Tuple<String,String> getCleanMovieTitle(const String& path, bool usefoldername)
@@ -405,63 +405,63 @@ namespace XBMCAddon
       std::string result;
       CDateTime now = CDateTime::GetCurrentDateTime();
 
-      if (StringUtils::CompareNoCase(id, "datelong") == 0)
+      if (KODI::StringUtils::CompareNoCase(id, "datelong") == 0)
       {
         result = now.GetAsLocalizedDate(g_langInfo.GetDateFormat(true),
                                         CDateTime::ReturnFormat::CHOICE_YES);
       }
-      else if (StringUtils::CompareNoCase(id, "dateshort") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "dateshort") == 0)
       {
         result = now.GetAsLocalizedDate(g_langInfo.GetDateFormat(false),
                                         CDateTime::ReturnFormat::CHOICE_YES);
       }
-      else if (StringUtils::CompareNoCase(id, "tempunit") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "tempunit") == 0)
       {
         result = g_langInfo.GetTemperatureUnitString();
       }
       //TODO - There is a (low) risk that these 'raw' formats could be changed on Windows if they contain a '%-' sequence.
-      else if (StringUtils::CompareNoCase(id, "datelongraw") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "datelongraw") == 0)
       {
         result = g_langInfo.GetDateFormat(true);
       }
-      else if (StringUtils::CompareNoCase(id, "dateshortraw") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "dateshortraw") == 0)
       {
         result = g_langInfo.GetDateFormat(false);
       }
-      else if (StringUtils::CompareNoCase(id, "timeraw") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "timeraw") == 0)
       {
         result = g_langInfo.GetTimeFormat();
       }
-      else if (StringUtils::CompareNoCase(id, "speedunit") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "speedunit") == 0)
       {
         result = g_langInfo.GetSpeedUnitString();
       }
-      else if (StringUtils::CompareNoCase(id, "time") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "time") == 0)
       {
         result = g_langInfo.GetTimeFormat();
-        if (StringUtils::StartsWith(result, "HH"))
+        if (KODI::StringUtils::StartsWith(result, "HH"))
         {
-          StringUtils::Replace(result, "HH", "%H");
+          KODI::StringUtils::Replace(result, "HH", "%H");
         }
         else
         {
-          StringUtils::Replace(result, "H", "%H");
-          StringUtils::Replace(result, "hh", "%I");
-          StringUtils::Replace(result, "h", "%I");
+          KODI::StringUtils::Replace(result, "H", "%H");
+          KODI::StringUtils::Replace(result, "hh", "%I");
+          KODI::StringUtils::Replace(result, "h", "%I");
         }
-        StringUtils::Replace(result, "mm", "%M");
-        StringUtils::Replace(result, "m", "%M");
-        StringUtils::Replace(result, "ss", "%S");
-        StringUtils::Replace(result, "s", "%S");
-        StringUtils::Replace(result, "xx", "%p");
+        KODI::StringUtils::Replace(result, "mm", "%M");
+        KODI::StringUtils::Replace(result, "m", "%M");
+        KODI::StringUtils::Replace(result, "ss", "%S");
+        KODI::StringUtils::Replace(result, "s", "%S");
+        KODI::StringUtils::Replace(result, "xx", "%p");
       }
-      else if (StringUtils::CompareNoCase(id, "meridiem") == 0)
+      else if (KODI::StringUtils::CompareNoCase(id, "meridiem") == 0)
       {
-        result = StringUtils::Format("{}/{}", g_langInfo.GetMeridiemSymbol(MeridiemSymbolAM),
+        result = KODI::StringUtils::Format("{}/{}", g_langInfo.GetMeridiemSymbol(MeridiemSymbolAM),
                                      g_langInfo.GetMeridiemSymbol(MeridiemSymbolPM));
       }
 #ifdef TARGET_WINDOWS
-      StringUtils::Replace(result, "%-", "%#"); //Convert to Windows format if required.
+      KODI::StringUtils::Replace(result, "%-", "%#"); //Convert to Windows format if required.
 #endif
       return result;
     }
@@ -471,11 +471,11 @@ namespace XBMCAddon
     {
       XBMC_TRACE;
       String result;
-      if (StringUtils::CompareNoCase(mediaType, "video") == 0)
+      if (KODI::StringUtils::CompareNoCase(mediaType, "video") == 0)
         result = CServiceBroker::GetFileExtensionProvider().GetVideoExtensions();
-      else if (StringUtils::CompareNoCase(mediaType, "music") == 0)
+      else if (KODI::StringUtils::CompareNoCase(mediaType, "music") == 0)
         result = CServiceBroker::GetFileExtensionProvider().GetMusicExtensions();
-      else if (StringUtils::CompareNoCase(mediaType, "picture") == 0)
+      else if (KODI::StringUtils::CompareNoCase(mediaType, "picture") == 0)
         result = CServiceBroker::GetFileExtensionProvider().GetPictureExtensions();
 
       //! @todo implement

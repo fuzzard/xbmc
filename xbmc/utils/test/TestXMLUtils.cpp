@@ -102,7 +102,7 @@ TEST(TestXMLUtils, GetDouble)
   EXPECT_TRUE(XMLUtils::GetDouble(a.RootElement(), "node", val));
 
   refstr = "1000.100000";
-  valstr = StringUtils::Format("{:f}", val);
+  valstr = KODI::StringUtils::Format("{:f}", val);
   EXPECT_STREQ(refstr.c_str(), valstr.c_str());
 
   CXBMCTinyXML2 b;
@@ -110,7 +110,7 @@ TEST(TestXMLUtils, GetDouble)
   b.Parse(std::string("<root><node>1000.1f</node></root>"));
   EXPECT_TRUE(XMLUtils::GetDouble(b.RootElement(), "node", val2));
 
-  valstr2 = StringUtils::Format("{:f}", val2);
+  valstr2 = KODI::StringUtils::Format("{:f}", val2);
   EXPECT_STREQ(refstr.c_str(), valstr2.c_str());
 }
 

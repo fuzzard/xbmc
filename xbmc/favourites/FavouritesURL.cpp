@@ -120,10 +120,10 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
       if (params.size() > 1)
       {
         // optional: target url/path
-        m_target = StringUtils::DeParamify(params[1]);
+        m_target = KODI::StringUtils::DeParamify(params[1]);
       }
       m_actionLabel =
-          StringUtils::Format(g_localizeStrings.Get(15220), // Show content in '<windowname>'
+          KODI::StringUtils::Format(g_localizeStrings.Get(15220), // Show content in '<windowname>'
                               g_localizeStrings.Get(m_windowId));
       break;
     case Action::PLAY_MEDIA:
@@ -132,7 +132,7 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
         CLog::LogF(LOGERROR, "Missing parameter");
         return false;
       }
-      m_target = StringUtils::DeParamify(params[0]);
+      m_target = KODI::StringUtils::DeParamify(params[0]);
       m_actionLabel = g_localizeStrings.Get(15218); // Play media
       break;
     case Action::SHOW_PICTURE:
@@ -141,7 +141,7 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
         CLog::LogF(LOGERROR, "Missing parameter");
         return false;
       }
-      m_target = StringUtils::DeParamify(params[0]);
+      m_target = KODI::StringUtils::DeParamify(params[0]);
       m_actionLabel = g_localizeStrings.Get(15219); // Show picture
       break;
     case Action::RUN_SCRIPT:
@@ -150,7 +150,7 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
         CLog::LogF(LOGERROR, "Missing parameter");
         return false;
       }
-      m_target = StringUtils::DeParamify(params[0]);
+      m_target = KODI::StringUtils::DeParamify(params[0]);
       m_actionLabel = g_localizeStrings.Get(15221); // Execute script
       pathIsAddonID = true;
       break;
@@ -160,7 +160,7 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
         CLog::LogF(LOGERROR, "Missing parameter");
         return false;
       }
-      m_target = StringUtils::DeParamify(params[0]);
+      m_target = KODI::StringUtils::DeParamify(params[0]);
       m_actionLabel = g_localizeStrings.Get(15223); // Execute add-on
       pathIsAddonID = true;
       break;
@@ -170,7 +170,7 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
         CLog::LogF(LOGERROR, "Missing parameter");
         return false;
       }
-      m_target = StringUtils::DeParamify(params[0]);
+      m_target = KODI::StringUtils::DeParamify(params[0]);
       m_actionLabel = g_localizeStrings.Get(15222); // Execute Android app
       break;
     default:
@@ -180,12 +180,12 @@ bool CFavouritesURL::Parse(CFavouritesURL::Action action, const std::vector<std:
         return false;
       }
       m_action = CFavouritesURL::Action::UNKNOWN;
-      m_target = StringUtils::DeParamify(params[0]);
+      m_target = KODI::StringUtils::DeParamify(params[0]);
       m_actionLabel = g_localizeStrings.Get(15224); // Other / Unknown
       break;
   }
 
-  m_path = StringUtils::Format("favourites://{}", CURL::Encode(GetExecString()));
+  m_path = KODI::StringUtils::Format("favourites://{}", CURL::Encode(GetExecString()));
   m_isDir = URIUtils::HasSlashAtEnd(m_target, true);
 
   if (pathIsAddonID || URIUtils::IsPlugin(m_target))

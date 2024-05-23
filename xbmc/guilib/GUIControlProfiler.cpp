@@ -157,7 +157,7 @@ void CGUIControlProfilerItem::SaveToXML(TiXmlElement *parent)
   float pct = (float)GetTotalTime() / (float)m_pProfiler->GetTotalTime();
   if (pct > 0.01f)
   {
-    std::string str = StringUtils::Format("{:.0f}", pct * 100.0f);
+    std::string str = KODI::StringUtils::Format("{:.0f}", pct * 100.0f);
     xmlControl->SetAttribute("percent", str.c_str());
   }
 

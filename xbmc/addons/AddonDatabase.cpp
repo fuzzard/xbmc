@@ -704,7 +704,7 @@ bool CAddonDatabase::GetRepositoryContent(const std::string& id, VECADDONS& addo
                                    " JOIN repo ON repo.id=addonlinkrepo.idRepo"
                                    " WHERE addonlinkrepo.idRepo IN (%s)"
                                    " ORDER BY repo.addonID, addons.addonID",
-                                   StringUtils::Join(repoIds, ",").c_str());
+                                   KODI::StringUtils::Join(repoIds, ",").c_str());
 
       start = std::chrono::steady_clock::now();
       m_pDS->query(sql);

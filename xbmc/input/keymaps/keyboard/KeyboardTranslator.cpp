@@ -54,12 +54,12 @@ uint32_t CKeyboardTranslator::TranslateButton(const tinyxml2::XMLElement* pButto
   const char* strMod;
   if (pButton->QueryStringAttribute("mod", &strMod) == tinyxml2::XML_SUCCESS)
   {
-    StringUtils::ToLower(strMod);
+    KODI::StringUtils::ToLower(strMod);
 
-    std::vector<std::string> modArray = StringUtils::Split(strMod, ",");
+    std::vector<std::string> modArray = KODI::StringUtils::Split(strMod, ",");
     for (auto substr : modArray)
     {
-      StringUtils::Trim(substr);
+      KODI::StringUtils::Trim(substr);
 
       if (substr == "ctrl" || substr == "control")
         button_id |= CKey::MODIFIER_CTRL;

@@ -220,7 +220,7 @@ std::string CSpecialProtocol::TranslatePathConvertCase(const std::string& path)
 
   std::string result;
   std::vector<std::string> tokens;
-  StringUtils::Tokenize(translatedPath, tokens, "/");
+  KODI::StringUtils::Tokenize(translatedPath, tokens, "/");
   std::string file;
   DIR* dir;
   struct dirent* de;
@@ -241,7 +241,7 @@ std::string CSpecialProtocol::TranslatePathConvertCase(const std::string& path)
         while ((de = readdir(dir)) != NULL)
         {
           // check if there's a file with same name but different case
-          if (StringUtils::CompareNoCase(de->d_name, tokens[i]) == 0)
+          if (KODI::StringUtils::CompareNoCase(de->d_name, tokens[i]) == 0)
           {
             result += "/";
             result += de->d_name;

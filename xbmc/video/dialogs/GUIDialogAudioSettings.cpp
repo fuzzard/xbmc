@@ -78,21 +78,21 @@ void CGUIDialogAudioSettings::FrameMove()
 std::string CGUIDialogAudioSettings::FormatDelay(float value, float interval)
 {
   if (fabs(value) < 0.5f * interval)
-    return StringUtils::Format(g_localizeStrings.Get(22003), 0.0);
+    return KODI::StringUtils::Format(g_localizeStrings.Get(22003), 0.0);
   if (value < 0)
-    return StringUtils::Format(g_localizeStrings.Get(22004), fabs(value));
+    return KODI::StringUtils::Format(g_localizeStrings.Get(22004), fabs(value));
 
-  return StringUtils::Format(g_localizeStrings.Get(22005), value);
+  return KODI::StringUtils::Format(g_localizeStrings.Get(22005), value);
 }
 
 std::string CGUIDialogAudioSettings::FormatDecibel(float value)
 {
-  return StringUtils::Format(g_localizeStrings.Get(14054), value);
+  return KODI::StringUtils::Format(g_localizeStrings.Get(14054), value);
 }
 
 std::string CGUIDialogAudioSettings::FormatPercentAsDecibel(float value)
 {
-  return StringUtils::Format(g_localizeStrings.Get(14054), CAEUtil::PercentToGain(value));
+  return KODI::StringUtils::Format(g_localizeStrings.Get(14054), CAEUtil::PercentToGain(value));
 }
 
 void CGUIDialogAudioSettings::OnSettingChanged(const std::shared_ptr<const CSetting>& setting)
@@ -366,10 +366,10 @@ void CGUIDialogAudioSettings::AudioStreamsOptionFiller(const SettingConstPtr& se
     if (info.name.length() == 0)
       info.name = strUnknown;
 
-    strItem = StringUtils::Format(strFormat, strLanguage, info.name, info.channels);
+    strItem = KODI::StringUtils::Format(strFormat, strLanguage, info.name, info.channels);
 
     strItem += FormatFlags(info.flags);
-    strItem += StringUtils::Format(" ({}/{})", i + 1, audioStreamCount);
+    strItem += KODI::StringUtils::Format(" ({}/{})", i + 1, audioStreamCount);
     list.emplace_back(strItem, i);
   }
 
@@ -394,11 +394,11 @@ std::string CGUIDialogAudioSettings::SettingFormatterDelay(
   float fStep = step.asFloat();
 
   if (fabs(fValue) < 0.5f * fStep)
-    return StringUtils::Format(g_localizeStrings.Get(22003), 0.0);
+    return KODI::StringUtils::Format(g_localizeStrings.Get(22003), 0.0);
   if (fValue < 0)
-    return StringUtils::Format(g_localizeStrings.Get(22004), fabs(fValue));
+    return KODI::StringUtils::Format(g_localizeStrings.Get(22004), fabs(fValue));
 
-  return StringUtils::Format(g_localizeStrings.Get(22005), fValue);
+  return KODI::StringUtils::Format(g_localizeStrings.Get(22005), fValue);
 }
 
 std::string CGUIDialogAudioSettings::SettingFormatterPercentAsDecibel(
@@ -415,7 +415,7 @@ std::string CGUIDialogAudioSettings::SettingFormatterPercentAsDecibel(
   if (control->GetFormatLabel() > -1)
     formatString = g_localizeStrings.Get(control->GetFormatLabel());
 
-  return StringUtils::Format(formatString, CAEUtil::PercentToGain(value.asFloat()));
+  return KODI::StringUtils::Format(formatString, CAEUtil::PercentToGain(value.asFloat()));
 }
 
 std::string CGUIDialogAudioSettings::FormatFlags(StreamFlags flags)
@@ -432,10 +432,10 @@ std::string CGUIDialogAudioSettings::FormatFlags(StreamFlags flags)
   if (flags & StreamFlags::FLAG_ORIGINAL)
     localizedFlags.emplace_back(g_localizeStrings.Get(39111));
 
-  std::string formated = StringUtils::Join(localizedFlags, ", ");
+  std::string formated = KODI::StringUtils::Join(localizedFlags, ", ");
 
   if (!formated.empty())
-    formated = StringUtils::Format(" [{}]", formated);
+    formated = KODI::StringUtils::Format(" [{}]", formated);
 
   return formated;
 }

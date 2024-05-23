@@ -237,7 +237,7 @@ bool CHttpRanges::Parse(const std::string& header, uint64_t totalLength)
 {
   m_ranges.clear();
 
-  if (header.empty() || totalLength == 0 || !StringUtils::StartsWithNoCase(header, "bytes="))
+  if (header.empty() || totalLength == 0 || !KODI::StringUtils::StartsWithNoCase(header, "bytes="))
     return false;
 
   uint64_t lastPossiblePosition = totalLength - 1;
@@ -246,7 +246,7 @@ bool CHttpRanges::Parse(const std::string& header, uint64_t totalLength)
   std::string rangesValue = header.substr(6);
 
   // split the value of the "Range" header by ","
-  std::vector<std::string> rangeValues = StringUtils::Split(rangesValue, ",");
+  std::vector<std::string> rangeValues = KODI::StringUtils::Split(rangesValue, ",");
 
   for (std::vector<std::string>::const_iterator range = rangeValues.begin(); range != rangeValues.end(); ++range)
   {
@@ -254,7 +254,7 @@ bool CHttpRanges::Parse(const std::string& header, uint64_t totalLength)
     if (range->find("-") == std::string::npos)
       return false;
 
-    std::vector<std::string> positions = StringUtils::Split(*range, "-");
+    std::vector<std::string> positions = KODI::StringUtils::Split(*range, "-");
     if (positions.size() != 2)
       return false;
 
@@ -266,7 +266,7 @@ bool CHttpRanges::Parse(const std::string& header, uint64_t totalLength)
     // parse the start and end positions
     if (!positions.front().empty())
     {
-      if (!StringUtils::IsNaturalNumber(positions.front()))
+      if (!KODI::StringUtils::IsNaturalNumber(positions.front()))
         return false;
 
       start = str2uint64(positions.front(), 0);
@@ -274,7 +274,7 @@ bool CHttpRanges::Parse(const std::string& header, uint64_t totalLength)
     }
     if (!positions.back().empty())
     {
-      if (!StringUtils::IsNaturalNumber(positions.back()))
+      if (!KODI::StringUtils::IsNaturalNumber(positions.back()))
         return false;
 
       end = str2uint64(positions.back(), 0);
@@ -346,15 +346,15 @@ std::string HttpRangeUtils::GenerateContentRangeHeaderValue(const CHttpRange* ra
   if (range == NULL)
     return "";
 
-  return StringUtils::Format(CONTENT_RANGE_FORMAT_TOTAL, range->GetFirstPosition(), range->GetLastPosition(), range->GetLength());
+  return KODI::StringUtils::Format(CONTENT_RANGE_FORMAT_TOTAL, range->GetFirstPosition(), range->GetLastPosition(), range->GetLength());
 }
 
 std::string HttpRangeUtils::GenerateContentRangeHeaderValue(uint64_t start, uint64_t end, uint64_t total)
 {
   if (total > 0)
-    return StringUtils::Format(CONTENT_RANGE_FORMAT_TOTAL, start, end, total);
+    return KODI::StringUtils::Format(CONTENT_RANGE_FORMAT_TOTAL, start, end, total);
 
-  return StringUtils::Format(CONTENT_RANGE_FORMAT_TOTAL_UNKNOWN, start, end);
+  return KODI::StringUtils::Format(CONTENT_RANGE_FORMAT_TOTAL_UNKNOWN, start, end);
 }
 
 #ifdef HAS_WEB_SERVER

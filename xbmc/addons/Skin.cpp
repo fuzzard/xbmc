@@ -136,7 +136,7 @@ bool CSkinSettingBool::Deserialize(const TiXmlElement* element)
     return false;
 
   if (element->FirstChild() != nullptr)
-    value = StringUtils::EqualsNoCase(element->FirstChild()->ValueStr(), "true");
+    value = KODI::StringUtils::EqualsNoCase(element->FirstChild()->ValueStr(), "true");
 
   return true;
 }
@@ -176,7 +176,7 @@ CSkinInfo::CSkinInfo(const AddonInfoPtr& addonInfo) : CAddon(addonInfo, AddonTyp
     std::string strAspect = values.second.GetValue("res@aspect").asString();
     float aspect = 0;
 
-    std::vector<std::string> fracs = StringUtils::Split(strAspect, ':');
+    std::vector<std::string> fracs = KODI::StringUtils::Split(strAspect, ':');
     if (fracs.size() == 2)
       aspect = (float)(atof(fracs[0].c_str()) / atof(fracs[1].c_str()));
     if (width > 0 && height > 0)
@@ -352,7 +352,7 @@ void CSkinInfo::GetSkinPaths(std::vector<std::string> &paths) const
 
 bool CSkinInfo::TranslateResolution(const std::string &name, RESOLUTION_INFO &res)
 {
-  std::string lower(name); StringUtils::ToLower(lower);
+  std::string lower(name); KODI::StringUtils::ToLower(lower);
   if (lower == "pal")
     res = RESOLUTION_INFO(720, 576, 4.0f/3, "pal");
   else if (lower == "pal16x9")
@@ -475,19 +475,19 @@ void CSkinInfo::SettingOptionsSkinColorsFiller(const SettingConstPtr& setting,
   for (int i = 0; i < items.Size(); ++i)
   {
     CFileItemPtr pItem = items[i];
-    if (!pItem->m_bIsFolder && !StringUtils::EqualsNoCase(pItem->GetLabel(), "defaults.xml"))
+    if (!pItem->m_bIsFolder && !KODI::StringUtils::EqualsNoCase(pItem->GetLabel(), "defaults.xml"))
     { // not the default one
       vecColors.push_back(pItem->GetLabel().substr(0, pItem->GetLabel().size() - 4));
     }
   }
-  sort(vecColors.begin(), vecColors.end(), sortstringbyname());
+  sort(vecColors.begin(), vecColors.end(), KODI::sortstringbyname());
   for (int i = 0; i < (int) vecColors.size(); ++i)
     list.emplace_back(vecColors[i], vecColors[i]);
 
   // try to find the best matching value
   for (const auto& elem : list)
   {
-    if (StringUtils::EqualsNoCase(elem.value, settingValue))
+    if (KODI::StringUtils::EqualsNoCase(elem.value, settingValue))
       current = settingValue;
   }
 }
@@ -518,7 +518,7 @@ void GetFontsetsFromFile(const std::string& fontsetFilePath,
           else
             list.emplace_back(idAttr, idAttr);
 
-          if (StringUtils::EqualsNoCase(idAttr, settingValue))
+          if (KODI::StringUtils::EqualsNoCase(idAttr, settingValue))
             *currentValueSet = true;
         }
         fontsetElement = fontsetElement->NextSiblingElement("fontset");
@@ -590,7 +590,7 @@ void CSkinInfo::SettingOptionsSkinThemesFiller(const SettingConstPtr& setting,
   // try to find the best matching value
   for (const auto& elem : list)
   {
-    if (StringUtils::EqualsNoCase(elem.value, settingValue))
+    if (KODI::StringUtils::EqualsNoCase(elem.value, settingValue))
       current = settingValue;
   }
 }
@@ -611,7 +611,7 @@ void CSkinInfo::SettingOptionsStartupWindowsFiller(const SettingConstPtr& settin
   for (std::vector<CStartupWindow>::const_iterator it = startupWindows.begin(); it != startupWindows.end(); ++it)
   {
     std::string windowName = it->m_name;
-    if (StringUtils::IsNaturalNumber(windowName))
+    if (KODI::StringUtils::IsNaturalNumber(windowName))
       windowName = g_localizeStrings.Get(atoi(windowName.c_str()));
     int windowID = it->m_id;
 
@@ -636,7 +636,7 @@ int CSkinInfo::TranslateString(const std::string &setting)
   // run through and see if we have this setting
   for (const auto& it : m_strings)
   {
-    if (StringUtils::EqualsNoCase(setting, it.second->name))
+    if (KODI::StringUtils::EqualsNoCase(setting, it.second->name))
       return it.first;
   }
 
@@ -668,7 +668,7 @@ const std::string& CSkinInfo::GetString(int setting) const
   if (it != m_strings.end())
     return it->second->value;
 
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 void CSkinInfo::SetString(int setting, const std::string &label)
@@ -690,7 +690,7 @@ int CSkinInfo::TranslateBool(const std::string &setting)
   // run through and see if we have this setting
   for (const auto& it : m_bools)
   {
-    if (StringUtils::EqualsNoCase(setting, it.second->name))
+    if (KODI::StringUtils::EqualsNoCase(setting, it.second->name))
       return it.first;
   }
 
@@ -762,7 +762,7 @@ void CSkinInfo::Reset(const std::string &setting)
   // run through and see if we have this setting as a string
   for (auto& it : m_strings)
   {
-    if (StringUtils::EqualsNoCase(setting, it.second->name))
+    if (KODI::StringUtils::EqualsNoCase(setting, it.second->name))
     {
       it.second->value.clear();
       m_settingsUpdateHandler->TriggerSave();
@@ -773,7 +773,7 @@ void CSkinInfo::Reset(const std::string &setting)
   // and now check for the skin bool
   for (auto& it : m_bools)
   {
-    if (StringUtils::EqualsNoCase(setting, it.second->name))
+    if (KODI::StringUtils::EqualsNoCase(setting, it.second->name))
     {
       it.second->value = false;
       m_settingsUpdateHandler->TriggerSave();

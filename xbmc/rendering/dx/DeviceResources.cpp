@@ -1426,7 +1426,7 @@ DEBUG_INFO_RENDER DX::DeviceResources::GetDebugInfo() const
 
   DEBUG_INFO_RENDER info;
 
-  info.renderFlags = StringUtils::Format(
+  info.renderFlags = KODI::StringUtils::Format(
       "Swapchain: {} buffers, flip {}, {}, EOTF: {} (Windows HDR {})", desc.BufferCount,
       (desc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD) ? "discard" : "sequential",
       Windowing()->IsFullScreen()
@@ -1435,7 +1435,7 @@ DEBUG_INFO_RENDER DX::DeviceResources::GetDebugInfo() const
           : "windowed screen",
       m_IsTransferPQ ? "PQ" : "SDR", m_IsHDROutput ? "on" : "off");
 
-  info.videoOutput = StringUtils::Format(
+  info.videoOutput = KODI::StringUtils::Format(
       "Surfaces: {}x{}{} @ {:.3f} Hz, pixel: {} {}-bit, range: {} ({}-{})", desc.Width, desc.Height,
       (md.ScanlineOrdering > DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE) ? "i" : "p",
       static_cast<double>(md.RefreshRate.Numerator) /

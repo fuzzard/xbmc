@@ -377,7 +377,7 @@ EVENT_RESULT GUIScrollBarControl::OnMouseEvent(const CPoint& point, const MOUSE:
 
 std::string GUIScrollBarControl::GetDescription() const
 {
-  return StringUtils::Format("{}/{}", m_offset, m_numItems);
+  return KODI::StringUtils::Format("{}/{}", m_offset, m_numItems);
 }
 
 bool GUIScrollBarControl::UpdateColors(const CGUIListItem* item)

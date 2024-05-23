@@ -561,8 +561,8 @@ bool CApplication::Initialize()
   const std::shared_ptr<CProfileManager> profileManager = CServiceBroker::GetSettingsComponent()->GetProfileManager();
 
   profileManager->GetEventLog().Add(EventPtr(new CNotificationEvent(
-      StringUtils::Format(g_localizeStrings.Get(177), g_sysinfo.GetAppName()),
-      StringUtils::Format(g_localizeStrings.Get(178), g_sysinfo.GetAppName()),
+      KODI::StringUtils::Format(g_localizeStrings.Get(177), g_sysinfo.GetAppName()),
+      KODI::StringUtils::Format(g_localizeStrings.Get(178), g_sysinfo.GetAppName()),
       "special://xbmc/media/icon256x256.png", EventLevel::Basic)));
 
   m_ServiceManager->GetNetwork().WaitForNet();
@@ -2385,7 +2385,7 @@ bool CApplication::PlayFile(CFileItem item,
         {
           CBookmark bookmark;
           std::string path = item.GetPath();
-          if (item.HasVideoInfoTag() && StringUtils::StartsWith(item.GetVideoInfoTag()->m_strFileNameAndPath, "removable://"))
+          if (item.HasVideoInfoTag() && KODI::StringUtils::StartsWith(item.GetVideoInfoTag()->m_strFileNameAndPath, "removable://"))
             path = item.GetVideoInfoTag()->m_strFileNameAndPath;
           else if (item.HasProperty("original_listitem_url") && URIUtils::IsPlugin(item.GetProperty("original_listitem_url").asString()))
             path = item.GetProperty("original_listitem_url").asString();
@@ -2673,8 +2673,8 @@ bool CApplication::OnMessage(CGUIMessage& message)
           }
 
           // migration (incompatible addons) dialog
-          auto addonList = StringUtils::Join(disabledAddonNames, ", ");
-          auto msg = StringUtils::Format(g_localizeStrings.Get(24149), addonList);
+          auto addonList = KODI::StringUtils::Join(disabledAddonNames, ", ");
+          auto msg = KODI::StringUtils::Format(g_localizeStrings.Get(24149), addonList);
           HELPERS::ShowOKDialogText(CVariant{24148}, CVariant{std::move(msg)});
           m_incompatibleAddons.clear();
         }
@@ -3682,7 +3682,7 @@ void CApplication::PrintStartupLog()
 
 #ifdef HAS_WEB_SERVER
   CLog::Log(LOGINFO, "Webserver extra whitelist paths: {}",
-            StringUtils::Join(CCompileInfo::GetWebserverExtraWhitelist(), ", "));
+            KODI::StringUtils::Join(CCompileInfo::GetWebserverExtraWhitelist(), ", "));
 #endif
 
   // Check, whether libkodi.so was reused (happens on Android, where the system does not unload
@@ -3699,7 +3699,7 @@ void CApplication::PrintStartupLog()
   m_ServiceManager->GetNetwork().GetHostName(hostname);
   CLog::Log(LOGINFO, "Local hostname: {}", hostname);
   std::string lowerAppName = CCompileInfo::GetAppName();
-  StringUtils::ToLower(lowerAppName);
+  KODI::StringUtils::ToLower(lowerAppName);
   CLog::Log(LOGINFO, "Log File is located: {}.log",
             CSpecialProtocol::TranslatePath("special://logpath/" + lowerAppName));
   CRegExp::LogCheckUtf8Support();

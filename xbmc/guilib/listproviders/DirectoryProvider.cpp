@@ -487,7 +487,7 @@ protected:
   bool OnPlayPartSelected(unsigned int part) override
   {
     // part numbers are 1-based
-    ExecuteAction({"PlayMedia", *m_item, StringUtils::Format("playoffset={}", part - 1)});
+    ExecuteAction({"PlayMedia", *m_item, KODI::StringUtils::Format("playoffset={}", part - 1)});
     return true;
   }
 
@@ -700,11 +700,11 @@ bool CDirectoryProvider::UpdateBrowse()
   std::unique_lock<CCriticalSection> lock(m_section);
   const std::string stringValue{m_browse.GetLabel(m_parentID, false)};
   BrowseMode value{m_currentBrowse};
-  if (StringUtils::EqualsNoCase(stringValue, "always"))
+  if (KODI::StringUtils::EqualsNoCase(stringValue, "always"))
     value = BrowseMode::ALWAYS;
-  else if (StringUtils::EqualsNoCase(stringValue, "auto"))
+  else if (KODI::StringUtils::EqualsNoCase(stringValue, "auto"))
     value = BrowseMode::AUTO;
-  else if (StringUtils::EqualsNoCase(stringValue, "never"))
+  else if (KODI::StringUtils::EqualsNoCase(stringValue, "never"))
     value = BrowseMode::NEVER;
 
   if (value == m_currentBrowse)

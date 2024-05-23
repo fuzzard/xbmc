@@ -57,7 +57,7 @@ bool CDisplayInfo::IsValid() const
     CLog::Log(LOGERROR, "[display-info] Error parsing EDID:");
     CLog::Log(LOGERROR, "[display-info] ----------------------------------------------");
 
-    std::vector<std::string> lines = StringUtils::Split(error, "\n");
+    std::vector<std::string> lines = KODI::StringUtils::Split(error, "\n");
 
     for (const auto& line : lines)
     {

@@ -266,7 +266,7 @@ void CAsyncGetItemsForPlaylist::GetItemsForPlaylist(const std::shared_ptr<CFileI
       {
         std::string path = i->GetPath();
         URIUtils::RemoveSlashAtEnd(path);
-        if (StringUtils::EndsWithNoCase(path, "sample")) // skip sample folders
+        if (KODI::StringUtils::EndsWithNoCase(path, "sample")) // skip sample folders
           continue;
       }
       else
@@ -519,7 +519,7 @@ bool IsItemPlayable(const CFileItem& item)
     return true;
 
   // Exclude all music library items
-  if (MUSIC::IsMusicDb(item) || StringUtils::StartsWithNoCase(item.GetPath(), "library://music/"))
+  if (MUSIC::IsMusicDb(item) || KODI::StringUtils::StartsWithNoCase(item.GetPath(), "library://music/"))
     return false;
 
   // Exclude other components
@@ -527,28 +527,28 @@ bool IsItemPlayable(const CFileItem& item)
     return false;
 
   // Exclude special items
-  if (StringUtils::StartsWithNoCase(item.GetPath(), "newsmartplaylist://") ||
-      StringUtils::StartsWithNoCase(item.GetPath(), "newplaylist://") ||
-      StringUtils::StartsWithNoCase(item.GetPath(), "newtag://"))
+  if (KODI::StringUtils::StartsWithNoCase(item.GetPath(), "newsmartplaylist://") ||
+      KODI::StringUtils::StartsWithNoCase(item.GetPath(), "newplaylist://") ||
+      KODI::StringUtils::StartsWithNoCase(item.GetPath(), "newtag://"))
     return false;
 
   // Include playlists located at one of the possible video/mixed playlist locations
   if (item.IsPlayList())
   {
-    if (StringUtils::StartsWithNoCase(item.GetMimeType(), "video/"))
+    if (KODI::StringUtils::StartsWithNoCase(item.GetMimeType(), "video/"))
       return true;
 
-    if (StringUtils::StartsWithNoCase(item.GetPath(), "special://videoplaylists/") ||
-        StringUtils::StartsWithNoCase(item.GetPath(), "special://profile/playlists/video/") ||
-        StringUtils::StartsWithNoCase(item.GetPath(), "special://profile/playlists/mixed/"))
+    if (KODI::StringUtils::StartsWithNoCase(item.GetPath(), "special://videoplaylists/") ||
+        KODI::StringUtils::StartsWithNoCase(item.GetPath(), "special://profile/playlists/video/") ||
+        KODI::StringUtils::StartsWithNoCase(item.GetPath(), "special://profile/playlists/mixed/"))
       return true;
 
     // Has user changed default playlists location and the list is located there?
     const auto settings = CServiceBroker::GetSettingsComponent()->GetSettings();
     std::string path = settings->GetString(CSettings::SETTING_SYSTEM_PLAYLISTSPATH);
-    StringUtils::TrimRight(path, "/");
-    if (StringUtils::StartsWith(item.GetPath(), StringUtils::Format("{}/video/", path)) ||
-        StringUtils::StartsWith(item.GetPath(), StringUtils::Format("{}/mixed/", path)))
+    KODI::StringUtils::TrimRight(path, "/");
+    if (KODI::StringUtils::StartsWith(item.GetPath(), KODI::StringUtils::Format("{}/video/", path)) ||
+        KODI::StringUtils::StartsWith(item.GetPath(), KODI::StringUtils::Format("{}/mixed/", path)))
       return true;
 
     if (!item.m_bIsFolder && !item.HasVideoInfoTag())
@@ -562,7 +562,7 @@ bool IsItemPlayable(const CFileItem& item)
     return false;
 
   if (item.m_bIsFolder &&
-      (IsVideoDb(item) || StringUtils::StartsWithNoCase(item.GetPath(), "library://video/")))
+      (IsVideoDb(item) || KODI::StringUtils::StartsWithNoCase(item.GetPath(), "library://video/")))
   {
     // Exclude top level nodes - eg can't play 'genres' just a specific genre etc
     const XFILE::VIDEODATABASEDIRECTORY::NODE_TYPE node =
@@ -602,15 +602,15 @@ std::string GetResumeString(const CFileItem& item)
   {
     if (resumeInfo.startOffset > 0)
     {
-      std::string resumeString = StringUtils::Format(
+      std::string resumeString = KODI::StringUtils::Format(
           g_localizeStrings.Get(12022),
-          StringUtils::SecondsToTimeString(
+          KODI::StringUtils::SecondsToTimeString(
               static_cast<long>(CUtil::ConvertMilliSecsToSecsInt(resumeInfo.startOffset)),
               TIME_FORMAT_HH_MM_SS));
       if (resumeInfo.partNumber > 0)
       {
         const std::string partString =
-            StringUtils::Format(g_localizeStrings.Get(23051), resumeInfo.partNumber);
+            KODI::StringUtils::Format(g_localizeStrings.Get(23051), resumeInfo.partNumber);
         resumeString += " (" + partString + ")";
       }
       return resumeString;

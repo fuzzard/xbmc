@@ -567,7 +567,7 @@ void CPlayListPlayer::SetShuffle(Id playlistId, bool bYesNo, bool bNotify /* = f
     if (bNotify)
     {
       std::string shuffleStr =
-          StringUtils::Format("{}: {}", g_localizeStrings.Get(191),
+          KODI::StringUtils::Format("{}: {}", g_localizeStrings.Get(191),
                               g_localizeStrings.Get(bYesNo ? 593 : 591)); // Shuffle: All/Off
       CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(559),  shuffleStr);
     }

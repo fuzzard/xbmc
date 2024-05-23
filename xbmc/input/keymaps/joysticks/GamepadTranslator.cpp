@@ -22,7 +22,7 @@ uint32_t CGamepadTranslator::TranslateString(std::string strButton)
   if (strButton.empty())
     return 0;
 
-  StringUtils::ToLower(strButton);
+  KODI::StringUtils::ToLower(strButton);
 
   uint32_t buttonCode = 0;
   if (strButton == "a")

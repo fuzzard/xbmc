@@ -45,7 +45,7 @@ void CGUIColorManager::Load(const std::string &colorFile)
     LoadXML(xmlDoc);
 
   // now the color map requested
-  if (StringUtils::EqualsNoCase(colorFile, "SKINDEFAULT"))
+  if (KODI::StringUtils::EqualsNoCase(colorFile, "SKINDEFAULT"))
     return; // nothing to do
 
   path = URIUtils::AddFileToFolder(g_SkinInfo->Path(), "colors", colorFile);
@@ -93,7 +93,7 @@ UTILS::COLOR::Color CGUIColorManager::GetColor(const std::string& color) const
 {
   // look in our color map
   std::string trimmed(color);
-  StringUtils::TrimLeft(trimmed, "= ");
+  KODI::StringUtils::TrimLeft(trimmed, "= ");
   const auto it = m_colors.find(trimmed);
   if (it != m_colors.end())
     return (*it).second;

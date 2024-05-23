@@ -161,19 +161,19 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
   {
   case 'N':
     if (music && music->GetTrackNumber() > 0)
-      value = StringUtils::Format("{:02}", music->GetTrackNumber());
+      value = KODI::StringUtils::Format("{:02}", music->GetTrackNumber());
     if (movie&& movie->m_iTrack > 0)
-      value = StringUtils::Format("{:02}", movie->m_iTrack);
+      value = KODI::StringUtils::Format("{:02}", movie->m_iTrack);
     break;
   case 'S':
     if (music && music->GetDiscNumber() > 0)
-      value = StringUtils::Format("{:02}", music->GetDiscNumber());
+      value = KODI::StringUtils::Format("{:02}", music->GetDiscNumber());
     break;
   case 'A':
     if (music && music->GetArtistString().size())
       value = music->GetArtistString();
     if (movie && movie->m_artist.size())
-      value = StringUtils::Join(movie->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+      value = KODI::StringUtils::Join(movie->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
     break;
   case 'T':
     if (music && music->GetTitle().size())
@@ -193,9 +193,9 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
     break;
   case 'G':
     if (music && music->GetGenre().size())
-      value = StringUtils::Join(music->GetGenre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+      value = KODI::StringUtils::Join(music->GetGenre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
     if (movie && movie->m_genre.size())
-      value = StringUtils::Join(movie->m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+      value = KODI::StringUtils::Join(movie->m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
     break;
   case 'Y':
     if (music)
@@ -227,14 +227,14 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
       if (movie)
         nDuration = movie->GetDuration();
       if (nDuration > 0)
-        value = StringUtils::SecondsToTimeString(nDuration, (nDuration >= 3600) ? TIME_FORMAT_H_MM_SS : TIME_FORMAT_MM_SS);
+        value = KODI::StringUtils::SecondsToTimeString(nDuration, (nDuration >= 3600) ? TIME_FORMAT_H_MM_SS : TIME_FORMAT_MM_SS);
       else if (item->m_dwSize > 0)
-        value = StringUtils::SizeToString(item->m_dwSize);
+        value = KODI::StringUtils::SizeToString(item->m_dwSize);
     }
     break;
   case 'I': // size
     if( (item->m_bIsFolder && item->m_dwSize != 0) || item->m_dwSize >= 0 )
-      value = StringUtils::SizeToString(item->m_dwSize);
+      value = KODI::StringUtils::SizeToString(item->m_dwSize);
     break;
   case 'J': // date
     if (item->m_dateTime.IsValid())
@@ -246,9 +246,9 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
     break;
   case 'R': // rating
     if (music && music->GetRating() != 0.f)
-      value = StringUtils::Format("{:.1f}", music->GetRating());
+      value = KODI::StringUtils::Format("{:.1f}", music->GetRating());
     else if (movie && movie->GetRating().rating != 0.f)
-      value = StringUtils::Format("{:.1f}", movie->GetRating().rating);
+      value = KODI::StringUtils::Format("{:.1f}", movie->GetRating().rating);
     break;
   case 'C': // programs count
     value = std::to_string(item->m_iprogramCount);
@@ -261,16 +261,16 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
     break;
   case 'M':
     if (movie && movie->m_iEpisode > 0)
-      value = StringUtils::Format("{} {}", movie->m_iEpisode,
+      value = KODI::StringUtils::Format("{} {}", movie->m_iEpisode,
                                   g_localizeStrings.Get(movie->m_iEpisode == 1 ? 20452 : 20453));
     break;
   case 'E':
     if (movie && movie->m_iEpisode > 0)
     { // episode number
       if (movie->m_iSeason == 0)
-        value = StringUtils::Format("S{:02}", movie->m_iEpisode);
+        value = KODI::StringUtils::Format("S{:02}", movie->m_iEpisode);
       else
-        value = StringUtils::Format("{:02}", movie->m_iEpisode);
+        value = KODI::StringUtils::Format("{:02}", movie->m_iEpisode);
     }
     break;
   case 'P':
@@ -281,9 +281,9 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
     if (movie && movie->m_iEpisode > 0)
     { // season*100+episode number
       if (movie->m_iSeason == 0)
-        value = StringUtils::Format("S{:02}", movie->m_iEpisode);
+        value = KODI::StringUtils::Format("S{:02}", movie->m_iEpisode);
       else
-        value = StringUtils::Format("{}x{:02}", movie->m_iSeason, movie->m_iEpisode);
+        value = KODI::StringUtils::Format("{}x{:02}", movie->m_iSeason, movie->m_iEpisode);
     }
     break;
   case 'O':
@@ -295,7 +295,7 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
   case 'U':
     if (movie && !movie->m_studio.empty())
     {// Studios
-      value = StringUtils::Join(movie ->m_studio, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+      value = KODI::StringUtils::Join(movie ->m_studio, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
     }
     break;
   case 'V': // Playcount
@@ -306,12 +306,12 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
     break;
   case 'X': // Bitrate
     if( !item->m_bIsFolder && item->m_dwSize != 0 )
-      value = StringUtils::Format("{} kbps", item->m_dwSize);
+      value = KODI::StringUtils::Format("{} kbps", item->m_dwSize);
     break;
    case 'W': // Listeners
     if( !item->m_bIsFolder && music && music->GetListeners() != 0 )
       value =
-          StringUtils::Format("{} {}", music->GetListeners(),
+          KODI::StringUtils::Format("{} {}", music->GetListeners(),
                               g_localizeStrings.Get(music->GetListeners() == 1 ? 20454 : 20455));
     break;
   case 'a': // Date Added
@@ -329,7 +329,7 @@ std::string CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFile
     {
       value = music->GetOriginalDate();
       if (!CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bMusicLibraryUseISODates)
-        value = StringUtils::ISODateToLocalizedDate(value);
+        value = KODI::StringUtils::ISODateToLocalizedDate(value);
     }
     break;
   case 'd': // date and time
@@ -463,7 +463,7 @@ void CLabelFormatter::FillMusicMaskContent(const char mask, const std::string &v
     tag->SetYear(atol(value.c_str()));
     break;
   case 'D':
-    tag->SetDuration(StringUtils::TimeStringToSeconds(value));
+    tag->SetDuration(KODI::StringUtils::TimeStringToSeconds(value));
     break;
   case 'R': // rating
     tag->SetRating(value[0]);

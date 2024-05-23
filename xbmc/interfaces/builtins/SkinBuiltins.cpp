@@ -43,7 +43,7 @@ static int ReloadSkin(const std::vector<std::string>& params)
   //  Reload the skin
   auto& components = CServiceBroker::GetAppComponents();
   const auto appSkin = components.GetComponent<CApplicationSkinHandling>();
-  appSkin->ReloadSkin(!params.empty() && StringUtils::EqualsNoCase(params[0], "confirm"));
+  appSkin->ReloadSkin(!params.empty() && KODI::StringUtils::EqualsNoCase(params[0], "confirm"));
 
   return 0;
 }
@@ -118,7 +118,7 @@ static int SelectBool(const std::vector<std::string>& params)
   {
     if (params[i].find('|') != std::string::npos)
     {
-      std::vector<std::string> values = StringUtils::Split(params[i], '|');
+      std::vector<std::string> values = KODI::StringUtils::Split(params[i], '|');
       std::string label = g_localizeStrings.Get(atoi(values[0].c_str()));
       settings.emplace_back(label, values[1].c_str());
       pDlgSelect->Add(label);
@@ -156,7 +156,7 @@ static int SetBool(const std::vector<std::string>& params)
   if (params.size() > 1)
   {
     int string = CSkinSettings::GetInstance().TranslateBool(params[0]);
-    CSkinSettings::GetInstance().SetBool(string, StringUtils::EqualsNoCase(params[1], "true"));
+    CSkinSettings::GetInstance().SetBool(string, KODI::StringUtils::EqualsNoCase(params[1], "true"));
     CServiceBroker::GetSettingsComponent()->GetSettings()->Save();
     return 0;
   }
@@ -234,7 +234,7 @@ static int SetFile(const std::vector<std::string>& params)
   // if browsing for addons, required param[1] is addontype string, with optional param[2]
   // as contenttype string see IAddon.h & ADDON::TranslateXX
   std::string strMask = (params.size() > 1) ? params[1] : "";
-  StringUtils::ToLower(strMask);
+  KODI::StringUtils::ToLower(strMask);
   ADDON::AddonType type;
   if ((type = CAddonInfo::TranslateType(strMask)) != AddonType::UNKNOWN)
   {
@@ -244,7 +244,7 @@ static int SetFile(const std::vector<std::string>& params)
     url.SetFileName(strMask+"/");
     localShares.clear();
     std::string content = (params.size() > 2) ? params[2] : "";
-    StringUtils::ToLower(content);
+    KODI::StringUtils::ToLower(content);
     url.SetPassword(content);
     std::string strMask;
     if (type == AddonType::SCRIPT)
@@ -252,7 +252,7 @@ static int SetFile(const std::vector<std::string>& params)
     std::string replace;
     if (CGUIDialogFileBrowser::ShowAndGetFile(url.Get(), strMask, CAddonInfo::TranslateType(type, true), replace, true, true, true))
     {
-      if (StringUtils::StartsWithNoCase(replace, "addons://"))
+      if (KODI::StringUtils::StartsWithNoCase(replace, "addons://"))
         CSkinSettings::GetInstance().SetString(string, URIUtils::GetFileName(replace));
       else
         CSkinSettings::GetInstance().SetString(string, replace);
@@ -396,13 +396,13 @@ static int SetTheme(const std::vector<std::string>& params)
   // find current theme
   const std::shared_ptr<CSettings> settings = CServiceBroker::GetSettingsComponent()->GetSettings();
   const std::string strTheme = settings->GetString(CSettings::SETTING_LOOKANDFEEL_SKINTHEME);
-  if (!StringUtils::EqualsNoCase(strTheme, "SKINDEFAULT"))
+  if (!KODI::StringUtils::EqualsNoCase(strTheme, "SKINDEFAULT"))
   {
     for (size_t i=0;i<vecTheme.size();++i)
     {
       std::string strTmpTheme(strTheme);
       URIUtils::RemoveExtension(strTmpTheme);
-      if (StringUtils::EqualsNoCase(vecTheme[i], strTmpTheme))
+      if (KODI::StringUtils::EqualsNoCase(vecTheme[i], strTmpTheme))
       {
         iTheme=i;
         break;

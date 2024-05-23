@@ -302,7 +302,7 @@ void CGUIWindowFullScreen::FrameMove()
       const auto& vs = appPlayer->GetVideoSettings();
       int sId = CViewModeSettings::GetViewModeStringIndex(vs.m_ViewMode);
       const std::string& strMode = g_localizeStrings.Get(sId);
-      std::string strInfo = StringUtils::Format("{} : {}", strTitle, strMode);
+      std::string strInfo = KODI::StringUtils::Format("{} : {}", strTitle, strMode);
       CGUIMessage msg(GUI_MSG_LABEL_SET, GetID(), LABEL_ROW1);
       msg.SetLabel(strInfo);
       OnMessage(msg);
@@ -315,7 +315,7 @@ void CGUIWindowFullScreen::FrameMove()
       float xscale = (float)res.iScreenWidth  / (float)res.iWidth;
       float yscale = (float)res.iScreenHeight / (float)res.iHeight;
 
-      std::string strSizing = StringUtils::Format(
+      std::string strSizing = KODI::StringUtils::Format(
           g_localizeStrings.Get(245), (int)info.SrcRect.Width(), (int)info.SrcRect.Height(),
           (int)(info.DestRect.Width() * xscale), (int)(info.DestRect.Height() * yscale),
           CDisplaySettings::GetInstance().GetZoomAmount(),
@@ -330,12 +330,12 @@ void CGUIWindowFullScreen::FrameMove()
     {
       std::string strStatus;
       if (CServiceBroker::GetWinSystem()->IsFullScreen())
-        strStatus = StringUtils::Format("{} {}x{}@{:.2f}Hz - {}", g_localizeStrings.Get(13287),
+        strStatus = KODI::StringUtils::Format("{} {}x{}@{:.2f}Hz - {}", g_localizeStrings.Get(13287),
                                         res.iScreenWidth, res.iScreenHeight, res.fRefreshRate,
                                         g_localizeStrings.Get(244));
       else
         strStatus =
-            StringUtils::Format("{} {}x{} - {}", g_localizeStrings.Get(13287), res.iScreenWidth,
+            KODI::StringUtils::Format("{} {}x{} - {}", g_localizeStrings.Get(13287), res.iScreenWidth,
                                 res.iScreenHeight, g_localizeStrings.Get(242));
 
       CGUIMessage msg(GUI_MSG_LABEL_SET, GetID(), LABEL_ROW3);

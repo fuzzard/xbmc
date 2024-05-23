@@ -34,7 +34,7 @@ bool CDAVCommon::ValueWithoutNamespace(const tinyxml2::XMLNode* node, const std:
     return false;
   }
 
-  std::vector<std::string> tag = StringUtils::Split(element->Value(), ":", 2);
+  std::vector<std::string> tag = KODI::StringUtils::Split(element->Value(), ":", 2);
 
   if (tag.size() == 1 && tag[0] == value)
   {

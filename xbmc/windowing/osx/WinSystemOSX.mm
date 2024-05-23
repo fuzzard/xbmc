@@ -252,7 +252,7 @@ std::string ComputeVideoModeId(
     size_t resWidth, size_t resHeight, size_t pixelWidth, size_t pixelHeight, bool interlaced)
 {
   const char* interlacedDesc = interlaced ? "i" : "p";
-  return StringUtils::Format("{}x{}{}({}x{})", resWidth, resHeight, interlacedDesc, pixelWidth,
+  return KODI::StringUtils::Format("{}x{}{}({}x{})", resWidth, resHeight, interlacedDesc, pixelWidth,
                              pixelHeight);
 }
 

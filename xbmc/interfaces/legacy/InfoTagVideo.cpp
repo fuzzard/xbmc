@@ -137,7 +137,7 @@ namespace XBMCAddon
 
     String InfoTagVideo::getDirector()
     {
-      return StringUtils::Join(infoTag->m_director, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+      return KODI::StringUtils::Join(infoTag->m_director, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
     }
 
     std::vector<String> InfoTagVideo::getDirectors()
@@ -147,7 +147,7 @@ namespace XBMCAddon
 
     String InfoTagVideo::getWritingCredits()
     {
-      return StringUtils::Join(infoTag->m_writingCredits, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+      return KODI::StringUtils::Join(infoTag->m_writingCredits, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
     }
 
     std::vector<String> InfoTagVideo::getWriters()
@@ -157,7 +157,7 @@ namespace XBMCAddon
 
     String InfoTagVideo::getGenre()
     {
-      return StringUtils::Join(infoTag->m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+      return KODI::StringUtils::Join(infoTag->m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
     }
 
     std::vector<String> InfoTagVideo::getGenres()

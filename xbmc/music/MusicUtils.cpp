@@ -361,7 +361,7 @@ int ShowSelectRatingDialog(int iSelected)
     dialog->SetHeading(CVariant{38023});
     dialog->Add(g_localizeStrings.Get(38022));
     for (int i = 1; i <= 10; i++)
-      dialog->Add(StringUtils::Format("{}: {}", g_localizeStrings.Get(563), i));
+      dialog->Add(KODI::StringUtils::Format("{}: {}", g_localizeStrings.Get(563), i));
     dialog->SetSelected(iSelected);
     dialog->Open();
 
@@ -418,7 +418,7 @@ bool IsValidArtType(const std::string& potentialArtType)
   // Check length and is ascii
   return potentialArtType.length() <= 25 &&
          std::find_if_not(potentialArtType.begin(), potentialArtType.end(),
-                          StringUtils::isasciialphanum) == potentialArtType.end();
+                          KODI::StringUtils::isasciialphanum) == potentialArtType.end();
 }
 
 } // namespace MUSIC_UTILS
@@ -879,7 +879,7 @@ bool IsItemPlayable(const CFileItem& item)
     return false;
 
   // Exclude all video library items
-  if (IsVideoDb(item) || StringUtils::StartsWithNoCase(item.GetPath(), "library://video/"))
+  if (IsVideoDb(item) || KODI::StringUtils::StartsWithNoCase(item.GetPath(), "library://video/"))
     return false;
 
   // Exclude other components
@@ -887,25 +887,25 @@ bool IsItemPlayable(const CFileItem& item)
     return false;
 
   // Exclude special items
-  if (StringUtils::StartsWithNoCase(item.GetPath(), "newsmartplaylist://") ||
-      StringUtils::StartsWithNoCase(item.GetPath(), "newplaylist://"))
+  if (KODI::StringUtils::StartsWithNoCase(item.GetPath(), "newsmartplaylist://") ||
+      KODI::StringUtils::StartsWithNoCase(item.GetPath(), "newplaylist://"))
     return false;
 
   // Include playlists located at one of the possible music playlist locations
   if (item.IsPlayList())
   {
-    if (StringUtils::StartsWithNoCase(item.GetMimeType(), "audio/"))
+    if (KODI::StringUtils::StartsWithNoCase(item.GetMimeType(), "audio/"))
       return true;
 
-    if (StringUtils::StartsWithNoCase(item.GetPath(), "special://musicplaylists/") ||
-        StringUtils::StartsWithNoCase(item.GetPath(), "special://profile/playlists/music/"))
+    if (KODI::StringUtils::StartsWithNoCase(item.GetPath(), "special://musicplaylists/") ||
+        KODI::StringUtils::StartsWithNoCase(item.GetPath(), "special://profile/playlists/music/"))
       return true;
 
     // Has user changed default playlists location and the list is located there?
     const auto settings = CServiceBroker::GetSettingsComponent()->GetSettings();
     std::string path = settings->GetString(CSettings::SETTING_SYSTEM_PLAYLISTSPATH);
-    StringUtils::TrimRight(path, "/");
-    if (StringUtils::StartsWith(item.GetPath(), StringUtils::Format("{}/music/", path)))
+    KODI::StringUtils::TrimRight(path, "/");
+    if (KODI::StringUtils::StartsWith(item.GetPath(), KODI::StringUtils::Format("{}/music/", path)))
       return true;
 
     if (!item.m_bIsFolder && !item.HasMusicInfoTag())
@@ -919,7 +919,7 @@ bool IsItemPlayable(const CFileItem& item)
     return false;
 
   if (item.m_bIsFolder &&
-      (MUSIC::IsMusicDb(item) || StringUtils::StartsWithNoCase(item.GetPath(), "library://music/")))
+      (MUSIC::IsMusicDb(item) || KODI::StringUtils::StartsWithNoCase(item.GetPath(), "library://music/")))
   {
     // Exclude top level nodes - eg can't play 'genres' just a specific genre etc
     const XFILE::MUSICDATABASEDIRECTORY::NODE_TYPE node =

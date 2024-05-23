@@ -73,8 +73,8 @@ int CScriptRunner::ExecuteScript(const ADDON::AddonPtr& addon,
 
   // setup our parameters to send the script
   std::vector<std::string> argv = {url.Get(), // base path
-                                   StringUtils::Format("{:d}", handle), options,
-                                   StringUtils::Format("resume:{}", resume)};
+                                   KODI::StringUtils::Format("{:d}", handle), options,
+                                   KODI::StringUtils::Format("resume:{}", resume)};
 
   bool reuseLanguageInvoker = false;
   const auto reuseLanguageInvokerIt = addon->ExtraInfo().find("reuselanguageinvoker");

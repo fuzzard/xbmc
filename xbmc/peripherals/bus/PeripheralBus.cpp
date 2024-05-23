@@ -315,10 +315,10 @@ void CPeripheralBus::GetDirectory(const std::string& strPath, CFileItemList& ite
     if (strVersion.empty())
       strVersion = g_localizeStrings.Get(13205);
 
-    std::string strDetails = StringUtils::Format("{} {}", g_localizeStrings.Get(24051), strVersion);
+    std::string strDetails = KODI::StringUtils::Format("{} {}", g_localizeStrings.Get(24051), strVersion);
     if (peripheral->GetBusType() == PERIPHERAL_BUS_CEC && !peripheral->GetSettingBool("enabled"))
       strDetails =
-          StringUtils::Format("{}: {}", g_localizeStrings.Get(126), g_localizeStrings.Get(13106));
+          KODI::StringUtils::Format("{}: {}", g_localizeStrings.Get(126), g_localizeStrings.Get(13106));
 
     peripheralFile->SetProperty("version", strVersion);
     peripheralFile->SetLabel2(strDetails);
@@ -335,7 +335,7 @@ PeripheralPtr CPeripheralBus::GetByPath(const std::string& strPath) const
   std::unique_lock<CCriticalSection> lock(m_critSection);
   for (auto& peripheral : m_peripherals)
   {
-    if (StringUtils::EqualsNoCase(strPath, peripheral->FileLocation()))
+    if (KODI::StringUtils::EqualsNoCase(strPath, peripheral->FileLocation()))
     {
       result = peripheral;
       break;

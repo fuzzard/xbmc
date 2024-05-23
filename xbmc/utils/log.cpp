@@ -102,7 +102,7 @@ void CLog::Initialize(const std::string& path)
 
   // put together the path to the log file(s)
   std::string appName = CCompileInfo::GetAppName();
-  StringUtils::ToLower(appName);
+  KODI::StringUtils::ToLower(appName);
   const std::string filePathBase = URIUtils::AddFileToFolder(path, appName);
   const std::string filePath = filePathBase + LogFileExtension;
   const std::string oldFilePath = filePathBase + ".old" + LogFileExtension;
@@ -297,5 +297,5 @@ void CLog::SetComponentLogLevel(const std::vector<CVariant>& components)
 
 void CLog::FormatLineBreaks(std::string& message)
 {
-  StringUtils::Replace(message, "\n", "\n                                                   ");
+  KODI::StringUtils::Replace(message, "\n", "\n                                                   ");
 }

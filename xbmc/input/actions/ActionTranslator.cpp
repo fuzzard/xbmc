@@ -298,7 +298,7 @@ bool CActionTranslator::TranslateString(std::string strAction, unsigned int& act
   if (strAction.empty())
     return false;
 
-  StringUtils::ToLower(strAction);
+  KODI::StringUtils::ToLower(strAction);
 
   auto it = ActionMappings.find(strAction);
   if (it != ActionMappings.end())

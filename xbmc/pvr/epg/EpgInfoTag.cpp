@@ -32,7 +32,7 @@ const std::string CPVREpgInfoTag::IMAGE_OWNER_PATTERN = "epgtag_{}";
 
 CPVREpgInfoTag::CPVREpgInfoTag(int iEpgID, const std::string& iconPath)
   : m_iUniqueBroadcastID(EPG_TAG_INVALID_UID),
-    m_iconPath(iconPath, StringUtils::Format(IMAGE_OWNER_PATTERN, iEpgID)),
+    m_iconPath(iconPath, KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, iEpgID)),
     m_iFlags(EPG_TAG_FLAG_UNDEFINED),
     m_channelData(new CPVREpgChannelData),
     m_iEpgID(iEpgID)
@@ -45,7 +45,7 @@ CPVREpgInfoTag::CPVREpgInfoTag(const std::shared_ptr<CPVREpgChannelData>& channe
                                const CDateTime& end,
                                bool bIsGapTag)
   : m_iUniqueBroadcastID(EPG_TAG_INVALID_UID),
-    m_iconPath(StringUtils::Format(IMAGE_OWNER_PATTERN, iEpgID)),
+    m_iconPath(KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, iEpgID)),
     m_iFlags(EPG_TAG_FLAG_UNDEFINED),
     m_bIsGapTag(bIsGapTag),
     m_iEpgID(iEpgID)
@@ -75,7 +75,7 @@ CPVREpgInfoTag::CPVREpgInfoTag(const EPG_TAG& data,
     m_iUniqueBroadcastID(data.iUniqueBroadcastId),
     m_iYear(data.iYear),
     m_iconPath(data.strIconPath ? data.strIconPath : "",
-               StringUtils::Format(IMAGE_OWNER_PATTERN, iEpgID)),
+               KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, iEpgID)),
     m_startTime(
         data.startTime +
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_iPVRTimeCorrection),
@@ -181,10 +181,10 @@ void CPVREpgInfoTag::Serialize(CVariant& value) const
   value["imdbnumber"] = m_strIMDBNumber;
   value["genre"] = Genre();
   value["filenameandpath"] = Path();
-  value["starttime"] = m_startTime.IsValid() ? m_startTime.GetAsDBDateTime() : StringUtils::Empty;
-  value["endtime"] = m_endTime.IsValid() ? m_endTime.GetAsDBDateTime() : StringUtils::Empty;
+  value["starttime"] = m_startTime.IsValid() ? m_startTime.GetAsDBDateTime() : KODI::StringUtils::Empty;
+  value["endtime"] = m_endTime.IsValid() ? m_endTime.GetAsDBDateTime() : KODI::StringUtils::Empty;
   value["runtime"] = GetDuration() / 60;
-  value["firstaired"] = m_firstAired.IsValid() ? m_firstAired.GetAsDBDate() : StringUtils::Empty;
+  value["firstaired"] = m_firstAired.IsValid() ? m_firstAired.GetAsDBDate() : KODI::StringUtils::Empty;
   value["progress"] = Progress();
   value["progresspercentage"] = ProgressPercentage();
   value["episodename"] = m_strEpisodeName;
@@ -363,28 +363,28 @@ const std::string CPVREpgInfoTag::GetCastLabel() const
   // Note: see CVideoInfoTag::GetCast for reference implementation.
   std::string strLabel;
   for (const auto& castEntry : m_cast)
-    strLabel += StringUtils::Format("{}\n", castEntry);
+    strLabel += KODI::StringUtils::Format("{}\n", castEntry);
 
-  return StringUtils::TrimRight(strLabel, "\n");
+  return KODI::StringUtils::TrimRight(strLabel, "\n");
 }
 
 const std::string CPVREpgInfoTag::GetDirectorsLabel() const
 {
-  return StringUtils::Join(
+  return KODI::StringUtils::Join(
       m_directors,
       CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
 }
 
 const std::string CPVREpgInfoTag::GetWritersLabel() const
 {
-  return StringUtils::Join(
+  return KODI::StringUtils::Join(
       m_writers,
       CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
 }
 
 const std::string CPVREpgInfoTag::GetGenresLabel() const
 {
-  return StringUtils::Join(
+  return KODI::StringUtils::Join(
       Genre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
 }
 
@@ -492,7 +492,7 @@ std::string CPVREpgInfoTag::ClientIconPath() const
 
 std::string CPVREpgInfoTag::Path() const
 {
-  return StringUtils::Format("pvr://guide/{:04}/{}.epg", EpgID(), m_startTime.GetAsDBDateTime());
+  return KODI::StringUtils::Format("pvr://guide/{:04}/{}.epg", EpgID(), m_startTime.GetAsDBDateTime());
 }
 
 bool CPVREpgInfoTag::Update(const CPVREpgInfoTag& tag, bool bUpdateBroadcastId /* = true */)
@@ -590,7 +590,7 @@ int CPVREpgInfoTag::EpgID() const
 void CPVREpgInfoTag::SetEpgID(int iEpgID)
 {
   m_iEpgID = iEpgID;
-  m_iconPath.SetOwner(StringUtils::Format(IMAGE_OWNER_PATTERN, m_iEpgID));
+  m_iconPath.SetOwner(KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, m_iEpgID));
 }
 
 bool CPVREpgInfoTag::IsRecordable() const
@@ -672,10 +672,10 @@ bool CPVREpgInfoTag::IsLive() const
 
 const std::vector<std::string> CPVREpgInfoTag::Tokenize(const std::string& str)
 {
-  return StringUtils::Split(str, EPG_STRING_TOKEN_SEPARATOR);
+  return KODI::StringUtils::Split(str, EPG_STRING_TOKEN_SEPARATOR);
 }
 
 const std::string CPVREpgInfoTag::DeTokenize(const std::vector<std::string>& tokens)
 {
-  return StringUtils::Join(tokens, EPG_STRING_TOKEN_SEPARATOR);
+  return KODI::StringUtils::Join(tokens, EPG_STRING_TOKEN_SEPARATOR);
 }

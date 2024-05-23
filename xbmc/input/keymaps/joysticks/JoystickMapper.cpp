@@ -127,7 +127,7 @@ bool CJoystickMapper::DeserializeButton(const tinyxml2::XMLElement* pButton,
     if (szAction != nullptr)
     {
       feature = szButton;
-      StringUtils::ToLower(feature);
+      KODI::StringUtils::ToLower(feature);
       actionStr = szAction;
     }
   }
@@ -156,7 +156,7 @@ bool CJoystickMapper::DeserializeButton(const tinyxml2::XMLElement* pButton,
     if (pButton->QueryStringAttribute(JOYSTICK_XML_ATTR_HOTKEY, &strHotkeys) ==
         tinyxml2::XML_SUCCESS)
     {
-      std::vector<std::string> vecHotkeys = StringUtils::Split(strHotkeys, ",");
+      std::vector<std::string> vecHotkeys = KODI::StringUtils::Split(strHotkeys, ",");
       for (auto& hotkey : vecHotkeys)
         hotkeys.insert(std::move(hotkey));
     }

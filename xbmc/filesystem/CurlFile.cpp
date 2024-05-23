@@ -65,7 +65,7 @@ extern "C" int debug_callback(CURL_HANDLE *handle, curl_infotype info, char *out
   std::string strLine;
   strLine.append(output, size);
   std::vector<std::string> vecLines;
-  StringUtils::Tokenize(strLine, vecLines, "\r\n");
+  KODI::StringUtils::Tokenize(strLine, vecLines, "\r\n");
   std::vector<std::string>::const_iterator it = vecLines.begin();
 
   const char *infotype;
@@ -626,7 +626,7 @@ void CCurlFile::SetCommonOptions(CReadState* state, bool failOnError /* = true *
   {
     g_curlInterface.easy_setopt(h, CURLOPT_PROXYTYPE, proxyType2CUrlProxyType[m_proxytype]);
 
-    const std::string hostport = m_proxyhost + StringUtils::Format(":{}", m_proxyport);
+    const std::string hostport = m_proxyhost + KODI::StringUtils::Format(":{}", m_proxyport);
     g_curlInterface.easy_setopt(h, CURLOPT_PROXY, hostport.c_str());
 
     std::string userpass;
@@ -720,7 +720,7 @@ void CCurlFile::SetCorrectHeaders(CReadState* state)
   }
 
   /* hack for google video */
-  if (StringUtils::EqualsNoCase(h.GetMimeType(),"text/html")
+  if (KODI::StringUtils::EqualsNoCase(h.GetMimeType(),"text/html")
   &&  !h.GetValue("Content-Disposition").empty() )
   {
     std::string strValue = h.GetValue("Content-Disposition");
@@ -791,7 +791,7 @@ void CCurlFile::ParseAndCorrectUrl(CURL &url2)
       g_charsetConverter.utf8ToStringCharset(filename);
 
     //! @todo create a tokenizer that doesn't skip empty's
-    StringUtils::Tokenize(filename, array, "/");
+    KODI::StringUtils::Tokenize(filename, array, "/");
     filename.clear();
     for (std::vector<std::string>::iterator it = array.begin(); it != array.end(); ++it)
     {
@@ -802,7 +802,7 @@ void CCurlFile::ParseAndCorrectUrl(CURL &url2)
     }
 
     /* make sure we keep slashes */
-    if(StringUtils::EndsWith(url2.GetFileName(), "/"))
+    if(KODI::StringUtils::EndsWith(url2.GetFileName(), "/"))
       filename += "/";
 
     url2.SetFileName(filename);
@@ -811,7 +811,7 @@ void CCurlFile::ParseAndCorrectUrl(CURL &url2)
     if (url2.HasProtocolOption("auth"))
     {
       m_ftpauth = url2.GetProtocolOption("auth");
-      StringUtils::ToLower(m_ftpauth);
+      KODI::StringUtils::ToLower(m_ftpauth);
       if(m_ftpauth.empty())
         m_ftpauth = "any";
     }
@@ -864,13 +864,13 @@ void CCurlFile::ParseAndCorrectUrl(CURL &url2)
       for (const auto& it : options)
       {
         std::string name = it.first;
-        StringUtils::ToLower(name);
+        KODI::StringUtils::ToLower(name);
         const std::string& value = it.second;
 
         if (name == "auth")
         {
           m_httpauth = value;
-          StringUtils::ToLower(m_httpauth);
+          KODI::StringUtils::ToLower(m_httpauth);
           if(m_httpauth.empty())
             m_httpauth = "any";
         }
@@ -1117,7 +1117,7 @@ bool CCurlFile::Open(const CURL& url)
   // since we can't know the stream size up front if we're gzipped/deflated
   // flag the stream with an unknown file size rather than the compressed
   // file size.
-  if (!m_state->m_httpheader.GetValue("Content-Encoding").empty() && !StringUtils::EqualsNoCase(m_state->m_httpheader.GetValue("Content-Encoding"), "identity"))
+  if (!m_state->m_httpheader.GetValue("Content-Encoding").empty() && !KODI::StringUtils::EqualsNoCase(m_state->m_httpheader.GetValue("Content-Encoding"), "identity"))
     m_state->m_fileSize = 0;
 
   // check if this stream is a shoutcast stream. sometimes checking the protocol line is not enough so examine other headers as well.
@@ -1144,7 +1144,7 @@ bool CCurlFile::Open(const CURL& url)
     }
   }
 
-  if(StringUtils::EqualsNoCase(m_state->m_httpheader.GetValue("Transfer-Encoding"), "chunked"))
+  if(KODI::StringUtils::EqualsNoCase(m_state->m_httpheader.GetValue("Transfer-Encoding"), "chunked"))
     m_state->m_fileSize = 0;
 
   if(m_state->m_fileSize <= 0)
@@ -1155,7 +1155,7 @@ bool CCurlFile::Open(const CURL& url)
     || url2.IsProtocol("https"))
     {
       // if server says explicitly it can't seek, respect that
-      if(StringUtils::EqualsNoCase(m_state->m_httpheader.GetValue("Accept-Ranges"),"none"))
+      if(KODI::StringUtils::EqualsNoCase(m_state->m_httpheader.GetValue("Accept-Ranges"),"none"))
         m_seekable = false;
     }
   }
@@ -1323,7 +1323,7 @@ bool CCurlFile::Exists(const CURL& url)
   {
     g_curlInterface.easy_setopt(m_state->m_easyHandle, CURLOPT_FILETIME, 1);
     // nocwd is less standard, will return empty list for non-existed remote dir on some ftp server, avoid it.
-    if (StringUtils::EndsWith(url2.GetFileName(), "/"))
+    if (KODI::StringUtils::EndsWith(url2.GetFileName(), "/"))
       g_curlInterface.easy_setopt(m_state->m_easyHandle, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
     else
       g_curlInterface.easy_setopt(m_state->m_easyHandle, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_NOCWD);
@@ -1530,7 +1530,7 @@ int CCurlFile::Stat(const CURL& url, struct __stat64* buffer)
   if(url2.IsProtocol("ftp"))
   {
     // nocwd is less standard, will return empty list for non-existed remote dir on some ftp server, avoid it.
-    if (StringUtils::EndsWith(url2.GetFileName(), "/"))
+    if (KODI::StringUtils::EndsWith(url2.GetFileName(), "/"))
       g_curlInterface.easy_setopt(m_state->m_easyHandle, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_SINGLECWD);
     else
       g_curlInterface.easy_setopt(m_state->m_easyHandle, CURLOPT_FTP_FILEMETHOD, CURLFTPMETHOD_NOCWD);
@@ -2037,7 +2037,7 @@ bool CCurlFile::GetCookies(const CURL &url, std::string &cookies)
     {
       // tokenize the CURL cookie string
       std::vector<std::string> valuesVec;
-      StringUtils::Tokenize(curlCookieIter->data, valuesVec, "\t");
+      KODI::StringUtils::Tokenize(curlCookieIter->data, valuesVec, "\t");
 
       // ensure the length is valid
       if (valuesVec.size() < 7)

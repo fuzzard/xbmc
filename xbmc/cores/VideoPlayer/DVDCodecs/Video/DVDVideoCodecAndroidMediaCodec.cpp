@@ -781,7 +781,7 @@ bool CDVDVideoCodecAndroidMediaCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptio
       {
         // There is some confusion for video/VC1 vs. video/wvc1 especially on Sony devices, while
         // IANA defines VC-1 as video/vc1, Android API defines it as video/wvc1 - be nice and test it
-        const bool isVC1 = StringUtils::Contains(m_codecname, "vc1", true);
+        const bool isVC1 = KODI::StringUtils::Contains(m_codecname, "vc1", true);
         if (!isVC1)
           continue;
 

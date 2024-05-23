@@ -33,7 +33,7 @@ void CDialogGameOSDHelp::OnInitWindow()
 {
   // Set help text
   // "Press {0:s} to open the menu."
-  std::string helpText = StringUtils::Format(g_localizeStrings.Get(35235), HELP_COMBO);
+  std::string helpText = KODI::StringUtils::Format(g_localizeStrings.Get(35235), HELP_COMBO);
 
   CGUIMessage msg(GUI_MSG_LABEL_SET, WINDOW_DIALOG_GAME_OSD, CONTROL_ID_HELP_TEXT);
   msg.SetLabel(helpText);

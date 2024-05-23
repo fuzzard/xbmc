@@ -208,7 +208,7 @@ int CGUIKeyboardFactory::ShowAndVerifyPassword(std::string& strPassword, const s
     strHeadingTemp = strHeading;
   else
     strHeadingTemp =
-        StringUtils::Format("{} - {} {}", g_localizeStrings.Get(12326),
+        KODI::StringUtils::Format("{} - {} {}", g_localizeStrings.Get(12326),
                             CServiceBroker::GetSettingsComponent()->GetSettings()->GetInt(
                                 CSettings::SETTING_MASTERLOCK_MAXRETRIES) -
                                 iRetries,
@@ -222,7 +222,7 @@ int CGUIKeyboardFactory::ShowAndVerifyPassword(std::string& strPassword, const s
   if (!strPassword.empty())
   {
     std::string md5pword2 = CDigest::Calculate(CDigest::Type::MD5, strUserInput);
-    if (StringUtils::EqualsNoCase(strPassword, md5pword2))
+    if (KODI::StringUtils::EqualsNoCase(strPassword, md5pword2))
       return 0;     // user entered correct password
     else return 1;  // user must have entered an incorrect password
   }

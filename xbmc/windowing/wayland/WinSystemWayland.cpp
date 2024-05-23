@@ -1071,10 +1071,10 @@ std::string CWinSystemWayland::UserFriendlyOutputName(std::shared_ptr<COutput> c
   auto pos = output->GetPosition();
   if (pos.x != 0 || pos.y != 0)
   {
-    parts.emplace_back(StringUtils::Format("@{}x{}", pos.x, pos.y));
+    parts.emplace_back(KODI::StringUtils::Format("@{}x{}", pos.x, pos.y));
   }
 
-  return StringUtils::Join(parts, " ");
+  return KODI::StringUtils::Join(parts, " ");
 }
 
 bool CWinSystemWayland::Minimize()

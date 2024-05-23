@@ -44,7 +44,7 @@ void CAddonType::SetProvides(const std::string& content)
     if (GetValue("provides").empty())
       Insert("provides", content);
 
-    for (const auto& provide : StringUtils::Split(content, ' '))
+    for (const auto& provide : KODI::StringUtils::Split(content, ' '))
     {
       AddonType content = CAddonInfo::TranslateSubContent(provide);
       if (content != AddonType::UNKNOWN)

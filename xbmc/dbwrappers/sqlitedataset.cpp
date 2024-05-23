@@ -303,7 +303,7 @@ const char* SqliteDatabase::getErrorMsg()
 static int AlphaNumericCollation(
     void* not_used, int nKey1, const void* pKey1, int nKey2, const void* pKey2)
 {
-  return StringUtils::AlphaNumericCollation(nKey1, pKey1, nKey2, pKey2);
+  return KODI::StringUtils::AlphaNumericCollation(nKey1, pKey1, nKey2, pKey2);
 }
 
 int SqliteDatabase::connect(bool create)

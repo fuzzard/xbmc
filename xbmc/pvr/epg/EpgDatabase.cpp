@@ -173,7 +173,7 @@ void CPVREpgDatabase::UpdateTables(int iVersion)
 
   if (iVersion < 13)
   {
-    const bool isMySQL = StringUtils::EqualsNoCase(
+    const bool isMySQL = KODI::StringUtils::EqualsNoCase(
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_databaseEpg.type, "mysql");
 
     m_pDS->exec(
@@ -560,7 +560,7 @@ public:
         result += strFieldName;
     }
 
-    StringUtils::TrimRight(result);
+    KODI::StringUtils::TrimRight(result);
     result += ")";
     return result;
   }
@@ -569,33 +569,33 @@ private:
   void Parse(const std::string& strSearchTerm)
   {
     std::string strParsedSearchTerm(strSearchTerm);
-    StringUtils::Trim(strParsedSearchTerm);
+    KODI::StringUtils::Trim(strParsedSearchTerm);
 
     std::string strFragment;
 
     bool bNextOR = false;
     while (!strParsedSearchTerm.empty())
     {
-      StringUtils::TrimLeft(strParsedSearchTerm);
+      KODI::StringUtils::TrimLeft(strParsedSearchTerm);
 
-      if (StringUtils::StartsWith(strParsedSearchTerm, "!") ||
-          StringUtils::StartsWithNoCase(strParsedSearchTerm, "not"))
+      if (KODI::StringUtils::StartsWith(strParsedSearchTerm, "!") ||
+          KODI::StringUtils::StartsWithNoCase(strParsedSearchTerm, "not"))
       {
         std::string strDummy;
         GetAndCutNextTerm(strParsedSearchTerm, strDummy);
         strFragment += " NOT ";
         bNextOR = false;
       }
-      else if (StringUtils::StartsWith(strParsedSearchTerm, "+") ||
-               StringUtils::StartsWithNoCase(strParsedSearchTerm, "and"))
+      else if (KODI::StringUtils::StartsWith(strParsedSearchTerm, "+") ||
+               KODI::StringUtils::StartsWithNoCase(strParsedSearchTerm, "and"))
       {
         std::string strDummy;
         GetAndCutNextTerm(strParsedSearchTerm, strDummy);
         strFragment += " AND ";
         bNextOR = false;
       }
-      else if (StringUtils::StartsWith(strParsedSearchTerm, "|") ||
-               StringUtils::StartsWithNoCase(strParsedSearchTerm, "or"))
+      else if (KODI::StringUtils::StartsWith(strParsedSearchTerm, "|") ||
+               KODI::StringUtils::StartsWithNoCase(strParsedSearchTerm, "or"))
       {
         std::string strDummy;
         GetAndCutNextTerm(strParsedSearchTerm, strDummy);
@@ -617,7 +617,7 @@ private:
           strFragment.clear();
 
           strFragment += ") LIKE UPPER('%";
-          StringUtils::Replace(strTerm, "'", "''"); // escape '
+          KODI::StringUtils::Replace(strTerm, "'", "''"); // escape '
           strFragment += strTerm;
           strFragment += "%')) ";
 
@@ -629,7 +629,7 @@ private:
         }
       }
 
-      StringUtils::TrimLeft(strParsedSearchTerm);
+      KODI::StringUtils::TrimLeft(strParsedSearchTerm);
     }
 
     if (!strFragment.empty())
@@ -640,7 +640,7 @@ private:
   {
     std::string strFindNext(" ");
 
-    if (StringUtils::EndsWith(strSearchTerm, "\""))
+    if (KODI::StringUtils::EndsWith(strSearchTerm, "\""))
     {
       strSearchTerm.erase(0, 1);
       strFindNext = "\"";

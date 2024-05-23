@@ -214,8 +214,8 @@ public:
 
   bool operator==(const CMusicRole& a) const
   {
-    if (StringUtils::EqualsNoCase(m_strRole, a.m_strRole))
-      return StringUtils::EqualsNoCase(m_strArtist, a.m_strArtist);
+    if (KODI::StringUtils::EqualsNoCase(m_strRole, a.m_strRole))
+      return KODI::StringUtils::EqualsNoCase(m_strArtist, a.m_strArtist);
     else
       return false;
   }

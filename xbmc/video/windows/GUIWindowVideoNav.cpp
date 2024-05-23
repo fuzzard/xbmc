@@ -112,7 +112,7 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
       m_rootDir.AllowNonLocalSources(false);
 
       SetProperty("flattened", CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_MYVIDEOS_FLATTEN));
-      if (message.GetNumStringParams() && StringUtils::EqualsNoCase(message.GetStringParam(0), "Files") &&
+      if (message.GetNumStringParams() && KODI::StringUtils::EqualsNoCase(message.GetStringParam(0), "Files") &&
           CMediaSourceSettings::GetInstance().GetSources("video")->empty())
       {
         message.SetStringParam("");
@@ -523,14 +523,14 @@ void CGUIWindowVideoNav::UpdateButtons()
     {
       CFileItemPtr pItem = m_vecItems->Get(i);
       if (pItem->IsParentFolder()) iItems--;
-      if (StringUtils::StartsWith(pItem->GetPath(), "/-1/")) iItems--;
+      if (KODI::StringUtils::StartsWith(pItem->GetPath(), "/-1/")) iItems--;
     }
     // or the last item
     if (m_vecItems->Size() > 2 &&
-      StringUtils::StartsWith(m_vecItems->Get(m_vecItems->Size()-1)->GetPath(), "/-1/"))
+      KODI::StringUtils::StartsWith(m_vecItems->Get(m_vecItems->Size()-1)->GetPath(), "/-1/"))
       iItems--;
   }
-  std::string items = StringUtils::Format("{} {}", iItems, g_localizeStrings.Get(127));
+  std::string items = KODI::StringUtils::Format("{} {}", iItems, g_localizeStrings.Get(127));
   SET_CONTROL_LABEL(CONTROL_LABELFILES, items);
 
   // set the filter label
@@ -680,7 +680,7 @@ void CGUIWindowVideoNav::OnDeleteItem(const CFileItemPtr& pItem)
         !pItem->IsPath("sources://video/") && !URIUtils::IsProtocol(pItem->GetPath(), "newtag"))
       CGUIWindowVideoBase::OnDeleteItem(pItem);
   }
-  else if (StringUtils::StartsWithNoCase(pItem->GetPath(), "videodb://movies/sets/") &&
+  else if (KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "videodb://movies/sets/") &&
            pItem->GetPath().size() > 22 && pItem->m_bIsFolder)
   {
     CGUIDialogYesNo* pDialog = CServiceBroker::GetGUI()->GetWindowManager().GetWindow<CGUIDialogYesNo>(WINDOW_DIALOG_YES_NO);
@@ -689,7 +689,7 @@ void CGUIWindowVideoNav::OnDeleteItem(const CFileItemPtr& pItem)
       return;
 
     pDialog->SetHeading(CVariant{432});
-    std::string strLabel = StringUtils::Format(
+    std::string strLabel = KODI::StringUtils::Format(
         g_localizeStrings.Get(pItem->HasVideoVersions() ? 40021 : 433), pItem->GetLabel());
     pDialog->SetLine(1, CVariant{std::move(strLabel)});
     pDialog->SetLine(2, CVariant{""});
@@ -785,7 +785,7 @@ void CGUIWindowVideoNav::GetContextButtons(int itemNumber, CContextButtons &butt
     {
       CMusicDatabase database;
       database.Open();
-      if (database.GetSongByArtistAndAlbumAndTitle(StringUtils::Join(item->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator),
+      if (database.GetSongByArtistAndAlbumAndTitle(KODI::StringUtils::Join(item->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator),
                                                    item->GetVideoInfoTag()->m_strAlbum,
                                                    item->GetVideoInfoTag()->m_strTitle) > -1)
       {
@@ -820,7 +820,7 @@ void CGUIWindowVideoNav::GetContextButtons(int itemNumber, CContextButtons &butt
 
         if (node == NODE_TYPE_ACTOR && !dir.IsAllItem(item->GetPath()) && item->m_bIsFolder)
         {
-          if (StringUtils::StartsWithNoCase(m_vecItems->GetPath(), "videodb://musicvideos")) // mvids
+          if (KODI::StringUtils::StartsWithNoCase(m_vecItems->GetPath(), "videodb://musicvideos")) // mvids
             buttons.Add(CONTEXT_BUTTON_SET_ARTIST_THUMB, 13359);
           else
             buttons.Add(CONTEXT_BUTTON_SET_ACTOR_THUMB, 20403);
@@ -923,7 +923,7 @@ bool CGUIWindowVideoNav::OnContextButton(int itemNumber, CONTEXT_BUTTON button)
   case CONTEXT_BUTTON_GO_TO_ARTIST:
     {
       std::string strPath;
-      strPath = StringUtils::Format("musicdb://artists/{}/",
+      strPath = KODI::StringUtils::Format("musicdb://artists/{}/",
                                     item->GetProperty("artist_musicid").asInteger());
       CServiceBroker::GetGUI()->GetWindowManager().ActivateWindow(WINDOW_MUSIC_NAV, strPath);
       return true;
@@ -931,7 +931,7 @@ bool CGUIWindowVideoNav::OnContextButton(int itemNumber, CONTEXT_BUTTON button)
   case CONTEXT_BUTTON_GO_TO_ALBUM:
     {
       std::string strPath;
-      strPath = StringUtils::Format("musicdb://albums/{}/",
+      strPath = KODI::StringUtils::Format("musicdb://albums/{}/",
                                     item->GetProperty("album_musicid").asInteger());
       CServiceBroker::GetGUI()->GetWindowManager().ActivateWindow(WINDOW_MUSIC_NAV, strPath);
       return true;
@@ -941,7 +941,7 @@ bool CGUIWindowVideoNav::OnContextButton(int itemNumber, CONTEXT_BUTTON button)
       CMusicDatabase database;
       database.Open();
       CSong song;
-      if (database.GetSong(database.GetSongByArtistAndAlbumAndTitle(StringUtils::Join(m_vecItems->Get(itemNumber)->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator),m_vecItems->Get(itemNumber)->GetVideoInfoTag()->m_strAlbum,
+      if (database.GetSong(database.GetSongByArtistAndAlbumAndTitle(KODI::StringUtils::Join(m_vecItems->Get(itemNumber)->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator),m_vecItems->Get(itemNumber)->GetVideoInfoTag()->m_strAlbum,
                                                                         m_vecItems->Get(itemNumber)->GetVideoInfoTag()->m_strTitle),
                                                                         song))
       {
@@ -969,7 +969,7 @@ bool CGUIWindowVideoNav::OnAddMediaSource()
 bool CGUIWindowVideoNav::OnClick(int iItem, const std::string &player)
 {
   CFileItemPtr item = m_vecItems->Get(iItem);
-  if (StringUtils::StartsWithNoCase(item->GetPath(), "newtag://"))
+  if (KODI::StringUtils::StartsWithNoCase(item->GetPath(), "newtag://"))
   {
     // dont allow update while scanning
     if (CVideoLibraryQueue::GetInstance().IsScanningLibrary())
@@ -996,14 +996,14 @@ bool CGUIWindowVideoNav::OnClick(int iItem, const std::string &player)
 
     if (!videodb.GetSingleValue("tag", "tag.tag_id", videodb.PrepareSQL("tag.name = '%s' AND tag.tag_id IN (SELECT tag_link.tag_id FROM tag_link WHERE tag_link.media_type = '%s')", strTag.c_str(), mediaType.c_str())).empty())
     {
-      std::string strError = StringUtils::Format(g_localizeStrings.Get(20463), strTag);
+      std::string strError = KODI::StringUtils::Format(g_localizeStrings.Get(20463), strTag);
       HELPERS::ShowOKDialogText(CVariant{20462}, CVariant{std::move(strError)});
       return true;
     }
 
     int idTag = videodb.AddTag(strTag);
     CFileItemList items;
-    std::string strLabel = StringUtils::Format(g_localizeStrings.Get(20464), localizedType);
+    std::string strLabel = KODI::StringUtils::Format(g_localizeStrings.Get(20464), localizedType);
     if (CGUIDialogVideoInfo::GetItemsForTag(strLabel, mediaType, items, idTag))
     {
       for (int index = 0; index < items.Size(); index++)
@@ -1058,7 +1058,7 @@ std::string CGUIWindowVideoNav::GetStartFolder(const std::string &dir)
       {"tvshowyears", "videodb://tvshows/years/"},
   };
 
-  const auto it = map.find(StringUtils::ToLower(dir));
+  const auto it = map.find(KODI::StringUtils::ToLower(dir));
   if (it == map.end())
     return CGUIWindowVideoBase::GetStartFolder(dir);
   else

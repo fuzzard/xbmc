@@ -108,25 +108,25 @@ void CPlayListWPL::Save(const std::string& strFileName) const
     return ;
   }
   std::string write;
-  write += StringUtils::Format("<?wpl version={}1.0{}>\n", 34, 34);
-  write += StringUtils::Format("<smil>\n");
-  write += StringUtils::Format("    <head>\n");
-  write += StringUtils::Format("        <meta name={}Generator{} content={}Microsoft Windows Media "
+  write += KODI::StringUtils::Format("<?wpl version={}1.0{}>\n", 34, 34);
+  write += KODI::StringUtils::Format("<smil>\n");
+  write += KODI::StringUtils::Format("    <head>\n");
+  write += KODI::StringUtils::Format("        <meta name={}Generator{} content={}Microsoft Windows Media "
                                "Player -- 10.0.0.3646{}/>\n",
                                34, 34, 34, 34);
-  write += StringUtils::Format("        <author/>\n");
-  write += StringUtils::Format("        <title>{}</title>\n", m_strPlayListName.c_str());
-  write += StringUtils::Format("    </head>\n");
-  write += StringUtils::Format("    <body>\n");
-  write += StringUtils::Format("        <seq>\n");
+  write += KODI::StringUtils::Format("        <author/>\n");
+  write += KODI::StringUtils::Format("        <title>{}</title>\n", m_strPlayListName.c_str());
+  write += KODI::StringUtils::Format("    </head>\n");
+  write += KODI::StringUtils::Format("    <body>\n");
+  write += KODI::StringUtils::Format("        <seq>\n");
   for (int i = 0; i < (int)m_vecItems.size(); ++i)
   {
     CFileItemPtr item = m_vecItems[i];
-    write += StringUtils::Format("            <media src={}{}{}/>", 34, item->GetPath(), 34);
+    write += KODI::StringUtils::Format("            <media src={}{}{}/>", 34, item->GetPath(), 34);
   }
-  write += StringUtils::Format("        </seq>\n");
-  write += StringUtils::Format("    </body>\n");
-  write += StringUtils::Format("</smil>\n");
+  write += KODI::StringUtils::Format("        </seq>\n");
+  write += KODI::StringUtils::Format("    </body>\n");
+  write += KODI::StringUtils::Format("</smil>\n");
   file.Write(write.c_str(), write.size());
   file.Close();
 }

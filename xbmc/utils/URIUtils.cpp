@@ -102,14 +102,14 @@ bool URIUtils::HasExtension(const std::string& strFileName, const std::string& s
   if (pos == std::string::npos || strFileName[pos] != '.')
     return false;
 
-  const std::string extensionLower = StringUtils::ToLower(strFileName.substr(pos));
+  const std::string extensionLower = KODI::StringUtils::ToLower(strFileName.substr(pos));
 
   const std::vector<std::string> extensionsLower =
-      StringUtils::Split(StringUtils::ToLower(strExtensions), '|');
+      KODI::StringUtils::Split(KODI::StringUtils::ToLower(strExtensions), '|');
 
   for (const auto& ext : extensionsLower)
   {
-    if (StringUtils::EndsWith(ext, extensionLower))
+    if (KODI::StringUtils::EndsWith(ext, extensionLower))
       return true;
   }
 
@@ -132,7 +132,7 @@ void URIUtils::RemoveExtension(std::string& strFileName)
   if (period != std::string::npos && strFileName[period] == '.')
   {
     std::string strExtension = strFileName.substr(period);
-    StringUtils::ToLower(strExtension);
+    KODI::StringUtils::ToLower(strExtension);
     strExtension += "|";
 
     std::string strFileMask;
@@ -257,7 +257,7 @@ std::vector<std::string> URIUtils::SplitPath(const std::string& strPath)
   std::string sep(1, url.GetDirectorySeparator());
 
   // split the filename portion of the URL up into separate dirs
-  std::vector<std::string> dirs = StringUtils::Split(url.GetFileName(), sep);
+  std::vector<std::string> dirs = KODI::StringUtils::Split(url.GetFileName(), sep);
 
   // we start with the root path
   std::string dir = url.GetWithoutFilename();
@@ -277,7 +277,7 @@ void URIUtils::GetCommonPath(std::string& strParent, const std::string& strPath)
   // find the common path of parent and path
   unsigned int j = 1;
   while (j <= std::min(strParent.size(), strPath.size()) &&
-         StringUtils::CompareNoCase(strParent, strPath, j) == 0)
+         KODI::StringUtils::CompareNoCase(strParent, strPath, j) == 0)
     j++;
   strParent.erase(j - 1);
   // they should at least share a / at the end, though for things such as path/cd1 and path/cd2 there won't be
@@ -449,7 +449,7 @@ std::string URIUtils::GetBasePath(const std::string& strPath)
   {
     strCheck = strDirectory;
     RemoveSlashAtEnd(strCheck);
-    if (GetFileName(strCheck).size() == 3 && StringUtils::StartsWithNoCase(GetFileName(strCheck), "cd"))
+    if (GetFileName(strCheck).size() == 3 && KODI::StringUtils::StartsWithNoCase(GetFileName(strCheck), "cd"))
       strDirectory = GetDirectory(strCheck);
   }
   return strDirectory;
@@ -457,20 +457,20 @@ std::string URIUtils::GetBasePath(const std::string& strPath)
 
 std::string URLEncodePath(const std::string& strPath)
 {
-  std::vector<std::string> segments = StringUtils::Split(strPath, "/");
+  std::vector<std::string> segments = KODI::StringUtils::Split(strPath, "/");
   for (std::vector<std::string>::iterator i = segments.begin(); i != segments.end(); ++i)
     *i = CURL::Encode(*i);
 
-  return StringUtils::Join(segments, "/");
+  return KODI::StringUtils::Join(segments, "/");
 }
 
 std::string URLDecodePath(const std::string& strPath)
 {
-  std::vector<std::string> segments = StringUtils::Split(strPath, "/");
+  std::vector<std::string> segments = KODI::StringUtils::Split(strPath, "/");
   for (std::vector<std::string>::iterator i = segments.begin(); i != segments.end(); ++i)
     *i = CURL::Decode(*i);
 
-  return StringUtils::Join(segments, "/");
+  return KODI::StringUtils::Join(segments, "/");
 }
 
 std::string URIUtils::ChangeBasePath(const std::string &fromPath, const std::string &fromFile, const std::string &toPath, const bool &bAddPath /* = true */)
@@ -479,7 +479,7 @@ std::string URIUtils::ChangeBasePath(const std::string &fromPath, const std::str
 
   // Convert back slashes to forward slashes, if required
   if (IsDOSPath(fromPath) && !IsDOSPath(toPath))
-    StringUtils::Replace(toFile, "\\", "/");
+    KODI::StringUtils::Replace(toFile, "\\", "/");
 
   // Handle difference in URL encoded vs. not encoded
   if ( HasEncodedFilename(CURL(fromPath))
@@ -495,7 +495,7 @@ std::string URIUtils::ChangeBasePath(const std::string &fromPath, const std::str
 
   // Convert forward slashes to back slashes, if required
   if (!IsDOSPath(fromPath) && IsDOSPath(toPath))
-    StringUtils::Replace(toFile, "/", "\\");
+    KODI::StringUtils::Replace(toFile, "/", "\\");
 
   if (bAddPath)
     return AddFileToFolder(toPath, toFile);
@@ -540,7 +540,7 @@ std::string URIUtils::SubstitutePath(const std::string& strPath, bool reverse /*
 
 bool URIUtils::IsProtocol(const std::string& url, const std::string &type)
 {
-  return StringUtils::StartsWithNoCase(url, type + "://");
+  return KODI::StringUtils::StartsWithNoCase(url, type + "://");
 }
 
 bool URIUtils::PathHasParent(std::string path, std::string parent, bool translate /* = false */)
@@ -560,7 +560,7 @@ bool URIUtils::PathHasParent(std::string path, std::string parent, bool translat
   // Make sure parent has a trailing slash
   AddSlashAtEnd(parent);
 
-  return StringUtils::StartsWith(path, parent);
+  return KODI::StringUtils::StartsWith(path, parent);
 }
 
 bool URIUtils::PathEquals(std::string path1, std::string path2, bool ignoreTrailingSlash /* = false */, bool ignoreURLOptions /* = false */)
@@ -756,7 +756,7 @@ bool URIUtils::IsHD(const std::string& strFileName)
 bool URIUtils::IsDVD(const std::string& strFile)
 {
   std::string strFileLow = strFile;
-  StringUtils::ToLower(strFileLow);
+  KODI::StringUtils::ToLower(strFileLow);
   if (strFileLow.find("video_ts.ifo") != std::string::npos && IsOnDVD(strFile))
     return true;
 
@@ -793,13 +793,13 @@ bool URIUtils::IsRAR(const std::string& strFile)
 {
   std::string strExtension = GetExtension(strFile);
 
-  if (strExtension == ".001" && !StringUtils::EndsWithNoCase(strFile, ".ts.001"))
+  if (strExtension == ".001" && !KODI::StringUtils::EndsWithNoCase(strFile, ".ts.001"))
     return true;
 
-  if (StringUtils::EqualsNoCase(strExtension, ".cbr"))
+  if (KODI::StringUtils::EqualsNoCase(strExtension, ".cbr"))
     return true;
 
-  if (StringUtils::EqualsNoCase(strExtension, ".rar"))
+  if (KODI::StringUtils::EqualsNoCase(strExtension, ".rar"))
     return true;
 
   return false;
@@ -1011,7 +1011,7 @@ bool URIUtils::IsPVRGuideItem(const std::string& strFile)
   if (IsStack(strFile))
     return IsPVRGuideItem(CStackDirectory::GetFirstStackedFile(strFile));
 
-  return StringUtils::StartsWithNoCase(strFile, "pvr://guide");
+  return KODI::StringUtils::StartsWithNoCase(strFile, "pvr://guide");
 }
 
 bool URIUtils::IsDAV(const std::string& strFile)
@@ -1114,8 +1114,8 @@ bool URIUtils::IsLiveTV(const std::string& strFile)
   std::string strFileWithoutSlash(strFile);
   RemoveSlashAtEnd(strFileWithoutSlash);
 
-  if (StringUtils::EndsWithNoCase(strFileWithoutSlash, ".pvr") &&
-      !StringUtils::StartsWith(strFileWithoutSlash, "pvr://recordings"))
+  if (KODI::StringUtils::EndsWithNoCase(strFileWithoutSlash, ".pvr") &&
+      !KODI::StringUtils::StartsWith(strFileWithoutSlash, "pvr://recordings"))
     return true;
 
   return false;
@@ -1126,23 +1126,23 @@ bool URIUtils::IsPVRRecording(const std::string& strFile)
   std::string strFileWithoutSlash(strFile);
   RemoveSlashAtEnd(strFileWithoutSlash);
 
-  return StringUtils::EndsWithNoCase(strFileWithoutSlash, ".pvr") &&
-         StringUtils::StartsWith(strFile, "pvr://recordings");
+  return KODI::StringUtils::EndsWithNoCase(strFileWithoutSlash, ".pvr") &&
+         KODI::StringUtils::StartsWith(strFile, "pvr://recordings");
 }
 
 bool URIUtils::IsPVRRecordingFileOrFolder(const std::string& strFile)
 {
-  return StringUtils::StartsWith(strFile, "pvr://recordings");
+  return KODI::StringUtils::StartsWith(strFile, "pvr://recordings");
 }
 
 bool URIUtils::IsPVRTVRecordingFileOrFolder(const std::string& strFile)
 {
-  return StringUtils::StartsWith(strFile, "pvr://recordings/tv");
+  return KODI::StringUtils::StartsWith(strFile, "pvr://recordings/tv");
 }
 
 bool URIUtils::IsPVRRadioRecordingFileOrFolder(const std::string& strFile)
 {
-  return StringUtils::StartsWith(strFile, "pvr://recordings/radio");
+  return KODI::StringUtils::StartsWith(strFile, "pvr://recordings/radio");
 }
 
 bool URIUtils::IsMusicDb(const std::string& strFile)
@@ -1191,7 +1191,7 @@ bool URIUtils::IsLibraryContent(const std::string &strFile)
   return (IsProtocol(strFile, "library") ||
           IsProtocol(strFile, "videodb") ||
           IsProtocol(strFile, "musicdb") ||
-          StringUtils::EndsWith(strFile, ".xsp"));
+          KODI::StringUtils::EndsWith(strFile, ".xsp"));
 }
 
 bool URIUtils::IsDOSPath(const std::string &path)
@@ -1283,7 +1283,7 @@ bool URIUtils::CompareWithoutSlashAtEnd(const std::string& strPath1, const std::
   std::string strc1 = strPath1, strc2 = strPath2;
   RemoveSlashAtEnd(strc1);
   RemoveSlashAtEnd(strc2);
-  return StringUtils::EqualsNoCase(strc1, strc2);
+  return KODI::StringUtils::EqualsNoCase(strc1, strc2);
 }
 
 
@@ -1326,7 +1326,7 @@ std::string URIUtils::CanonicalizePath(const std::string& path, const char slash
 
   const std::string slashStr(1, slashCharacter);
   std::vector<std::string> pathVec, resultVec;
-  StringUtils::Tokenize(path, pathVec, slashStr);
+  KODI::StringUtils::Tokenize(path, pathVec, slashStr);
 
   for (std::vector<std::string>::const_iterator it = pathVec.begin(); it != pathVec.end(); ++it)
   {
@@ -1342,7 +1342,7 @@ std::string URIUtils::CanonicalizePath(const std::string& path, const char slash
   if (path[0] == slashCharacter)
     result.push_back(slashCharacter); // add slash at the begin
 
-  result += StringUtils::Join(resultVec, slashStr);
+  result += KODI::StringUtils::Join(resultVec, slashStr);
 
   if (path[path.length() - 1] == slashCharacter  && !result.empty() && result[result.length() - 1] != slashCharacter)
     result.push_back(slashCharacter); // add slash at the end if result isn't empty and result isn't "/"
@@ -1375,9 +1375,9 @@ std::string URIUtils::AddFileToFolder(const std::string& strFolder,
 
   // correct any slash directions
   if (!IsDOSPath(strFolder))
-    StringUtils::Replace(strResult, '\\', '/');
+    KODI::StringUtils::Replace(strResult, '\\', '/');
   else
-    StringUtils::Replace(strResult, '/', '\\');
+    KODI::StringUtils::Replace(strResult, '/', '\\');
 
   return strResult;
 }
@@ -1414,8 +1414,8 @@ CURL URIUtils::CreateArchivePath(const std::string& type,
      code (and elsewhere) doesn't pass in non-posix paths.
    */
   std::string strBuffer(pathInArchive);
-  StringUtils::Replace(strBuffer, '\\', '/');
-  StringUtils::TrimLeft(strBuffer, "/");
+  KODI::StringUtils::Replace(strBuffer, '\\', '/');
+  KODI::StringUtils::TrimLeft(strBuffer, "/");
   url.SetFileName(strBuffer);
 
   return url;
@@ -1441,7 +1441,7 @@ std::string URIUtils::resolvePath(const std::string &path)
   size_t posSlash = path.find('/');
   size_t posBackslash = path.find('\\');
   std::string delim = posSlash < posBackslash ? "/" : "\\";
-  std::vector<std::string> parts = StringUtils::Split(path, delim);
+  std::vector<std::string> parts = KODI::StringUtils::Split(path, delim);
   std::vector<std::string> realParts;
 
   for (std::vector<std::string>::const_iterator part = parts.begin(); part != parts.end(); ++part)
@@ -1470,7 +1470,7 @@ std::string URIUtils::resolvePath(const std::string &path)
     realPath += delim;
   }
   // put together the path
-  realPath += StringUtils::Join(realParts, delim);
+  realPath += KODI::StringUtils::Join(realParts, delim);
   // re-add any / or \ at the end
   if (path.at(path.size() - 1) == delim.at(0) &&
       realPath.size() > 0 && realPath.at(realPath.size() - 1) != delim.at(0))

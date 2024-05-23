@@ -155,15 +155,15 @@ bool CFanart::ParseColors(const std::string &colorsIn, std::string &colorsOut)
   if (colorsIn[0] == '|')
   { // need conversion
     colorsOut.clear();
-    std::vector<std::string> strColors = StringUtils::Split(colorsIn, "|");
+    std::vector<std::string> strColors = KODI::StringUtils::Split(colorsIn, "|");
     for (int i = 0; i < std::min((int)strColors.size()-1, (int)max_fanart_colors); i++)
     { // split up each color
-      std::vector<std::string> strTriplets = StringUtils::Split(strColors[i+1], ",");
+      std::vector<std::string> strTriplets = KODI::StringUtils::Split(strColors[i+1], ",");
       if (strTriplets.size() == 3)
       { // convert
         if (colorsOut.size())
           colorsOut += ",";
-        colorsOut += StringUtils::Format("FF{:2x}{:2x}{:2x}", std::stol(strTriplets[0]),
+        colorsOut += KODI::StringUtils::Format("FF{:2x}{:2x}{:2x}", std::stol(strTriplets[0]),
                                          std::stol(strTriplets[1]), std::stol(strTriplets[2]));
       }
     }

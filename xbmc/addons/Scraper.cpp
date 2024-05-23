@@ -114,7 +114,7 @@ AddonType ScraperTypeFromContent(const CONTENT_TYPE& content)
 // if the XML root is <error>, throw CScraperError with enclosed <title>/<message> values
 static void CheckScraperError(const TiXmlElement *pxeRoot)
 {
-  if (!pxeRoot || StringUtils::CompareNoCase(pxeRoot->Value(), "error"))
+  if (!pxeRoot || KODI::StringUtils::CompareNoCase(pxeRoot->Value(), "error"))
     return;
   std::string sTitle;
   std::string sMessage;
@@ -614,7 +614,7 @@ CMusicAlbumInfo FromFileItem<CMusicAlbumInfo>(const CFileItem &item)
   std::string sArtist = item.GetProperty("album.artist").asString();
   std::string sAlbumName;
   if (!sArtist.empty())
-    sAlbumName = StringUtils::Format("{} - {}", sArtist, sTitle);
+    sAlbumName = KODI::StringUtils::Format("{} - {}", sArtist, sTitle);
   else
     sAlbumName = sTitle;
 
@@ -649,7 +649,7 @@ CMusicArtistInfo FromFileItem<CMusicArtistInfo>(const CFileItem &item)
 
   info = CMusicArtistInfo(sTitle, url);
   if (item.HasProperty("artist.genre"))
-    info.GetArtist().genre = StringUtils::Split(item.GetProperty("artist.genre").asString(),
+    info.GetArtist().genre = KODI::StringUtils::Split(item.GetProperty("artist.genre").asString(),
                                                 CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
   if (item.HasProperty("artist.disambiguation"))
     info.GetArtist().strDisambiguation = item.GetProperty("artist.disambiguation").asString();
@@ -690,7 +690,7 @@ static std::string FromString(const CFileItem &item, const std::string &key)
 
 static std::vector<std::string> FromArray(const CFileItem &item, const std::string &key, int sep)
 {
-  return StringUtils::Split(item.GetProperty(key).asString(),
+  return KODI::StringUtils::Split(item.GetProperty(key).asString(),
                             sep ? CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator
                                 : CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
 }
@@ -933,7 +933,7 @@ std::vector<CScraperUrl> CScraper::FindMovie(XFILE::CCurlFile &fcurl,
     return vcscurl;
 
   if (!fFirst)
-    StringUtils::Replace(sTitle, '-', ' ');
+    KODI::StringUtils::Replace(sTitle, '-', ' ');
 
   if (m_isPython)
   {
@@ -991,7 +991,7 @@ std::vector<CScraperUrl> CScraper::FindMovie(XFILE::CCurlFile &fcurl,
     {
       const char *sorted = xhResults.Element()->Attribute("sorted");
       if (sorted != nullptr)
-        fSort = !StringUtils::EqualsNoCase(sorted, "yes");
+        fSort = !KODI::StringUtils::EqualsNoCase(sorted, "yes");
     }
 
     for (TiXmlElement *pxeMovie = xhResults.FirstChild("entity").Element(); pxeMovie;
@@ -1012,9 +1012,9 @@ std::vector<CScraperUrl> CScraper::FindMovie(XFILE::CCurlFile &fcurl,
 
         // calculate the relevance of this hit
         std::string sCompareTitle = scurlMovie.GetTitle();
-        StringUtils::ToLower(sCompareTitle);
+        KODI::StringUtils::ToLower(sCompareTitle);
         std::string sMatchTitle = sTitle;
-        StringUtils::ToLower(sMatchTitle);
+        KODI::StringUtils::ToLower(sMatchTitle);
 
         /*
          * Identify the best match by performing a fuzzy string compare on the search term and
@@ -1034,11 +1034,11 @@ std::vector<CScraperUrl> CScraper::FindMovie(XFILE::CCurlFile &fcurl,
 
         // reconstruct a title for the user
         if (!sCompareYear.empty())
-          title += StringUtils::Format(" ({})", sCompareYear);
+          title += KODI::StringUtils::Format(" ({})", sCompareYear);
 
         std::string sLanguage;
         if (XMLUtils::GetString(pxeMovie, "language", sLanguage) && !sLanguage.empty())
-          title += StringUtils::Format(" ({})", sLanguage);
+          title += KODI::StringUtils::Format(" ({})", sLanguage);
 
         // filter for dupes from naughty scrapers
         if (stsDupeCheck.insert(scurlMovie.GetFirstThumbUrl() + " " + title).second)
@@ -1125,13 +1125,13 @@ std::vector<CMusicAlbumInfo> CScraper::FindAlbum(CCurlFile &fcurl,
         std::string sArtist;
         std::string sAlbumName;
         if (XMLUtils::GetString(pxeAlbum, "artist", sArtist) && !sArtist.empty())
-          sAlbumName = StringUtils::Format("{} - {}", sArtist, sTitle);
+          sAlbumName = KODI::StringUtils::Format("{} - {}", sArtist, sTitle);
         else
           sAlbumName = sTitle;
 
         std::string sYear;
         if (XMLUtils::GetString(pxeAlbum, "year", sYear) && !sYear.empty())
-          sAlbumName = StringUtils::Format("{} ({})", sAlbumName, sYear);
+          sAlbumName = KODI::StringUtils::Format("{} ({})", sAlbumName, sYear);
 
         // if no URL is provided, use the URL we got back from CreateAlbumSearchUrl
         // (e.g., in case we only got one result back and were sent to the detail page)
@@ -1239,7 +1239,7 @@ std::vector<CMusicArtistInfo> CScraper::FindArtist(CCurlFile &fcurl, const std::
         XMLUtils::GetString(pxeArtist, "genre", genre);
         if (!genre.empty())
           ari.GetArtist().genre =
-              StringUtils::Split(genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+              KODI::StringUtils::Split(genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
         XMLUtils::GetString(pxeArtist, "disambiguation", ari.GetArtist().strDisambiguation);
         XMLUtils::GetString(pxeArtist, "year", ari.GetArtist().strBorn);
 

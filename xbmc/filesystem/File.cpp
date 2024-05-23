@@ -64,7 +64,7 @@ bool CFile::Copy(const CURL& url2, const CURL& dest, XFILE::IFileCallback* pCall
 
   // special case for zips - ignore caching
   CURL url(url2);
-  if (StringUtils::StartsWith(url.Get(), "zip://") || URIUtils::IsInAPK(url.Get()))
+  if (KODI::StringUtils::StartsWith(url.Get(), "zip://") || URIUtils::IsInAPK(url.Get()))
     url.SetOptions("?cache=no");
   if (file.Open(url.Get(), READ_TRUNCATED | READ_CHUNKED))
   {
@@ -89,7 +89,7 @@ bool CFile::Copy(const CURL& url2, const CURL& dest, XFILE::IFileCallback* pCall
         // fall back to the old method in that case
         if (!CDirectory::Create(url))
         {
-          StringUtils::Tokenize(url.GetFileName(), tokens, pathsep);
+          KODI::StringUtils::Tokenize(url.GetFileName(), tokens, pathsep);
           std::string strCurrPath;
           // Handle special
           if (!url.GetProtocol().empty())

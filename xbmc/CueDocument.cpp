@@ -86,7 +86,7 @@ public:
     {
       // Remove the white space at the beginning and end of the line.
       line = m_szBuffer;
-      StringUtils::Trim(line);
+      KODI::StringUtils::Trim(line);
       if (!line.empty())
         return true;
       // If we are here, we have an empty line so try the next line
@@ -123,7 +123,7 @@ public:
       // Remove the white space at the beginning of the line.
       char ch = m_data.at(m_pos++);
       if (ch == '\r' || ch == '\n') {
-        StringUtils::Trim(line);
+        KODI::StringUtils::Trim(line);
         if (!line.empty())
           return true;
       }
@@ -133,7 +133,7 @@ public:
       }
     }
 
-    StringUtils::Trim(line);
+    KODI::StringUtils::Trim(line);
     return !line.empty();
   }
   bool ready() const override
@@ -185,15 +185,15 @@ void CCueDocument::GetSongs(VECSONGS &songs)
     else
       aSong.strArtistDesc = track.strArtist;
     //Pass album artist to MusicInfoTag object by setting album artist vector.
-    aSong.SetAlbumArtist(StringUtils::Split(m_strArtist, advancedSettings->m_musicItemSeparator));
+    aSong.SetAlbumArtist(KODI::StringUtils::Split(m_strArtist, advancedSettings->m_musicItemSeparator));
     aSong.strAlbum = m_strAlbum;
-    aSong.genre = StringUtils::Split(m_strGenre, advancedSettings->m_musicItemSeparator);
-    aSong.strReleaseDate = StringUtils::Format("{:04}", m_iYear);
+    aSong.genre = KODI::StringUtils::Split(m_strGenre, advancedSettings->m_musicItemSeparator);
+    aSong.strReleaseDate = KODI::StringUtils::Format("{:04}", m_iYear);
     aSong.iTrack = track.iTrackNumber;
     if (m_iDiscNumber > 0)
       aSong.iTrack |= (m_iDiscNumber << 16); // see CMusicInfoTag::GetDiscNumber()
     if (track.strTitle.length() == 0) // No track information for this track!
-      aSong.strTitle = StringUtils::Format("Track {:2d}", track.iTrackNumber);
+      aSong.strTitle = KODI::StringUtils::Format("Track {:2d}", track.iTrackNumber);
     else
       aSong.strTitle = track.strTitle;
     aSong.strFileName = track.strFile;
@@ -283,7 +283,7 @@ bool CCueDocument::Parse(CueReader& reader, const std::string& strFile)
   // Run through the .CUE file and extract the tracks...
   while (reader.ReadLine(strLine))
   {
-    if (StringUtils::StartsWithNoCase(strLine, "INDEX 01"))
+    if (KODI::StringUtils::StartsWithNoCase(strLine, "INDEX 01"))
     {
       if (bCurrentFileChanged)
       {
@@ -304,21 +304,21 @@ bool CCueDocument::Parse(CueReader& reader, const std::string& strFile)
       if (totalTracks >= 0) // start time of the next track
         m_tracks[totalTracks].iStartTime = time;
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "TITLE"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "TITLE"))
     {
       if (totalTracks == -1) // No tracks yet
         m_strAlbum = ExtractInfo(strLine.substr(5));
       else
         m_tracks[totalTracks].strTitle = ExtractInfo(strLine.substr(5));
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "PERFORMER"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "PERFORMER"))
     {
       if (totalTracks == -1) // No tracks yet
         m_strArtist = ExtractInfo(strLine.substr(9));
       else // New Artist for this track
         m_tracks[totalTracks].strArtist = ExtractInfo(strLine.substr(9));
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "TRACK"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "TRACK"))
     {
       int iTrackNumber = ExtractNumericInfo(strLine.substr(5));
 
@@ -334,13 +334,13 @@ bool CCueDocument::Parse(CueReader& reader, const std::string& strFile)
 
       bCurrentFileChanged = false;
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "REM DISCNUMBER"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM DISCNUMBER"))
     {
       int iDiscNumber = ExtractNumericInfo(strLine.substr(14));
       if (iDiscNumber > 0)
         m_iDiscNumber = iDiscNumber;
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "FILE"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "FILE"))
     {
       numberFiles++;
       // already a file name? then the time computation will be changed
@@ -353,23 +353,23 @@ bool CCueDocument::Parse(CueReader& reader, const std::string& strFile)
       if (!strFile.empty() && !strCurrentFile.empty())
         ResolvePath(strCurrentFile, strFile);
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "REM DATE"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM DATE"))
     {
       int iYear = ExtractNumericInfo(strLine.substr(8));
       if (iYear > 0)
         m_iYear = iYear;
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "REM GENRE"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM GENRE"))
     {
       m_strGenre = ExtractInfo(strLine.substr(9));
     }
-    else if (StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_ALBUM_GAIN"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_ALBUM_GAIN"))
       m_albumReplayGain.SetGain(strLine.substr(26));
-    else if (StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_ALBUM_PEAK"))
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_ALBUM_PEAK"))
       m_albumReplayGain.SetPeak(strLine.substr(26));
-    else if (StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_TRACK_GAIN") && totalTracks >= 0)
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_TRACK_GAIN") && totalTracks >= 0)
       m_tracks[totalTracks].replayGain.SetGain(strLine.substr(26));
-    else if (StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_TRACK_PEAK") && totalTracks >= 0)
+    else if (KODI::StringUtils::StartsWithNoCase(strLine, "REM REPLAYGAIN_TRACK_PEAK") && totalTracks >= 0)
       m_tracks[totalTracks].replayGain.SetPeak(strLine.substr(26));
   }
 
@@ -404,7 +404,7 @@ std::string CCueDocument::ExtractInfo(const std::string &line)
     }
   }
   std::string text = line;
-  StringUtils::Trim(text);
+  KODI::StringUtils::Trim(text);
   g_charsetConverter.unknownToUTF8(text);
   return text;
 }
@@ -420,16 +420,16 @@ int CCueDocument::ExtractTimeFromIndex(const std::string &index)
 {
   // Get rid of the index number and any whitespace
   std::string numberTime = index.substr(5);
-  StringUtils::TrimLeft(numberTime);
+  KODI::StringUtils::TrimLeft(numberTime);
   while (!numberTime.empty())
   {
-    if (!StringUtils::isasciidigit(numberTime[0]))
+    if (!KODI::StringUtils::isasciidigit(numberTime[0]))
       break;
     numberTime.erase(0, 1);
   }
-  StringUtils::TrimLeft(numberTime);
+  KODI::StringUtils::TrimLeft(numberTime);
   // split the resulting string
-  std::vector<std::string> time = StringUtils::Split(numberTime, ":");
+  std::vector<std::string> time = KODI::StringUtils::Split(numberTime, ":");
   if (time.size() != 3)
     return -1;
 
@@ -447,8 +447,8 @@ int CCueDocument::ExtractTimeFromIndex(const std::string &index)
 int CCueDocument::ExtractNumericInfo(const std::string &info)
 {
   std::string number(info);
-  StringUtils::TrimLeft(number);
-  if (number.empty() || !StringUtils::isasciidigit(number[0]))
+  KODI::StringUtils::TrimLeft(number);
+  if (number.empty() || !KODI::StringUtils::isasciidigit(number[0]))
     return -1;
   return atoi(number.c_str());
 }

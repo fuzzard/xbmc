@@ -97,7 +97,7 @@ bool CGUIDialogFileBrowser::OnAction(const CAction &action)
       CFileItemPtr pItem = (*m_vecItems)[iItem];
       for (unsigned int i=0;i<m_shares.size();++i)
       {
-        if (StringUtils::EqualsNoCase(m_shares[i].strName, pItem->GetLabel()) && m_shares[i].m_ignore)
+        if (KODI::StringUtils::EqualsNoCase(m_shares[i].strName, pItem->GetLabel()) && m_shares[i].m_ignore)
           return false;
       }
 

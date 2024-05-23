@@ -221,21 +221,21 @@ int CWindowTranslator::TranslateWindow(const std::string& window)
   if (strWindow.empty())
     return WINDOW_INVALID;
 
-  StringUtils::ToLower(strWindow);
+  KODI::StringUtils::ToLower(strWindow);
 
   // Eliminate .xml
-  if (StringUtils::EndsWith(strWindow, ".xml"))
+  if (KODI::StringUtils::EndsWith(strWindow, ".xml"))
     strWindow.resize(strWindow.size() - 4);
 
   // window12345, for custom window to be keymapped
-  if (strWindow.length() > 6 && StringUtils::StartsWith(strWindow, "window"))
+  if (strWindow.length() > 6 && KODI::StringUtils::StartsWith(strWindow, "window"))
     strWindow = strWindow.substr(6);
 
   // Drop "my" prefix
-  if (StringUtils::StartsWith(strWindow, "my"))
+  if (KODI::StringUtils::StartsWith(strWindow, "my"))
     strWindow = strWindow.substr(2);
 
-  if (StringUtils::IsNaturalNumber(strWindow))
+  if (KODI::StringUtils::IsNaturalNumber(strWindow))
   {
     // Allow a full window ID or a delta ID
     int iWindow = atoi(strWindow.c_str());

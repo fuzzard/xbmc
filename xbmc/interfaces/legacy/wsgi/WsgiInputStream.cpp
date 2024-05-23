@@ -69,7 +69,7 @@ namespace XBMCAddon
       String line = read(size);
 
       // remove any trailing \r\n
-      StringUtils::TrimRight(line, "\r\n");
+      KODI::StringUtils::TrimRight(line, "\r\n");
 
       return line;
     }

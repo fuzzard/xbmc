@@ -312,7 +312,7 @@ bool KeyTable::LookupName(std::string keyname, XBMCKEYTABLE* keytable)
     return false;
 
   // We need the button name to be in lowercase
-  StringUtils::ToLower(keyname);
+  KODI::StringUtils::ToLower(keyname);
 
   // Look up the key name in XBMCKeyTable
   for (int i = 0; i < XBMCKeyTableSize; i++)

@@ -38,7 +38,7 @@ bool CDVDSubtitleParserSami::Open(CDVDStreamInfo& hints)
 
   std::string strFileName;
   std::string strClassID;
-  strFileName = StringUtils::ToLower(URIUtils::GetFileName(m_filename));
+  strFileName = KODI::StringUtils::ToLower(URIUtils::GetFileName(m_filename));
 
   CDVDSubtitleTagSami TagConv;
   if (!TagConv.Init())
@@ -54,7 +54,7 @@ bool CDVDSubtitleParserSami::Open(CDVDStreamInfo& hints)
     for (unsigned int i = 0; i < TagConv.m_Langclass.size(); i++)
     {
       std::string langName = TagConv.m_Langclass[i].Name;
-      StringUtils::ToLower(langName);
+      KODI::StringUtils::ToLower(langName);
       if (strFileName.find(langName) != std::string::npos)
       {
         strClassID = TagConv.m_Langclass[i].ID;
@@ -71,7 +71,7 @@ bool CDVDSubtitleParserSami::Open(CDVDStreamInfo& hints)
   const char* langClassID{nullptr};
   if (!strClassID.empty())
   {
-    StringUtils::ToLower(strClassID);
+    KODI::StringUtils::ToLower(strClassID);
     langClassID = strClassID.c_str();
   }
 
@@ -91,7 +91,7 @@ bool CDVDSubtitleParserSami::Open(CDVDStreamInfo& hints)
     if (regClassID.RegFind(line) > -1)
     {
       lastLangClassID = regClassID.GetMatch(1);
-      StringUtils::ToLower(lastLangClassID);
+      KODI::StringUtils::ToLower(lastLangClassID);
     }
 
     int pos = regLine.RegFind(line);

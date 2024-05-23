@@ -130,7 +130,7 @@ INSTANTIATE_TEST_SUITE_P(TestVideoFileItemClassify, VideoTest, testing::ValuesIn
 TEST(TestVideoFileItemClassify, VideoExtensions)
 {
   const auto& exts = CServiceBroker::GetFileExtensionProvider().GetVideoExtensions();
-  for (const auto& ext : StringUtils::Split(exts, "|"))
+  for (const auto& ext : KODI::StringUtils::Split(exts, "|"))
   {
     if (!ext.empty())
     {
@@ -189,7 +189,7 @@ TEST(TestVideoFileItemClassify, IsProtectedBlurayDisc)
 TEST(TestVideoFileItemClassify, IsSubtitle)
 {
   const auto& exts = CServiceBroker::GetFileExtensionProvider().GetSubtitleExtensions();
-  for (const auto& ext : StringUtils::Split(exts, "|"))
+  for (const auto& ext : KODI::StringUtils::Split(exts, "|"))
   {
     if (!ext.empty())
     {

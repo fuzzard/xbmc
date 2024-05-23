@@ -637,7 +637,7 @@ bool CAESinkXAudio::InitializeInternal(std::string deviceId, AEAudioFormat &form
     wfxex.SubFormat                   = KSDATAFORMAT_SUBTYPE_PCM;
   }
 
-  bool bdefault = StringUtils::EndsWithNoCase(deviceId, std::string("default"));
+  bool bdefault = KODI::StringUtils::EndsWithNoCase(deviceId, std::string("default"));
 
   HRESULT hr;
   IXAudio2MasteringVoice* pMasterVoice = nullptr;
@@ -879,7 +879,7 @@ bool CAESinkXAudio::IsUSBDevice()
   hr = pProperty->GetValue(PKEY_Device_EnumeratorName, &varName);
 
   std::string str = localWideToUtf(varName.pwszVal);
-  StringUtils::ToUpper(str);
+  KODI::StringUtils::ToUpper(str);
   ret = (str == "USB");
   PropVariantClear(&varName);
   if (pProperty)

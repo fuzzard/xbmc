@@ -104,13 +104,13 @@ void CVirtualDirectory::CancelDirectory()
 bool CVirtualDirectory::IsSource(const std::string& strPath, VECSOURCES *sources, std::string *name) const
 {
   std::string strPathCpy = strPath;
-  StringUtils::TrimRight(strPathCpy, "/\\");
+  KODI::StringUtils::TrimRight(strPathCpy, "/\\");
 
   // just to make sure there's no mixed slashing in share/default defines
   // ie. f:/video and f:\video was not be recognised as the same directory,
   // resulting in navigation to a lower directory then the share.
   if(URIUtils::IsDOSPath(strPathCpy))
-    StringUtils::Replace(strPathCpy, '/', '\\');
+    KODI::StringUtils::Replace(strPathCpy, '/', '\\');
 
   VECSOURCES shares;
   if (sources)
@@ -121,9 +121,9 @@ bool CVirtualDirectory::IsSource(const std::string& strPath, VECSOURCES *sources
   {
     const CMediaSource& share = shares.at(i);
     std::string strShare = share.strPath;
-    StringUtils::TrimRight(strShare, "/\\");
+    KODI::StringUtils::TrimRight(strShare, "/\\");
     if(URIUtils::IsDOSPath(strShare))
-      StringUtils::Replace(strShare, '/', '\\');
+      KODI::StringUtils::Replace(strShare, '/', '\\');
     if (strShare == strPathCpy)
     {
       if (name)

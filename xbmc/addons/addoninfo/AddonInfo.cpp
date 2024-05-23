@@ -249,7 +249,7 @@ const std::string& CAddonInfo::GetTranslatedText(const std::unordered_map<std::s
   if (locales.size() == 1)
     return locales.begin()->second;
   else if (locales.empty())
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   // find the language from the list that matches the current locale best
   std::string matchingLanguage = g_langInfo.GetLocale().FindBestMatch(locales);
@@ -259,7 +259,7 @@ const std::string& CAddonInfo::GetTranslatedText(const std::unordered_map<std::s
   auto const& translatedValue = locales.find(matchingLanguage);
   if (translatedValue != locales.end())
     return translatedValue->second;
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 bool CAddonInfo::SupportsMultipleInstances() const
@@ -285,7 +285,7 @@ std::vector<AddonInstanceId> CAddonInfo::GetKnownInstanceIds() const
     return singletonInstance;
 
   std::vector<AddonInstanceId> ret;
-  const std::string searchPath = StringUtils::Format("special://profile/addon_data/{}/", m_id);
+  const std::string searchPath = KODI::StringUtils::Format("special://profile/addon_data/{}/", m_id);
 
   if (XFILE::CDirectory::Exists(searchPath))
   {
@@ -297,11 +297,11 @@ std::vector<AddonInstanceId> CAddonInfo::GetKnownInstanceIds() const
     for (const auto& item : items)
     {
       std::string filename = URIUtils::GetFileName(item->GetPath());
-      if (StringUtils::StartsWithNoCase(filename, startName))
+      if (KODI::StringUtils::StartsWithNoCase(filename, startName))
       {
         URIUtils::RemoveExtension(filename);
         const std::string_view uid(filename.data() + startName.length());
-        if (!uid.empty() && StringUtils::IsInteger(uid.data()))
+        if (!uid.empty() && KODI::StringUtils::IsInteger(uid.data()))
           ret.emplace_back(std::atoi(uid.data()));
       }
     }

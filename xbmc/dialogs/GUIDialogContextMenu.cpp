@@ -561,7 +561,7 @@ CMediaSource *CGUIDialogContextMenu::GetShare(const std::string &type, const CFi
     }
     // paths match, what about share name - only match the leftmost
     // characters as the label may contain other info (status for instance)
-    if (StringUtils::StartsWithNoCase(item->GetLabel(), testShare.strName))
+    if (KODI::StringUtils::StartsWithNoCase(item->GetLabel(), testShare.strName))
     {
       return &testShare;
     }

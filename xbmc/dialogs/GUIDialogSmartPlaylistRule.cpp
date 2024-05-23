@@ -363,7 +363,7 @@ void CGUIDialogSmartPlaylistRule::OnBrowse()
   pDialog->Reset();
   pDialog->SetItems(items);
   std::string strHeading =
-      StringUtils::Format(g_localizeStrings.Get(13401), g_localizeStrings.Get(iLabel));
+      KODI::StringUtils::Format(g_localizeStrings.Get(13401), g_localizeStrings.Get(iLabel));
   pDialog->SetHeading(CVariant{std::move(strHeading)});
   pDialog->SetMultiSelection(m_rule.m_field != FieldPlaylist && m_rule.m_field != FieldVirtualFolder);
 

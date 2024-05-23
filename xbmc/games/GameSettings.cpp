@@ -175,7 +175,7 @@ std::string CGameSettings::LoginToRA(const std::string& username,
 
   XFILE::CFile request;
   const CURL loginUrl(
-      StringUtils::Format(LOGIN_TO_RETRO_ACHIEVEMENTS_URL_TEMPLATE, username, password));
+      KODI::StringUtils::Format(LOGIN_TO_RETRO_ACHIEVEMENTS_URL_TEMPLATE, username, password));
 
   std::vector<uint8_t> response;
   if (request.LoadFile(loginUrl, response) > 0)
@@ -225,7 +225,7 @@ std::string CGameSettings::LoginToRA(const std::string& username,
 bool CGameSettings::IsAccountVerified(const std::string& username, const std::string& token) const
 {
   XFILE::CFile request;
-  const CURL getPatchFileUrl(StringUtils::Format(GET_PATCH_DATA_URL_TEMPLATE, username, token));
+  const CURL getPatchFileUrl(KODI::StringUtils::Format(GET_PATCH_DATA_URL_TEMPLATE, username, token));
   std::vector<uint8_t> response;
   if (request.LoadFile(getPatchFileUrl, response) > 0)
   {

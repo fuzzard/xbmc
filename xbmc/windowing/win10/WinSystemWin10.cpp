@@ -425,7 +425,7 @@ void CWinSystemWin10::UpdateResolutions()
         res.iScreenWidth = res.iWidth;
         res.iScreenHeight = res.iHeight;
         res.iSubtitles = res.iHeight;
-        res.strMode = StringUtils::Format("Default: {}x{} @ {:.2f}Hz", res.iWidth, res.iHeight,
+        res.strMode = KODI::StringUtils::Format("Default: {}x{} @ {:.2f}Hz", res.iWidth, res.iHeight,
                                           res.fRefreshRate);
         GetGfxContext().ResetOverscan(res);
 

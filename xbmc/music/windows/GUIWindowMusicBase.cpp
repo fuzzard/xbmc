@@ -279,14 +279,14 @@ bool CGUIWindowMusicBase::OnAction(const CAction &action)
 
 void CGUIWindowMusicBase::OnItemInfoAll(const std::string& strPath, bool refresh)
 {
-  if (StringUtils::EqualsNoCase(m_vecItems->GetContent(), "albums"))
+  if (KODI::StringUtils::EqualsNoCase(m_vecItems->GetContent(), "albums"))
   {
     if (CMusicLibraryQueue::GetInstance().IsScanningLibrary())
       return;
 
     CMusicLibraryQueue::GetInstance().StartAlbumScan(strPath, refresh);
   }
-  else if (StringUtils::EqualsNoCase(m_vecItems->GetContent(), "artists"))
+  else if (KODI::StringUtils::EqualsNoCase(m_vecItems->GetContent(), "artists"))
   {
     if (CMusicLibraryQueue::GetInstance().IsScanningLibrary())
       return;
@@ -791,9 +791,9 @@ bool CGUIWindowMusicBase::GetDirectory(const std::string &strDirectory, CFileIte
   {
     // We want to expand disc images when browsing in file view but not on library, smartplaylist
     // or node menu music windows
-    if (!items.GetPath().empty() && !StringUtils::StartsWithNoCase(items.GetPath(), "musicdb://") &&
-        !StringUtils::StartsWithNoCase(items.GetPath(), "special://") &&
-        !StringUtils::StartsWithNoCase(items.GetPath(), "library://"))
+    if (!items.GetPath().empty() && !KODI::StringUtils::StartsWithNoCase(items.GetPath(), "musicdb://") &&
+        !KODI::StringUtils::StartsWithNoCase(items.GetPath(), "special://") &&
+        !KODI::StringUtils::StartsWithNoCase(items.GetPath(), "library://"))
       CDirectory::FilterFileDirectories(items, ".iso", true);
 
     CMusicThumbLoader loader;
@@ -829,7 +829,7 @@ bool CGUIWindowMusicBase::GetDirectory(const std::string &strDirectory, CFileIte
         else
         {
           if (dirType == MediaTypeAlbum)
-            StringUtils::Replace(artitem.prefix, "albumartist", "artist");
+            KODI::StringUtils::Replace(artitem.prefix, "albumartist", "artist");
           artname = artitem.prefix + "." + artitem.artType;
         }
       artmap.insert(std::make_pair(artname, artitem.url));
@@ -883,8 +883,8 @@ bool CGUIWindowMusicBase::CheckFilterAdvanced(CFileItemList &items) const
 {
   const std::string& content = items.GetContent();
   if ((MUSIC::IsMusicDb(items) || CanContainFilter(m_strFilterPath)) &&
-      (StringUtils::EqualsNoCase(content, "artists") ||
-       StringUtils::EqualsNoCase(content, "albums") || StringUtils::EqualsNoCase(content, "songs")))
+      (KODI::StringUtils::EqualsNoCase(content, "artists") ||
+       KODI::StringUtils::EqualsNoCase(content, "albums") || KODI::StringUtils::EqualsNoCase(content, "songs")))
     return true;
 
   return false;
@@ -914,7 +914,7 @@ bool CGUIWindowMusicBase::OnSelect(int iItem)
         CContextButtons choices;
         choices.Add(MUSIC_SELECT_ACTION_PLAY, 208); // 208 = Play
         choices.Add(MUSIC_SELECT_ACTION_RESUME,
-                    StringUtils::Format(g_localizeStrings.Get(12022), // 12022 = Resume from ...
+                    KODI::StringUtils::Format(g_localizeStrings.Get(12022), // 12022 = Resume from ...
                                         (*itemIt)->GetMusicInfoTag()->GetTitle()));
 
         auto choice = CGUIDialogContextMenu::Show(choices);
@@ -971,7 +971,7 @@ void CGUIWindowMusicBase::OnInitWindow()
 
 std::string CGUIWindowMusicBase::GetStartFolder(const std::string &dir)
 {
-  std::string lower(dir); StringUtils::ToLower(lower);
+  std::string lower(dir); KODI::StringUtils::ToLower(lower);
   if (lower == "plugins" || lower == "addons")
     return "addons://sources/audio/";
   else if (lower == "$playlists" || lower == "playlists")

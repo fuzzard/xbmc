@@ -132,10 +132,10 @@ void CActiveAESettings::SettingOptionsAudioStreamsilenceFiller(
 
   if (m_instance->m_audioEngine.SupportsSilenceTimeout())
   {
-    list.emplace_back(StringUtils::Format(g_localizeStrings.Get(13554), 1), 1);
+    list.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(13554), 1), 1);
     for (int i = 2; i <= 10; i++)
     {
-      list.emplace_back(StringUtils::Format(g_localizeStrings.Get(13555), i), i);
+      list.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(13555), i), i);
     }
   }
 }
@@ -180,7 +180,7 @@ void CActiveAESettings::SettingOptionsAudioDevicesFillerGeneral(
 
       list.emplace_back(sink->first, sink->second);
 
-      if (StringUtils::EqualsNoCase(current, sink->second))
+      if (KODI::StringUtils::EqualsNoCase(current, sink->second))
         foundValue = true;
     }
   }

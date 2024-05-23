@@ -58,7 +58,7 @@ bool CIRTranslator::LoadIRMap(const std::string& irMapPath)
   size_t lastindex = remoteMapTag.find_last_of('.');
   if (lastindex != std::string::npos)
     remoteMapTag.resize(lastindex);
-  StringUtils::ToLower(remoteMapTag);
+  KODI::StringUtils::ToLower(remoteMapTag);
 
   // Load our xml file, and fill up our mapping tables
   CXBMCTinyXML2 xmlDoc;
@@ -153,7 +153,7 @@ unsigned int CIRTranslator::TranslateButton(const std::string& szDevice,
     return 0;
 
   // Convert the button to code
-  if (StringUtils::CompareNoCase((*it2).second, "obc", 3) == 0)
+  if (KODI::StringUtils::CompareNoCase((*it2).second, "obc", 3) == 0)
     return TranslateUniversalRemoteString((*it2).second);
 
   return TranslateString((*it2).second);
@@ -166,7 +166,7 @@ uint32_t CIRTranslator::TranslateString(std::string strButton)
 
   uint32_t buttonCode = 0;
 
-  StringUtils::ToLower(strButton);
+  KODI::StringUtils::ToLower(strButton);
 
   if (strButton == "left")
     buttonCode = XINPUT_IR_REMOTE_LEFT;
@@ -306,7 +306,7 @@ uint32_t CIRTranslator::TranslateString(std::string strButton)
 
 uint32_t CIRTranslator::TranslateUniversalRemoteString(const std::string& szButton)
 {
-  if (szButton.empty() || szButton.length() < 4 || StringUtils::CompareNoCase(szButton, "obc", 3))
+  if (szButton.empty() || szButton.length() < 4 || KODI::StringUtils::CompareNoCase(szButton, "obc", 3))
     return 0;
 
   const char* szCode = szButton.c_str() + 3;

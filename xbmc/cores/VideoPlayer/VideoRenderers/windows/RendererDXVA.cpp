@@ -335,7 +335,7 @@ std::string CRendererDXVA::GetRenderMethodDebugInfo() const
 {
   if (m_processor && DX::Windowing()->SupportsVideoSuperResolution())
   {
-    return StringUtils::Format("Video Super Resolution: {}",
+    return KODI::StringUtils::Format("Video Super Resolution: {}",
                                m_processor->IsVideoSuperResolutionEnabled() ? "requested" : "OFF");
   }
   return {};

@@ -35,13 +35,13 @@ bool CWeatherGUIInfo::GetLabel(std::string& value, const CFileItem *item, int co
     ///////////////////////////////////////////////////////////////////////////////////////////////
     case WEATHER_CONDITIONS_TEXT:
       value = CServiceBroker::GetWeatherManager().GetInfo(WEATHER_LABEL_CURRENT_COND);
-      StringUtils::Trim(value);
+      KODI::StringUtils::Trim(value);
       return true;
     case WEATHER_CONDITIONS_ICON:
       value = CServiceBroker::GetWeatherManager().GetInfo(WEATHER_IMAGE_CURRENT_ICON);
       return true;
     case WEATHER_TEMPERATURE:
-      value = StringUtils::Format(
+      value = KODI::StringUtils::Format(
           "{}{}", CServiceBroker::GetWeatherManager().GetInfo(WEATHER_LABEL_CURRENT_TEMP),
           g_langInfo.GetTemperatureUnitString());
       return true;

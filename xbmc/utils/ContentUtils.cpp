@@ -54,7 +54,7 @@ std::unique_ptr<CFileItem> ContentUtils::GeneratePlayableTrailerItem(const CFile
   CVideoInfoTag* videoInfoTag = trailerItem->GetVideoInfoTag();
   *videoInfoTag = *item.GetVideoInfoTag();
   videoInfoTag->m_streamDetails.Reset();
-  videoInfoTag->m_strTitle = StringUtils::Format("{} ({})", videoInfoTag->m_strTitle, label);
+  videoInfoTag->m_strTitle = KODI::StringUtils::Format("{} ({})", videoInfoTag->m_strTitle, label);
   trailerItem->SetArt(item.GetArt());
   videoInfoTag->m_iDbId = -1;
   videoInfoTag->m_iFileId = -1;

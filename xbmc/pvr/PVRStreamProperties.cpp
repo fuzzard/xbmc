@@ -36,5 +36,5 @@ bool CPVRStreamProperties::EPGPlaybackAsLive() const
   const auto it = std::find_if(cbegin(), cend(), [](const auto& prop) {
     return prop.first == PVR_STREAM_PROPERTY_EPGPLAYBACKASLIVE;
   });
-  return it != cend() ? StringUtils::EqualsNoCase((*it).second, "true") : false;
+  return it != cend() ? KODI::StringUtils::EqualsNoCase((*it).second, "true") : false;
 }

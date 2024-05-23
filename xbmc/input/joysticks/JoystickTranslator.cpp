@@ -171,5 +171,5 @@ std::string CJoystickTranslator::GetPrimitiveName(const CDriverPrimitive& primit
       break;
   }
 
-  return StringUtils::Format(primitiveTemplate, primitive.Index());
+  return KODI::StringUtils::Format(primitiveTemplate, primitive.Index());
 }

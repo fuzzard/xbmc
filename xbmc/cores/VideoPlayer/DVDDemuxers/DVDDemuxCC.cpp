@@ -84,15 +84,15 @@ void ApplyStyleModifiers(std::string& ccText, const cc_attribute_t& ccAttributes
   // Apply style modifiers to CC text
   if (ccAttributes.italic > 0)
   {
-    ccText = StringUtils::Format("<i>{}</i>", ccText);
+    ccText = KODI::StringUtils::Format("<i>{}</i>", ccText);
   }
   if (ccAttributes.underline > 0)
   {
-    ccText = StringUtils::Format("<u>{}</u>", ccText);
+    ccText = KODI::StringUtils::Format("<u>{}</u>", ccText);
   }
   if (ccAttributes.foreground != WHITE)
   {
-    ccText = StringUtils::Format(
+    ccText = KODI::StringUtils::Format(
         "<font color=#{}>{}</u>",
         UTILS::COLOR::ConvertToHexRGB(CCColorConversion(ccAttributes.foreground, ColorFormat::RGB)),
         ccText);

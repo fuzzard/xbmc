@@ -690,7 +690,7 @@ DEBUG_INFO_VIDEO CRendererBase::GetDebugInfo(int idx)
 
   DEBUG_INFO_VIDEO info;
 
-  info.videoSource = StringUtils::Format(
+  info.videoSource = KODI::StringUtils::Format(
       "Source: {}x{}{}, fr: {:.3f}, pixel: {} {}-bit, range: {}-{}, matx: {}, trc: {}",
       m_sourceWidth, m_sourceHeight, (rb->pictureFlags & DVP_FLAG_INTERLACED) ? "i" : "p", m_fps,
       pixel, rb->bits, range_min, range_max, prim, trans);
@@ -715,7 +715,7 @@ DEBUG_INFO_VIDEO CRendererBase::GetDebugInfo(int idx)
       wp[j] = static_cast<double>(rb->displayMetadata.white_point[j].num) /
               static_cast<double>(rb->displayMetadata.white_point[j].den);
 
-    info.metaPrim += StringUtils::Format(
+    info.metaPrim += KODI::StringUtils::Format(
         "R({:.3f} {:.3f}), G({:.3f} {:.3f}), B({:.3f} {:.3f}), WP({:.3f} {:.3f})", prim[0][0],
         prim[0][1], prim[1][0], prim[1][1], prim[2][0], prim[2][1], wp[0], wp[1]);
   }
@@ -732,11 +732,11 @@ DEBUG_INFO_VIDEO CRendererBase::GetDebugInfo(int idx)
     double minML = static_cast<double>(rb->displayMetadata.min_luminance.num) /
                    static_cast<double>(rb->displayMetadata.min_luminance.den);
 
-    info.metaLight += StringUtils::Format("max ML: {:.0f}, min ML: {:.4f}", maxML, minML);
+    info.metaLight += KODI::StringUtils::Format("max ML: {:.0f}, min ML: {:.4f}", maxML, minML);
 
     if (rb->hasLightMetadata && rb->lightMetadata.MaxCLL)
     {
-      info.metaLight += StringUtils::Format(", max CLL: {}, max FALL: {}", rb->lightMetadata.MaxCLL,
+      info.metaLight += KODI::StringUtils::Format(", max CLL: {}, max FALL: {}", rb->lightMetadata.MaxCLL,
                                             rb->lightMetadata.MaxFALL);
     }
   }
@@ -749,7 +749,7 @@ DEBUG_INFO_VIDEO CRendererBase::GetDebugInfo(int idx)
     info.shader = m_outputShader->GetDebugInfo();
 
   info.render =
-      StringUtils::Format("Render method: {}, IT: {}x{} {}", m_renderMethodName,
+      KODI::StringUtils::Format("Render method: {}, IT: {}x{} {}", m_renderMethodName,
                           m_IntermediateTarget.GetWidth(), m_IntermediateTarget.GetHeight(),
                           DX::DXGIFormatToShortString(m_IntermediateTarget.GetFormat()));
 

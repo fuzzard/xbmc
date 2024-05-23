@@ -244,7 +244,7 @@ void CGUIDialogSmartPlaylistEditor::OnOK()
   {
     // check if we need to actually change the save location for this playlist
     // this occurs if the user switches from music video <> songs <> mixed
-    if (StringUtils::StartsWith(m_path, systemPlaylistsPath))
+    if (KODI::StringUtils::StartsWith(m_path, systemPlaylistsPath))
     {
       std::string filename = URIUtils::GetFileName(m_path);
       std::string strFolder = m_path.substr(systemPlaylistsPath.size(), m_path.size() - filename.size() - systemPlaylistsPath.size() - 1);
@@ -302,7 +302,7 @@ void CGUIDialogSmartPlaylistEditor::OnLimit()
     if (*limit == 0)
       dialog->Add(g_localizeStrings.Get(21428));
     else
-      dialog->Add(StringUtils::Format(g_localizeStrings.Get(21436), *limit));
+      dialog->Add(KODI::StringUtils::Format(g_localizeStrings.Get(21436), *limit));
   }
   dialog->SetHeading(CVariant{ 21427 });
   dialog->SetSelected(selected);
@@ -421,7 +421,7 @@ void CGUIDialogSmartPlaylistEditor::UpdateButtons()
     SET_CONTROL_LABEL2(CONTROL_LIMIT, g_localizeStrings.Get(21428)); // no limit
   else
     SET_CONTROL_LABEL2(CONTROL_LIMIT,
-                       StringUtils::Format(g_localizeStrings.Get(21436), m_playlist.m_limit));
+                       KODI::StringUtils::Format(g_localizeStrings.Get(21436), m_playlist.m_limit));
   int currentItem = GetSelectedItem();
   CGUIMessage msgReset(GUI_MSG_LABEL_RESET, GetID(), CONTROL_RULE_LIST);
   OnMessage(msgReset);
@@ -643,7 +643,7 @@ bool CGUIDialogSmartPlaylistEditor::EditPlaylist(const std::string &path, const 
   bool loaded(playlist.Load(path));
   if (!loaded)
   { // failed to load
-    if (!StringUtils::StartsWithNoCase(editor->m_mode, "party"))
+    if (!KODI::StringUtils::StartsWithNoCase(editor->m_mode, "party"))
       return false; // only edit normal playlists that exist
     // party mode playlists can be edited even if they don't exist
     playlist.SetType(editor->m_mode == "partymusic" ? "songs" : "musicvideos");

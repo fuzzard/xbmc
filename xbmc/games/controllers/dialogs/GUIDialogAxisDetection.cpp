@@ -32,7 +32,7 @@ std::string CGUIDialogAxisDetection::GetDialogText()
     primitives.emplace_back(JOYSTICK::CJoystickTranslator::GetPrimitiveName(axis));
   }
 
-  return StringUtils::Format(dialogText, StringUtils::Join(primitives, " | "));
+  return KODI::StringUtils::Format(dialogText, KODI::StringUtils::Join(primitives, " | "));
 }
 
 std::string CGUIDialogAxisDetection::GetDialogHeader()

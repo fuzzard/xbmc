@@ -871,7 +871,7 @@ bool CPVRDatabase::PersistChannels(const CPVRChannelGroup& group)
       strQuery =
           PrepareSQL("iUniqueId = %i AND iClientId = %i", channel->UniqueID(), channel->ClientID());
       strValue = GetSingleValue("channels", "idChannel", strQuery);
-      if (!strValue.empty() && StringUtils::IsInteger(strValue))
+      if (!strValue.empty() && KODI::StringUtils::IsInteger(strValue))
       {
         const int iChannelID = std::atoi(strValue.c_str());
         channel->SetChannelID(iChannelID);

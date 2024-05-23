@@ -256,7 +256,7 @@ void CPVRRecording::ToSortable(SortItem& sortable, Field field) const
   if (field == FieldSize)
     sortable[FieldSize] = m_sizeInBytes;
   else if (field == FieldProvider)
-    sortable[FieldProvider] = StringUtils::Format("{} {}", m_iClientId, m_iClientProviderUniqueId);
+    sortable[FieldProvider] = KODI::StringUtils::Format("{} {}", m_iClientId, m_iClientProviderUniqueId);
   else
     CVideoInfoTag::ToSortable(sortable, field);
 }
@@ -492,14 +492,14 @@ void CPVRRecording::Update(const CPVRRecording& tag, const CPVRClient& client)
   else
   {
     /* Determine genre description by type/subtype */
-    m_genre = StringUtils::Split(
+    m_genre = KODI::StringUtils::Split(
         CPVREpg::ConvertGenreIdToString(tag.m_iGenreType, tag.m_iGenreSubType),
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
   }
 
   //Old Method of identifying TV show title and subtitle using m_strDirectory and strPlotOutline (deprecated)
-  std::string strShow = StringUtils::Format("{} - ", g_localizeStrings.Get(20364));
-  if (StringUtils::StartsWithNoCase(m_strPlotOutline, strShow))
+  std::string strShow = KODI::StringUtils::Format("{} - ", g_localizeStrings.Get(20364));
+  if (KODI::StringUtils::StartsWithNoCase(m_strPlotOutline, strShow))
   {
     CLog::Log(LOGWARNING, "PVR addon provides episode name in strPlotOutline which is deprecated");
     std::string strEpisode = m_strPlotOutline;
@@ -631,14 +631,14 @@ void CPVRRecording::SetGenre(int iGenreType, int iGenreSubType, const std::strin
       !strGenre.empty())
   {
     /* Type and sub type are not given. Use the provided genre description if available. */
-    m_genre = StringUtils::Split(
+    m_genre = KODI::StringUtils::Split(
         strGenre,
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
   }
   else
   {
     /* Determine the genre description from the type and subtype IDs */
-    m_genre = StringUtils::Split(
+    m_genre = KODI::StringUtils::Split(
         CPVREpg::ConvertGenreIdToString(iGenreType, iGenreSubType),
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
   }
@@ -646,7 +646,7 @@ void CPVRRecording::SetGenre(int iGenreType, int iGenreSubType, const std::strin
 
 const std::string CPVRRecording::GetGenresLabel() const
 {
-  return StringUtils::Join(
+  return KODI::StringUtils::Join(
       m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
 }
 

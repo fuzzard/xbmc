@@ -68,7 +68,7 @@ IFileDirectory* CFileDirectoryFactory::Create(const CURL& url, CFileItem* pItem,
 
   // Get file extensions to find addon related to it.
   std::string strExtension = URIUtils::GetExtension(url);
-  StringUtils::ToLower(strExtension);
+  KODI::StringUtils::ToLower(strExtension);
 
   if (!strExtension.empty() && CServiceBroker::IsAddonInterfaceUp())
   {
@@ -78,7 +78,7 @@ IFileDirectory* CFileDirectoryFactory::Create(const CURL& url, CFileItem* pItem,
      * @note: Do not check audio decoder files that are already open, they cannot
      * contain any further sub-folders.
      */
-    if (!StringUtils::EndsWith(strExtension, KODI_ADDON_AUDIODECODER_TRACK_EXT))
+    if (!KODI::StringUtils::EndsWith(strExtension, KODI_ADDON_AUDIODECODER_TRACK_EXT))
     {
       auto addonInfos = CServiceBroker::GetExtsMimeSupportList().GetExtensionSupportedAddonInfos(
           strExtension, CExtsMimeSupportList::FilterSelect::hasTracks);
@@ -104,7 +104,7 @@ IFileDirectory* CFileDirectoryFactory::Create(const CURL& url, CFileItem* pItem,
     {
       if (vfsAddon->HasFileDirectories())
       {
-        auto exts = StringUtils::Split(vfsAddon->GetExtensions(), "|");
+        auto exts = KODI::StringUtils::Split(vfsAddon->GetExtensions(), "|");
         if (std::find(exts.begin(), exts.end(), strExtension) != exts.end())
         {
           CVFSEntryIFileDirectoryWrapper* wrap = new CVFSEntryIFileDirectoryWrapper(vfsAddon);

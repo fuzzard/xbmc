@@ -54,9 +54,9 @@ bool CSettingUpdate::Deserialize(const TiXmlNode *node)
 
 bool CSettingUpdate::setType(const std::string &type)
 {
-  if (StringUtils::EqualsNoCase(type, "change"))
+  if (KODI::StringUtils::EqualsNoCase(type, "change"))
     m_type = SettingUpdateType::Change;
-  else if (StringUtils::EqualsNoCase(type, "rename"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "rename"))
     m_type = SettingUpdateType::Rename;
   else
     return false;

@@ -140,10 +140,10 @@ bool CSMBDirectory::GetDirectory(const CURL& url, CFileItemList &items)
       int64_t lTimeDate = 0;
       bool hidden = false;
 
-      if(StringUtils::EndsWith(strFile, "$") && aDir.type == SMBC_FILE_SHARE )
+      if(KODI::StringUtils::EndsWith(strFile, "$") && aDir.type == SMBC_FILE_SHARE )
         continue;
 
-      if (StringUtils::StartsWith(strFile, "."))
+      if (KODI::StringUtils::StartsWith(strFile, "."))
         hidden = true;
 
       // only stat files that can give proper responses
@@ -297,7 +297,7 @@ int CSMBDirectory::OpenDir(const CURL& url, std::string& strAuth)
     }
 
     if (errno == ENODEV || errno == ENOENT)
-      cError = StringUtils::Format(g_localizeStrings.Get(770), errno);
+      cError = KODI::StringUtils::Format(g_localizeStrings.Get(770), errno);
     else
       cError = strerror(errno);
 

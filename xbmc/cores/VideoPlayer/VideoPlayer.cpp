@@ -107,9 +107,9 @@ public:
     currentSubStream(subStream)
   {
     const std::string subtitleLang = CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_LOCALE_SUBTITLELANGUAGE);
-    original = StringUtils::EqualsNoCase(subtitleLang, "original");
-    nosub = StringUtils::EqualsNoCase(subtitleLang, "none");
-    onlyforced = StringUtils::EqualsNoCase(subtitleLang, "forced_only");
+    original = KODI::StringUtils::EqualsNoCase(subtitleLang, "original");
+    nosub = KODI::StringUtils::EqualsNoCase(subtitleLang, "none");
+    onlyforced = KODI::StringUtils::EqualsNoCase(subtitleLang, "forced_only");
   };
 
   bool operator()(const SelectionStream& ss) const
@@ -171,9 +171,9 @@ public:
 
     const std::shared_ptr<CSettings> settings = CServiceBroker::GetSettingsComponent()->GetSettings();
 
-    if (!StringUtils::EqualsNoCase(settings->GetString(CSettings::SETTING_LOCALE_AUDIOLANGUAGE), "mediadefault"))
+    if (!KODI::StringUtils::EqualsNoCase(settings->GetString(CSettings::SETTING_LOCALE_AUDIOLANGUAGE), "mediadefault"))
     {
-      if (!StringUtils::EqualsNoCase(settings->GetString(CSettings::SETTING_LOCALE_AUDIOLANGUAGE), "original"))
+      if (!KODI::StringUtils::EqualsNoCase(settings->GetString(CSettings::SETTING_LOCALE_AUDIOLANGUAGE), "original"))
       {
         std::string audio_language = g_langInfo.GetAudioLanguage();
         PREDICATE_RETURN(g_LangCodeExpander.CompareISO639Codes(audio_language, lh.language)
@@ -241,7 +241,7 @@ private:
 public:
   explicit PredicateSubtitlePriority(const std::string& lang, int stream, bool ison)
   : audiolang(lang),
-    original(StringUtils::EqualsNoCase(CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_LOCALE_SUBTITLELANGUAGE), "original")),
+    original(KODI::StringUtils::EqualsNoCase(CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_LOCALE_SUBTITLELANGUAGE), "original")),
     subson(ison),
     filter(lang, stream),
     subStream(stream)
@@ -490,7 +490,7 @@ void CSelectionStreams::Update(const std::shared_ptr<CDVDInputStream>& input,
       s.width = info.width;
       s.height = info.height;
       s.codec = info.codecName;
-      s.name = StringUtils::Format("{} {}", g_localizeStrings.Get(38032), i);
+      s.name = KODI::StringUtils::Format("{} {}", g_localizeStrings.Get(38032), i);
       Update(s);
     }
   }
@@ -791,7 +791,7 @@ bool CVideoPlayer::OpenInputStream()
 
     // load any subtitles from file item
     std::string key("subtitle:1");
-    for (unsigned s = 1; m_item.HasProperty(key); key = StringUtils::Format("subtitle:{}", ++s))
+    for (unsigned s = 1; m_item.HasProperty(key); key = KODI::StringUtils::Format("subtitle:{}", ++s))
       filenames.push_back(m_item.GetProperty(key).asString());
 
     for (unsigned int i=0;i<filenames.size();i++)
@@ -1317,7 +1317,7 @@ void CVideoPlayer::Prepare()
       if (advancedSettings && advancedSettings->m_EdlDisplayCommbreakNotifications)
       {
         const std::string timeString =
-            StringUtils::SecondsToTimeString(edit.end / 1000, TIME_FORMAT_MM_SS);
+            KODI::StringUtils::SecondsToTimeString(edit.end / 1000, TIME_FORMAT_MM_SS);
         CGUIDialogKaiToast::QueueNotification(g_localizeStrings.Get(25011), timeString);
       }
     }
@@ -2450,7 +2450,7 @@ void CVideoPlayer::CheckAutoSceneSkip()
       if (advancedSettings && advancedSettings->m_EdlDisplayCommbreakNotifications)
       {
         const std::string timeString =
-            StringUtils::SecondsToTimeString((edit.end - edit.start) / 1000, TIME_FORMAT_MM_SS);
+            KODI::StringUtils::SecondsToTimeString((edit.end - edit.start) / 1000, TIME_FORMAT_MM_SS);
         CGUIDialogKaiToast::QueueNotification(g_localizeStrings.Get(25011), timeString);
       }
 
@@ -3294,13 +3294,13 @@ void CVideoPlayer::GetGeneralInfo(std::string& strGeneralInfo)
     std::unique_lock<CCriticalSection> lock(m_StateSection);
     if (m_State.cache_bytes >= 0)
     {
-      strBuf += StringUtils::Format("forward: {} / {:2.0f}% / {:6.3f}s / {:.3f}%",
-                                    StringUtils::SizeToString(m_State.cache_bytes),
+      strBuf += KODI::StringUtils::Format("forward: {} / {:2.0f}% / {:6.3f}s / {:.3f}%",
+                                    KODI::StringUtils::SizeToString(m_State.cache_bytes),
                                     m_State.cache_level * 100.0, m_State.cache_time,
                                     m_State.cache_offset * 100.0);
     }
 
-    strGeneralInfo = StringUtils::Format("Player: a/v:{: 6.3f}, {}", dDiff, strBuf);
+    strGeneralInfo = KODI::StringUtils::Format("Player: a/v:{: 6.3f}, {}", dDiff, strBuf);
   }
 }
 

@@ -132,16 +132,16 @@ void MysqlDatabase::configure_connection()
       if ((row = mysql_fetch_row(res)) != NULL)
       {
         std::string column = row[0];
-        std::vector<std::string> split = StringUtils::Split(column, ',');
+        std::vector<std::string> split = KODI::StringUtils::Split(column, ',');
 
         for (std::string& itIn : split)
         {
-          if (StringUtils::Trim(itIn) == "derived_merge=on")
+          if (KODI::StringUtils::Trim(itIn) == "derived_merge=on")
           {
             strcpy(sqlcmd, "SET SESSION optimizer_switch = 'derived_merge=off'");
             if ((ret = mysql_real_query(conn, sqlcmd, strlen(sqlcmd))) != MYSQL_OK)
               throw DbErrors("Can't set optimizer_switch = '%s': '%s' (%d)",
-                             StringUtils::Trim(itIn).c_str(), db.c_str(), ret);
+                             KODI::StringUtils::Trim(itIn).c_str(), db.c_str(), ret);
             break;
           }
         }
@@ -159,7 +159,7 @@ int MysqlDatabase::connect(bool create_new)
     return DB_CONNECTION_NONE;
 
   std::string resolvedHost;
-  if (!StringUtils::EqualsNoCase(host, "localhost") && CDNSNameCache::Lookup(host, resolvedHost))
+  if (!KODI::StringUtils::EqualsNoCase(host, "localhost") && CDNSNameCache::Lookup(host, resolvedHost))
   {
     CLog::Log(LOGDEBUG, "{} replacing configured host {} with resolved host {}", __FUNCTION__, host,
               resolvedHost);
@@ -1433,7 +1433,7 @@ void MysqlDatabase::mysqlVXPrintf(StrAccum* pAccum, /* Accumulate results here *
         char q = ((xtype == etSQLESCAPE3) ? '"' : '\''); /* Quote character */
         std::string arg = va_arg(ap, char*);
         if (isLike)
-          StringUtils::Replace(arg, "\\", "\\\\");
+          KODI::StringUtils::Replace(arg, "\\", "\\\\");
         const char* escarg = arg.c_str();
 
         isnull = escarg == 0;

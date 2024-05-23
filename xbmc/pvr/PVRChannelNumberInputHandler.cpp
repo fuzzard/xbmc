@@ -117,9 +117,9 @@ void CPVRChannelNumberInputHandler::AppendChannelNumberCharacter(char cCharacter
     const std::string channel = *it;
     ++it;
 
-    if (StringUtils::StartsWith(channel, m_inputBuffer))
+    if (KODI::StringUtils::StartsWith(channel, m_inputBuffer))
     {
-      if (it != m_sortedChannelNumbers.end() && StringUtils::StartsWith(*it, m_inputBuffer))
+      if (it != m_sortedChannelNumbers.end() && KODI::StringUtils::StartsWith(*it, m_inputBuffer))
       {
         // there are alternative numbers; wait for more input
         break;

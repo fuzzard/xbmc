@@ -294,14 +294,14 @@ namespace KODI::VIDEO
       if (m_handle)
       {
         int str = content == CONTENT_MOVIES ? 20317:20318;
-        m_handle->SetTitle(StringUtils::Format(g_localizeStrings.Get(str), info->Name()));
+        m_handle->SetTitle(KODI::StringUtils::Format(g_localizeStrings.Get(str), info->Name()));
       }
 
       std::string fastHash;
       if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bVideoLibraryUseFastHash && !URIUtils::IsPlugin(strDirectory))
         fastHash = GetFastHash(strDirectory, regexps);
 
-      if (m_database.GetPathHash(strDirectory, dbHash) && !fastHash.empty() && StringUtils::EqualsNoCase(fastHash, dbHash))
+      if (m_database.GetPathHash(strDirectory, dbHash) && !fastHash.empty() && KODI::StringUtils::EqualsNoCase(fastHash, dbHash))
       { // fast hashes match - no need to process anything
         hash = fastHash;
       }
@@ -324,7 +324,7 @@ namespace KODI::VIDEO
           hash = fastHash;
       }
 
-      if (StringUtils::EqualsNoCase(hash, dbHash))
+      if (KODI::StringUtils::EqualsNoCase(hash, dbHash))
       { // hash matches - skipping
         CLog::Log(LOGDEBUG, "VideoInfoScanner: Skipping dir '{}' due to no change{}",
                   CURL::GetRedacted(strDirectory), !fastHash.empty() ? " (fasthash)" : "");
@@ -354,7 +354,7 @@ namespace KODI::VIDEO
     else if (content == CONTENT_TVSHOWS)
     {
       if (m_handle)
-        m_handle->SetTitle(StringUtils::Format(g_localizeStrings.Get(20319), info->Name()));
+        m_handle->SetTitle(KODI::StringUtils::Format(g_localizeStrings.Get(20319), info->Name()));
 
       if (foundDirectly && !settings.parent_name_root)
       {
@@ -363,7 +363,7 @@ namespace KODI::VIDEO
         items.SetPath(strDirectory);
         GetPathHash(items, hash);
         bSkip = true;
-        if (!m_database.GetPathHash(strDirectory, dbHash) || !StringUtils::EqualsNoCase(dbHash, hash))
+        if (!m_database.GetPathHash(strDirectory, dbHash) || !KODI::StringUtils::EqualsNoCase(dbHash, hash))
           bSkip = false;
         else
           items.Clear();
@@ -400,7 +400,7 @@ namespace KODI::VIDEO
                   CURL::GetRedacted(strDirectory));
       }
     }
-    else if (!StringUtils::EqualsNoCase(hash, dbHash) && (content == CONTENT_MOVIES || content == CONTENT_MUSICVIDEOS))
+    else if (!KODI::StringUtils::EqualsNoCase(hash, dbHash) && (content == CONTENT_MOVIES || content == CONTENT_MUSICVIDEOS))
     { // update the hash either way - we may have changed the hash to a fast version
       m_database.SetPathHash(strDirectory, hash);
     }
@@ -533,7 +533,7 @@ namespace KODI::VIDEO
 
           eventLog->Add(EventPtr(new CMediaLibraryEvent(
               mediaType, pItem->GetPath(), 24145,
-              StringUtils::Format(g_localizeStrings.Get(24147), mediaType, itemlogpath),
+              KODI::StringUtils::Format(g_localizeStrings.Get(24147), mediaType, itemlogpath),
               EventLevel::Warning)));
         }
       }
@@ -1007,7 +1007,7 @@ namespace KODI::VIDEO
       else if (CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bVideoLibraryUseFastHash)
         hash = GetRecursiveFastHash(item->GetPath(), regexps);
 
-      if (m_database.GetPathHash(item->GetPath(), dbHash) && (allowEmptyHash || !hash.empty()) && StringUtils::EqualsNoCase(dbHash, hash))
+      if (m_database.GetPathHash(item->GetPath(), dbHash) && (allowEmptyHash || !hash.empty()) && KODI::StringUtils::EqualsNoCase(dbHash, hash))
       {
         // fast hashes match - no need to process anything
         bSkip = true;
@@ -1031,7 +1031,7 @@ namespace KODI::VIDEO
         if (hash.empty())
         {
           GetPathHash(items, hash);
-          if (StringUtils::EqualsNoCase(dbHash, hash))
+          if (KODI::StringUtils::EqualsNoCase(dbHash, hash))
           {
             // slow hashes match - no need to process anything
             bSkip = true;
@@ -1091,13 +1091,13 @@ namespace KODI::VIDEO
     std::vector<std::string> foldersToRemove;
     for (const auto& item : items)
     {
-      const std::string file = StringUtils::ToUpper(item->GetPath());
+      const std::string file = KODI::StringUtils::ToUpper(item->GetPath());
       if (file.find("VIDEO_TS.IFO") != std::string::npos)
-        foldersToRemove.emplace_back(StringUtils::ToUpper(URIUtils::GetDirectory(file)));
+        foldersToRemove.emplace_back(KODI::StringUtils::ToUpper(URIUtils::GetDirectory(file)));
       if (file.find("INDEX.BDMV") != std::string::npos &&
           file.find("BACKUP/INDEX.BDMV") == std::string::npos)
         foldersToRemove.emplace_back(
-            StringUtils::ToUpper(URIUtils::GetParentPath(URIUtils::GetDirectory(file))));
+            KODI::StringUtils::ToUpper(URIUtils::GetParentPath(URIUtils::GetDirectory(file))));
     }
 
     // Remove folders
@@ -1105,7 +1105,7 @@ namespace KODI::VIDEO
         std::remove_if(items.begin(), items.end(),
                        [&](const CFileItemPtr& i)
                        {
-                         const std::string fileAndPath(StringUtils::ToUpper(i->GetPath()));
+                         const std::string fileAndPath(KODI::StringUtils::ToUpper(i->GetPath()));
                          std::string file;
                          std::string path;
                          URIUtils::Split(fileAndPath, path, file);
@@ -1126,7 +1126,7 @@ namespace KODI::VIDEO
       std::string strPath = URIUtils::GetDirectory(items[i]->GetPath());
       URIUtils::RemoveSlashAtEnd(strPath); // want no slash for the test that follows
 
-      if (StringUtils::EqualsNoCase(URIUtils::GetFileName(strPath), "sample"))
+      if (KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(strPath), "sample"))
         continue;
 
       // Discard all exclude files defined by regExExcludes
@@ -1494,7 +1494,7 @@ namespace KODI::VIDEO
 
     if (showInfo && content == CONTENT_TVSHOWS)
     {
-      strTitle = StringUtils::Format("{} - {}x{} - {}", showInfo->m_strTitle,
+      strTitle = KODI::StringUtils::Format("{} - {}x{} - {}", showInfo->m_strTitle,
                                      movieDetails.m_iSeason, movieDetails.m_iEpisode, strTitle);
     }
 
@@ -1551,7 +1551,7 @@ namespace KODI::VIDEO
 
         // Add '(Disc n)' to title (in local language)
         movieDetails.m_strTitle =
-            StringUtils::Format(g_localizeStrings.Get(29995), movieDetails.m_strTitle, discNum);
+            KODI::StringUtils::Format(g_localizeStrings.Get(29995), movieDetails.m_strTitle, discNum);
       }
 
       lResult = m_database.SetDetailsForMovie(movieDetails, art);
@@ -1726,18 +1726,18 @@ namespace KODI::VIDEO
       std::string candidate = URIUtils::GetFileName(artFile->GetPath());
 
       bool matchesFilename =
-        !baseFilename.empty() && StringUtils::StartsWith(candidate, baseFilename);
+        !baseFilename.empty() && KODI::StringUtils::StartsWith(candidate, baseFilename);
       if (!baseFilename.empty() && !matchesFilename)
         continue;
 
       if (matchesFilename)
         candidate.erase(0, baseFilename.length());
       URIUtils::RemoveExtension(candidate);
-      StringUtils::ToLower(candidate);
+      KODI::StringUtils::ToLower(candidate);
 
       // move 'folder' to thumb / poster / banner based on aspect ratio
       // if such artwork doesn't already exist
-      if (!matchesFilename && StringUtils::EqualsNoCase(candidate, "folder") &&
+      if (!matchesFilename && KODI::StringUtils::EqualsNoCase(candidate, "folder") &&
         !CVideoThumbLoader::IsArtTypeInWhitelist("folder", wantedArtTypes, exactName))
       {
         // cache the image to determine sizing
@@ -1918,9 +1918,9 @@ namespace KODI::VIDEO
       if (pDlgProgress)
       {
         pDlgProgress->SetLine(1, CVariant{20361}); // Loading episode details
-        pDlgProgress->SetLine(2, StringUtils::Format("{} {}", g_localizeStrings.Get(20373),
+        pDlgProgress->SetLine(2, KODI::StringUtils::Format("{} {}", g_localizeStrings.Get(20373),
                                                      file->iSeason)); // Season x
-        pDlgProgress->SetLine(3, StringUtils::Format("{} {}", g_localizeStrings.Get(20359),
+        pDlgProgress->SetLine(3, KODI::StringUtils::Format("{} {}", g_localizeStrings.Get(20359),
                                                      file->iEpisode)); // Episode y
         pDlgProgress->SetPercentage((int)((float)(iCurr++)/iMax*100));
         pDlgProgress->Progress();
@@ -2035,12 +2035,12 @@ namespace KODI::VIDEO
           continue;
         }
         if (!guide->cScraperUrl.GetTitle().empty() &&
-            StringUtils::EqualsNoCase(guide->cScraperUrl.GetTitle(), file->strTitle))
+            KODI::StringUtils::EqualsNoCase(guide->cScraperUrl.GetTitle(), file->strTitle))
         {
           bFound = true;
           break;
         }
-        if (!guide->strTitle.empty() && StringUtils::EqualsNoCase(guide->strTitle, file->strTitle))
+        if (!guide->strTitle.empty() && KODI::StringUtils::EqualsNoCase(guide->strTitle, file->strTitle))
         {
           bFound = true;
           break;
@@ -2082,15 +2082,15 @@ namespace KODI::VIDEO
             {
               title = guide->strTitle;
             }
-            StringUtils::ToLower(title);
+            KODI::StringUtils::ToLower(title);
             guide->cScraperUrl.SetTitle(title);
             titles.push_back(title);
           }
 
           double matchscore;
           std::string loweredTitle(file->strTitle);
-          StringUtils::ToLower(loweredTitle);
-          int index = StringUtils::FindBestMatch(loweredTitle, titles, matchscore);
+          KODI::StringUtils::ToLower(loweredTitle);
+          int index = KODI::StringUtils::FindBestMatch(loweredTitle, titles, matchscore);
           if (index >= 0 && matchscore >= minscore)
           {
             guide = candidates->begin() + index;
@@ -2197,7 +2197,7 @@ namespace KODI::VIDEO
         if (pItem->m_dwSize)
           digest.Update(std::to_string(pItem->m_dwSize));
         if (pItem->m_dateTime.IsValid())
-          digest.Update(StringUtils::Format("{:02}.{:02}.{:04}", pItem->m_dateTime.GetDay(),
+          digest.Update(KODI::StringUtils::Format("{:02}.{:02}.{:04}", pItem->m_dateTime.GetDay(),
                                             pItem->m_dateTime.GetMonth(),
                                             pItem->m_dateTime.GetYear()));
       }
@@ -2233,7 +2233,7 @@ namespace KODI::VIDEO
     CDigest digest{CDigest::Type::MD5};
 
     if (excludes.size())
-      digest.Update(StringUtils::Join(excludes, "|"));
+      digest.Update(KODI::StringUtils::Join(excludes, "|"));
 
     struct __stat64 buffer;
     if (XFILE::CFile::Stat(directory, &buffer) == 0)
@@ -2260,7 +2260,7 @@ namespace KODI::VIDEO
     CDigest digest{CDigest::Type::MD5};
 
     if (excludes.size())
-      digest.Update(StringUtils::Join(excludes, "|"));
+      digest.Update(KODI::StringUtils::Join(excludes, "|"));
 
     int64_t time = 0;
     for (int i=0; i < items.Size(); ++i)
@@ -2335,7 +2335,7 @@ namespace KODI::VIDEO
         else if (season == 0)
           basePath = "season-specials";
         else
-          basePath = StringUtils::Format("season{:02}", season);
+          basePath = KODI::StringUtils::Format("season{:02}", season);
 
         AddLocalItemArtwork(art, artTypes,
           URIUtils::AddFileToFolder(show.m_strPath, basePath),
@@ -2379,7 +2379,7 @@ namespace KODI::VIDEO
       if (i->thumb.empty())
       {
         std::string thumbFile = i->strName;
-        StringUtils::Replace(thumbFile, ' ', '_');
+        KODI::StringUtils::Replace(thumbFile, ' ', '_');
         for (int j = 0; j < items.Size(); j++)
         {
           std::string compare = URIUtils::GetFileName(items[j]->GetPath());

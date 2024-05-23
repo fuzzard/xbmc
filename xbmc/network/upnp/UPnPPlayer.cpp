@@ -182,7 +182,7 @@ private:
 CUPnPPlayer::CUPnPPlayer(IPlayerCallback& callback, const char* uuid)
   : IPlayer(callback),
     CThread("UPnPPlayer"),
-    m_logger(CServiceBroker::GetLogging().GetLogger(StringUtils::Format("CUPnPPlayer[{}]", uuid)))
+    m_logger(CServiceBroker::GetLogging().GetLogger(KODI::StringUtils::Format("CUPnPPlayer[{}]", uuid)))
 {
   m_control = CUPnP::GetInstance()->m_MediaController;
 

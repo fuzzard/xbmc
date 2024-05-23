@@ -894,7 +894,7 @@ void CGUIDialogPVRTimerSettings::InitializeChannelsList()
                                       // Any channel
                                       ? g_localizeStrings.Get(809)
                                       // Any channel from client "X"
-                                      : StringUtils::Format(g_localizeStrings.Get(853),
+                                      : KODI::StringUtils::Format(g_localizeStrings.Get(853),
                                                             client.second->GetFullClientName()))});
     ++index;
   }
@@ -907,7 +907,7 @@ void CGUIDialogPVRTimerSettings::InitializeChannelsList()
   for (const auto& groupMember : groupMembers)
   {
     const std::shared_ptr<const CPVRChannel> channel = groupMember->Channel();
-    const std::string channelDescription = StringUtils::Format(
+    const std::string channelDescription = KODI::StringUtils::Format(
         "{} {}", groupMember->ChannelNumber().FormattedChannelNumber(), channel->ChannelName());
     m_channelEntries.insert(
         {index, ChannelDescriptor(channel->UniqueID(), channel->ClientID(), channelDescription)});
@@ -1180,7 +1180,7 @@ void CGUIDialogPVRTimerSettings::LifetimesFiller(const SettingConstPtr& setting,
     {
       // PVR backend supplied value is not in the list of predefined values. Insert it.
       list.insert(it, IntegerSettingOption(
-                          StringUtils::Format(g_localizeStrings.Get(17999), current) /* {} days */,
+                          KODI::StringUtils::Format(g_localizeStrings.Get(17999), current) /* {} days */,
                           current));
     }
   }
@@ -1285,7 +1285,7 @@ void CGUIDialogPVRTimerSettings::MarginTimeFiller(const SettingConstPtr& setting
     {
       // PVR backend supplied value is not in the list of predefined values. Insert it.
       list.insert(it, IntegerSettingOption(
-                          StringUtils::Format(g_localizeStrings.Get(14044), current) /* {} min */,
+                          KODI::StringUtils::Format(g_localizeStrings.Get(14044), current) /* {} min */,
                           current));
     }
   }
@@ -1322,7 +1322,7 @@ bool CGUIDialogPVRTimerSettings::TypeReadOnlyCondition(const std::string& condit
     return false;
   }
 
-  if (!StringUtils::EqualsNoCase(value, "true"))
+  if (!KODI::StringUtils::EqualsNoCase(value, "true"))
     return false;
 
   std::string cond(condition);
@@ -1387,7 +1387,7 @@ bool CGUIDialogPVRTimerSettings::TypeSupportsCondition(const std::string& condit
     return false;
   }
 
-  if (!StringUtils::EqualsNoCase(value, "true"))
+  if (!KODI::StringUtils::EqualsNoCase(value, "true"))
     return false;
 
   int idx = std::static_pointer_cast<const CSettingInt>(setting)->GetValue();
@@ -1472,7 +1472,7 @@ bool CGUIDialogPVRTimerSettings::StartAnytimeSetCondition(const std::string& con
     return false;
   }
 
-  if (!StringUtils::EqualsNoCase(value, "true"))
+  if (!KODI::StringUtils::EqualsNoCase(value, "true"))
     return false;
 
   // "any time" setting is only relevant for epg-based timers.
@@ -1519,7 +1519,7 @@ bool CGUIDialogPVRTimerSettings::EndAnytimeSetCondition(const std::string& condi
     return false;
   }
 
-  if (!StringUtils::EqualsNoCase(value, "true"))
+  if (!KODI::StringUtils::EqualsNoCase(value, "true"))
     return false;
 
   // "any time" setting is only relevant for epg-based timers.

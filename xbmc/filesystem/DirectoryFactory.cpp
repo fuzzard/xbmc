@@ -120,7 +120,7 @@ IDirectory* CDirectoryFactory::Create(const CURL& url)
   {
     for (const auto& vfsAddon : CServiceBroker::GetVFSAddonCache().GetAddonInstances())
     {
-      auto prots = StringUtils::Split(vfsAddon->GetProtocols(), "|");
+      auto prots = KODI::StringUtils::Split(vfsAddon->GetProtocols(), "|");
 
       if (vfsAddon->HasDirectories() && std::find(prots.begin(), prots.end(), url.GetProtocol()) != prots.end())
         return new CVFSEntryIDirectoryWrapper(vfsAddon);

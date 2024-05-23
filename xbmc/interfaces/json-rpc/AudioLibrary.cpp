@@ -331,7 +331,7 @@ JSONRPC_STATUS CAudioLibrary::GetAlbumDetails(const std::string &method, ITransp
   if (!musicdatabase.GetAlbum(albumID, album, false))
     return InvalidParams;
 
-  std::string path = StringUtils::Format("musicdb://albums/{}/", albumID);
+  std::string path = KODI::StringUtils::Format("musicdb://albums/{}/", albumID);
 
   CFileItemPtr albumItem;
   FillAlbumItem(album, path, albumItem);
@@ -524,7 +524,7 @@ JSONRPC_STATUS CAudioLibrary::GetRecentlyAddedAlbums(const std::string &method, 
   for (unsigned int index = 0; index < albums.size(); index++)
   {
     std::string path =
-        StringUtils::Format("musicdb://recentlyaddedalbums/{}/", albums[index].idAlbum);
+        KODI::StringUtils::Format("musicdb://recentlyaddedalbums/{}/", albums[index].idAlbum);
 
     CFileItemPtr item;
     FillAlbumItem(albums[index], path, item);
@@ -575,7 +575,7 @@ JSONRPC_STATUS CAudioLibrary::GetRecentlyPlayedAlbums(const std::string &method,
   for (unsigned int index = 0; index < albums.size(); index++)
   {
     std::string path =
-        StringUtils::Format("musicdb://recentlyplayedalbums/{}/", albums[index].idAlbum);
+        KODI::StringUtils::Format("musicdb://recentlyplayedalbums/{}/", albums[index].idAlbum);
 
     CFileItemPtr item;
     FillAlbumItem(albums[index], path, item);
@@ -719,7 +719,7 @@ JSONRPC_STATUS CAudioLibrary::GetAvailableArt(const std::string& method, ITransp
     return InternalError;
 
   std::string artType = parameterObject["arttype"].asString();
-  StringUtils::ToLower(artType);
+  KODI::StringUtils::ToLower(artType);
 
   CMusicDatabase musicdatabase;
   if (!musicdatabase.Open())
@@ -851,7 +851,7 @@ JSONRPC_STATUS CAudioLibrary::SetAlbumDetails(const std::string &method, ITransp
       CopyStringArray(parameterObject["musicbrainzalbumartistid"], mbids);
     // When display artist is not provided and yet artists is changing make by concatenation
     if (!ParameterNotNull(parameterObject, "displayartist"))
-      album.strArtistDesc = StringUtils::Join(artists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+      album.strArtistDesc = KODI::StringUtils::Join(artists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
     album.SetArtistCredits(artists, std::vector<std::string>(), mbids);
     // On updatealbum artists will be changed
     album.bArtistSongMerge = true;
@@ -958,7 +958,7 @@ JSONRPC_STATUS CAudioLibrary::SetSongDetails(const std::string &method, ITranspo
       CopyStringArray(parameterObject["musicbrainzartistid"], mbids);
     // When display artist is not provided and yet artists is changing make by concatenation
     if (!ParameterNotNull(parameterObject, "displayartist"))
-      song.strArtistDesc = StringUtils::Join(artists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+      song.strArtistDesc = KODI::StringUtils::Join(artists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
     song.SetArtistCredits(artists, std::vector<std::string>(), mbids);
   }
 
@@ -1036,7 +1036,7 @@ JSONRPC_STATUS CAudioLibrary::Scan(const std::string &method, ITransportLayer *t
 {
   std::string directory = parameterObject["directory"].asString();
   std::string cmd =
-      StringUtils::Format("updatelibrary(music, {}, {})", StringUtils::Paramify(directory),
+      KODI::StringUtils::Format("updatelibrary(music, {}, {})", KODI::StringUtils::Paramify(directory),
                           parameterObject["showdialogs"].asBoolean() ? "true" : "false");
 
   CServiceBroker::GetAppMessenger()->SendMsg(TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr, cmd);
@@ -1047,8 +1047,8 @@ JSONRPC_STATUS CAudioLibrary::Export(const std::string &method, ITransportLayer 
 {
   std::string cmd;
   if (parameterObject["options"].isMember("path"))
-    cmd = StringUtils::Format("exportlibrary2(music, singlefile, {}, albums, albumartists)",
-                              StringUtils::Paramify(parameterObject["options"]["path"].asString()));
+    cmd = KODI::StringUtils::Format("exportlibrary2(music, singlefile, {}, albums, albumartists)",
+                              KODI::StringUtils::Paramify(parameterObject["options"]["path"].asString()));
   else
   {
     cmd = "exportlibrary2(music, library, dummy, albums, albumartists";
@@ -1066,7 +1066,7 @@ JSONRPC_STATUS CAudioLibrary::Export(const std::string &method, ITransportLayer 
 
 JSONRPC_STATUS CAudioLibrary::Clean(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  std::string cmd = StringUtils::Format(
+  std::string cmd = KODI::StringUtils::Format(
       "cleanlibrary(music, {})", parameterObject["showdialogs"].asBoolean() ? "true" : "false");
   CServiceBroker::GetAppMessenger()->SendMsg(TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr, cmd);
   return ACK;

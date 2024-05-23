@@ -225,43 +225,43 @@ char* Interface_General::get_region(void* kodiBase, const char* id)
   }
 
   std::string result;
-  if (StringUtils::CompareNoCase(id, "datelong") == 0)
+  if (KODI::StringUtils::CompareNoCase(id, "datelong") == 0)
   {
     result = g_langInfo.GetDateFormat(true);
-    StringUtils::Replace(result, "DDDD", "%A");
-    StringUtils::Replace(result, "MMMM", "%B");
-    StringUtils::Replace(result, "D", "%d");
-    StringUtils::Replace(result, "YYYY", "%Y");
+    KODI::StringUtils::Replace(result, "DDDD", "%A");
+    KODI::StringUtils::Replace(result, "MMMM", "%B");
+    KODI::StringUtils::Replace(result, "D", "%d");
+    KODI::StringUtils::Replace(result, "YYYY", "%Y");
   }
-  else if (StringUtils::CompareNoCase(id, "dateshort") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "dateshort") == 0)
   {
     result = g_langInfo.GetDateFormat(false);
-    StringUtils::Replace(result, "MM", "%m");
-    StringUtils::Replace(result, "DD", "%d");
+    KODI::StringUtils::Replace(result, "MM", "%m");
+    KODI::StringUtils::Replace(result, "DD", "%d");
 #ifdef TARGET_WINDOWS
-    StringUtils::Replace(result, "M", "%#m");
-    StringUtils::Replace(result, "D", "%#d");
+    KODI::StringUtils::Replace(result, "M", "%#m");
+    KODI::StringUtils::Replace(result, "D", "%#d");
 #else
-    StringUtils::Replace(result, "M", "%-m");
-    StringUtils::Replace(result, "D", "%-d");
+    KODI::StringUtils::Replace(result, "M", "%-m");
+    KODI::StringUtils::Replace(result, "D", "%-d");
 #endif
-    StringUtils::Replace(result, "YYYY", "%Y");
+    KODI::StringUtils::Replace(result, "YYYY", "%Y");
   }
-  else if (StringUtils::CompareNoCase(id, "tempunit") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "tempunit") == 0)
     result = g_langInfo.GetTemperatureUnitString();
-  else if (StringUtils::CompareNoCase(id, "speedunit") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "speedunit") == 0)
     result = g_langInfo.GetSpeedUnitString();
-  else if (StringUtils::CompareNoCase(id, "time") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "time") == 0)
   {
     result = g_langInfo.GetTimeFormat();
-    StringUtils::Replace(result, "H", "%H");
-    StringUtils::Replace(result, "h", "%I");
-    StringUtils::Replace(result, "mm", "%M");
-    StringUtils::Replace(result, "ss", "%S");
-    StringUtils::Replace(result, "xx", "%p");
+    KODI::StringUtils::Replace(result, "H", "%H");
+    KODI::StringUtils::Replace(result, "h", "%I");
+    KODI::StringUtils::Replace(result, "mm", "%M");
+    KODI::StringUtils::Replace(result, "ss", "%S");
+    KODI::StringUtils::Replace(result, "xx", "%p");
   }
-  else if (StringUtils::CompareNoCase(id, "meridiem") == 0)
-    result = StringUtils::Format("{}/{}", g_langInfo.GetMeridiemSymbol(MeridiemSymbolAM),
+  else if (KODI::StringUtils::CompareNoCase(id, "meridiem") == 0)
+    result = KODI::StringUtils::Format("{}/{}", g_langInfo.GetMeridiemSymbol(MeridiemSymbolAM),
                                  g_langInfo.GetMeridiemSymbol(MeridiemSymbolPM));
   else
   {
@@ -355,20 +355,20 @@ void Interface_General::kodi_version(void* kodiBase, char** compile_name, int* m
   *minor = CCompileInfo::GetMinor();
   *revision = strdup(CCompileInfo::GetSCMID());
   std::string tagStr = CCompileInfo::GetSuffix();
-  if (StringUtils::StartsWithNoCase(tagStr, "alpha"))
+  if (KODI::StringUtils::StartsWithNoCase(tagStr, "alpha"))
   {
     *tag = strdup("alpha");
-    *tagversion = strdup(StringUtils::Mid(tagStr, 5).c_str());
+    *tagversion = strdup(KODI::StringUtils::Mid(tagStr, 5).c_str());
   }
-  else if (StringUtils::StartsWithNoCase(tagStr, "beta"))
+  else if (KODI::StringUtils::StartsWithNoCase(tagStr, "beta"))
   {
     *tag = strdup("beta");
-    *tagversion = strdup(StringUtils::Mid(tagStr, 4).c_str());
+    *tagversion = strdup(KODI::StringUtils::Mid(tagStr, 4).c_str());
   }
-  else if (StringUtils::StartsWithNoCase(tagStr, "rc"))
+  else if (KODI::StringUtils::StartsWithNoCase(tagStr, "rc"))
   {
     *tag = strdup("releasecandidate");
-    *tagversion = strdup(StringUtils::Mid(tagStr, 2).c_str());
+    *tagversion = strdup(KODI::StringUtils::Mid(tagStr, 2).c_str());
   }
   else if (tagStr.empty())
     *tag = strdup("stable");

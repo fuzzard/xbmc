@@ -168,7 +168,7 @@ bool CGUIPassword::CheckStartUpLock()
         std::string strLabel1;
         strLabel1 = g_localizeStrings.Get(12343); // "retries left"
         int iLeft = g_passwordManager.iMasterLockRetriesLeft-i;
-        std::string strLabel = StringUtils::Format("{} {}", iLeft, strLabel1);
+        std::string strLabel = KODI::StringUtils::Format("{} {}", iLeft, strLabel1);
 
         // PopUp OK and Display: MasterLock mode has changed but no new Mastercode has been set!
         HELPERS::ShowOKDialogLines(CVariant{12360}, CVariant{12367}, CVariant{strLabel}, CVariant{""});
@@ -331,7 +331,7 @@ void CGUIPassword::UpdateMasterLockRetryCount(bool bResetCount)
     }
     std::string dlgLine1 = "";
     if (0 < g_passwordManager.iMasterLockRetriesLeft)
-      dlgLine1 = StringUtils::Format("{} {}", g_passwordManager.iMasterLockRetriesLeft,
+      dlgLine1 = KODI::StringUtils::Format("{} {}", g_passwordManager.iMasterLockRetriesLeft,
                                      g_localizeStrings.Get(12343)); // "retries left"
     // prompt user for master lock code
     HELPERS::ShowOKDialogLines(CVariant{20075}, CVariant{12345}, CVariant{std::move(dlgLine1)}, CVariant{0});
@@ -567,8 +567,8 @@ bool CGUIPassword::IsDatabasePathUnlocked(const std::string& strPath, VECSOURCES
 bool CGUIPassword::IsMediaPathUnlocked(const std::shared_ptr<CProfileManager>& profileManager,
                                        const std::string& strType) const
 {
-  if (!StringUtils::StartsWithNoCase(m_strMediaSourcePath, "root") &&
-      !StringUtils::StartsWithNoCase(m_strMediaSourcePath, "library://"))
+  if (!KODI::StringUtils::StartsWithNoCase(m_strMediaSourcePath, "root") &&
+      !KODI::StringUtils::StartsWithNoCase(m_strMediaSourcePath, "library://"))
   {
     if (!g_passwordManager.bMasterUser &&
         profileManager->GetMasterProfile().getLockMode() != LOCK_MODE_EVERYONE)

@@ -73,7 +73,7 @@ protected:
     std::uniform_int_distribution<uint16_t> dist(49152, 65535);
     m_webServerPort = dist(mt);
 
-    m_baseUrl = StringUtils::Format("http://" WEBSERVER_HOST ":{}", m_webServerPort);
+    m_baseUrl = KODI::StringUtils::Format("http://" WEBSERVER_HOST ":{}", m_webServerPort);
   }
 
   ~TestHTTPDirectory() override = default;

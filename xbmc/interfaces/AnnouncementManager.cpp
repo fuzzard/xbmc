@@ -208,7 +208,7 @@ void CAnnouncementManager::DoAnnounce(AnnouncementFlag flag,
       {
         std::string path = item->GetPath();
         std::string videoInfoTagPath(item->GetVideoInfoTag()->m_strFileNameAndPath);
-        if (StringUtils::StartsWith(videoInfoTagPath, "removable://"))
+        if (KODI::StringUtils::StartsWith(videoInfoTagPath, "removable://"))
           path = videoInfoTagPath;
         if (videodatabase.LoadVideoInfo(path, *item->GetVideoInfoTag(), VideoDbDetailsNone))
           id = item->GetVideoInfoTag()->m_iDbId;
@@ -250,7 +250,7 @@ void CAnnouncementManager::DoAnnounce(AnnouncementFlag flag,
           if (!item->GetVideoInfoTag()->m_strAlbum.empty())
             object["item"]["album"] = item->GetVideoInfoTag()->m_strAlbum;
           if (!item->GetVideoInfoTag()->m_artist.empty())
-            object["item"]["artist"] = StringUtils::Join(item->GetVideoInfoTag()->m_artist, " / ");
+            object["item"]["artist"] = KODI::StringUtils::Join(item->GetVideoInfoTag()->m_artist, " / ");
           break;
         default:
           break;

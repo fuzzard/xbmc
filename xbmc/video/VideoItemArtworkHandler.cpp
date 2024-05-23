@@ -378,7 +378,7 @@ std::vector<std::string> CVideoItemArtworkMovieSetHandler::GetRemoteArt() const
 
   std::vector<std::string> remoteArt;
   const std::string baseDir =
-      StringUtils::Format("videodb://movies/sets/{}", m_item->GetVideoInfoTag()->m_iDbId);
+      KODI::StringUtils::Format("videodb://movies/sets/{}", m_item->GetVideoInfoTag()->m_iDbId);
   CFileItemList items;
   if (videodb.GetMoviesNav(baseDir, items))
   {
@@ -407,7 +407,7 @@ std::string CVideoItemArtworkMovieSetHandler::GetLocalArt() const
     {
       std::string candidate = URIUtils::GetFileName(artFile->GetDynPath());
       URIUtils::RemoveExtension(candidate);
-      if (StringUtils::EqualsNoCase(candidate, m_artType))
+      if (KODI::StringUtils::EqualsNoCase(candidate, m_artType))
       {
         localArt = artFile->GetDynPath();
         break;

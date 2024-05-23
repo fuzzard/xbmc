@@ -182,14 +182,14 @@ void TranslateEscapeChars(std::string& text)
     // U+200E for "&lrm;" and U+200F for "&rlm;"
     // but libass rendering assume the text as left-to-right,
     // to display text in the right order we have to use embedded codes
-    StringUtils::Replace(text, "&lrm;", u8"\u202a");
-    StringUtils::Replace(text, "&rlm;", u8"\u202b");
-    StringUtils::Replace(text, "&#x2068;", u8"\u2068");
-    StringUtils::Replace(text, "&#x2069;", u8"\u2069");
-    StringUtils::Replace(text, "&amp;", "&");
-    StringUtils::Replace(text, "&lt;", "<");
-    StringUtils::Replace(text, "&gt;", ">");
-    StringUtils::Replace(text, "&nbsp;", " ");
+    KODI::StringUtils::Replace(text, "&lrm;", u8"\u202a");
+    KODI::StringUtils::Replace(text, "&rlm;", u8"\u202b");
+    KODI::StringUtils::Replace(text, "&#x2068;", u8"\u2068");
+    KODI::StringUtils::Replace(text, "&#x2069;", u8"\u2069");
+    KODI::StringUtils::Replace(text, "&amp;", "&");
+    KODI::StringUtils::Replace(text, "&lt;", "<");
+    KODI::StringUtils::Replace(text, "&gt;", ">");
+    KODI::StringUtils::Replace(text, "&nbsp;", " ");
   }
 }
 
@@ -281,7 +281,7 @@ void CWebVTTHandler::DecodeLine(std::string line, std::vector<subtitleData>* sub
     {
       m_currentSection = WebvttSection::NOTE;
     }
-    else if (StringUtils::StartsWith(line, "X-TIMESTAMP-MAP")) // HLS streaming spec
+    else if (KODI::StringUtils::StartsWith(line, "X-TIMESTAMP-MAP")) // HLS streaming spec
     {
       // Get the HLS timestamp values to sync the subtitles with video
       CRegExp regLocal;
@@ -427,7 +427,7 @@ void CWebVTTHandler::DecodeLine(std::string line, std::vector<subtitleData>* sub
         m_feedCssStyle = webvttCssStyle();
 
       // Collect cue selectors (also handle multiple inline selectors)
-      for (std::string& cueSelector : StringUtils::Split(line, ','))
+      for (std::string& cueSelector : KODI::StringUtils::Split(line, ','))
       {
         if (m_cueCssTagRegex.RegFind(cueSelector) >= 0)
         {
@@ -481,21 +481,21 @@ void CWebVTTHandler::DecodeLine(std::string line, std::vector<subtitleData>* sub
         auto colorInfo =
             std::find_if(m_CSSColors.begin(), m_CSSColors.end(),
                          [&](const std::pair<std::string, UTILS::COLOR::ColorInfo>& item) {
-                           return StringUtils::CompareNoCase(item.first, colorName) == 0;
+                           return KODI::StringUtils::CompareNoCase(item.first, colorName) == 0;
                          });
         if (colorInfo != m_CSSColors.end())
         {
           const uint32_t color = UTILS::COLOR::ConvertToBGR(colorInfo->second.colorARGB);
-          m_feedCssStyle.m_color = StringUtils::Format("{:6x}", color);
+          m_feedCssStyle.m_color = KODI::StringUtils::Format("{:6x}", color);
         }
       }
       std::string colorRGB = GetCueCssValue("colorRGB", line);
       if (!colorRGB.empty()) // From CSS Color numeric R,G,B values
       {
-        const auto intValues = StringUtils::Split(colorRGB, ",");
+        const auto intValues = KODI::StringUtils::Split(colorRGB, ",");
         uint32_t color = UTILS::COLOR::ConvertIntToRGB(
             std::stoi(intValues[2]), std::stoi(intValues[1]), std::stoi(intValues[0]));
-        m_feedCssStyle.m_color = StringUtils::Format("{:6x}", color);
+        m_feedCssStyle.m_color = KODI::StringUtils::Format("{:6x}", color);
       }
       // Font bold
       if (!GetCueCssValue("fontWeight", line).empty())
@@ -573,7 +573,7 @@ void CWebVTTHandler::GetCueData(std::string& cueText)
     m_subtitleData.stopTime = GetTimeFromRegexTS(m_cueTimeRegex, 4) + m_offset;
     cueSettings =
         cueText.substr(m_cueTimeRegex.GetFindLen(), cueText.length() - m_cueTimeRegex.GetFindLen());
-    StringUtils::Trim(cueSettings);
+    KODI::StringUtils::Trim(cueSettings);
   }
   else // This should never happen
   {
@@ -904,12 +904,12 @@ void CWebVTTHandler::ConvertSubtitle(std::string& text)
   while ((pos = m_tagsRegex.RegFind(text, pos)) >= 0)
   {
     tagToken tag;
-    tag.m_token = StringUtils::ToLower(m_tagsRegex.GetMatch(0));
+    tag.m_token = KODI::StringUtils::ToLower(m_tagsRegex.GetMatch(0));
     tag.m_isClosing = m_tagsRegex.GetMatch(1) == "/";
     if (!m_tagsRegex.GetMatch(2).empty())
       tag.m_timestampTag = tag.m_token;
-    tag.m_tag = StringUtils::ToLower(m_tagsRegex.GetMatch(3));
-    tag.m_classes = StringUtils::Split(m_tagsRegex.GetMatch(4).erase(0, 1), ".");
+    tag.m_tag = KODI::StringUtils::ToLower(m_tagsRegex.GetMatch(3));
+    tag.m_classes = KODI::StringUtils::Split(m_tagsRegex.GetMatch(4).erase(0, 1), ".");
     tag.m_annotation = m_tagsRegex.GetMatch(5);
 
     text.erase(pos, tag.m_token.length());

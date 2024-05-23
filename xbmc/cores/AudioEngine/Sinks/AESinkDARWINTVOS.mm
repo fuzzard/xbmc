@@ -645,7 +645,7 @@ bool CAESinkDARWINTVOS::Initialize(AEAudioFormat& format, std::string& device)
   // no device, bail and let AE kick back to NULL device
   bool found = false;
   std::string devicelower = device;
-  StringUtils::ToLower(devicelower);
+  KODI::StringUtils::ToLower(devicelower);
   for (size_t i = 0; i < m_devices.size(); i++)
   {
     if (devicelower.find(m_devices[i].m_deviceName) != std::string::npos)

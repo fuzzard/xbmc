@@ -299,7 +299,7 @@ void CGUIPortList::OnControllerSelected(const CPortNode& port, const ControllerP
       // "The emulator "%s" had an internal error."
       MESSAGING::HELPERS::ShowOKDialogText(
           CVariant{35114},
-          CVariant{StringUtils::Format(g_localizeStrings.Get(35213), m_gameClient->Name())});
+          CVariant{KODI::StringUtils::Format(g_localizeStrings.Get(35213), m_gameClient->Name())});
     }
 
     // Send a GUI message to reload the port list
@@ -335,7 +335,7 @@ std::string CGUIPortList::GetLabel(const CPortNode& port)
       {
         // "Port {0:s}"
         const std::string& portString = g_localizeStrings.Get(35112);
-        return StringUtils::Format(portString, portId);
+        return KODI::StringUtils::Format(portString, portId);
       }
       break;
     }

@@ -85,9 +85,9 @@ const std::string CMusicInfoTag::GetArtistString() const
   if (!m_strArtistDesc.empty())
     return m_strArtistDesc;
   else if (!m_artist.empty())
-    return StringUtils::Join(m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+    return KODI::StringUtils::Join(m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
   else
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 }
 
 const std::string& CMusicInfoTag::GetArtistSort() const
@@ -117,7 +117,7 @@ const std::string& CMusicInfoTag::GetOriginalDate() const
 
 const std::string MUSIC_INFO::CMusicInfoTag::GetOriginalYear() const
 {
-  return StringUtils::Left(m_strOriginalDate, 4);
+  return KODI::StringUtils::Left(m_strOriginalDate, 4);
 }
 
 int CMusicInfoTag::GetAlbumId() const
@@ -135,9 +135,9 @@ const std::string CMusicInfoTag::GetAlbumArtistString() const
   if (!m_strAlbumArtistDesc.empty())
     return m_strAlbumArtistDesc;
   if (!m_albumArtist.empty())
-    return StringUtils::Join(m_albumArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+    return KODI::StringUtils::Join(m_albumArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
   else
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 }
 
 const std::string& CMusicInfoTag::GetAlbumArtistSort() const
@@ -303,7 +303,7 @@ const std::string& CMusicInfoTag::GetReleaseDate() const
 
 const std::string MUSIC_INFO::CMusicInfoTag::GetReleaseYear() const
 {
-  return StringUtils::Left(m_strReleaseDate, 4);
+  return KODI::StringUtils::Left(m_strReleaseDate, 4);
 }
 
 // This is the Musicbrainz release status tag. See https://musicbrainz.org/doc/Release#Status
@@ -343,7 +343,7 @@ void CMusicInfoTag::SetArtist(const std::string& strArtist)
   if (!strArtist.empty())
   {
     SetArtistDesc(strArtist);
-    SetArtist(StringUtils::Split(strArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    SetArtist(KODI::StringUtils::Split(strArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   }
   else
   {
@@ -357,7 +357,7 @@ void CMusicInfoTag::SetArtist(const std::vector<std::string>& artists, bool Fill
   m_artist = artists;
   if (m_strArtistDesc.empty() || FillDesc)
   {
-    SetArtistDesc(StringUtils::Join(artists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    SetArtistDesc(KODI::StringUtils::Join(artists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   }
 }
 
@@ -391,7 +391,7 @@ void CMusicInfoTag::SetAlbumArtist(const std::string& strAlbumArtist)
   if (!strAlbumArtist.empty())
   {
     SetAlbumArtistDesc(strAlbumArtist);
-    SetAlbumArtist(StringUtils::Split(strAlbumArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    SetAlbumArtist(KODI::StringUtils::Split(strAlbumArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   }
   else
   {
@@ -404,7 +404,7 @@ void CMusicInfoTag::SetAlbumArtist(const std::vector<std::string>& albumArtists,
 {
   m_albumArtist = albumArtists;
   if (m_strAlbumArtistDesc.empty() || FillDesc)
-    SetAlbumArtistDesc(StringUtils::Join(albumArtists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    SetAlbumArtistDesc(KODI::StringUtils::Join(albumArtists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 }
 
 void CMusicInfoTag::SetAlbumArtistDesc(const std::string& strAlbumArtistDesc)
@@ -420,7 +420,7 @@ void CMusicInfoTag::SetAlbumArtistSort(const std::string& strAlbumArtistSort)
 void CMusicInfoTag::SetGenre(const std::string& strGenre, bool bTrim /* = false*/)
 {
   if (!strGenre.empty())
-    SetGenre(StringUtils::Split(strGenre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator), bTrim);
+    SetGenre(KODI::StringUtils::Split(strGenre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator), bTrim);
   else
     m_genre.clear();
 }
@@ -430,7 +430,7 @@ void CMusicInfoTag::SetGenre(const std::vector<std::string>& genres, bool bTrim 
   m_genre = genres;
   if (bTrim)
     for (auto genre : m_genre)
-      StringUtils::Trim(genre);
+      KODI::StringUtils::Trim(genre);
 }
 
 void CMusicInfoTag::SetYear(int year)
@@ -438,11 +438,11 @@ void CMusicInfoTag::SetYear(int year)
   // Parse integer year value into YYYY ISO8601 format (partial) date string
   // Add century for to 2 digit numbers, 41 -> 1941, 40 -> 2040
   if (year > 99)
-    SetReleaseDate(StringUtils::Format("{:04}", year));
+    SetReleaseDate(KODI::StringUtils::Format("{:04}", year));
   else if (year > 40)
-    SetReleaseDate(StringUtils::Format("{:04}", 19 + year));
+    SetReleaseDate(KODI::StringUtils::Format("{:04}", 19 + year));
   else  if (year > 0)
-    SetReleaseDate(StringUtils::Format("{:04}", 20 + year));
+    SetReleaseDate(KODI::StringUtils::Format("{:04}", 20 + year));
   else
     m_strReleaseDate.clear();
 }
@@ -500,15 +500,15 @@ void CMusicInfoTag::AddReleaseDate(const std::string& strDateYear, bool isMonth 
     std::string strYYYY = GetReleaseYear();
     if (strYYYY.empty())
       strYYYY = "0000"; // Fake year when TYER not read yet
-    m_strReleaseDate = StringUtils::Format("{}-{}-{}", strYYYY, StringUtils::Left(strDateYear, 2),
-                                           StringUtils::Right(strDateYear, 2));
+    m_strReleaseDate = KODI::StringUtils::Format("{}-{}-{}", strYYYY, KODI::StringUtils::Left(strDateYear, 2),
+                                           KODI::StringUtils::Right(strDateYear, 2));
   }
   // Given YYYY only (from YEAR tag) and already have YYYY-MM or YYYY-MM-DD (from DATE tag)
   else if (strDateYear.size() == 4 && (m_strReleaseDate.size() > 4))
   {
     // Have 0000-MM-DD where ID3 v2.3 TDAT tag read first, fill YYYY part from TYER
     if (GetReleaseYear() == "0000")
-      StringUtils::Replace(m_strReleaseDate, "0000", strDateYear);
+      KODI::StringUtils::Replace(m_strReleaseDate, "0000", strDateYear);
   }
   else
     m_strReleaseDate = strDateYear;  // Could be YYYY, YYYY-MM or YYYY-MM-DD
@@ -793,7 +793,7 @@ void CMusicInfoTag::SetArtist(const CArtist& artist)
   SetMusicBrainzArtistID({ artist.strMusicBrainzArtistID });
   SetMusicBrainzAlbumArtistID({ artist.strMusicBrainzArtistID });
   SetGenre(artist.genre);
-  SetMood(StringUtils::Join(artist.moods, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+  SetMood(KODI::StringUtils::Join(artist.moods, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   SetDateAdded(artist.dateAdded);
   SetDateUpdated(artist.dateUpdated);
   SetDateNew(artist.dateNew);
@@ -822,7 +822,7 @@ void CMusicInfoTag::SetAlbum(const CAlbum& album)
   SetMusicBrainzReleaseType(album.strType);
   SetAlbumReleaseStatus(album.strReleaseStatus);
   SetGenre(album.genre);
-  SetMood(StringUtils::Join(album.moods, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+  SetMood(KODI::StringUtils::Join(album.moods, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
   SetRecordLabel(album.strLabel);
   SetRating(album.fRating);
   SetUserrating(album.iUserrating);
@@ -918,7 +918,7 @@ void CMusicInfoTag::Serialize(CVariant& value) const
   // A longer term solution would be to ensure that when individual artists are to be returned then the song_artist and artist tables
   // are queried.
   if (m_artist.empty())
-    value["artist"] = StringUtils::Split(GetArtistString(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+    value["artist"] = KODI::StringUtils::Split(GetArtistString(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
 
   value["displayartist"] = GetArtistString();
   value["displayalbumartist"] = GetAlbumArtistString();
@@ -952,17 +952,17 @@ void CMusicInfoTag::Serialize(CVariant& value) const
   value["displayconductor"] = GetArtistStringForRole("conductor"); //TPE3
   value["displayorchestra"] = GetArtistStringForRole("orchestra");
   value["displaylyricist"] = GetArtistStringForRole("lyricist");   //TEXT
-  value["mood"] = StringUtils::Split(m_strMood, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+  value["mood"] = KODI::StringUtils::Split(m_strMood, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
   value["recordlabel"] = m_strRecordLabel;
   value["rating"] = m_Rating;
   value["userrating"] = m_Userrating;
   value["votes"] = m_Votes;
   value["playcount"] = m_iTimesPlayed;
-  value["lastplayed"] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : StringUtils::Empty;
-  value["dateadded"] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : StringUtils::Empty;
-  value["datenew"] = m_dateNew.IsValid() ? m_dateNew.GetAsDBDateTime() : StringUtils::Empty;
+  value["lastplayed"] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : KODI::StringUtils::Empty;
+  value["dateadded"] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : KODI::StringUtils::Empty;
+  value["datenew"] = m_dateNew.IsValid() ? m_dateNew.GetAsDBDateTime() : KODI::StringUtils::Empty;
   value["datemodified"] =
-      m_dateUpdated.IsValid() ? m_dateUpdated.GetAsDBDateTime() : StringUtils::Empty;
+      m_dateUpdated.IsValid() ? m_dateUpdated.GetAsDBDateTime() : KODI::StringUtils::Empty;
   value["lyrics"] = m_strLyrics;
   value["albumid"] = m_iAlbumId;
   value["compilationartist"] = m_bCompilation;
@@ -1015,8 +1015,8 @@ void CMusicInfoTag::ToSortable(SortItem& sortable, Field field) const
   case FieldUserRating:  sortable[FieldUserRating] = m_Userrating; break;
   case FieldVotes:       sortable[FieldVotes] = m_Votes; break;
   case FieldPlaycount:   sortable[FieldPlaycount] = m_iTimesPlayed; break;
-  case FieldLastPlayed:  sortable[FieldLastPlayed] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : StringUtils::Empty; break;
-  case FieldDateAdded:   sortable[FieldDateAdded] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : StringUtils::Empty; break;
+  case FieldLastPlayed:  sortable[FieldLastPlayed] = m_lastPlayed.IsValid() ? m_lastPlayed.GetAsDBDateTime() : KODI::StringUtils::Empty; break;
+  case FieldDateAdded:   sortable[FieldDateAdded] = m_dateAdded.IsValid() ? m_dateAdded.GetAsDBDateTime() : KODI::StringUtils::Empty; break;
   case FieldListeners:   sortable[FieldListeners] = m_listeners; break;
   case FieldId:          sortable[FieldId] = (int64_t)m_iDbId; break;
   case FieldOrigDate:    sortable[FieldOrigDate] = m_strOriginalDate; break;
@@ -1214,7 +1214,7 @@ void CMusicInfoTag::AppendArtist(const std::string &artist)
 {
   for (unsigned int index = 0; index < m_artist.size(); index++)
   {
-    if (StringUtils::EqualsNoCase(artist, m_artist.at(index)))
+    if (KODI::StringUtils::EqualsNoCase(artist, m_artist.at(index)))
       return;
   }
 
@@ -1225,7 +1225,7 @@ void CMusicInfoTag::AppendAlbumArtist(const std::string &albumArtist)
 {
   for (unsigned int index = 0; index < m_albumArtist.size(); index++)
   {
-    if (StringUtils::EqualsNoCase(albumArtist, m_albumArtist.at(index)))
+    if (KODI::StringUtils::EqualsNoCase(albumArtist, m_albumArtist.at(index)))
       return;
   }
 
@@ -1236,7 +1236,7 @@ void CMusicInfoTag::AppendGenre(const std::string &genre)
 {
   for (unsigned int index = 0; index < m_genre.size(); index++)
   {
-    if (StringUtils::EqualsNoCase(genre, m_genre.at(index)))
+    if (KODI::StringUtils::EqualsNoCase(genre, m_genre.at(index)))
       return;
   }
 
@@ -1246,7 +1246,7 @@ void CMusicInfoTag::AppendGenre(const std::string &genre)
 void CMusicInfoTag::AddArtistRole(const std::string& Role, const std::string& strArtist)
 {
   if (!strArtist.empty() && !Role.empty())
-    AddArtistRole(Role, StringUtils::Split(strArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
+    AddArtistRole(Role, KODI::StringUtils::Split(strArtist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 }
 
 void CMusicInfoTag::AddArtistRole(const std::string& Role, const std::vector<std::string>& artists)
@@ -1272,10 +1272,10 @@ const std::string CMusicInfoTag::GetArtistStringForRole(const std::string& strRo
   std::vector<std::string> artistvector;
   for (const auto& credit : m_musicRoles)
   {
-    if (StringUtils::EqualsNoCase(credit.GetRoleDesc(), strRole))
+    if (KODI::StringUtils::EqualsNoCase(credit.GetRoleDesc(), strRole))
       artistvector.push_back(credit.GetArtist());
   }
-  return StringUtils::Join(artistvector, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+  return KODI::StringUtils::Join(artistvector, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
 }
 
 const std::string CMusicInfoTag::GetContributorsText() const
@@ -1283,9 +1283,9 @@ const std::string CMusicInfoTag::GetContributorsText() const
   std::string strLabel;
   for (const auto& credit : m_musicRoles)
   {
-    strLabel += StringUtils::Format("{}\n", credit.GetArtist());
+    strLabel += KODI::StringUtils::Format("{}\n", credit.GetArtist());
   }
-  return StringUtils::TrimRight(strLabel, "\n");
+  return KODI::StringUtils::TrimRight(strLabel, "\n");
 }
 
 const std::string CMusicInfoTag::GetContributorsAndRolesText() const
@@ -1293,9 +1293,9 @@ const std::string CMusicInfoTag::GetContributorsAndRolesText() const
   std::string strLabel;
   for (const auto& credit : m_musicRoles)
   {
-    strLabel += StringUtils::Format("{} - {}\n", credit.GetRoleDesc(), credit.GetArtist());
+    strLabel += KODI::StringUtils::Format("{} - {}\n", credit.GetRoleDesc(), credit.GetArtist());
   }
-  return StringUtils::TrimRight(strLabel, "\n");
+  return KODI::StringUtils::TrimRight(strLabel, "\n");
 }
 
 
@@ -1312,7 +1312,7 @@ void CMusicInfoTag::SetContributors(const VECMUSICROLES& contributors)
 std::string CMusicInfoTag::Trim(const std::string &value) const
 {
   std::string trimmedValue(value);
-  StringUtils::TrimLeft(trimmedValue, " ");
-  StringUtils::TrimRight(trimmedValue, " \n\r");
+  KODI::StringUtils::TrimLeft(trimmedValue, " ");
+  KODI::StringUtils::TrimRight(trimmedValue, " \n\r");
   return trimmedValue;
 }

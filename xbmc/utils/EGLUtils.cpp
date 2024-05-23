@@ -127,7 +127,7 @@ std::set<std::string> CEGLUtils::GetClientExtensions()
     return {};
   }
   std::set<std::string> result;
-  StringUtils::SplitTo(std::inserter(result, result.begin()), extensions, " ");
+  KODI::StringUtils::SplitTo(std::inserter(result, result.begin()), extensions, " ");
   return result;
 }
 
@@ -139,7 +139,7 @@ std::set<std::string> CEGLUtils::GetExtensions(EGLDisplay eglDisplay)
     throw std::runtime_error("Could not query EGL for extensions");
   }
   std::set<std::string> result;
-  StringUtils::SplitTo(std::inserter(result, result.begin()), extensions, " ");
+  KODI::StringUtils::SplitTo(std::inserter(result, result.begin()), extensions, " ");
   return result;
 }
 
@@ -158,7 +158,7 @@ bool CEGLUtils::HasClientExtension(const std::string& name)
 void CEGLUtils::Log(int logLevel, const std::string& what)
 {
   EGLenum error = eglGetError();
-  std::string errorStr = StringUtils::Format("{:#04X}", error);
+  std::string errorStr = KODI::StringUtils::Format("{:#04X}", error);
 
   auto eglError = eglErrors.find(error);
   if (eglError != eglErrors.end())
@@ -367,11 +367,11 @@ bool CEGLContextUtils::ChooseConfig(EGLint renderableType, EGLint visualId, bool
     EGLint value{0};
     if (eglGetConfigAttrib(m_eglDisplay, *currentConfig, eglAttribute.first, &value) != EGL_TRUE)
       CEGLUtils::Log(LOGERROR,
-                     StringUtils::Format("failed to query EGL attribute {}", eglAttribute.second));
+                     KODI::StringUtils::Format("failed to query EGL attribute {}", eglAttribute.second));
 
     // we only need to print the hex value if it's an actual EGL define
     CLog::Log(LOGDEBUG, "  {}: {}", eglAttribute.second,
-              (value >= 0x3000 && value <= 0x3200) ? StringUtils::Format("{:#04x}", value)
+              (value >= 0x3000 && value <= 0x3200) ? KODI::StringUtils::Format("{:#04x}", value)
                                                    : std::to_string(value));
   }
 

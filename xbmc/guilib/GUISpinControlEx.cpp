@@ -110,7 +110,7 @@ const std::string CGUISpinControlEx::GetCurrentLabel() const
 
 std::string CGUISpinControlEx::GetDescription() const
 {
-  return StringUtils::Format("{} ({})", m_buttonControl.GetDescription(), GetLabel());
+  return KODI::StringUtils::Format("{} ({})", m_buttonControl.GetDescription(), GetLabel());
 }
 
 void CGUISpinControlEx::SetItemInvalid(bool invalid)

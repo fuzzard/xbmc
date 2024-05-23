@@ -101,9 +101,9 @@ bool CTextureCache::CanCacheImageURL(const CURL &url)
 {
   return url.GetUserName().empty() || url.GetUserName() == "music" ||
          url.GetUserName() == "video" || url.GetUserName() == "picturefolder" ||
-         StringUtils::StartsWith(url.GetUserName(), "video_") ||
-         StringUtils::StartsWith(url.GetUserName(), "pvr") ||
-         StringUtils::StartsWith(url.GetUserName(), "epg");
+         KODI::StringUtils::StartsWith(url.GetUserName(), "video_") ||
+         KODI::StringUtils::StartsWith(url.GetUserName(), "pvr") ||
+         KODI::StringUtils::StartsWith(url.GetUserName(), "epg");
 }
 
 std::string CTextureCache::CheckCachedImage(const std::string &url, bool &needsRecaching)
@@ -284,8 +284,8 @@ bool CTextureCache::ClearCachedTexture(int id, std::string &cachedURL)
 std::string CTextureCache::GetCacheFile(const std::string &url)
 {
   auto crc = Crc32::ComputeFromLowerCase(url);
-  std::string hex = StringUtils::Format("{:08x}", crc);
-  std::string hash = StringUtils::Format("{}/{}", hex[0], hex.c_str());
+  std::string hex = KODI::StringUtils::Format("{:08x}", crc);
+  std::string hash = KODI::StringUtils::Format("{}/{}", hex[0], hex.c_str());
   return hash;
 }
 

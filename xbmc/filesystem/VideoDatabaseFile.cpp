@@ -31,7 +31,7 @@ CVideoInfoTag CVideoDatabaseFile::GetVideoTag(const CURL& url)
     return tag;
 
   URIUtils::RemoveExtension(strFileName);
-  if (!StringUtils::IsNaturalNumber(strFileName))
+  if (!KODI::StringUtils::IsNaturalNumber(strFileName))
     return tag;
   long idDb = atol(strFileName.c_str());
 
@@ -54,7 +54,7 @@ VideoDbContentType CVideoDatabaseFile::GetType(const CURL& url)
   if (strPath.empty())
     return VideoDbContentType::UNKNOWN;
 
-  std::vector<std::string> pathElem = StringUtils::Split(strPath, "/");
+  std::vector<std::string> pathElem = KODI::StringUtils::Split(strPath, "/");
   if (pathElem.size() == 0)
     return VideoDbContentType::UNKNOWN;
 
@@ -80,7 +80,7 @@ std::string CVideoDatabaseFile::TranslatePath(const CURL& url)
     return "";
 
   URIUtils::RemoveExtension(strFileName);
-  if (!StringUtils::IsNaturalNumber(strFileName))
+  if (!KODI::StringUtils::IsNaturalNumber(strFileName))
     return "";
   long idDb = atol(strFileName.c_str());
 

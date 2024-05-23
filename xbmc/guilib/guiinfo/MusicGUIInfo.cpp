@@ -134,7 +134,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
       case LISTITEM_TRACKNUMBER:
         if (tag->Loaded() && tag->GetTrackNumber() > 0)
         {
-          value = StringUtils::Format("{:02}", tag->GetTrackNumber());
+          value = KODI::StringUtils::Format("{:02}", tag->GetTrackNumber());
           return true;
         }
         break;
@@ -188,7 +188,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         return true;
       case MUSICPLAYER_GENRE:
       case LISTITEM_GENRE:
-        value =  StringUtils::Join(tag->GetGenre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+        value =  KODI::StringUtils::Join(tag->GetGenre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
         return true;
       case MUSICPLAYER_LYRICS:
         value = tag->GetLyrics();
@@ -199,7 +199,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         float rating = tag->GetRating();
         if (rating > 0.f)
         {
-          value = StringUtils::FormatNumber(rating);
+          value = KODI::StringUtils::FormatNumber(rating);
           return true;
         }
         break;
@@ -212,11 +212,11 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         {
           int votes = tag->GetVotes();
           if (votes <= 0)
-            value = StringUtils::FormatNumber(rating);
+            value = KODI::StringUtils::FormatNumber(rating);
           else
             value =
-                StringUtils::Format(g_localizeStrings.Get(20350), StringUtils::FormatNumber(rating),
-                                    StringUtils::FormatNumber(votes));
+                KODI::StringUtils::Format(g_localizeStrings.Get(20350), KODI::StringUtils::FormatNumber(rating),
+                                    KODI::StringUtils::FormatNumber(votes));
           return true;
         }
         break;
@@ -265,7 +265,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         int iDuration = tag->GetDuration();
         if (iDuration > 0)
         {
-          value = StringUtils::SecondsToTimeString(iDuration,
+          value = KODI::StringUtils::SecondsToTimeString(iDuration,
                                                    static_cast<TIME_FORMAT>(info.m_info == LISTITEM_DURATION
                                                                             ? info.GetData4()
                                                                             : info.GetData1()));
@@ -292,7 +292,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
       // LISTITEM_*
       /////////////////////////////////////////////////////////////////////////////////////////////
       case LISTITEM_PROPERTY:
-        if (StringUtils::StartsWithNoCase(info.GetData3(), "Role."))
+        if (KODI::StringUtils::StartsWithNoCase(info.GetData3(), "Role."))
         {
           // "Role.xxxx" properties are held in music tag
           std::string property = info.GetData3();
@@ -302,7 +302,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         }
         break;
       case LISTITEM_VOTES:
-        value = StringUtils::FormatNumber(tag->GetVotes());
+        value = KODI::StringUtils::FormatNumber(tag->GetVotes());
         return true;
       case MUSICPLAYER_ORIGINALDATE:
       case LISTITEM_ORIGINALDATE:
@@ -311,7 +311,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         if (!CServiceBroker::GetSettingsComponent()
                 ->GetAdvancedSettings()
                 ->m_bMusicLibraryUseISODates)
-          value = StringUtils::ISODateToLocalizedDate(value);
+          value = KODI::StringUtils::ISODateToLocalizedDate(value);
         return true;
       }
       case MUSICPLAYER_RELEASEDATE:
@@ -321,7 +321,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         if (!CServiceBroker::GetSettingsComponent()
                 ->GetAdvancedSettings()
                 ->m_bMusicLibraryUseISODates)
-          value = StringUtils::ISODateToLocalizedDate(value);
+          value = KODI::StringUtils::ISODateToLocalizedDate(value);
         return true;
       }
       break;
@@ -340,7 +340,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         int sampleRate = tag->GetSampleRate();
         if (sampleRate > 0)
         {
-          value = StringUtils::Format("{:.5}", static_cast<double>(sampleRate) / 1000.0);
+          value = KODI::StringUtils::Format("{:.5}", static_cast<double>(sampleRate) / 1000.0);
           return true;
         }
         break;
@@ -370,7 +370,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         if (info.m_info == LISTITEM_FILE_EXTENSION)
         {
           std::string strExtension = URIUtils::GetExtension(value);
-          value = StringUtils::TrimLeft(strExtension, ".");
+          value = KODI::StringUtils::TrimLeft(strExtension, ".");
         }
         return true;
       case LISTITEM_FOLDERNAME:
@@ -419,7 +419,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
     // MUSICPLAYER_*
     ///////////////////////////////////////////////////////////////////////////////////////////////
     case MUSICPLAYER_PROPERTY:
-      if (StringUtils::StartsWithNoCase(info.GetData3(), "Role.") && item->HasMusicInfoTag())
+      if (KODI::StringUtils::StartsWithNoCase(info.GetData3(), "Role.") && item->HasMusicInfoTag())
       {
         // "Role.xxxx" properties are held in music tag
         std::string property = info.GetData3();
@@ -491,7 +491,7 @@ bool CMusicGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
       int iSamplerate = m_audioInfo.samplerate;
       if (iSamplerate > 0)
       {
-        value = StringUtils::Format("{:.5}", static_cast<double>(iSamplerate) / 1000.0);
+        value = KODI::StringUtils::Format("{:.5}", static_cast<double>(iSamplerate) / 1000.0);
         return true;
       }
       break;
@@ -641,7 +641,7 @@ bool CMusicGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int contextW
     // MUSICPLAYER_*
     ///////////////////////////////////////////////////////////////////////////////////////////////
     case MUSICPLAYER_CONTENT:
-      value = StringUtils::EqualsNoCase(info.GetData3(), "files");
+      value = KODI::StringUtils::EqualsNoCase(info.GetData3(), "files");
       return value; // if no match for this provider, other providers shall be asked.
     case MUSICPLAYER_HASPREVIOUS:
       // requires current playlist be TYPE_MUSIC

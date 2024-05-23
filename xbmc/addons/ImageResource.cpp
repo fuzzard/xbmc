@@ -41,8 +41,8 @@ bool CImageResource::IsAllowed(const std::string &file) const
 
   std::string ext = URIUtils::GetExtension(file);
   return file.empty() ||
-         StringUtils::EqualsNoCase(ext, ".png") ||
-         StringUtils::EqualsNoCase(ext, ".jpg");
+         KODI::StringUtils::EqualsNoCase(ext, ".png") ||
+         KODI::StringUtils::EqualsNoCase(ext, ".jpg");
 }
 
 std::string CImageResource::GetFullPath(const std::string &filePath) const

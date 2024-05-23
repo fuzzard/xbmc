@@ -218,7 +218,7 @@ bool CGUIControlsGUIInfo::GetLabel(std::string& value, const CFileItem *item, in
         }
         if (info.m_info == CONTAINER_TOTALTIME && count > 0)
         {
-          value = StringUtils::SecondsToTimeString(count);
+          value = KODI::StringUtils::SecondsToTimeString(count);
           return true;
         }
         else if (info.m_info == CONTAINER_TOTALWATCHED || info.m_info == CONTAINER_TOTALUNWATCHED)
@@ -535,7 +535,7 @@ bool CGUIControlsGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int co
         if (window)
           content = window->CurrentDirectory().GetContent();
       }
-      value = StringUtils::EqualsNoCase(info.GetData3(), content);
+      value = KODI::StringUtils::EqualsNoCase(info.GetData3(), content);
       return true;
     }
     case CONTAINER_ROW:
@@ -761,7 +761,7 @@ bool CGUIControlsGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int co
       else
       {
         CGUIWindow *window = CServiceBroker::GetGUI()->GetWindowManager().GetWindow(m_nextWindowID);
-        if (window && StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), info.GetData3()))
+        if (window && KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), info.GetData3()))
         {
           value = true;
           return true;
@@ -779,7 +779,7 @@ bool CGUIControlsGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int co
       else
       {
         CGUIWindow *window = CServiceBroker::GetGUI()->GetWindowManager().GetWindow(m_prevWindowID);
-        if (window && StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), info.GetData3()))
+        if (window && KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(window->GetProperty("xmlfile").asString()), info.GetData3()))
         {
           value = true;
           return true;

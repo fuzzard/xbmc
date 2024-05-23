@@ -34,7 +34,7 @@ CPVRTimersPath::CPVRTimersPath(const std::string& strPath, int iClientId, int iP
   if (Init(strPath))
   {
     // set/replace client and parent id.
-    m_path = StringUtils::Format("pvr://timers/{}/{}/{}/{}", m_bRadio ? "radio" : "tv",
+    m_path = KODI::StringUtils::Format("pvr://timers/{}/{}/{}/{}", m_bRadio ? "radio" : "tv",
                                  m_bTimerRules ? "rules" : "timers", iClientId, iParentId);
     m_iClientId = iClientId;
     m_iParentId = iParentId;
@@ -43,7 +43,7 @@ CPVRTimersPath::CPVRTimersPath(const std::string& strPath, int iClientId, int iP
 }
 
 CPVRTimersPath::CPVRTimersPath(bool bRadio, bool bTimerRules)
-  : m_path(StringUtils::Format(
+  : m_path(KODI::StringUtils::Format(
         "pvr://timers/{}/{}", bRadio ? "radio" : "tv", bTimerRules ? "rules" : "timers")),
     m_bValid(true),
     m_bRoot(true),

@@ -157,7 +157,7 @@ bool CDVDInputStreamBluray::Open()
     openDisc = VIDEO::IsProtectedBlurayDisc(base);
 
     // check for a menu call for an image file
-    if (StringUtils::EqualsNoCase(filename, "menu"))
+    if (KODI::StringUtils::EqualsNoCase(filename, "menu"))
     {
       //get rid of the udf:// protocol
       CURL url2(root);

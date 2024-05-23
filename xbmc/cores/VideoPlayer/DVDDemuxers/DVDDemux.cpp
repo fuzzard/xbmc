@@ -23,7 +23,7 @@ std::string CDemuxStreamAudio::GetStreamType()
     {
       //! @todo: With ffmpeg >= 6.1 add new atmos profile case
       // "JOC" its EAC3 Atmos underlying profile, there is no standard codec name string
-      if (StringUtils::Contains(codecName, "JOC"))
+      if (KODI::StringUtils::Contains(codecName, "JOC"))
         strInfo = "DD+ ATMOS ";
       else
         strInfo = "DD+ ";

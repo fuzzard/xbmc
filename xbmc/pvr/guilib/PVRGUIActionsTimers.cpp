@@ -286,27 +286,27 @@ void InstantRecordingActionSelector::AddAction(PVRRECORD_INSTANTRECORDACTION eAc
     {
       case RECORD_INSTANTRECORDTIME:
         m_pDlgSelect->Add(
-            StringUtils::Format(g_localizeStrings.Get(19090),
+            KODI::StringUtils::Format(g_localizeStrings.Get(19090),
                                 m_iInstantRecordTime)); // Record next <default duration> minutes
         break;
       case RECORD_30_MINUTES:
         m_pDlgSelect->Add(
-            StringUtils::Format(g_localizeStrings.Get(19090), 30)); // Record next 30 minutes
+            KODI::StringUtils::Format(g_localizeStrings.Get(19090), 30)); // Record next 30 minutes
         break;
       case RECORD_60_MINUTES:
         m_pDlgSelect->Add(
-            StringUtils::Format(g_localizeStrings.Get(19090), 60)); // Record next 60 minutes
+            KODI::StringUtils::Format(g_localizeStrings.Get(19090), 60)); // Record next 60 minutes
         break;
       case RECORD_120_MINUTES:
         m_pDlgSelect->Add(
-            StringUtils::Format(g_localizeStrings.Get(19090), 120)); // Record next 120 minutes
+            KODI::StringUtils::Format(g_localizeStrings.Get(19090), 120)); // Record next 120 minutes
         break;
       case RECORD_CURRENT_SHOW:
-        m_pDlgSelect->Add(StringUtils::Format(g_localizeStrings.Get(19091),
+        m_pDlgSelect->Add(KODI::StringUtils::Format(g_localizeStrings.Get(19091),
                                               title)); // Record current show (<title>)
         break;
       case RECORD_NEXT_SHOW:
-        m_pDlgSelect->Add(StringUtils::Format(g_localizeStrings.Get(19092),
+        m_pDlgSelect->Add(KODI::StringUtils::Format(g_localizeStrings.Get(19092),
                                               title)); // Record next show (<title>)
         break;
       case NONE:
@@ -809,14 +809,14 @@ std::string GetAnnouncerText(const std::shared_ptr<const CPVRTimerInfoTag>& time
   std::string text;
   if (timer->IsEpgBased())
   {
-    text = StringUtils::Format(g_localizeStrings.Get(idEpg),
+    text = KODI::StringUtils::Format(g_localizeStrings.Get(idEpg),
                                timer->Title(), // tv show title
                                timer->ChannelName(),
                                timer->StartAsLocalTime().GetAsLocalizedDateTime(false, false));
   }
   else
   {
-    text = StringUtils::Format(g_localizeStrings.Get(idNoEpg), timer->ChannelName(),
+    text = KODI::StringUtils::Format(g_localizeStrings.Get(idNoEpg), timer->ChannelName(),
                                timer->StartAsLocalTime().GetAsLocalizedDateTime(false, false));
   }
   return text;

@@ -118,14 +118,14 @@ bool CShader::InsertSource(const std::string& filename, const std::string& loc)
 std::string CShader::GetSourceWithLineNumbers() const
 {
   int i{1};
-  auto lines = StringUtils::Split(m_source, "\n");
+  auto lines = KODI::StringUtils::Split(m_source, "\n");
   for (auto& line : lines)
   {
-    line.insert(0, StringUtils::Format("{:3}: ", i));
+    line.insert(0, KODI::StringUtils::Format("{:3}: ", i));
     i++;
   }
 
-  auto output = StringUtils::Join(lines, "\n");
+  auto output = KODI::StringUtils::Join(lines, "\n");
 
   return output;
 }

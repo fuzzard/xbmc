@@ -127,12 +127,12 @@ static int RunAddon(const std::vector<std::string>& params)
       std::string urlParameters;
       std::vector<std::string> parameters;
       if (params.size() == 2 &&
-          (StringUtils::StartsWith(params[1], "/") || StringUtils::StartsWith(params[1], "?")))
+          (KODI::StringUtils::StartsWith(params[1], "/") || KODI::StringUtils::StartsWith(params[1], "?")))
         urlParameters = params[1];
       else if (params.size() > 1)
       {
         parameters.insert(parameters.begin(), params.begin() + 1, params.end());
-        urlParameters = "?" + StringUtils::Join(parameters, "&");
+        urlParameters = "?" + KODI::StringUtils::Join(parameters, "&");
       }
       else
       {
@@ -143,24 +143,24 @@ static int RunAddon(const std::vector<std::string>& params)
 
       std::string cmd;
       if (plugin->Provides(CPluginSource::VIDEO))
-        cmd = StringUtils::Format("ActivateWindow(Videos,plugin://{}{},return)", addonid,
+        cmd = KODI::StringUtils::Format("ActivateWindow(Videos,plugin://{}{},return)", addonid,
                                   urlParameters);
       else if (plugin->Provides(CPluginSource::AUDIO))
-        cmd = StringUtils::Format("ActivateWindow(Music,plugin://{}{},return)", addonid,
+        cmd = KODI::StringUtils::Format("ActivateWindow(Music,plugin://{}{},return)", addonid,
                                   urlParameters);
       else if (plugin->Provides(CPluginSource::EXECUTABLE))
-        cmd = StringUtils::Format("ActivateWindow(Programs,plugin://{}{},return)", addonid,
+        cmd = KODI::StringUtils::Format("ActivateWindow(Programs,plugin://{}{},return)", addonid,
                                   urlParameters);
       else if (plugin->Provides(CPluginSource::IMAGE))
-        cmd = StringUtils::Format("ActivateWindow(Pictures,plugin://{}{},return)", addonid,
+        cmd = KODI::StringUtils::Format("ActivateWindow(Pictures,plugin://{}{},return)", addonid,
                                   urlParameters);
       else if (plugin->Provides(CPluginSource::GAME))
-        cmd = StringUtils::Format("ActivateWindow(Games,plugin://{}{},return)", addonid,
+        cmd = KODI::StringUtils::Format("ActivateWindow(Games,plugin://{}{},return)", addonid,
                                   urlParameters);
       else
         // Pass the script name (addonid) and all the parameters
         // (params[1] ... params[x]) separated by a comma to RunPlugin
-        cmd = StringUtils::Format("RunPlugin({})", StringUtils::Join(params, ","));
+        cmd = KODI::StringUtils::Format("RunPlugin({})", KODI::StringUtils::Join(params, ","));
       CBuiltins::GetInstance().Execute(cmd);
     }
     else if (CServiceBroker::GetAddonMgr().GetAddon(addonid, addon, AddonType::SCRIPT,
@@ -175,7 +175,7 @@ static int RunAddon(const std::vector<std::string>& params)
       // Pass the script name (addonid) and all the parameters
       // (params[1] ... params[x]) separated by a comma to RunScript
       CBuiltins::GetInstance().Execute(
-          StringUtils::Format("RunScript({})", StringUtils::Join(params, ",")));
+          KODI::StringUtils::Format("RunScript({})", KODI::StringUtils::Join(params, ",")));
     }
     else if (CServiceBroker::GetAddonMgr().GetAddon(addonid, addon, AddonType::GAMEDLL,
                                                     OnlyEnabled::CHOICE_YES))

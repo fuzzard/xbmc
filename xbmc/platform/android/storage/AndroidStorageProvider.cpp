@@ -214,9 +214,9 @@ void CAndroidStorageProvider::GetRemovableDrives(VECSOURCES& removableDrives)
             break;
           }
 
-          StringUtils::Trim(share.strName);
+          KODI::StringUtils::Trim(share.strName);
           if (share.strName.empty() || share.strName == "?" ||
-              StringUtils::EqualsNoCase(share.strName, "null"))
+              KODI::StringUtils::EqualsNoCase(share.strName, "null"))
             share.strName = URIUtils::GetFileName(share.strPath);
 
           share.m_ignore = true;
@@ -318,7 +318,7 @@ std::set<std::string> CAndroidStorageProvider::GetRemovableDrivesLinux()
         // What mount points are rejected
         for (const auto& mount : mountBL)
         {
-          if (StringUtils::StartsWithNoCase(mountStr, mount))
+          if (KODI::StringUtils::StartsWithNoCase(mountStr, mount))
           {
             bl_ok = false;
             break;
@@ -331,7 +331,7 @@ std::set<std::string> CAndroidStorageProvider::GetRemovableDrivesLinux()
           bool fsok = false;
           for (const auto& type : typeWL)
           {
-            if (StringUtils::StartsWithNoCase(fsStr, type))
+            if (KODI::StringUtils::StartsWithNoCase(fsStr, type))
             {
               fsok = true;
               break;
@@ -341,7 +341,7 @@ std::set<std::string> CAndroidStorageProvider::GetRemovableDrivesLinux()
           bool devok = false;
           for (const auto& device : deviceWL)
           {
-            if (StringUtils::StartsWithNoCase(deviceStr, device))
+            if (KODI::StringUtils::StartsWithNoCase(deviceStr, device))
             {
               devok = true;
               break;
@@ -352,7 +352,7 @@ std::set<std::string> CAndroidStorageProvider::GetRemovableDrivesLinux()
           bool mountok = false;
           for (const auto& mount : mountWL)
           {
-            if (StringUtils::StartsWithNoCase(mountStr, mount))
+            if (KODI::StringUtils::StartsWithNoCase(mountStr, mount))
             {
               mountok = true;
               break;

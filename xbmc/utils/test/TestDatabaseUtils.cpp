@@ -342,47 +342,47 @@ TEST(TestDatabaseUtils, GetField_MediaTypeMusicVideo)
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TITLE);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TITLE);
   varstr = DatabaseUtils::GetField(FieldTitle, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_RUNTIME);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_RUNTIME);
   varstr = DatabaseUtils::GetField(FieldTime, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_DIRECTOR);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_DIRECTOR);
   varstr = DatabaseUtils::GetField(FieldDirector, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_STUDIOS);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_STUDIOS);
   varstr = DatabaseUtils::GetField(FieldStudio, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_PLOT);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_PLOT);
   varstr = DatabaseUtils::GetField(FieldPlot, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ALBUM);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ALBUM);
   varstr = DatabaseUtils::GetField(FieldAlbum, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ARTIST);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_ARTIST);
   varstr = DatabaseUtils::GetField(FieldArtist, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_GENRE);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_GENRE);
   varstr = DatabaseUtils::GetField(FieldGenre, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TRACK);
+  refstr = KODI::StringUtils::Format("musicvideo_view.c{:02}", VIDEODB_ID_MUSICVIDEO_TRACK);
   varstr = DatabaseUtils::GetField(FieldTrackNumber, MediaTypeMusicVideo,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
@@ -442,29 +442,29 @@ TEST(TestDatabaseUtils, GetField_MediaTypeMovie)
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TITLE);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TITLE);
   varstr = DatabaseUtils::GetField(FieldTitle, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("CASE WHEN length(movie_view.c{:02}) > 0 THEN movie_view.c{:02} "
+  refstr = KODI::StringUtils::Format("CASE WHEN length(movie_view.c{:02}) > 0 THEN movie_view.c{:02} "
                                "ELSE movie_view.c{:02} END",
                                VIDEODB_ID_SORTTITLE, VIDEODB_ID_SORTTITLE, VIDEODB_ID_TITLE);
   varstr = DatabaseUtils::GetField(FieldTitle, MediaTypeMovie,
                                    DatabaseQueryPartOrderBy);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOT);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOT);
   varstr = DatabaseUtils::GetField(FieldPlot, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOTOUTLINE);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_PLOTOUTLINE);
   varstr = DatabaseUtils::GetField(FieldPlotOutline, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TAGLINE);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TAGLINE);
   varstr = DatabaseUtils::GetField(FieldTagline, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
@@ -479,52 +479,52 @@ TEST(TestDatabaseUtils, GetField_MediaTypeMovie)
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_CREDITS);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_CREDITS);
   varstr = DatabaseUtils::GetField(FieldWriter, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_SORTTITLE);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_SORTTITLE);
   varstr = DatabaseUtils::GetField(FieldSortTitle, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_RUNTIME);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_RUNTIME);
   varstr = DatabaseUtils::GetField(FieldTime, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_MPAA);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_MPAA);
   varstr = DatabaseUtils::GetField(FieldMPAA, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TOP250);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TOP250);
   varstr = DatabaseUtils::GetField(FieldTop250, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_GENRE);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_GENRE);
   varstr = DatabaseUtils::GetField(FieldGenre, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_DIRECTOR);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_DIRECTOR);
   varstr = DatabaseUtils::GetField(FieldDirector, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_STUDIOS);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_STUDIOS);
   varstr = DatabaseUtils::GetField(FieldStudio, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TRAILER);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_TRAILER);
   varstr = DatabaseUtils::GetField(FieldTrailer, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_COUNTRY);
+  refstr = KODI::StringUtils::Format("movie_view.c{:02}", VIDEODB_ID_COUNTRY);
   varstr = DatabaseUtils::GetField(FieldCountry, MediaTypeMovie,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
@@ -575,24 +575,24 @@ TEST(TestDatabaseUtils, GetField_MediaTypeTvShow)
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
   refstr =
-      StringUtils::Format("CASE WHEN length(tvshow_view.c{:02}) > 0 THEN tvshow_view.c{:02} "
+      KODI::StringUtils::Format("CASE WHEN length(tvshow_view.c{:02}) > 0 THEN tvshow_view.c{:02} "
                           "ELSE tvshow_view.c{:02} END",
                           VIDEODB_ID_TV_SORTTITLE, VIDEODB_ID_TV_SORTTITLE, VIDEODB_ID_TV_TITLE);
   varstr = DatabaseUtils::GetField(FieldTitle, MediaTypeTvShow,
                                    DatabaseQueryPartOrderBy);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_TITLE);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_TITLE);
   varstr = DatabaseUtils::GetField(FieldTitle, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PLOT);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PLOT);
   varstr = DatabaseUtils::GetField(FieldPlot, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STATUS);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STATUS);
   varstr = DatabaseUtils::GetField(FieldTvShowStatus, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
@@ -607,27 +607,27 @@ TEST(TestDatabaseUtils, GetField_MediaTypeTvShow)
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PREMIERED);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_PREMIERED);
   varstr = DatabaseUtils::GetField(FieldYear, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_GENRE);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_GENRE);
   varstr = DatabaseUtils::GetField(FieldGenre, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_MPAA);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_MPAA);
   varstr = DatabaseUtils::GetField(FieldMPAA, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STUDIOS);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_STUDIOS);
   varstr = DatabaseUtils::GetField(FieldStudio, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_SORTTITLE);
+  refstr = KODI::StringUtils::Format("tvshow_view.c{:02}", VIDEODB_ID_TV_SORTTITLE);
   varstr = DatabaseUtils::GetField(FieldSortTitle, MediaTypeTvShow,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
@@ -677,12 +677,12 @@ TEST(TestDatabaseUtils, GetField_MediaTypeEpisode)
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_TITLE);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_TITLE);
   varstr = DatabaseUtils::GetField(FieldTitle, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_PLOT);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_PLOT);
   varstr = DatabaseUtils::GetField(FieldPlot, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
@@ -697,32 +697,32 @@ TEST(TestDatabaseUtils, GetField_MediaTypeEpisode)
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_CREDITS);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_CREDITS);
   varstr = DatabaseUtils::GetField(FieldWriter, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_AIRED);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_AIRED);
   varstr = DatabaseUtils::GetField(FieldAirDate, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_RUNTIME);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_RUNTIME);
   varstr = DatabaseUtils::GetField(FieldTime, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_DIRECTOR);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_DIRECTOR);
   varstr = DatabaseUtils::GetField(FieldDirector, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SEASON);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_SEASON);
   varstr = DatabaseUtils::GetField(FieldSeason, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());
 
-  refstr = StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_EPISODE);
+  refstr = KODI::StringUtils::Format("episode_view.c{:02}", VIDEODB_ID_EPISODE_EPISODE);
   varstr = DatabaseUtils::GetField(FieldEpisodeNumber, MediaTypeEpisode,
                                    DatabaseQueryPartSelect);
   EXPECT_STREQ(refstr.c_str(), varstr.c_str());

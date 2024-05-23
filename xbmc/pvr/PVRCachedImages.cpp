@@ -44,7 +44,7 @@ int CPVRCachedImages::Cleanup(const std::vector<PVRImagePattern>& urlPatterns,
   for (const auto& pattern : urlPatterns)
   {
     const std::string encodedPattern =
-        StringUtils::Format("{}@{}", pattern.owner, CURL::Encode(pattern.path));
+        KODI::StringUtils::Format("{}@{}", pattern.owner, CURL::Encode(pattern.path));
 
     std::string escapedPattern;
     for (size_t i = 0; i < encodedPattern.size(); ++i)
@@ -56,7 +56,7 @@ int CPVRCachedImages::Cleanup(const std::vector<PVRImagePattern>& urlPatterns,
     }
 
     const std::string where =
-        StringUtils::Format("url LIKE 'image://{}%' ESCAPE '^'", escapedPattern);
+        KODI::StringUtils::Format("url LIKE 'image://{}%' ESCAPE '^'", escapedPattern);
     filter.AppendWhere(where, false); // logical OR
   }
 
@@ -90,5 +90,5 @@ int CPVRCachedImages::Cleanup(const std::vector<PVRImagePattern>& urlPatterns,
 
 std::string CPVRCachedImages::UnwrapImageURL(const std::string& url)
 {
-  return StringUtils::StartsWith(url, "image://") ? CURL(url).GetHostName() : url;
+  return KODI::StringUtils::StartsWith(url, "image://") ? CURL(url).GetHostName() : url;
 }

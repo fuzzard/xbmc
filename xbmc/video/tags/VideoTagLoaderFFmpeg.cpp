@@ -191,22 +191,22 @@ CInfoScanner::INFO_TYPE CVideoTagLoaderFFmpeg::LoadMKV(CVideoInfoTag& tag,
   bool hastag = false;
   while ((avtag = av_dict_get(m_fctx->metadata, "", avtag, AV_DICT_IGNORE_SUFFIX)))
   {
-    if (StringUtils::CompareNoCase(avtag->key, "imdburl") == 0 ||
-        StringUtils::CompareNoCase(avtag->key, "tmdburl") == 0)
+    if (KODI::StringUtils::CompareNoCase(avtag->key, "imdburl") == 0 ||
+        KODI::StringUtils::CompareNoCase(avtag->key, "tmdburl") == 0)
     {
       CNfoFile nfo;
       nfo.Create(avtag->value, m_info);
       m_url = nfo.ScraperUrl();
       return CInfoScanner::URL_NFO;
     }
-    else if (StringUtils::CompareNoCase(avtag->key, "title") == 0)
+    else if (KODI::StringUtils::CompareNoCase(avtag->key, "title") == 0)
       tag.SetTitle(avtag->value);
-    else if (StringUtils::CompareNoCase(avtag->key, "director") == 0)
+    else if (KODI::StringUtils::CompareNoCase(avtag->key, "director") == 0)
     {
-      std::vector<std::string> dirs = StringUtils::Split(avtag->value, " / ");
+      std::vector<std::string> dirs = KODI::StringUtils::Split(avtag->value, " / ");
       tag.SetDirector(dirs);
     }
-    else if (StringUtils::CompareNoCase(avtag->key, "date_released") == 0)
+    else if (KODI::StringUtils::CompareNoCase(avtag->key, "date_released") == 0)
       tag.SetYear(atoi(avtag->value));
     hastag = true;
   }
@@ -226,9 +226,9 @@ CInfoScanner::INFO_TYPE CVideoTagLoaderFFmpeg::LoadMP4(CVideoInfoTag& tag,
     if (strcmp(avtag->key, "title") == 0)
       tag.SetTitle(avtag->value);
     else if (strcmp(avtag->key, "composer") == 0)
-      tag.SetWritingCredits(StringUtils::Split(avtag->value, " / "));
+      tag.SetWritingCredits(KODI::StringUtils::Split(avtag->value, " / "));
     else if (strcmp(avtag->key, "genre") == 0)
-      tag.SetGenre(StringUtils::Split(avtag->value, " / "));
+      tag.SetGenre(KODI::StringUtils::Split(avtag->value, " / "));
     else if (strcmp(avtag->key,"date") == 0)
       tag.SetYear(atoi(avtag->value));
     else if (strcmp(avtag->key, "description") == 0)
@@ -246,7 +246,7 @@ CInfoScanner::INFO_TYPE CVideoTagLoaderFFmpeg::LoadMP4(CVideoInfoTag& tag,
     else if (strcmp(avtag->key, "album") == 0)
       tag.SetAlbum(avtag->value);
     else if (strcmp(avtag->key, "artist") == 0)
-      tag.SetArtist(StringUtils::Split(avtag->value, " / "));
+      tag.SetArtist(KODI::StringUtils::Split(avtag->value, " / "));
   }
 
   for (size_t i = 0; i < m_fctx->nb_streams; ++i)

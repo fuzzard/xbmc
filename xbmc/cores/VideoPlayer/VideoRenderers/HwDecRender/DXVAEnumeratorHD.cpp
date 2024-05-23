@@ -22,7 +22,7 @@ using namespace Microsoft::WRL;
 
 const std::string ProcessorConversion::ToString() const
 {
-  return StringUtils::Format("{} / {} to {} / {}", DX::DXGIFormatToString(m_inputFormat),
+  return KODI::StringUtils::Format("{} / {} to {} / {}", DX::DXGIFormatToString(m_inputFormat),
                              DX::DXGIColorSpaceTypeToString(m_inputCS),
                              DX::DXGIFormatToString(m_outputFormat),
                              DX::DXGIColorSpaceTypeToString(m_outputCS));
@@ -438,7 +438,7 @@ void CEnumeratorHD::LogSupportedConversions(const DXGI_FORMAT inputFormat,
   for (const ProcessorConversion& c : conversions)
   {
     conversionsString.append("\n");
-    conversionsString.append(StringUtils::Format(
+    conversionsString.append(KODI::StringUtils::Format(
         "{} / {} {:<{}} to {:<{}} / {} {:<{}}", DX::DXGIFormatToString(c.m_inputFormat),
         (c.m_inputCS == inputNativeCS) ? "N" : " ", DX::DXGIColorSpaceTypeToString(c.m_inputCS), 32,
         DX::DXGIFormatToString(c.m_outputFormat), 26,

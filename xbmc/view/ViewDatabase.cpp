@@ -66,12 +66,12 @@ void CViewDatabase::UpdateTables(int version)
       {
         std::string originalPath = m_pDS->fv(1).get_asString();
         std::string path = originalPath;
-        if (StringUtils::StartsWithNoCase(path, "musicdb://"))
+        if (KODI::StringUtils::StartsWithNoCase(path, "musicdb://"))
           path = CLegacyPathTranslation::TranslateMusicDbPath(path);
-        else if (StringUtils::StartsWithNoCase(path, "videodb://"))
+        else if (KODI::StringUtils::StartsWithNoCase(path, "videodb://"))
           path = CLegacyPathTranslation::TranslateVideoDbPath(path);
 
-        if (!StringUtils::EqualsNoCase(path, originalPath))
+        if (!KODI::StringUtils::EqualsNoCase(path, originalPath))
           paths.emplace_back(m_pDS->fv(0).get_asInt(), path);
         m_pDS->next();
       }

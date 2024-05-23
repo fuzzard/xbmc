@@ -128,7 +128,7 @@ bool CGUIWindowLoginScreen::OnAction(const CAction &action)
   if (action.GetID() == ACTION_BUILT_IN_FUNCTION)
   {
     std::string actionName = action.GetName();
-    StringUtils::ToLower(actionName);
+    KODI::StringUtils::ToLower(actionName);
     if ((actionName.find("shutdown") != std::string::npos) &&
         CServiceBroker::GetPVRManager().Get<PVR::GUI::PowerManagement>().CanSystemPowerdown())
       CBuiltins::GetInstance().Execute(action.GetName());
@@ -153,7 +153,7 @@ void CGUIWindowLoginScreen::FrameMove()
 
   const std::shared_ptr<CProfileManager> profileManager = CServiceBroker::GetSettingsComponent()->GetProfileManager();
 
-  std::string strLabel = StringUtils::Format(g_localizeStrings.Get(20114), m_iSelectedItem + 1,
+  std::string strLabel = KODI::StringUtils::Format(g_localizeStrings.Get(20114), m_iSelectedItem + 1,
                                              profileManager->GetNumberOfProfiles());
   SET_CONTROL_LABEL(CONTROL_LABEL_SELECTED_PROFILE,strLabel);
   CGUIWindow::FrameMove();
@@ -205,7 +205,7 @@ void CGUIWindowLoginScreen::Update()
     if (profile->getDate().empty())
       strLabel = g_localizeStrings.Get(20113);
     else
-      strLabel = StringUtils::Format(g_localizeStrings.Get(20112), profile->getDate());
+      strLabel = KODI::StringUtils::Format(g_localizeStrings.Get(20112), profile->getDate());
 
     item->SetLabel2(strLabel);
     item->SetArt("thumb", profile->getThumb());

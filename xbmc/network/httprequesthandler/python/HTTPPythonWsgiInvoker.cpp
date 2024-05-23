@@ -125,7 +125,7 @@ void CHTTPPythonWsgiInvoker::executeScript(FILE* fp, const std::string& script, 
     return;
 
   auto logger = CServiceBroker::GetLogging().GetLogger(
-      StringUtils::Format("CHTTPPythonWsgiInvoker[{}]", script));
+      KODI::StringUtils::Format("CHTTPPythonWsgiInvoker[{}]", script));
 
   ADDON::CWebinterface* webinterface = static_cast<ADDON::CWebinterface*>(m_addon.get());
   if (webinterface->GetType() != ADDON::WebinterfaceTypeWsgi)
@@ -377,7 +377,7 @@ std::map<std::string, std::string> CHTTPPythonWsgiInvoker::createCgiEnvironment(
   for (headerIt = httpRequest->headerValues.begin(); headerIt != httpRequest->headerValues.end(); ++headerIt)
   {
     std::string headerName = headerIt->first;
-    StringUtils::ToUpper(headerName);
+    KODI::StringUtils::ToUpper(headerName);
     environment.insert(std::make_pair("HTTP_" + headerName, headerIt->second));
   }
 

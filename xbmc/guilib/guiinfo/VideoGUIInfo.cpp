@@ -143,11 +143,11 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         return true;
       case VIDEOPLAYER_GENRE:
       case LISTITEM_GENRE:
-        value = StringUtils::Join(tag->m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case VIDEOPLAYER_DIRECTOR:
       case LISTITEM_DIRECTOR:
-        value = StringUtils::Join(tag->m_director, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_director, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case VIDEOPLAYER_IMDBNUMBER:
       case LISTITEM_IMDBNUMBER:
@@ -180,7 +180,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         float rating = tag->GetRating(info.GetData3()).rating;
         if (rating > 0.f)
         {
-          value = StringUtils::FormatNumber(rating);
+          value = KODI::StringUtils::FormatNumber(rating);
           return true;
         }
         break;
@@ -192,11 +192,11 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         if (rating.rating >= 0.f)
         {
           if (rating.rating > 0.f && rating.votes == 0)
-            value = StringUtils::FormatNumber(rating.rating);
+            value = KODI::StringUtils::FormatNumber(rating.rating);
           else if (rating.votes > 0)
-            value = StringUtils::Format(g_localizeStrings.Get(20350),
-                                        StringUtils::FormatNumber(rating.rating),
-                                        StringUtils::FormatNumber(rating.votes));
+            value = KODI::StringUtils::Format(g_localizeStrings.Get(20350),
+                                        KODI::StringUtils::FormatNumber(rating.rating),
+                                        KODI::StringUtils::FormatNumber(rating.votes));
           else
             break;
           return true;
@@ -213,7 +213,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         break;
       case VIDEOPLAYER_VOTES:
       case LISTITEM_VOTES:
-        value = StringUtils::FormatNumber(tag->GetRating(info.GetData3()).votes);
+        value = KODI::StringUtils::FormatNumber(tag->GetRating(info.GetData3()).votes);
         return true;
       case VIDEOPLAYER_YEAR:
       case LISTITEM_YEAR:
@@ -280,11 +280,11 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         return true;
       case VIDEOPLAYER_STUDIO:
       case LISTITEM_STUDIO:
-        value = StringUtils::Join(tag->m_studio, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_studio, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case VIDEOPLAYER_COUNTRY:
       case LISTITEM_COUNTRY:
-        value = StringUtils::Join(tag->m_country, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_country, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case VIDEOPLAYER_MPAA:
       case LISTITEM_MPAA:
@@ -308,7 +308,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         return true;
       case VIDEOPLAYER_ARTIST:
       case LISTITEM_ARTIST:
-        value = StringUtils::Join(tag->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case VIDEOPLAYER_ALBUM:
       case LISTITEM_ALBUM:
@@ -316,7 +316,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         return true;
       case VIDEOPLAYER_WRITER:
       case LISTITEM_WRITER:
-        value = StringUtils::Join(tag->m_writingCredits, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_writingCredits, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case VIDEOPLAYER_TAGLINE:
       case LISTITEM_TAGLINE:
@@ -356,7 +356,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         int iDuration = tag->GetDuration();
         if (iDuration > 0)
         {
-          value = StringUtils::SecondsToTimeString(iDuration, static_cast<TIME_FORMAT>(info.GetData4()));
+          value = KODI::StringUtils::SecondsToTimeString(iDuration, static_cast<TIME_FORMAT>(info.GetData4()));
           return true;
         }
         break;
@@ -394,7 +394,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         value = tag->m_strStatus;
         return true;
       case LISTITEM_TAG:
-        value = StringUtils::Join(tag->m_tags, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
+        value = KODI::StringUtils::Join(tag->m_tags, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
         return true;
       case LISTITEM_SET:
         value = tag->m_set.title;
@@ -492,7 +492,7 @@ bool CVideoGUIInfo::GetLabel(std::string& value, const CFileItem *item, int cont
         if (info.m_info == LISTITEM_FILE_EXTENSION)
         {
           std::string strExtension = URIUtils::GetExtension(value);
-          value = StringUtils::TrimLeft(strExtension, ".");
+          value = KODI::StringUtils::TrimLeft(strExtension, ".");
         }
         return true;
       case LISTITEM_FOLDERNAME:
@@ -824,7 +824,7 @@ bool CVideoGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int contextW
         else if (tag->m_type == MediaTypeMusicVideo)
           strContent = "musicvideos";
       }
-      value = StringUtils::EqualsNoCase(info.GetData3(), strContent);
+      value = KODI::StringUtils::EqualsNoCase(info.GetData3(), strContent);
       return value; // if no match for this provider, other providers shall be asked.
     }
     case VIDEOPLAYER_USING_OVERLAYS:

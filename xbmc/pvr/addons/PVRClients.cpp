@@ -881,7 +881,7 @@ void CPVRClients::ConnectionStateChange(CPVRClient* client,
     strMsg = g_localizeStrings.Get(iMsg);
 
   if (!strConnectionString.empty())
-    strMsg = StringUtils::Format("{} ({})", strMsg, strConnectionString);
+    strMsg = KODI::StringUtils::Format("{} ({})", strMsg, strConnectionString);
 
   // Notify user.
   CServiceBroker::GetJobManager()->AddJob(

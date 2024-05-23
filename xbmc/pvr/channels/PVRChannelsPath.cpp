@@ -70,7 +70,7 @@ CPVRChannelsPath::CPVRChannelsPath(const std::string& strPath)
           break;
         }
 
-        std::vector<std::string> tokens = StringUtils::Split(segment, "@");
+        std::vector<std::string> tokens = KODI::StringUtils::Split(segment, "@");
         if (tokens.size() == 2 && !tokens[0].empty() && !tokens[1].empty())
         {
           m_groupName = CURL::Decode(tokens[0]);
@@ -95,10 +95,10 @@ CPVRChannelsPath::CPVRChannelsPath(const std::string& strPath)
 
       case Kind::GROUP:
       {
-        std::vector<std::string> tokens = StringUtils::Split(segment, "_");
+        std::vector<std::string> tokens = KODI::StringUtils::Split(segment, "_");
         if (tokens.size() == 2)
         {
-          std::vector<std::string> instance = StringUtils::Split(tokens[0], "@");
+          std::vector<std::string> instance = KODI::StringUtils::Split(tokens[0], "@");
           if (instance.size() == 2)
           {
             m_instanceID = std::atoi(instance[0].c_str());
@@ -110,7 +110,7 @@ CPVRChannelsPath::CPVRChannelsPath(const std::string& strPath)
             m_addonID = tokens[0];
           }
 
-          tokens = StringUtils::Split(tokens[1], ".");
+          tokens = KODI::StringUtils::Split(tokens[1], ".");
           if (tokens.size() == 2 && tokens[1] == "pvr")
           {
             std::string channelUID = tokens[0];
@@ -159,13 +159,13 @@ CPVRChannelsPath::CPVRChannelsPath(bool bRadio,
   if (m_groupName.empty())
   {
     m_kind = Kind::EMPTY;
-    m_path = StringUtils::Format("pvr://channels/{}", bRadio ? "radio" : "tv");
+    m_path = KODI::StringUtils::Format("pvr://channels/{}", bRadio ? "radio" : "tv");
   }
   else
   {
     m_kind = Kind::GROUP;
     m_groupClientID = iGroupClientID;
-    m_path = StringUtils::Format("pvr://channels/{}/{}@{}/", bRadio ? "radio" : "tv",
+    m_path = KODI::StringUtils::Format("pvr://channels/{}/{}@{}/", bRadio ? "radio" : "tv",
                                  CURL::Encode(m_groupName), m_groupClientID);
   }
 }
@@ -176,13 +176,13 @@ CPVRChannelsPath::CPVRChannelsPath(bool bRadio, const std::string& strGroupName,
   if (m_groupName.empty())
   {
     m_kind = Kind::EMPTY;
-    m_path = StringUtils::Format("pvr://channels/{}", bRadio ? "radio" : "tv");
+    m_path = KODI::StringUtils::Format("pvr://channels/{}", bRadio ? "radio" : "tv");
   }
   else
   {
     m_kind = Kind::GROUP;
     m_groupClientID = iGroupClientID;
-    m_path = StringUtils::Format("pvr://channels/{}/{}@{}/", bRadio ? "radio" : "tv",
+    m_path = KODI::StringUtils::Format("pvr://channels/{}/{}@{}/", bRadio ? "radio" : "tv",
                                  CURL::Encode(m_groupName), m_groupClientID);
   }
 }
@@ -203,7 +203,7 @@ CPVRChannelsPath::CPVRChannelsPath(bool bRadio,
     m_addonID = strAddonID;
     m_instanceID = instanceID;
     m_iChannelUID = iChannelUID;
-    m_path = StringUtils::Format("pvr://channels/{}/{}@{}/{}@{}_{}.pvr", bRadio ? "radio" : "tv",
+    m_path = KODI::StringUtils::Format("pvr://channels/{}/{}@{}/{}@{}_{}.pvr", bRadio ? "radio" : "tv",
                                  CURL::Encode(m_groupName), m_groupClientID, m_instanceID,
                                  m_addonID, m_iChannelUID);
   }

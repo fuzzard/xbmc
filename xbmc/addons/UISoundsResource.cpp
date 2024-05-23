@@ -26,7 +26,7 @@ CUISoundsResource::CUISoundsResource(const AddonInfoPtr& addonInfo)
 
 bool CUISoundsResource::IsAllowed(const std::string& file) const
 {
-  return StringUtils::EqualsNoCase(file, "sounds.xml")
+  return KODI::StringUtils::EqualsNoCase(file, "sounds.xml")
       || URIUtils::HasExtension(file, ".wav");
 }
 

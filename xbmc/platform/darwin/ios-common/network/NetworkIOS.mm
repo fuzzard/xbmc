@@ -60,7 +60,7 @@ bool CNetworkInterfaceIOS::IsConnected() const
 
   for (struct ifaddrs* iface = interfaces; iface != nullptr; iface = iface->ifa_next)
   {
-    if (StringUtils::StartsWith(iface->ifa_name, m_interfaceName))
+    if (KODI::StringUtils::StartsWith(iface->ifa_name, m_interfaceName))
     {
       if ((iface->ifa_flags & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING) &&
           iface->ifa_dstaddr != nullptr)
@@ -100,7 +100,7 @@ std::string CNetworkInterfaceIOS::GetCurrentIPAddress() const
 
   for (struct ifaddrs* iface = interfaces; iface != nullptr; iface = iface->ifa_next)
   {
-    if (StringUtils::StartsWith(iface->ifa_name, m_interfaceName))
+    if (KODI::StringUtils::StartsWith(iface->ifa_name, m_interfaceName))
     {
       if ((iface->ifa_flags & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING) &&
           iface->ifa_dstaddr != nullptr)
@@ -144,7 +144,7 @@ std::string CNetworkInterfaceIOS::GetCurrentNetmask() const
 
   for (struct ifaddrs* iface = interfaces; iface != nullptr; iface = iface->ifa_next)
   {
-    if (StringUtils::StartsWith(iface->ifa_name, m_interfaceName))
+    if (KODI::StringUtils::StartsWith(iface->ifa_name, m_interfaceName))
     {
       if ((iface->ifa_flags & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING) &&
           iface->ifa_dstaddr != nullptr)
@@ -320,16 +320,16 @@ CNetworkInterface* CNetworkIOS::GetFirstConnectedInterface()
     if (iteriface && iteriface->IsConnected())
     {
       // VPN interface
-      if (StringUtils::StartsWith(iteriface->GetInterfaceName(), "utun"))
+      if (KODI::StringUtils::StartsWith(iteriface->GetInterfaceName(), "utun"))
         ifVPN = static_cast<CNetworkInterface*>(iteriface);
       // Wired interface
-      else if (StringUtils::StartsWith(iteriface->GetInterfaceName(), ifWiredName))
+      else if (KODI::StringUtils::StartsWith(iteriface->GetInterfaceName(), ifWiredName))
         ifWired = static_cast<CNetworkInterface*>(iteriface);
       // Wifi interface
-      else if (StringUtils::StartsWith(iteriface->GetInterfaceName(), ifWifiName))
+      else if (KODI::StringUtils::StartsWith(iteriface->GetInterfaceName(), ifWifiName))
         ifWifi = static_cast<CNetworkInterface*>(iteriface);
       // Cellular interface
-      else if (StringUtils::StartsWith(iteriface->GetInterfaceName(), "pdp_ip"))
+      else if (KODI::StringUtils::StartsWith(iteriface->GetInterfaceName(), "pdp_ip"))
         ifCell = static_cast<CNetworkInterface*>(iteriface);
     }
   }

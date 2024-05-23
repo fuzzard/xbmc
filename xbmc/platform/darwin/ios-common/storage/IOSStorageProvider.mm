@@ -49,7 +49,7 @@ std::vector<std::string> CIOSStorageProvider::GetDiskUsage()
        {std::make_pair(NSFileSystemFreeSize, 160), std::make_pair(NSFileSystemSize, 20161)})
     if (auto sizeStr = [formatter stringForObjectValue:fileSystemAttributes[pair.first]])
       result.push_back(
-          StringUtils::Format("{}: {}", g_localizeStrings.Get(pair.second), sizeStr.UTF8String));
+          KODI::StringUtils::Format("{}: {}", g_localizeStrings.Get(pair.second), sizeStr.UTF8String));
 
   return result;
 }

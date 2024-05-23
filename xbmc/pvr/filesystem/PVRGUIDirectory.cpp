@@ -48,7 +48,7 @@ bool CPVRGUIDirectory::Exists() const
   if (!CServiceBroker::GetPVRManager().IsStarted())
     return false;
 
-  return m_url.IsProtocol("pvr") && StringUtils::StartsWith(m_url.GetFileName(), "recordings");
+  return m_url.IsProtocol("pvr") && KODI::StringUtils::StartsWith(m_url.GetFileName(), "recordings");
 }
 
 bool CPVRGUIDirectory::SupportsWriteFileOperations() const
@@ -74,7 +74,7 @@ bool GetRootDirectory(bool bRadio, CFileItemList& results)
   if (bAnyClientSupportingEPG)
   {
     item = std::make_shared<CFileItem>(
-        StringUtils::Format("pvr://guide/{}/", bRadio ? "radio" : "tv"), true);
+        KODI::StringUtils::Format("pvr://guide/{}/", bRadio ? "radio" : "tv"), true);
     item->SetLabel(g_localizeStrings.Get(19069)); // Guide
     item->SetProperty("node.target", CWindowTranslator::TranslateWindow(bRadio ? WINDOW_RADIO_GUIDE
                                                                                : WINDOW_TV_GUIDE));
@@ -175,7 +175,7 @@ bool CPVRGUIDirectory::GetDirectory(CFileItemList& results) const
     }
     return true;
   }
-  else if (StringUtils::StartsWith(fileName, "tv"))
+  else if (KODI::StringUtils::StartsWith(fileName, "tv"))
   {
     if (CServiceBroker::GetPVRManager().IsStarted())
     {
@@ -183,7 +183,7 @@ bool CPVRGUIDirectory::GetDirectory(CFileItemList& results) const
     }
     return true;
   }
-  else if (StringUtils::StartsWith(fileName, "radio"))
+  else if (KODI::StringUtils::StartsWith(fileName, "radio"))
   {
     if (CServiceBroker::GetPVRManager().IsStarted())
     {
@@ -191,7 +191,7 @@ bool CPVRGUIDirectory::GetDirectory(CFileItemList& results) const
     }
     return true;
   }
-  else if (StringUtils::StartsWith(fileName, "recordings"))
+  else if (KODI::StringUtils::StartsWith(fileName, "recordings"))
   {
     if (CServiceBroker::GetPVRManager().IsStarted())
     {
@@ -199,7 +199,7 @@ bool CPVRGUIDirectory::GetDirectory(CFileItemList& results) const
     }
     return true;
   }
-  else if (StringUtils::StartsWith(fileName, "channels"))
+  else if (KODI::StringUtils::StartsWith(fileName, "channels"))
   {
     if (CServiceBroker::GetPVRManager().IsStarted())
     {
@@ -207,7 +207,7 @@ bool CPVRGUIDirectory::GetDirectory(CFileItemList& results) const
     }
     return true;
   }
-  else if (StringUtils::StartsWith(fileName, "timers"))
+  else if (KODI::StringUtils::StartsWith(fileName, "timers"))
   {
     if (CServiceBroker::GetPVRManager().IsStarted())
     {
@@ -276,9 +276,9 @@ bool IsDirectoryMember(const std::string& strDirectory,
 
   // Case-insensitive comparison since sub folders are created with case-insensitive matching (GetSubDirectories)
   if (bGrouped)
-    return StringUtils::EqualsNoCase(strUseDirectory, strUseEntryDirectory);
+    return KODI::StringUtils::EqualsNoCase(strUseDirectory, strUseEntryDirectory);
   else
-    return StringUtils::StartsWithNoCase(strUseEntryDirectory, strUseDirectory);
+    return KODI::StringUtils::StartsWithNoCase(strUseEntryDirectory, strUseDirectory);
 }
 
 void GetSubDirectories(const CPVRRecordingsPath& recParentPath,
@@ -356,7 +356,7 @@ void GetSubDirectories(const CPVRRecordingsPath& recParentPath,
     item->ClearProperty("sizeinbytes");
     item->m_dwSize = size; // We'll also sort recording folders by size
     if (size > 0)
-      item->SetProperty("recordingsize", StringUtils::SizeToString(size));
+      item->SetProperty("recordingsize", KODI::StringUtils::SizeToString(size));
   }
 
   // Change the watched overlay to unwatched for folders containing unwatched entries

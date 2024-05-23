@@ -99,7 +99,7 @@ void CSettingConditionsManager::AddCondition(std::string condition)
   if (condition.empty())
     return;
 
-  StringUtils::ToLower(condition);
+  KODI::StringUtils::ToLower(condition);
 
   m_defines.insert(condition);
 }
@@ -109,7 +109,7 @@ void CSettingConditionsManager::AddDynamicCondition(std::string identifier, Sett
   if (identifier.empty() || condition == nullptr)
     return;
 
-  StringUtils::ToLower(identifier);
+  KODI::StringUtils::ToLower(identifier);
 
   m_conditions.emplace(identifier, std::make_pair(condition, data));
 }
@@ -119,7 +119,7 @@ void CSettingConditionsManager::RemoveDynamicCondition(std::string identifier)
   if (identifier.empty())
     return;
 
-  StringUtils::ToLower(identifier);
+  KODI::StringUtils::ToLower(identifier);
 
   auto it = m_conditions.find(identifier);
   if (it != m_conditions.end())
@@ -134,13 +134,13 @@ bool CSettingConditionsManager::Check(
   if (condition.empty())
     return false;
 
-  StringUtils::ToLower(condition);
+  KODI::StringUtils::ToLower(condition);
 
   // special handling of "isdefined" conditions
   if (condition == "isdefined")
   {
     std::string tmpValue = value;
-    StringUtils::ToLower(tmpValue);
+    KODI::StringUtils::ToLower(tmpValue);
 
     return m_defines.find(tmpValue) != m_defines.end();
   }

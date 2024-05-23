@@ -400,7 +400,7 @@ CFileItem::CFileItem(const CMediaSource& share)
     URIUtils::AddSlashAtEnd(m_strPath);
   std::string label = share.strName;
   if (!share.strStatus.empty())
-    label = StringUtils::Format("{} ({})", share.strName, share.strStatus);
+    label = KODI::StringUtils::Format("{} ({})", share.strName, share.strStatus);
   SetLabel(label);
   m_iLockMode = share.m_iLockMode;
   m_strLockCode = share.m_strLockCode;
@@ -941,7 +941,7 @@ bool CFileItem::IsGame() const
 
 bool CFileItem::IsPicture() const
 {
-  if (StringUtils::StartsWithNoCase(m_mimetype, "image/"))
+  if (KODI::StringUtils::StartsWithNoCase(m_mimetype, "image/"))
     return true;
 
   if (HasPictureInfoTag())
@@ -1086,8 +1086,8 @@ bool CFileItem::IsCBR() const
 
 bool CFileItem::IsRSS() const
 {
-  return StringUtils::StartsWithNoCase(m_strPath, "rss://") || URIUtils::HasExtension(m_strPath, ".rss")
-      || StringUtils::StartsWithNoCase(m_strPath, "rsss://")
+  return KODI::StringUtils::StartsWithNoCase(m_strPath, "rss://") || URIUtils::HasExtension(m_strPath, ".rss")
+      || KODI::StringUtils::StartsWithNoCase(m_strPath, "rsss://")
       || m_mimetype == "application/rss+xml";
 }
 
@@ -1365,7 +1365,7 @@ void CFileItem::SetFileSizeLabel()
   if(m_bIsFolder && m_dwSize == 0)
     SetLabel2("");
   else
-    SetLabel2(StringUtils::SizeToString(m_dwSize));
+    SetLabel2(KODI::StringUtils::SizeToString(m_dwSize));
 }
 
 bool CFileItem::CanQueue() const
@@ -1392,9 +1392,9 @@ void CFileItem::FillInMimeType(bool lookup /*= true*/)
       m_mimetype = "x-directory/normal";
     else if (HasPVRChannelInfoTag())
       m_mimetype = GetPVRChannelInfoTag()->MimeType();
-    else if (StringUtils::StartsWithNoCase(GetDynPath(), "shout://") ||
-             StringUtils::StartsWithNoCase(GetDynPath(), "http://") ||
-             StringUtils::StartsWithNoCase(GetDynPath(), "https://"))
+    else if (KODI::StringUtils::StartsWithNoCase(GetDynPath(), "shout://") ||
+             KODI::StringUtils::StartsWithNoCase(GetDynPath(), "http://") ||
+             KODI::StringUtils::StartsWithNoCase(GetDynPath(), "https://"))
     {
       // If lookup is false, bail out early to leave mime type empty
       if (!lookup)
@@ -1405,7 +1405,7 @@ void CFileItem::FillInMimeType(bool lookup /*= true*/)
       // try to get mime-type again but with an NSPlayer User-Agent
       // in order for server to provide correct mime-type.  Allows us
       // to properly detect an MMS stream
-      if (StringUtils::StartsWithNoCase(m_mimetype, "video/x-ms-"))
+      if (KODI::StringUtils::StartsWithNoCase(m_mimetype, "video/x-ms-"))
         CCurlFile::GetMimeType(GetDynURL(), m_mimetype, "NSPlayer/11.00.6001.7000");
 
       // make sure there are no options set in mime-type
@@ -1413,7 +1413,7 @@ void CFileItem::FillInMimeType(bool lookup /*= true*/)
       size_t i = m_mimetype.find(';');
       if(i != std::string::npos)
         m_mimetype.erase(i, m_mimetype.length() - i);
-      StringUtils::Trim(m_mimetype);
+      KODI::StringUtils::Trim(m_mimetype);
     }
     else
       m_mimetype = CMime::GetMimeType(*this);
@@ -1424,13 +1424,13 @@ void CFileItem::FillInMimeType(bool lookup /*= true*/)
   }
 
   // change protocol to mms for the following mime-type.  Allows us to create proper FileMMS.
-  if(StringUtils::StartsWithNoCase(m_mimetype, "application/vnd.ms.wms-hdr.asfv1") ||
-     StringUtils::StartsWithNoCase(m_mimetype, "application/x-mms-framed"))
+  if(KODI::StringUtils::StartsWithNoCase(m_mimetype, "application/vnd.ms.wms-hdr.asfv1") ||
+     KODI::StringUtils::StartsWithNoCase(m_mimetype, "application/x-mms-framed"))
   {
     if (m_strDynPath.empty())
       m_strDynPath = m_strPath;
 
-    StringUtils::Replace(m_strDynPath, "http:", "mms:");
+    KODI::StringUtils::Replace(m_strDynPath, "http:", "mms:");
   }
 }
 
@@ -1790,7 +1790,7 @@ void CFileItem::SetFromSong(const CSong &song)
   if (song.idSong > 0)
   {
     std::string strExt = URIUtils::GetExtension(song.strFileName);
-    m_strPath = StringUtils::Format("musicdb://songs/{}{}", song.idSong, strExt);
+    m_strPath = KODI::StringUtils::Format("musicdb://songs/{}{}", song.idSong, strExt);
   }
   else if (!song.strFileName.empty())
     m_strPath = song.strFileName;
@@ -1978,8 +1978,8 @@ bool CFileItem::LoadTracksFromCueDocument(CFileItemList& scannedItems)
 
 std::string CFileItem::GetUserMusicThumb(bool alwaysCheckRemote /* = false */, bool fallbackToFolder /* = false */) const
 {
-  if (m_strPath.empty() || StringUtils::StartsWithNoCase(m_strPath, "newsmartplaylist://") ||
-      StringUtils::StartsWithNoCase(m_strPath, "newplaylist://") || m_bIsShareOrDrive ||
+  if (m_strPath.empty() || KODI::StringUtils::StartsWithNoCase(m_strPath, "newsmartplaylist://") ||
+      KODI::StringUtils::StartsWithNoCase(m_strPath, "newplaylist://") || m_bIsShareOrDrive ||
       NETWORK::IsInternetStream(*this) || URIUtils::IsUPnP(m_strPath) ||
       (URIUtils::IsFTP(m_strPath) &&
        !CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bFTPThumbs) ||
@@ -2021,22 +2021,22 @@ std::string CFileItem::GetUserMusicThumb(bool alwaysCheckRemote /* = false */, b
         std::string folderThumb1 = folderThumb;
         name.erase(period);
         ext = strFileName.substr(period);
-        StringUtils::ToUpper(ext);
-        StringUtils::Replace(folderThumb1, strFileName, name + ext);
+        KODI::StringUtils::ToUpper(ext);
+        KODI::StringUtils::Replace(folderThumb1, strFileName, name + ext);
         if (CFile::Exists(folderThumb1)) // folder.JPG
           return folderThumb1;
 
         folderThumb1 = folderThumb;
         std::string firstletter = name.substr(0, 1);
-        StringUtils::ToUpper(firstletter);
+        KODI::StringUtils::ToUpper(firstletter);
         name.replace(0, 1, firstletter);
-        StringUtils::Replace(folderThumb1, strFileName, name + ext);
+        KODI::StringUtils::Replace(folderThumb1, strFileName, name + ext);
         if (CFile::Exists(folderThumb1)) // Folder.JPG
           return folderThumb1;
 
         folderThumb1 = folderThumb;
-        StringUtils::ToLower(ext);
-        StringUtils::Replace(folderThumb1, strFileName, name + ext);
+        KODI::StringUtils::ToLower(ext);
+        KODI::StringUtils::Replace(folderThumb1, strFileName, name + ext);
         if (CFile::Exists(folderThumb1)) // Folder.jpg
           return folderThumb1;
       }
@@ -2095,8 +2095,8 @@ std::string CFileItem::GetTBNFile() const
 
 bool CFileItem::SkipLocalArt() const
 {
-  return (m_strPath.empty() || StringUtils::StartsWithNoCase(m_strPath, "newsmartplaylist://") ||
-          StringUtils::StartsWithNoCase(m_strPath, "newplaylist://") || m_bIsShareOrDrive ||
+  return (m_strPath.empty() || KODI::StringUtils::StartsWithNoCase(m_strPath, "newsmartplaylist://") ||
+          KODI::StringUtils::StartsWithNoCase(m_strPath, "newplaylist://") || m_bIsShareOrDrive ||
           NETWORK::IsInternetStream(*this) || URIUtils::IsUPnP(m_strPath) ||
           (URIUtils::IsFTP(m_strPath) &&
            !CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_bFTPThumbs) ||
@@ -2368,7 +2368,7 @@ std::string CFileItem::GetLocalFanart() const
       URIUtils::RemoveExtension(strCandidate);
       std::string strFanart = *i;
       URIUtils::RemoveExtension(strFanart);
-      if (StringUtils::EqualsNoCase(strCandidate, strFanart))
+      if (KODI::StringUtils::EqualsNoCase(strCandidate, strFanart))
         return items[j]->m_strPath;
     }
   }
@@ -2389,7 +2389,7 @@ std::string CFileItem::GetLocalMetadataPath() const
   std::string parentFolder(parent);
   URIUtils::RemoveSlashAtEnd(parentFolder);
   parentFolder = URIUtils::GetFileName(parentFolder);
-  if (StringUtils::EqualsNoCase(parentFolder, "VIDEO_TS") || StringUtils::EqualsNoCase(parentFolder, "BDMV"))
+  if (KODI::StringUtils::EqualsNoCase(parentFolder, "VIDEO_TS") || KODI::StringUtils::EqualsNoCase(parentFolder, "BDMV"))
   { // go back up another one
     parent = URIUtils::GetParentPath(parent);
   }
@@ -2435,7 +2435,7 @@ bool CFileItem::LoadMusicTag()
       std::string strText = g_localizeStrings.Get(554); // "Track"
       if (!strText.empty() && strText[strText.size() - 1] != ' ')
         strText += " ";
-      std::string strTrack = StringUtils::Format((strText + "{}"), iTrack);
+      std::string strTrack = KODI::StringUtils::Format((strText + "{}"), iTrack);
       GetMusicInfoTag()->SetTitle(strTrack);
       GetMusicInfoTag()->SetLoaded(true);
       return true;
@@ -2768,9 +2768,9 @@ std::string CFileItem::FindTrailer() const
   {
     std::string strCandidate = items[i]->m_strPath;
     URIUtils::RemoveExtension(strCandidate);
-    if (StringUtils::EqualsNoCase(strCandidate, strFile) ||
-        StringUtils::EqualsNoCase(strCandidate, strFile2) ||
-        StringUtils::EqualsNoCase(strCandidate, strFile3))
+    if (KODI::StringUtils::EqualsNoCase(strCandidate, strFile) ||
+        KODI::StringUtils::EqualsNoCase(strCandidate, strFile2) ||
+        KODI::StringUtils::EqualsNoCase(strCandidate, strFile3))
     {
       strTrailer = items[i]->m_strPath;
       break;

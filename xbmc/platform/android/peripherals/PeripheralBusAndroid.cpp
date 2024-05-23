@@ -353,17 +353,17 @@ PeripheralScanResults CPeripheralBusAndroid::GetInputDevices()
 
 std::string CPeripheralBusAndroid::GetDeviceLocation(int deviceId)
 {
-  return StringUtils::Format("{}{}", DeviceLocationPrefix, deviceId);
+  return KODI::StringUtils::Format("{}{}", DeviceLocationPrefix, deviceId);
 }
 
 bool CPeripheralBusAndroid::GetDeviceId(const std::string& deviceLocation, int& deviceId)
 {
-  if (deviceLocation.empty() || !StringUtils::StartsWith(deviceLocation, DeviceLocationPrefix) ||
+  if (deviceLocation.empty() || !KODI::StringUtils::StartsWith(deviceLocation, DeviceLocationPrefix) ||
       deviceLocation.size() <= DeviceLocationPrefix.size())
     return false;
 
   std::string strDeviceId = deviceLocation.substr(DeviceLocationPrefix.size());
-  if (!StringUtils::IsNaturalNumber(strDeviceId))
+  if (!KODI::StringUtils::IsNaturalNumber(strDeviceId))
     return false;
 
   deviceId = static_cast<int>(strtol(strDeviceId.c_str(), nullptr, 10));

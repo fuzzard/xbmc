@@ -98,7 +98,7 @@ SettingGroupPtr CGUIDialogSettingsManualBase::AddGroup(const SettingCategoryPtr&
 
   size_t groups = category->GetGroups().size();
 
-  SettingGroupPtr group = std::make_shared<CSettingGroup>(StringUtils::Format("{0}", groups + 1), GetSettingsManager());
+  SettingGroupPtr group = std::make_shared<CSettingGroup>(KODI::StringUtils::Format("{0}", groups + 1), GetSettingsManager());
   if (group == NULL)
     return NULL;
 

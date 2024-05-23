@@ -102,7 +102,7 @@ static int Update(const std::vector<std::string>& params)
 {
   CGUIMessage message(GUI_MSG_NOTIFY_ALL, CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindow(), 0, GUI_MSG_UPDATE, 0);
   message.SetStringParam(params[0]);
-  if (params.size() > 1 && StringUtils::EqualsNoCase(params[1], "replace"))
+  if (params.size() > 1 && KODI::StringUtils::EqualsNoCase(params[1], "replace"))
     message.SetParam2(1); // reset the history
   CServiceBroker::GetGUI()->GetWindowManager().SendMessage(message);
 

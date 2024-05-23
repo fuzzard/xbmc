@@ -152,7 +152,7 @@ void CSkinSettings::MigrateSettings(const std::shared_ptr<ADDON::CSkinInfo>& ski
   std::set<ADDON::CSkinSettingPtr> settingsCopy(m_settings.begin(), m_settings.end());
   for (const auto& setting : settingsCopy)
   {
-    if (!StringUtils::StartsWith(setting->name, skinId + "."))
+    if (!KODI::StringUtils::StartsWith(setting->name, skinId + "."))
       continue;
 
     std::string settingName = setting->name.substr(skinId.size() + 1);

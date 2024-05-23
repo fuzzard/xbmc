@@ -80,8 +80,8 @@ void CAppParamParserLinux::ParseArg(const std::string& arg)
       GetAppParams()->SetWindowing(arg.substr(12));
     else
     {
-      std::cout << StringUtils::Format(windowingText, arg.substr(12),
-                                       StringUtils::Join(availableWindowSystems, ", "));
+      std::cout << KODI::StringUtils::Format(windowingText, arg.substr(12),
+                                       KODI::StringUtils::Join(availableWindowSystems, ", "));
       exit(0);
     }
   }
@@ -94,8 +94,8 @@ void CAppParamParserLinux::ParseArg(const std::string& arg)
     }
     else
     {
-      std::cout << StringUtils::Format(loggingText, arg.substr(10),
-                                       StringUtils::Join(availableLogTargets, ", "));
+      std::cout << KODI::StringUtils::Format(loggingText, arg.substr(10),
+                                       KODI::StringUtils::Join(availableLogTargets, ", "));
       exit(0);
     }
   }
@@ -110,8 +110,8 @@ void CAppParamParserLinux::ParseArg(const std::string& arg)
     }
     else
     {
-      std::cout << StringUtils::Format(audioBackendsText, argValue,
-                                       StringUtils::Join(availableAudioBackends, ", "));
+      std::cout << KODI::StringUtils::Format(audioBackendsText, argValue,
+                                       KODI::StringUtils::Join(availableAudioBackends, ", "));
 
       exit(0);
     }
@@ -127,8 +127,8 @@ void CAppParamParserLinux::ParseArg(const std::string& arg)
     }
     else
     {
-      std::cout << StringUtils::Format(glInterfaceText, argValue,
-                                       StringUtils::Join(availableGlInterfaces, ", "));
+      std::cout << KODI::StringUtils::Format(glInterfaceText, argValue,
+                                       KODI::StringUtils::Join(availableGlInterfaces, ", "));
 
       exit(0);
     }
@@ -139,8 +139,8 @@ void CAppParamParserLinux::DisplayHelp()
 {
   CAppParamParser::DisplayHelp();
 
-  std::cout << StringUtils::Format(helpText, StringUtils::Join(availableWindowSystems, ", "),
-                                   StringUtils::Join(availableLogTargets, ", "),
-                                   StringUtils::Join(availableAudioBackends, ", "),
-                                   StringUtils::Join(availableGlInterfaces, ", "));
+  std::cout << KODI::StringUtils::Format(helpText, KODI::StringUtils::Join(availableWindowSystems, ", "),
+                                   KODI::StringUtils::Join(availableLogTargets, ", "),
+                                   KODI::StringUtils::Join(availableAudioBackends, ", "),
+                                   KODI::StringUtils::Join(availableGlInterfaces, ", "));
 }

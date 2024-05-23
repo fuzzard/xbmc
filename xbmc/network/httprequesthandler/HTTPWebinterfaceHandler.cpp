@@ -86,7 +86,7 @@ bool CHTTPWebinterfaceHandler::ResolveAddon(const std::string &url, ADDON::Addon
   if (url.find("/addons/") == 0 && url.size() > 8)
   {
     std::vector<std::string> components;
-    StringUtils::Tokenize(path, components, WEBSERVER_DIRECTORY_SEPARATOR);
+    KODI::StringUtils::Tokenize(path, components, WEBSERVER_DIRECTORY_SEPARATOR);
     if (components.size() <= 1)
       return false;
 
@@ -104,7 +104,7 @@ bool CHTTPWebinterfaceHandler::ResolveAddon(const std::string &url, ADDON::Addon
     components.erase(components.begin(), components.begin() + 2);
 
     // determine the path within the addon
-    path = StringUtils::Join(components, WEBSERVER_DIRECTORY_SEPARATOR);
+    path = KODI::StringUtils::Join(components, WEBSERVER_DIRECTORY_SEPARATOR);
   }
   else if (!ADDON::CAddonSystemSettings::GetInstance().GetActive(ADDON::AddonType::WEB_INTERFACE,
                                                                  addon) ||

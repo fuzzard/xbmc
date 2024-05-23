@@ -88,7 +88,7 @@ bool CPlayListXML::Load( const std::string& strFileName )
   TiXmlElement *pRootElement = xmlDoc.RootElement();
 
   // If the stream does not contain "streams", still ok. Not an error.
-  if (!pRootElement || StringUtils::CompareNoCase(pRootElement->Value(), "streams"))
+  if (!pRootElement || KODI::StringUtils::CompareNoCase(pRootElement->Value(), "streams"))
   {
     CLog::Log(LOGERROR, "Playlist {} has no <streams> root", strFileName);
     return false;
@@ -166,33 +166,33 @@ void CPlayListXML::Save(const std::string& strFileName) const
     return ;
   }
   std::string write;
-  write += StringUtils::Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-  write += StringUtils::Format("<streams>\n");
+  write += KODI::StringUtils::Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+  write += KODI::StringUtils::Format("<streams>\n");
   for (int i = 0; i < (int)m_vecItems.size(); ++i)
   {
     CFileItemPtr item = m_vecItems[i];
-    write += StringUtils::Format("  <stream>\n" );
-    write += StringUtils::Format("    <url>{}</url>", item->GetPath().c_str());
-    write += StringUtils::Format("    <name>{}</name>", item->GetLabel());
+    write += KODI::StringUtils::Format("  <stream>\n" );
+    write += KODI::StringUtils::Format("    <url>{}</url>", item->GetPath().c_str());
+    write += KODI::StringUtils::Format("    <name>{}</name>", item->GetLabel());
 
     if ( !item->GetProperty("language").empty() )
-      write += StringUtils::Format("    <lang>{}</lang>", item->GetProperty("language").asString());
+      write += KODI::StringUtils::Format("    <lang>{}</lang>", item->GetProperty("language").asString());
 
     if ( !item->GetProperty("category").empty() )
-      write += StringUtils::Format("    <category>{}</category>",
+      write += KODI::StringUtils::Format("    <category>{}</category>",
                                    item->GetProperty("category").asString());
 
     if ( !item->GetProperty("remotechannel").empty() )
-      write += StringUtils::Format("    <channel>{}</channel>",
+      write += KODI::StringUtils::Format("    <channel>{}</channel>",
                                    item->GetProperty("remotechannel").asString());
 
     if (item->m_iHasLock > LOCK_STATE_NO_LOCK)
-      write += StringUtils::Format("    <lockpassword>{}<lockpassword>", item->m_strLockCode);
+      write += KODI::StringUtils::Format("    <lockpassword>{}<lockpassword>", item->m_strLockCode);
 
-    write += StringUtils::Format("  </stream>\n\n" );
+    write += KODI::StringUtils::Format("  </stream>\n\n" );
   }
 
-  write += StringUtils::Format("</streams>\n");
+  write += KODI::StringUtils::Format("</streams>\n");
   file.Write(write.c_str(), write.size());
   file.Close();
 }

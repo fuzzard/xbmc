@@ -37,7 +37,7 @@ void addISetting(const TiXmlNode* node, const T& item, std::vector<T>& items, bo
       {
         for (typename std::vector<T>::iterator it = items.begin(); it != items.end(); ++it)
         {
-          if (!StringUtils::EqualsNoCase((*it)->GetId(), positionId))
+          if (!KODI::StringUtils::EqualsNoCase((*it)->GetId(), positionId))
             continue;
 
           typename std::vector<T>::iterator positionIt = it;

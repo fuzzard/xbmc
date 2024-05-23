@@ -43,13 +43,13 @@ bool ISettingControl::Deserialize(const TiXmlNode *node, bool update /* = false 
 
   if ((strTmp = elem->Attribute(SETTING_XML_ATTR_DELAYED)) != nullptr)
   {
-    if (!StringUtils::EqualsNoCase(strTmp, "false") && !StringUtils::EqualsNoCase(strTmp, "true"))
+    if (!KODI::StringUtils::EqualsNoCase(strTmp, "false") && !KODI::StringUtils::EqualsNoCase(strTmp, "true"))
     {
       s_logger->error("error reading \"{}\" attribute of <control>", SETTING_XML_ATTR_DELAYED);
       return false;
     }
     else
-      m_delayed = StringUtils::EqualsNoCase(strTmp, "true");
+      m_delayed = KODI::StringUtils::EqualsNoCase(strTmp, "true");
   }
 
   return true;

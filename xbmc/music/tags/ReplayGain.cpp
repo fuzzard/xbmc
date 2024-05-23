@@ -72,11 +72,11 @@ std::string ReplayGain::Get() const
 
   std::string rg;
   if (Get(ALBUM).Valid())
-    rg = StringUtils::Format("{:.3f},{:.3f},", Get(ALBUM).Gain(), Get(ALBUM).Peak());
+    rg = KODI::StringUtils::Format("{:.3f},{:.3f},", Get(ALBUM).Gain(), Get(ALBUM).Peak());
   else
     rg = "-1000, -1,";
   if (Get(TRACK).Valid())
-    rg += StringUtils::Format("{:.3f},{:.3f}", Get(TRACK).Gain(), Get(TRACK).Peak());
+    rg += KODI::StringUtils::Format("{:.3f},{:.3f}", Get(TRACK).Gain(), Get(TRACK).Peak());
   else
     rg += "-1000, -1";
   return rg;
@@ -84,7 +84,7 @@ std::string ReplayGain::Get() const
 
 void ReplayGain::Set(const std::string& strReplayGain)
 {
-  std::vector<std::string> values = StringUtils::Split(strReplayGain, ",");
+  std::vector<std::string> values = KODI::StringUtils::Split(strReplayGain, ",");
   if (values.size() == 4)
   {
     ParseGain(ALBUM, values[0]);

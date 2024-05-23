@@ -286,10 +286,10 @@ namespace PythonBindings
 
     if (!exceptionType.empty())
     {
-      msg += StringUtils::Format("Error Type: {}\n", exceptionType);
+      msg += KODI::StringUtils::Format("Error Type: {}\n", exceptionType);
 
       if (!exceptionValue.empty())
-        msg += StringUtils::Format("Error Contents: {}\n", exceptionValue);
+        msg += KODI::StringUtils::Format("Error Contents: {}\n", exceptionValue);
 
       if (!exceptionTraceback.empty())
         msg += exceptionTraceback;

@@ -345,7 +345,7 @@ bool CPeripheralBusAddon::SplitLocation(const std::string& strLocation,
                                         PeripheralAddonPtr& addon,
                                         unsigned int& peripheralIndex) const
 {
-  std::vector<std::string> parts = StringUtils::Split(strLocation, "/");
+  std::vector<std::string> parts = KODI::StringUtils::Split(strLocation, "/");
   if (parts.size() == 2)
   {
     addon.reset();

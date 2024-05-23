@@ -38,7 +38,7 @@ IAddonInstanceHandler::IAddonInstanceHandler(
 {
   // if no special instance ID is given generate one from class pointer (is
   // faster as unique id and also safe enough for them).
-  m_uniqueWorkID = !uniqueWorkID.empty() ? uniqueWorkID : StringUtils::Format("{}", fmt::ptr(this));
+  m_uniqueWorkID = !uniqueWorkID.empty() ? uniqueWorkID : KODI::StringUtils::Format("{}", fmt::ptr(this));
   m_addonBase = CServiceBroker::GetBinaryAddonManager().GetAddonBase(addonInfo, this, m_addon);
 
   KODI_ADDON_INSTANCE_INFO* info = new KODI_ADDON_INSTANCE_INFO();
@@ -339,7 +339,7 @@ bool IAddonInstanceHandler::set_instance_setting_float(const KODI_ADDON_INSTANCE
   }
 
   if (Interface_Base::UpdateSettingInActiveDialog(instance->m_addon.get(), instance->m_instanceId,
-                                                  id, StringUtils::Format("{:f}", value)))
+                                                  id, KODI::StringUtils::Format("{:f}", value)))
     return true;
 
   if (!instance->m_addon->UpdateSettingNumber(id, static_cast<double>(value),

@@ -560,7 +560,7 @@ std::string CMime::GetMimeType(const CURL &url, bool lookup)
     // try to get mime-type again but with an NSPlayer User-Agent
     // in order for server to provide correct mime-type.  Allows us
     // to properly detect an MMS stream
-    if (StringUtils::StartsWithNoCase(strmime, "video/x-ms-"))
+    if (KODI::StringUtils::StartsWithNoCase(strmime, "video/x-ms-"))
       XFILE::CCurlFile::GetMimeType(url, strmime, "NSPlayer/11.00.6001.7000");
 
     // make sure there are no options set in mime-type
@@ -568,7 +568,7 @@ std::string CMime::GetMimeType(const CURL &url, bool lookup)
     size_t i = strmime.find(';');
     if(i != std::string::npos)
       strmime.erase(i, strmime.length() - i);
-    StringUtils::Trim(strmime);
+    KODI::StringUtils::Trim(strmime);
     strMimeType = strmime;
   }
   else
@@ -622,9 +622,9 @@ CMime::EFileType CMime::GetFileTypeFromMime(const std::string& mimeType)
       return FileTypeJpeg;
   }
 
-  if (StringUtils::EndsWith(subtype, "+zip"))
+  if (KODI::StringUtils::EndsWith(subtype, "+zip"))
     return FileTypeZip;
-  if (StringUtils::EndsWith(subtype, "+xml"))
+  if (KODI::StringUtils::EndsWith(subtype, "+xml"))
     return FileTypeXml;
 
   return FileTypeUnknown;
@@ -683,8 +683,8 @@ bool CMime::parseMimeType(const std::string& mimeType, std::string& type, std::s
   if (semicolonPos != std::string::npos)
     subtype.erase(semicolonPos);
 
-  StringUtils::Trim(type, whitespaceChars);
-  StringUtils::Trim(subtype, whitespaceChars);
+  KODI::StringUtils::Trim(type, whitespaceChars);
+  KODI::StringUtils::Trim(subtype, whitespaceChars);
 
   if (type.empty() || subtype.empty())
   {
@@ -693,8 +693,8 @@ bool CMime::parseMimeType(const std::string& mimeType, std::string& type, std::s
     return false;
   }
 
-  StringUtils::ToLower(type);
-  StringUtils::ToLower(subtype);
+  KODI::StringUtils::ToLower(type);
+  KODI::StringUtils::ToLower(subtype);
 
   return true;
 }

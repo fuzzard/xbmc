@@ -163,7 +163,7 @@ CAddonSettings::CAddonSettings(const std::shared_ptr<IAddon>& addon, AddonInstan
     m_addon{addon},
     m_unknownSettingLabelId(UnknownSettingLabelIdStart),
     m_logger(CServiceBroker::GetLogging().GetLogger(
-        StringUtils::Format("CAddonSettings[{}@{}]", m_instanceId, m_addonId)))
+        KODI::StringUtils::Format("CAddonSettings[{}@{}]", m_instanceId, m_addonId)))
 {
 }
 
@@ -172,7 +172,7 @@ std::shared_ptr<CSetting> CAddonSettings::CreateSetting(
     const std::string& settingId,
     CSettingsManager* settingsManager /* = nullptr */) const
 {
-  if (StringUtils::EqualsNoCase(settingType, "urlencodedstring"))
+  if (KODI::StringUtils::EqualsNoCase(settingType, "urlencodedstring"))
     return std::make_shared<CSettingUrlEncodedString>(settingId, settingsManager);
 
   return CSettingCreator::CreateSetting(settingType, settingId, settingsManager);
@@ -191,9 +191,9 @@ void CAddonSettings::OnSettingAction(const std::shared_ptr<const CSetting>& sett
     {
       actionData = settingAction->GetData();
       // replace $CWD with the url of the add-on
-      StringUtils::Replace(actionData, "$CWD", m_addonPath);
+      KODI::StringUtils::Replace(actionData, "$CWD", m_addonPath);
       // replace $ID with the id of the add-on
-      StringUtils::Replace(actionData, "$ID", m_addonId);
+      KODI::StringUtils::Replace(actionData, "$ID", m_addonId);
     }
   }
 
@@ -537,7 +537,7 @@ bool CAddonSettings::ParseSettingVersion(const CXBMCTinyXML& doc, uint32_t& vers
   if (root == nullptr)
     return false;
 
-  if (!StringUtils::EqualsNoCase(root->ValueStr(), SETTING_XML_ROOT))
+  if (!KODI::StringUtils::EqualsNoCase(root->ValueStr(), SETTING_XML_ROOT))
   {
     m_logger->error("error reading setting definitions: no <settings> tag");
     return false;
@@ -577,7 +577,7 @@ std::shared_ptr<CSettingGroup> CAddonSettings::ParseOldSettingElement(
     const auto settingId = XMLUtils::GetAttribute(settingElement, "id");
     const auto defaultValue = XMLUtils::GetAttribute(settingElement, "default");
     const auto settingValues = XMLUtils::GetAttribute(settingElement, "values");
-    const auto settingLValues = StringUtils::Split(
+    const auto settingLValues = KODI::StringUtils::Split(
         XMLUtils::GetAttribute(settingElement, "lvalues"), OldSettingValuesSeparator);
     int settingLabel = -1;
     bool settingLabelParsed = ParseOldLabel(settingElement, settingId, settingLabel);
@@ -696,18 +696,18 @@ std::shared_ptr<CSettingGroup> CAddonSettings::ParseOldSettingElement(
 
       // parse enable status
       const auto conditionEnable = XMLUtils::GetAttribute(settingElement, "enable");
-      if (StringUtils::EqualsNoCase(conditionEnable, "true"))
+      if (KODI::StringUtils::EqualsNoCase(conditionEnable, "true"))
         setting->SetEnabled(true);
-      else if (StringUtils::EqualsNoCase(conditionEnable, "false"))
+      else if (KODI::StringUtils::EqualsNoCase(conditionEnable, "false"))
         setting->SetEnabled(false);
       else if (!conditionEnable.empty())
         settingWithConditions.enableCondition = conditionEnable;
 
       // parse visible status
       const auto conditionVisible = XMLUtils::GetAttribute(settingElement, "visible");
-      if (StringUtils::EqualsNoCase(conditionVisible, "true"))
+      if (KODI::StringUtils::EqualsNoCase(conditionVisible, "true"))
         setting->SetVisible(true);
-      else if (StringUtils::EqualsNoCase(conditionVisible, "false"))
+      else if (KODI::StringUtils::EqualsNoCase(conditionVisible, "false"))
         setting->SetVisible(false);
       else if (!conditionVisible.empty())
         settingWithConditions.visibleCondition = conditionVisible;
@@ -789,7 +789,7 @@ std::shared_ptr<CSettingCategory> CAddonSettings::ParseOldCategoryElement(
     uint32_t& categoryId, const TiXmlElement* categoryElement, std::set<std::string>& settingIds)
 {
   // create the category
-  auto category = std::make_shared<CSettingCategory>(StringUtils::Format("category{}", categoryId),
+  auto category = std::make_shared<CSettingCategory>(KODI::StringUtils::Format("category{}", categoryId),
                                                      GetSettingsManager());
   categoryId += 1;
 
@@ -849,9 +849,9 @@ SettingPtr CAddonSettings::InitializeFromOldSettingAction(const std::string& set
   // parse the action attribute
   std::string action = XMLUtils::GetAttribute(settingElement, "action");
   // replace $CWD with the url of the add-on
-  StringUtils::Replace(action, "$CWD", m_addonPath);
+  KODI::StringUtils::Replace(action, "$CWD", m_addonPath);
   // replace $ID with the id of the add-on
-  StringUtils::Replace(action, "$ID", m_addonId);
+  KODI::StringUtils::Replace(action, "$ID", m_addonId);
 
   // prepare the setting's control
   auto control = std::make_shared<CSettingControlButton>();
@@ -861,7 +861,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingAction(const std::string& set
   // action settings don't require a setting id
   if (settingId.empty())
   {
-    auto actionSettingId = StringUtils::Format("action{}", m_unidentifiedSettingId);
+    auto actionSettingId = KODI::StringUtils::Format("action{}", m_unidentifiedSettingId);
     m_unidentifiedSettingId += 1;
 
     auto settingAction = std::make_shared<CSettingAction>(actionSettingId, GetSettingsManager());
@@ -884,7 +884,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingAction(const std::string& set
   // get any options
   std::string option = XMLUtils::GetAttribute(settingElement, "option");
   // handle the "close" option
-  if (StringUtils::EqualsNoCase(option, "close"))
+  if (KODI::StringUtils::EqualsNoCase(option, "close"))
     control->SetCloseDialog(true);
 
   setting->SetControl(control);
@@ -895,7 +895,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingAction(const std::string& set
 std::shared_ptr<CSetting> CAddonSettings::InitializeFromOldSettingLabel()
 {
   // label settings don't require a setting id
-  auto labelSettingId = StringUtils::Format("label{}", m_unidentifiedSettingId);
+  auto labelSettingId = KODI::StringUtils::Format("label{}", m_unidentifiedSettingId);
   m_unidentifiedSettingId += 1;
 
   auto settingLabel = std::make_shared<CSettingString>(labelSettingId, GetSettingsManager());
@@ -940,7 +940,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingTextIpAddress(const std::stri
   else if (settingType == "text")
   {
 
-    if (StringUtils::EqualsNoCase(option, "urlencoded"))
+    if (KODI::StringUtils::EqualsNoCase(option, "urlencoded"))
     {
       setting = std::make_shared<CSettingUrlEncodedString>(settingId, GetSettingsManager());
       control->SetFormat("urlencoded");
@@ -949,7 +949,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingTextIpAddress(const std::stri
     {
       setting = std::make_shared<CSettingString>(settingId, GetSettingsManager());
       control->SetFormat("string");
-      control->SetHidden(StringUtils::EqualsNoCase(option, "hidden"));
+      control->SetHidden(KODI::StringUtils::EqualsNoCase(option, "hidden"));
     }
   }
 
@@ -1004,10 +1004,10 @@ SettingPtr CAddonSettings::InitializeFromOldSettingPath(const std::string& setti
   if (!mask.empty())
   {
     // convert mask qualifiers
-    StringUtils::Replace(mask, "$AUDIO", audioMask);
-    StringUtils::Replace(mask, "$VIDEO", videoMask);
-    StringUtils::Replace(mask, "$IMAGE", imageMask);
-    StringUtils::Replace(mask, "$EXECUTABLE", execMask);
+    KODI::StringUtils::Replace(mask, "$AUDIO", audioMask);
+    KODI::StringUtils::Replace(mask, "$VIDEO", videoMask);
+    KODI::StringUtils::Replace(mask, "$IMAGE", imageMask);
+    KODI::StringUtils::Replace(mask, "$EXECUTABLE", execMask);
   }
   else
   {
@@ -1024,7 +1024,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingPath(const std::string& setti
 
   // parse options
   const auto option = XMLUtils::GetAttribute(settingElement, "option");
-  setting->SetWritable(StringUtils::EqualsNoCase(option, "writeable"));
+  setting->SetWritable(KODI::StringUtils::EqualsNoCase(option, "writeable"));
 
   auto control = std::make_shared<CSettingControlButton>();
   if (settingType == "folder")
@@ -1036,7 +1036,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingPath(const std::string& setti
     control->SetFormat("file");
 
     // parse the options
-    const auto options = StringUtils::Split(option, OldSettingValuesSeparator);
+    const auto options = KODI::StringUtils::Split(option, OldSettingValuesSeparator);
     control->SetUseImageThumbs(std::find(options.cbegin(), options.cend(), "usethumbs") !=
                                options.cend());
     control->SetUseFileDirectories(std::find(options.cbegin(), options.cend(), "treatasfolder") !=
@@ -1095,7 +1095,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingSelect(
   if (!settingLValues.empty())
     values = settingLValues;
   else
-    values = StringUtils::Split(settingValues, OldSettingValuesSeparator);
+    values = KODI::StringUtils::Split(settingValues, OldSettingValuesSeparator);
 
   SettingPtr setting = nullptr;
   if (!values.empty())
@@ -1156,11 +1156,11 @@ SettingPtr CAddonSettings::InitializeFromOldSettingAddon(const std::string& sett
 {
   // get addon types
   std::string addonTypeStr = XMLUtils::GetAttribute(settingElement, "addontype");
-  const auto addonTypesStr = StringUtils::Split(addonTypeStr, ",");
+  const auto addonTypesStr = KODI::StringUtils::Split(addonTypeStr, ",");
   std::set<AddonType> addonTypes;
   for (auto addonType : addonTypesStr)
   {
-    auto type = ADDON::CAddonInfo::TranslateType(StringUtils::Trim(addonType));
+    auto type = ADDON::CAddonInfo::TranslateType(KODI::StringUtils::Trim(addonType));
     if (type != ADDON::AddonType::UNKNOWN)
       addonTypes.insert(type);
   }
@@ -1179,7 +1179,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingAddon(const std::string& sett
   }
 
   // parse addon ids
-  auto addonIds = StringUtils::Split(defaultValue, ",");
+  auto addonIds = KODI::StringUtils::Split(defaultValue, ",");
 
   // parse multiselect option
   bool multiselect = false;
@@ -1236,10 +1236,10 @@ SettingPtr CAddonSettings::InitializeFromOldSettingEnums(
           CDateTime(2000, 1, 1, hour, 0, 0).GetAsLocalizedTime(g_langInfo.GetTimeFormat(), false));
   }
   else
-    values = StringUtils::Split(settingValues, OldSettingValuesSeparator);
+    values = KODI::StringUtils::Split(settingValues, OldSettingValuesSeparator);
 
   // process entries
-  const auto settingEntries = StringUtils::Split(XMLUtils::GetAttribute(settingElement, "entries"),
+  const auto settingEntries = KODI::StringUtils::Split(XMLUtils::GetAttribute(settingElement, "entries"),
                                                  OldSettingValuesSeparator);
 
   // process sort
@@ -1397,7 +1397,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingSlider(const std::string& set
 {
   // parse range
   double min = 0.0, max = 100.0, step = 1.0;
-  const auto range = StringUtils::Split(XMLUtils::GetAttribute(settingElement, "range"), ',');
+  const auto range = KODI::StringUtils::Split(XMLUtils::GetAttribute(settingElement, "range"), ',');
 
   if (range.size() > 1)
   {
@@ -1414,7 +1414,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingSlider(const std::string& set
 
   // parse option
   auto option = XMLUtils::GetAttribute(settingElement, "option");
-  if (option.empty() || StringUtils::EqualsNoCase(option, "float"))
+  if (option.empty() || KODI::StringUtils::EqualsNoCase(option, "float"))
   {
     auto setting = std::make_shared<CSettingNumber>(settingId, GetSettingsManager());
     if (setting->FromString(defaultValue))
@@ -1432,7 +1432,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingSlider(const std::string& set
     return setting;
   }
 
-  if (StringUtils::EqualsNoCase(option, "int") || StringUtils::EqualsNoCase(option, "percent"))
+  if (KODI::StringUtils::EqualsNoCase(option, "int") || KODI::StringUtils::EqualsNoCase(option, "percent"))
   {
     auto setting = std::make_shared<CSettingInt>(settingId, GetSettingsManager());
     if (setting->FromString(defaultValue))
@@ -1443,7 +1443,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingSlider(const std::string& set
     setting->SetMaximum(static_cast<int>(max));
 
     auto control = std::make_shared<CSettingControlSlider>();
-    control->SetFormat(StringUtils::EqualsNoCase(option, "int") ? "integer" : "percentage");
+    control->SetFormat(KODI::StringUtils::EqualsNoCase(option, "int") ? "integer" : "percentage");
     control->SetPopup(false);
     setting->SetControl(control);
 
@@ -1467,7 +1467,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingFileWithSource(
   setting->SetDefault(defaultValue);
 
   if (source.find("$PROFILE") != std::string::npos)
-    StringUtils::Replace(source, "$PROFILE", m_addonProfile);
+    KODI::StringUtils::Replace(source, "$PROFILE", m_addonProfile);
   else
     source = URIUtils::AddFileToFolder(m_addonPath, source);
 
@@ -1478,7 +1478,7 @@ SettingPtr CAddonSettings::InitializeFromOldSettingFileWithSource(
 
   // process option
   std::string option = XMLUtils::GetAttribute(settingElement, "option");
-  setting->SetHideExtension(StringUtils::EqualsNoCase(option, "hideext"));
+  setting->SetHideExtension(KODI::StringUtils::EqualsNoCase(option, "hideext"));
 
   setting->SetOptionsFiller(FileEnumSettingOptionsFiller);
 
@@ -1578,12 +1578,12 @@ bool CAddonSettings::ParseOldCondition(const std::shared_ptr<const CSetting>& se
   std::vector<std::string> conditions;
   if (condition.find('+') != std::string::npos)
   {
-    StringUtils::Tokenize(condition, conditions, '+');
+    KODI::StringUtils::Tokenize(condition, conditions, '+');
     dependencyCombination = dependeny.And();
   }
   else
   {
-    StringUtils::Tokenize(condition, conditions, '|');
+    KODI::StringUtils::Tokenize(condition, conditions, '|');
     dependencyCombination = dependeny.Or();
   }
 
@@ -1620,7 +1620,7 @@ bool CAddonSettings::ParseOldCondition(const std::shared_ptr<const CSetting>& se
 
     // try to handle some odd cases where the setting is of type string but the comparison value references the index of the value in the list of options
     if (referencedSetting->GetType() == SettingType::String &&
-        StringUtils::IsNaturalNumber(expression.m_value))
+        KODI::StringUtils::IsNaturalNumber(expression.m_value))
     {
       // try to parse the comparison value
       size_t valueIndex = static_cast<size_t>(strtoul(expression.m_value.c_str(), nullptr, 10));
@@ -1667,7 +1667,7 @@ bool CAddonSettings::ParseOldCondition(const std::shared_ptr<const CSetting>& se
 
 bool CAddonSettings::ParseOldConditionExpression(std::string str, ConditionExpression& expression)
 {
-  StringUtils::Trim(str);
+  KODI::StringUtils::Trim(str);
 
   size_t posOpen = str.find('(');
   size_t posSep = str.find(',', posOpen);
@@ -1679,16 +1679,16 @@ bool CAddonSettings::ParseOldConditionExpression(std::string str, ConditionExpre
   auto op = str.substr(0, posOpen);
 
   // check if the operator is negated
-  expression.m_negated = StringUtils::StartsWith(op, "!");
+  expression.m_negated = KODI::StringUtils::StartsWith(op, "!");
   if (expression.m_negated)
     op = op.substr(1);
 
   // parse the operator
-  if (StringUtils::EqualsNoCase(op, "eq"))
+  if (KODI::StringUtils::EqualsNoCase(op, "eq"))
     expression.m_operator = SettingDependencyOperator::Equals;
-  else if (StringUtils::EqualsNoCase(op, "gt"))
+  else if (KODI::StringUtils::EqualsNoCase(op, "gt"))
     expression.m_operator = SettingDependencyOperator::GreaterThan;
-  else if (StringUtils::EqualsNoCase(op, "lt"))
+  else if (KODI::StringUtils::EqualsNoCase(op, "lt"))
     expression.m_operator = SettingDependencyOperator::LessThan;
   else
     return false;

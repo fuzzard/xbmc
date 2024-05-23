@@ -245,9 +245,9 @@ void ClearPhotoAssetCache()
     CFileItemPtr pItem = items[i];
     if (!pItem->m_bIsFolder)
     {
-      if (StringUtils::StartsWithNoCase(pItem->GetLabel(), "airplayasset") &&
-          (StringUtils::EndsWithNoCase(pItem->GetLabel(), ".jpg") ||
-           StringUtils::EndsWithNoCase(pItem->GetLabel(), ".png") ))
+      if (KODI::StringUtils::StartsWithNoCase(pItem->GetLabel(), "airplayasset") &&
+          (KODI::StringUtils::EndsWithNoCase(pItem->GetLabel(), ".jpg") ||
+           KODI::StringUtils::EndsWithNoCase(pItem->GetLabel(), ".png") ))
       {
         XFILE::CFile::Delete(pItem->GetPath());
       }
@@ -297,7 +297,7 @@ void CAirPlayServer::AnnounceToClients(int state)
     if (!reverseHeader.empty() && m_reverseSockets.find(it.m_sessionId) != m_reverseSockets.end())
     {
       //search the reverse socket to this sessionid
-      response = StringUtils::Format("POST /event HTTP/1.1\r\n");
+      response = KODI::StringUtils::Format("POST /event HTTP/1.1\r\n");
       reverseSocket = m_reverseSockets[it.m_sessionId]; //that is our reverse socket
       response += reverseHeader;
     }
@@ -543,13 +543,13 @@ void CAirPlayServer::CTCPClient::PushBuffer(CAirPlayServer *host, const char *bu
     const time_t ltime = time(NULL);
     char *date = asctime(gmtime(&ltime)); //Fri, 17 Dec 2010 11:18:01 GMT;
     date[strlen(date) - 1] = '\0'; // remove \n
-    response = StringUtils::Format("HTTP/1.1 {} {}\nDate: {}\r\n", status, statusMsg, date);
+    response = KODI::StringUtils::Format("HTTP/1.1 {} {}\nDate: {}\r\n", status, statusMsg, date);
     if (!responseHeader.empty())
     {
       response += responseHeader;
     }
 
-    response = StringUtils::Format("{}Content-Length: {}\r\n\r\n", response, responseBody.size());
+    response = KODI::StringUtils::Format("{}Content-Length: {}\r\n\r\n", response, responseBody.size());
 
     if (!responseBody.empty())
     {
@@ -606,14 +606,14 @@ void CAirPlayServer::CTCPClient::ComposeReverseEvent( std::string& reverseHeader
       case EVENT_LOADING:
       case EVENT_PAUSED:
       case EVENT_STOPPED:
-        reverseBody = StringUtils::Format(EVENT_INFO, m_sessionCounter, eventStrings[state]);
+        reverseBody = KODI::StringUtils::Format(EVENT_INFO, m_sessionCounter, eventStrings[state]);
         CLog::Log(LOGDEBUG, "AIRPLAY: sending event: {}", eventStrings[state]);
         break;
     }
     reverseHeader = "Content-Type: text/x-apple-plist+xml\r\n";
     reverseHeader =
-        StringUtils::Format("{}Content-Length: {}\r\n", reverseHeader, reverseBody.size());
-    reverseHeader = StringUtils::Format("{}x-apple-session-id: {}\r\n", reverseHeader.c_str(),
+        KODI::StringUtils::Format("{}Content-Length: {}\r\n", reverseHeader, reverseBody.size());
+    reverseHeader = KODI::StringUtils::Format("{}x-apple-session-id: {}\r\n", reverseHeader.c_str(),
                                         m_sessionId.c_str());
     m_lastEvent = state;
   }
@@ -624,7 +624,7 @@ void CAirPlayServer::CTCPClient::ComposeAuthRequestAnswer(std::string& responseH
   int16_t random=rand();
   std::string randomStr = std::to_string(random);
   m_authNonce=CDigest::Calculate(CDigest::Type::MD5, randomStr);
-  responseHeader = StringUtils::Format(AUTH_REQUIRED, m_authNonce);
+  responseHeader = KODI::StringUtils::Format(AUTH_REQUIRED, m_authNonce);
   responseBody.clear();
 }
 
@@ -651,15 +651,15 @@ std::string calcResponse(const std::string& username,
 //from a string field1="value1", field2="value2" it parses the value to a field
 std::string getFieldFromString(const std::string &str, const char* field)
 {
-  std::vector<std::string> tmpAr1 = StringUtils::Split(str, ",");
+  std::vector<std::string> tmpAr1 = KODI::StringUtils::Split(str, ",");
   for (const auto& i : tmpAr1)
   {
     if (i.find(field) != std::string::npos)
     {
-      std::vector<std::string> tmpAr2 = StringUtils::Split(i, "=");
+      std::vector<std::string> tmpAr2 = KODI::StringUtils::Split(i, "=");
       if (tmpAr2.size() == 2)
       {
-        StringUtils::Replace(tmpAr2[1], "\"", "");//remove quotes
+        KODI::StringUtils::Replace(tmpAr2[1], "\"", "");//remove quotes
         return tmpAr2[1];
       }
     }
@@ -718,7 +718,7 @@ bool CAirPlayServer::CTCPClient::checkAuthorization(const std::string& authStr,
      std::string realm = AUTH_REALM;
      std::string ourResponse = calcResponse(username, ServerInstance->m_password, realm, method, uri, m_authNonce);
      std::string theirResponse = getFieldFromString(authStr, "response");
-     if (!StringUtils::EqualsNoCase(theirResponse, ourResponse))
+     if (!KODI::StringUtils::EqualsNoCase(theirResponse, ourResponse))
      {
        authValid = false;
        CLog::Log(LOGDEBUG, "AirAuth: response mismatch - our: {} theirs: {}", ourResponse,
@@ -1016,7 +1016,7 @@ int CAirPlayServer::CTCPClient::ProcessRequest( std::string& responseHeader,
       {
         float position = static_cast<float>(appPlayer->GetTime()) / 1000;
         responseBody =
-            StringUtils::Format("duration: {:.6f}\r\nposition: {:.6f}\r\n",
+            KODI::StringUtils::Format("duration: {:.6f}\r\nposition: {:.6f}\r\n",
                                 static_cast<float>(appPlayer->GetTotalTime()) / 1000, position);
       }
       else
@@ -1160,7 +1160,7 @@ int CAirPlayServer::CTCPClient::ProcessRequest( std::string& responseHeader,
         cachePosition = position + (duration * appPlayer->GetCachePercentage() / 100.0f);
       }
 
-      responseBody = StringUtils::Format(PLAYBACK_INFO, duration, cachePosition, position, (playing ? 1 : 0), duration);
+      responseBody = KODI::StringUtils::Format(PLAYBACK_INFO, duration, cachePosition, position, (playing ? 1 : 0), duration);
       responseHeader = "Content-Type: text/x-apple-plist+xml\r\n";
 
       if (appPlayer->IsCaching())
@@ -1170,7 +1170,7 @@ int CAirPlayServer::CTCPClient::ProcessRequest( std::string& responseHeader,
     }
     else
     {
-      responseBody = StringUtils::Format(PLAYBACK_INFO_NOT_READY);
+      responseBody = KODI::StringUtils::Format(PLAYBACK_INFO_NOT_READY);
       responseHeader = "Content-Type: text/x-apple-plist+xml\r\n";
     }
   }
@@ -1178,7 +1178,7 @@ int CAirPlayServer::CTCPClient::ProcessRequest( std::string& responseHeader,
   else if (uri == "/server-info")
   {
     CLog::Log(LOGDEBUG, "AIRPLAY: got request {}", uri);
-    responseBody = StringUtils::Format(
+    responseBody = KODI::StringUtils::Format(
         SERVER_INFO, CServiceBroker::GetNetwork().GetFirstConnectedInterface()->GetMacAddress());
     responseHeader = "Content-Type: text/x-apple-plist+xml\r\n";
   }

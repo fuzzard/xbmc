@@ -154,7 +154,7 @@ bool CAddonDll::LoadDll()
     m_pDll = nullptr;
 
     std::string heading =
-        StringUtils::Format("{}: {}", CAddonInfo::TranslateType(Type(), true), Name());
+        KODI::StringUtils::Format("{}: {}", CAddonInfo::TranslateType(Type(), true), Name());
     HELPERS::ShowOKDialogLines(CVariant{heading}, CVariant{24070}, CVariant{24071});
 
     return false;
@@ -212,7 +212,7 @@ ADDON_STATUS CAddonDll::Create(KODI_ADDON_INSTANCE_STRUCT* firstKodiInstance)
 
     // @todo currently a copy and paste from other function and becomes improved.
     std::string heading =
-        StringUtils::Format("{}: {}", CAddonInfo::TranslateType(Type(), true), Name());
+        KODI::StringUtils::Format("{}: {}", CAddonInfo::TranslateType(Type(), true), Name());
     HELPERS::ShowOKDialogLines(CVariant{ heading }, CVariant{ 24070 }, CVariant{ 24071 });
   }
 
@@ -389,7 +389,7 @@ ADDON_STATUS CAddonDll::TransferSettings(AddonInstanceId instanceId)
         {
           for (const auto& setting : group->GetSettings())
           {
-            if (StringUtils::StartsWith(setting->GetId(), ADDON_SETTING_INSTANCE_GROUP))
+            if (KODI::StringUtils::StartsWith(setting->GetId(), ADDON_SETTING_INSTANCE_GROUP))
               continue; // skip internal settings
 
             ADDON_STATUS status = ADDON_STATUS_OK;

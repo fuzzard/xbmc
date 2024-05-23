@@ -335,12 +335,12 @@ void CUPnPRenderer::UpdateState()
 
     // get elapsed time
     std::string buffer =
-        StringUtils::SecondsToTimeString(std::lrint(g_application.GetTime()), TIME_FORMAT_HH_MM_SS);
+        KODI::StringUtils::SecondsToTimeString(std::lrint(g_application.GetTime()), TIME_FORMAT_HH_MM_SS);
     avt->SetStateVariable("RelativeTimePosition", buffer.c_str());
     avt->SetStateVariable("AbsoluteTimePosition", buffer.c_str());
 
     // get duration
-    buffer = StringUtils::SecondsToTimeString(std::lrint(g_application.GetTotalTime()),
+    buffer = KODI::StringUtils::SecondsToTimeString(std::lrint(g_application.GetTotalTime()),
                                               TIME_FORMAT_HH_MM_SS);
     if (buffer.length() > 0)
     {

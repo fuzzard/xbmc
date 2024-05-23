@@ -65,7 +65,7 @@ const std::string& CDirectoryHistory::GetSelectedItem(const std::string& strDire
   if (iter != m_vecHistory.end())
     return iter->second.m_strItem;
 
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 int CDirectoryHistory::GetSelectedItemIndex(const std::string& strDirectory) const
@@ -139,7 +139,7 @@ void CDirectoryHistory::ClearPathHistory()
 
 bool CDirectoryHistory::IsMusicSearchUrl(CPathHistoryItem &i)
 {
-  return StringUtils::StartsWith(i.GetPath(), "musicsearch://");
+  return KODI::StringUtils::StartsWith(i.GetPath(), "musicsearch://");
 }
 
 void CDirectoryHistory::ClearSearchHistory()
@@ -160,7 +160,7 @@ std::string CDirectoryHistory::preparePath(const std::string &strDirectory, bool
 {
   std::string strDir = strDirectory;
   if (tolower)
-    StringUtils::ToLower(strDir);
+    KODI::StringUtils::ToLower(strDir);
 
   URIUtils::RemoveSlashAtEnd(strDir);
 

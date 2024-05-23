@@ -185,7 +185,7 @@ bool CDatabaseQueryRule::Save(CVariant& obj) const
 CDatabaseQueryRule::SEARCH_OPERATOR CDatabaseQueryRule::TranslateOperator(const char* oper)
 {
   for (const operatorField& o : operators)
-    if (StringUtils::EqualsNoCase(oper, o.string))
+    if (KODI::StringUtils::EqualsNoCase(oper, o.string))
       return o.op;
   return OPERATOR_CONTAINS;
 }
@@ -214,12 +214,12 @@ void CDatabaseQueryRule::GetAvailableOperators(std::vector<std::string>& operato
 
 std::string CDatabaseQueryRule::GetParameter() const
 {
-  return StringUtils::Join(m_parameter, DATABASEQUERY_RULE_VALUE_SEPARATOR);
+  return KODI::StringUtils::Join(m_parameter, DATABASEQUERY_RULE_VALUE_SEPARATOR);
 }
 
 void CDatabaseQueryRule::SetParameter(const std::string& value)
 {
-  m_parameter = StringUtils::Split(value, DATABASEQUERY_RULE_VALUE_SEPARATOR);
+  m_parameter = KODI::StringUtils::Split(value, DATABASEQUERY_RULE_VALUE_SEPARATOR);
 }
 
 void CDatabaseQueryRule::SetParameter(const std::vector<std::string>& values)
@@ -244,12 +244,12 @@ std::string CDatabaseQueryRule::FormatParameter(const std::string& operatorStrin
   std::string parameter;
   if (GetFieldType(m_field) == TEXTIN_FIELD)
   {
-    std::vector<std::string> split = StringUtils::Split(param, ',');
+    std::vector<std::string> split = KODI::StringUtils::Split(param, ',');
     for (std::string& itIn : split)
     {
       if (!parameter.empty())
         parameter += ",";
-      parameter += db.PrepareSQL("'%s'", StringUtils::Trim(itIn).c_str());
+      parameter += db.PrepareSQL("'%s'", KODI::StringUtils::Trim(itIn).c_str());
     }
     parameter = " IN (" + parameter + ")";
   }
@@ -430,7 +430,7 @@ std::string CDatabaseQueryRule::FormatWhereClause(const std::string& negate,
     else if (GetFieldType(m_field) == SECONDS_FIELD)
       fmt = "CAST({} as INTEGER)";
 
-    query = StringUtils::Format(fmt, GetField(m_field, strType));
+    query = KODI::StringUtils::Format(fmt, GetField(m_field, strType));
     query += negate + parameter;
 
     // special case for matching parameters in fields that might be either empty or NULL.

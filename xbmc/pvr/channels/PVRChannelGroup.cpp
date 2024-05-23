@@ -1185,7 +1185,7 @@ int CPVRChannelGroup::CleanupCachedImages()
   }
 
   const std::string owner =
-      StringUtils::Format(CPVRChannel::IMAGE_OWNER_PATTERN, IsRadio() ? "radio" : "tv");
+      KODI::StringUtils::Format(CPVRChannel::IMAGE_OWNER_PATTERN, IsRadio() ? "radio" : "tv");
   return CPVRCachedImages::Cleanup({{owner, ""}}, urlsToCheck);
 }
 

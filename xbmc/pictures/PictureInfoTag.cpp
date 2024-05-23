@@ -132,7 +132,7 @@ bool CPictureInfoTag::Load(const std::string &path)
 
   // Get file extensions to find addon related to it.
   std::string strExtension = URIUtils::GetExtension(path);
-  StringUtils::ToLower(strExtension);
+  KODI::StringUtils::ToLower(strExtension);
   if (!strExtension.empty() && CServiceBroker::IsAddonInterfaceUp())
   {
     // Load via available image decoder addons
@@ -411,7 +411,7 @@ const std::string CPictureInfoTag::GetInfo(int info) const
   switch (info)
   {
   case SLIDESHOW_RESOLUTION:
-    value = StringUtils::Format("{} x {}", m_exifInfo.Width, m_exifInfo.Height);
+    value = KODI::StringUtils::Format("{} x {}", m_exifInfo.Width, m_exifInfo.Height);
     break;
   case SLIDESHOW_COLOUR:
     value = m_exifInfo.IsColor ? "Colour" : "Black and White";
@@ -477,7 +477,7 @@ const std::string CPictureInfoTag::GetInfo(int info) const
 //    value = m_exifInfo.Software;
   case SLIDESHOW_EXIF_APERTURE:
     if (m_exifInfo.ApertureFNumber)
-      value = StringUtils::Format("{:3.1f}", m_exifInfo.ApertureFNumber);
+      value = KODI::StringUtils::Format("{:3.1f}", m_exifInfo.ApertureFNumber);
     break;
   case SLIDESHOW_EXIF_ORIENTATION:
     switch (m_exifInfo.Orientation)
@@ -495,16 +495,16 @@ const std::string CPictureInfoTag::GetInfo(int info) const
   case SLIDESHOW_EXIF_FOCAL_LENGTH:
     if (m_exifInfo.FocalLength)
     {
-      value = StringUtils::Format("{:4.2f}mm", m_exifInfo.FocalLength);
+      value = KODI::StringUtils::Format("{:4.2f}mm", m_exifInfo.FocalLength);
       if (m_exifInfo.FocalLength35mmEquiv != 0)
-        value += StringUtils::Format("  (35mm Equivalent = {}mm)", m_exifInfo.FocalLength35mmEquiv);
+        value += KODI::StringUtils::Format("  (35mm Equivalent = {}mm)", m_exifInfo.FocalLength35mmEquiv);
     }
     break;
   case SLIDESHOW_EXIF_FOCUS_DIST:
     if (m_exifInfo.Distance < 0)
       value = "Infinite";
     else if (m_exifInfo.Distance > 0)
-      value = StringUtils::Format("{:4.2f}m", m_exifInfo.Distance);
+      value = KODI::StringUtils::Format("{:4.2f}m", m_exifInfo.Distance);
     break;
   case SLIDESHOW_EXIF_EXPOSURE:
     switch (m_exifInfo.ExposureProgram)
@@ -523,16 +523,16 @@ const std::string CPictureInfoTag::GetInfo(int info) const
     if (m_exifInfo.ExposureTime)
     {
       if (m_exifInfo.ExposureTime < 0.010f)
-        value = StringUtils::Format("{:6.4f}s", m_exifInfo.ExposureTime);
+        value = KODI::StringUtils::Format("{:6.4f}s", m_exifInfo.ExposureTime);
       else
-        value = StringUtils::Format("{:5.3f}s", m_exifInfo.ExposureTime);
+        value = KODI::StringUtils::Format("{:5.3f}s", m_exifInfo.ExposureTime);
       if (m_exifInfo.ExposureTime <= 0.5f)
-        value += StringUtils::Format(" (1/{})", static_cast<int>(0.5f + 1 / m_exifInfo.ExposureTime));
+        value += KODI::StringUtils::Format(" (1/{})", static_cast<int>(0.5f + 1 / m_exifInfo.ExposureTime));
     }
     break;
   case SLIDESHOW_EXIF_EXPOSURE_BIAS:
     if (m_exifInfo.ExposureBias != 0)
-      value = StringUtils::Format("{:4.2f} EV", m_exifInfo.ExposureBias);
+      value = KODI::StringUtils::Format("{:4.2f} EV", m_exifInfo.ExposureBias);
     break;
   case SLIDESHOW_EXIF_EXPOSURE_MODE:
     switch (m_exifInfo.ExposureMode)
@@ -599,15 +599,15 @@ const std::string CPictureInfoTag::GetInfo(int info) const
     break;
   case SLIDESHOW_EXIF_ISO_EQUIV:
     if (m_exifInfo.ISOequivalent)
-      value = StringUtils::Format("{:2}", m_exifInfo.ISOequivalent);
+      value = KODI::StringUtils::Format("{:2}", m_exifInfo.ISOequivalent);
     break;
   case SLIDESHOW_EXIF_DIGITAL_ZOOM:
     if (m_exifInfo.DigitalZoomRatio)
-      value = StringUtils::Format("{:1.3f}x", m_exifInfo.DigitalZoomRatio);
+      value = KODI::StringUtils::Format("{:1.3f}x", m_exifInfo.DigitalZoomRatio);
     break;
   case SLIDESHOW_EXIF_CCD_WIDTH:
     if (m_exifInfo.CCDWidth)
-      value = StringUtils::Format("{:4.2f}mm", m_exifInfo.CCDWidth);
+      value = KODI::StringUtils::Format("{:4.2f}mm", m_exifInfo.CCDWidth);
     break;
   case SLIDESHOW_EXIF_GPS_LATITUDE:
     value = m_exifInfo.GpsLat;
@@ -650,66 +650,66 @@ const std::string CPictureInfoTag::GetInfo(int info) const
 
 int CPictureInfoTag::TranslateString(const std::string &info)
 {
-  if (StringUtils::EqualsNoCase(info, "filename")) return SLIDESHOW_FILE_NAME;
-  else if (StringUtils::EqualsNoCase(info, "path")) return SLIDESHOW_FILE_PATH;
-  else if (StringUtils::EqualsNoCase(info, "filesize")) return SLIDESHOW_FILE_SIZE;
-  else if (StringUtils::EqualsNoCase(info, "filedate")) return SLIDESHOW_FILE_DATE;
-  else if (StringUtils::EqualsNoCase(info, "slideindex")) return SLIDESHOW_INDEX;
-  else if (StringUtils::EqualsNoCase(info, "resolution")) return SLIDESHOW_RESOLUTION;
-  else if (StringUtils::EqualsNoCase(info, "slidecomment")) return SLIDESHOW_COMMENT;
-  else if (StringUtils::EqualsNoCase(info, "colour")) return SLIDESHOW_COLOUR;
-  else if (StringUtils::EqualsNoCase(info, "process")) return SLIDESHOW_PROCESS;
-  else if (StringUtils::EqualsNoCase(info, "exiftime")) return SLIDESHOW_EXIF_DATE_TIME;
-  else if (StringUtils::EqualsNoCase(info, "exifdate")) return SLIDESHOW_EXIF_DATE;
-  else if (StringUtils::EqualsNoCase(info, "longexiftime")) return SLIDESHOW_EXIF_LONG_DATE_TIME;
-  else if (StringUtils::EqualsNoCase(info, "longexifdate")) return SLIDESHOW_EXIF_LONG_DATE;
-  else if (StringUtils::EqualsNoCase(info, "exifdescription")) return SLIDESHOW_EXIF_DESCRIPTION;
-  else if (StringUtils::EqualsNoCase(info, "cameramake")) return SLIDESHOW_EXIF_CAMERA_MAKE;
-  else if (StringUtils::EqualsNoCase(info, "cameramodel")) return SLIDESHOW_EXIF_CAMERA_MODEL;
-  else if (StringUtils::EqualsNoCase(info, "exifcomment")) return SLIDESHOW_EXIF_COMMENT;
-  else if (StringUtils::EqualsNoCase(info, "exifsoftware")) return SLIDESHOW_EXIF_SOFTWARE;
-  else if (StringUtils::EqualsNoCase(info, "aperture")) return SLIDESHOW_EXIF_APERTURE;
-  else if (StringUtils::EqualsNoCase(info, "focallength")) return SLIDESHOW_EXIF_FOCAL_LENGTH;
-  else if (StringUtils::EqualsNoCase(info, "focusdistance")) return SLIDESHOW_EXIF_FOCUS_DIST;
-  else if (StringUtils::EqualsNoCase(info, "exposure")) return SLIDESHOW_EXIF_EXPOSURE;
-  else if (StringUtils::EqualsNoCase(info, "exposuretime")) return SLIDESHOW_EXIF_EXPOSURE_TIME;
-  else if (StringUtils::EqualsNoCase(info, "exposurebias")) return SLIDESHOW_EXIF_EXPOSURE_BIAS;
-  else if (StringUtils::EqualsNoCase(info, "exposuremode")) return SLIDESHOW_EXIF_EXPOSURE_MODE;
-  else if (StringUtils::EqualsNoCase(info, "flashused")) return SLIDESHOW_EXIF_FLASH_USED;
-  else if (StringUtils::EqualsNoCase(info, "whitebalance")) return SLIDESHOW_EXIF_WHITE_BALANCE;
-  else if (StringUtils::EqualsNoCase(info, "lightsource")) return SLIDESHOW_EXIF_LIGHT_SOURCE;
-  else if (StringUtils::EqualsNoCase(info, "meteringmode")) return SLIDESHOW_EXIF_METERING_MODE;
-  else if (StringUtils::EqualsNoCase(info, "isoequivalence")) return SLIDESHOW_EXIF_ISO_EQUIV;
-  else if (StringUtils::EqualsNoCase(info, "digitalzoom")) return SLIDESHOW_EXIF_DIGITAL_ZOOM;
-  else if (StringUtils::EqualsNoCase(info, "ccdwidth")) return SLIDESHOW_EXIF_CCD_WIDTH;
-  else if (StringUtils::EqualsNoCase(info, "orientation")) return SLIDESHOW_EXIF_ORIENTATION;
-  else if (StringUtils::EqualsNoCase(info, "supplementalcategories")) return SLIDESHOW_IPTC_SUP_CATEGORIES;
-  else if (StringUtils::EqualsNoCase(info, "keywords")) return SLIDESHOW_IPTC_KEYWORDS;
-  else if (StringUtils::EqualsNoCase(info, "caption")) return SLIDESHOW_IPTC_CAPTION;
-  else if (StringUtils::EqualsNoCase(info, "author")) return SLIDESHOW_IPTC_AUTHOR;
-  else if (StringUtils::EqualsNoCase(info, "headline")) return SLIDESHOW_IPTC_HEADLINE;
-  else if (StringUtils::EqualsNoCase(info, "specialinstructions")) return SLIDESHOW_IPTC_SPEC_INSTR;
-  else if (StringUtils::EqualsNoCase(info, "category")) return SLIDESHOW_IPTC_CATEGORY;
-  else if (StringUtils::EqualsNoCase(info, "byline")) return SLIDESHOW_IPTC_BYLINE;
-  else if (StringUtils::EqualsNoCase(info, "bylinetitle")) return SLIDESHOW_IPTC_BYLINE_TITLE;
-  else if (StringUtils::EqualsNoCase(info, "credit")) return SLIDESHOW_IPTC_CREDIT;
-  else if (StringUtils::EqualsNoCase(info, "source")) return SLIDESHOW_IPTC_SOURCE;
-  else if (StringUtils::EqualsNoCase(info, "copyrightnotice")) return SLIDESHOW_IPTC_COPYRIGHT_NOTICE;
-  else if (StringUtils::EqualsNoCase(info, "objectname")) return SLIDESHOW_IPTC_OBJECT_NAME;
-  else if (StringUtils::EqualsNoCase(info, "city")) return SLIDESHOW_IPTC_CITY;
-  else if (StringUtils::EqualsNoCase(info, "state")) return SLIDESHOW_IPTC_STATE;
-  else if (StringUtils::EqualsNoCase(info, "country")) return SLIDESHOW_IPTC_COUNTRY;
-  else if (StringUtils::EqualsNoCase(info, "transmissionreference")) return SLIDESHOW_IPTC_TX_REFERENCE;
-  else if (StringUtils::EqualsNoCase(info, "iptcdate")) return SLIDESHOW_IPTC_DATE;
-  else if (StringUtils::EqualsNoCase(info, "urgency")) return SLIDESHOW_IPTC_URGENCY;
-  else if (StringUtils::EqualsNoCase(info, "countrycode")) return SLIDESHOW_IPTC_COUNTRY_CODE;
-  else if (StringUtils::EqualsNoCase(info, "referenceservice")) return SLIDESHOW_IPTC_REF_SERVICE;
-  else if (StringUtils::EqualsNoCase(info, "latitude")) return SLIDESHOW_EXIF_GPS_LATITUDE;
-  else if (StringUtils::EqualsNoCase(info, "longitude")) return SLIDESHOW_EXIF_GPS_LONGITUDE;
-  else if (StringUtils::EqualsNoCase(info, "altitude")) return SLIDESHOW_EXIF_GPS_ALTITUDE;
-  else if (StringUtils::EqualsNoCase(info, "timecreated")) return SLIDESHOW_IPTC_TIMECREATED;
-  else if (StringUtils::EqualsNoCase(info, "sublocation")) return SLIDESHOW_IPTC_SUBLOCATION;
-  else if (StringUtils::EqualsNoCase(info, "imagetype")) return SLIDESHOW_IPTC_IMAGETYPE;
+  if (KODI::StringUtils::EqualsNoCase(info, "filename")) return SLIDESHOW_FILE_NAME;
+  else if (KODI::StringUtils::EqualsNoCase(info, "path")) return SLIDESHOW_FILE_PATH;
+  else if (KODI::StringUtils::EqualsNoCase(info, "filesize")) return SLIDESHOW_FILE_SIZE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "filedate")) return SLIDESHOW_FILE_DATE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "slideindex")) return SLIDESHOW_INDEX;
+  else if (KODI::StringUtils::EqualsNoCase(info, "resolution")) return SLIDESHOW_RESOLUTION;
+  else if (KODI::StringUtils::EqualsNoCase(info, "slidecomment")) return SLIDESHOW_COMMENT;
+  else if (KODI::StringUtils::EqualsNoCase(info, "colour")) return SLIDESHOW_COLOUR;
+  else if (KODI::StringUtils::EqualsNoCase(info, "process")) return SLIDESHOW_PROCESS;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exiftime")) return SLIDESHOW_EXIF_DATE_TIME;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exifdate")) return SLIDESHOW_EXIF_DATE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "longexiftime")) return SLIDESHOW_EXIF_LONG_DATE_TIME;
+  else if (KODI::StringUtils::EqualsNoCase(info, "longexifdate")) return SLIDESHOW_EXIF_LONG_DATE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exifdescription")) return SLIDESHOW_EXIF_DESCRIPTION;
+  else if (KODI::StringUtils::EqualsNoCase(info, "cameramake")) return SLIDESHOW_EXIF_CAMERA_MAKE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "cameramodel")) return SLIDESHOW_EXIF_CAMERA_MODEL;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exifcomment")) return SLIDESHOW_EXIF_COMMENT;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exifsoftware")) return SLIDESHOW_EXIF_SOFTWARE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "aperture")) return SLIDESHOW_EXIF_APERTURE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "focallength")) return SLIDESHOW_EXIF_FOCAL_LENGTH;
+  else if (KODI::StringUtils::EqualsNoCase(info, "focusdistance")) return SLIDESHOW_EXIF_FOCUS_DIST;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exposure")) return SLIDESHOW_EXIF_EXPOSURE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exposuretime")) return SLIDESHOW_EXIF_EXPOSURE_TIME;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exposurebias")) return SLIDESHOW_EXIF_EXPOSURE_BIAS;
+  else if (KODI::StringUtils::EqualsNoCase(info, "exposuremode")) return SLIDESHOW_EXIF_EXPOSURE_MODE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "flashused")) return SLIDESHOW_EXIF_FLASH_USED;
+  else if (KODI::StringUtils::EqualsNoCase(info, "whitebalance")) return SLIDESHOW_EXIF_WHITE_BALANCE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "lightsource")) return SLIDESHOW_EXIF_LIGHT_SOURCE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "meteringmode")) return SLIDESHOW_EXIF_METERING_MODE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "isoequivalence")) return SLIDESHOW_EXIF_ISO_EQUIV;
+  else if (KODI::StringUtils::EqualsNoCase(info, "digitalzoom")) return SLIDESHOW_EXIF_DIGITAL_ZOOM;
+  else if (KODI::StringUtils::EqualsNoCase(info, "ccdwidth")) return SLIDESHOW_EXIF_CCD_WIDTH;
+  else if (KODI::StringUtils::EqualsNoCase(info, "orientation")) return SLIDESHOW_EXIF_ORIENTATION;
+  else if (KODI::StringUtils::EqualsNoCase(info, "supplementalcategories")) return SLIDESHOW_IPTC_SUP_CATEGORIES;
+  else if (KODI::StringUtils::EqualsNoCase(info, "keywords")) return SLIDESHOW_IPTC_KEYWORDS;
+  else if (KODI::StringUtils::EqualsNoCase(info, "caption")) return SLIDESHOW_IPTC_CAPTION;
+  else if (KODI::StringUtils::EqualsNoCase(info, "author")) return SLIDESHOW_IPTC_AUTHOR;
+  else if (KODI::StringUtils::EqualsNoCase(info, "headline")) return SLIDESHOW_IPTC_HEADLINE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "specialinstructions")) return SLIDESHOW_IPTC_SPEC_INSTR;
+  else if (KODI::StringUtils::EqualsNoCase(info, "category")) return SLIDESHOW_IPTC_CATEGORY;
+  else if (KODI::StringUtils::EqualsNoCase(info, "byline")) return SLIDESHOW_IPTC_BYLINE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "bylinetitle")) return SLIDESHOW_IPTC_BYLINE_TITLE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "credit")) return SLIDESHOW_IPTC_CREDIT;
+  else if (KODI::StringUtils::EqualsNoCase(info, "source")) return SLIDESHOW_IPTC_SOURCE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "copyrightnotice")) return SLIDESHOW_IPTC_COPYRIGHT_NOTICE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "objectname")) return SLIDESHOW_IPTC_OBJECT_NAME;
+  else if (KODI::StringUtils::EqualsNoCase(info, "city")) return SLIDESHOW_IPTC_CITY;
+  else if (KODI::StringUtils::EqualsNoCase(info, "state")) return SLIDESHOW_IPTC_STATE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "country")) return SLIDESHOW_IPTC_COUNTRY;
+  else if (KODI::StringUtils::EqualsNoCase(info, "transmissionreference")) return SLIDESHOW_IPTC_TX_REFERENCE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "iptcdate")) return SLIDESHOW_IPTC_DATE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "urgency")) return SLIDESHOW_IPTC_URGENCY;
+  else if (KODI::StringUtils::EqualsNoCase(info, "countrycode")) return SLIDESHOW_IPTC_COUNTRY_CODE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "referenceservice")) return SLIDESHOW_IPTC_REF_SERVICE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "latitude")) return SLIDESHOW_EXIF_GPS_LATITUDE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "longitude")) return SLIDESHOW_EXIF_GPS_LONGITUDE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "altitude")) return SLIDESHOW_EXIF_GPS_ALTITUDE;
+  else if (KODI::StringUtils::EqualsNoCase(info, "timecreated")) return SLIDESHOW_IPTC_TIMECREATED;
+  else if (KODI::StringUtils::EqualsNoCase(info, "sublocation")) return SLIDESHOW_IPTC_SUBLOCATION;
+  else if (KODI::StringUtils::EqualsNoCase(info, "imagetype")) return SLIDESHOW_IPTC_IMAGETYPE;
   return 0;
 }
 
@@ -722,7 +722,7 @@ void CPictureInfoTag::SetInfo(const std::string &key, const std::string& value)
   case SLIDESHOW_RESOLUTION:
     {
       std::vector<std::string> dimension;
-      StringUtils::Tokenize(value, dimension, ",");
+      KODI::StringUtils::Tokenize(value, dimension, ",");
       if (dimension.size() == 2)
       {
         m_exifInfo.Width = atoi(dimension[0].c_str());

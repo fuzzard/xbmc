@@ -358,7 +358,7 @@ void CMusicInfoScanner::FetchAlbumInfo(const std::string& strDirectory,
           dir.GetDirectory(pathToUrl, items);
       }
     }
-    else if (StringUtils::EndsWith(strDirectory, ".xsp"))
+    else if (KODI::StringUtils::EndsWith(strDirectory, ".xsp"))
     {
       CSmartPlaylistDirectory dir;
       dir.GetDirectory(pathToUrl, items);
@@ -420,7 +420,7 @@ void CMusicInfoScanner::FetchArtistInfo(const std::string& strDirectory,
           dir.GetDirectory(pathToUrl, items);
       }
     }
-    else if (StringUtils::EndsWith(strDirectory, ".xsp"))
+    else if (KODI::StringUtils::EndsWith(strDirectory, ".xsp"))
     {
       CSmartPlaylistDirectory dir;
       dir.GetDirectory(pathToUrl, items);
@@ -504,7 +504,7 @@ bool CMusicInfoScanner::DoScan(const std::string& strDirectory)
 
   // check whether we need to rescan or not
   std::string dbHash;
-  if ((m_flags & SCAN_RESCAN) || !m_musicDatabase.GetPathHash(strDirectory, dbHash) || !StringUtils::EqualsNoCase(dbHash, hash))
+  if ((m_flags & SCAN_RESCAN) || !m_musicDatabase.GetPathHash(strDirectory, dbHash) || !KODI::StringUtils::EqualsNoCase(dbHash, hash))
   { // path has changed - rescan
     if (dbHash.empty())
       CLog::Log(LOGDEBUG, "{} Scanning dir '{}' as not in the database", __FUNCTION__,
@@ -744,10 +744,10 @@ void CMusicInfoScanner::FileItemsToAlbums(CFileItemList& items, VECALBUMS& album
         !songsByAlbumName.first.empty() && (isCompilation || !tracksOverlap); // 1+2b+2a
     if (artists.size() == 1)
     {
-      std::string artist = artists.begin()->first; StringUtils::ToLower(artist);
-      if (!StringUtils::EqualsNoCase(artist, "various") &&
-        !StringUtils::EqualsNoCase(artist, "various artists") &&
-        !StringUtils::EqualsNoCase(artist, various)) // 3a
+      std::string artist = artists.begin()->first; KODI::StringUtils::ToLower(artist);
+      if (!KODI::StringUtils::EqualsNoCase(artist, "various") &&
+        !KODI::StringUtils::EqualsNoCase(artist, "various artists") &&
+        !KODI::StringUtils::EqualsNoCase(artist, various)) // 3a
         compilation = false;
       else
         // Grab name for use in "various artist" artist
@@ -841,10 +841,10 @@ void CMusicInfoScanner::FileItemsToAlbums(CFileItemList& items, VECALBUMS& album
       album.strAlbum = songsByAlbumName.first;
 
       //Split the albumartist sort string to try and get sort names for individual artists
-      std::vector<std::string> sortnames = StringUtils::Split(albumartistsort, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+      std::vector<std::string> sortnames = KODI::StringUtils::Split(albumartistsort, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
       if (sortnames.size() != common.size())
           // Split artist sort names further using multiple possible delimiters, over single separator applied in Tag loader
-        sortnames = StringUtils::SplitMulti(sortnames, { ";", ":", "|", "#" });
+        sortnames = KODI::StringUtils::SplitMulti(sortnames, { ";", ":", "|", "#" });
 
       for (size_t i = 0; i < common.size(); i++)
       {
@@ -858,11 +858,11 @@ void CMusicInfoScanner::FileItemsToAlbums(CFileItemList& items, VECALBUMS& album
           album.artistCredits.emplace_back(various, VARIOUSARTISTS_MBID);
         else
         {
-          album.artistCredits.emplace_back(StringUtils::Trim(common[i]));
+          album.artistCredits.emplace_back(KODI::StringUtils::Trim(common[i]));
           // Set artist sort name providing we have as many as we have artists,
           // otherwise something is wrong with them so ignore rather than guess.
           if (sortnames.size() == common.size())
-            album.artistCredits.back().SetSortName(StringUtils::Trim(sortnames[i]));
+            album.artistCredits.back().SetSortName(KODI::StringUtils::Trim(sortnames[i]));
         }
       }
       album.bCompilation = compilation;
@@ -1103,7 +1103,7 @@ void CMusicInfoScanner::FindArtForAlbums(VECALBUMS &albums, const std::string &p
      without having read some tags (and tags are not read from streams) we can safely check for
      that case and set the IsHTTPDirectory property to enable scanning for art.
     */
-    if (StringUtils::StartsWithNoCase(path, "http") && StringUtils::EndsWith(path, "/"))
+    if (KODI::StringUtils::StartsWithNoCase(path, "http") && KODI::StringUtils::EndsWith(path, "/"))
       album.SetProperty("IsHTTPDirectory", true);
     albumArt = album.GetUserMusicThumb(true);
     if (!albumArt.empty())
@@ -1327,7 +1327,7 @@ CMusicInfoScanner::UpdateDatabaseAlbumInfo(CAlbum& album,
         if (eventLog)
           eventLog->Add(EventPtr(new CMediaLibraryEvent(
               MediaTypeAlbum, album.strPath, 24146,
-              StringUtils::Format(g_localizeStrings.Get(24147), MediaTypeAlbum, album.strAlbum),
+              KODI::StringUtils::Format(g_localizeStrings.Get(24147), MediaTypeAlbum, album.strAlbum),
               CScraperUrl::GetThumbUrl(album.thumbURL.GetFirstUrlByType()),
               CURL::GetRedacted(album.strPath), EventLevel::Warning)));
       }
@@ -1397,7 +1397,7 @@ CMusicInfoScanner::UpdateDatabaseArtistInfo(CArtist& artist,
         if (eventLog)
           eventLog->Add(EventPtr(new CMediaLibraryEvent(
               MediaTypeArtist, artist.strPath, 24146,
-              StringUtils::Format(g_localizeStrings.Get(24147), MediaTypeArtist, artist.strArtist),
+              KODI::StringUtils::Format(g_localizeStrings.Get(24147), MediaTypeArtist, artist.strArtist),
               CScraperUrl::GetThumbUrl(artist.thumbURL.GetFirstUrlByType()),
               CURL::GetRedacted(artist.strPath), EventLevel::Warning)));
       }
@@ -1455,7 +1455,7 @@ CMusicInfoScanner::DownloadAlbumInfo(const CAlbum& album,
 {
   if (m_handle)
   {
-    m_handle->SetTitle(StringUtils::Format(g_localizeStrings.Get(20321), info->Name()));
+    m_handle->SetTitle(KODI::StringUtils::Format(g_localizeStrings.Get(20321), info->Name()));
     m_handle->SetText(album.GetAlbumArtistString() + " - " + album.strAlbum);
   }
 
@@ -1597,7 +1597,7 @@ CMusicInfoScanner::DownloadAlbumInfo(const CAlbum& album,
           if (pDialog)
           {
             // set the label to [relevance]  album - artist
-            std::string strTemp = StringUtils::Format("[{:0.2f}]  {}", relevance, info.GetTitle2());
+            std::string strTemp = KODI::StringUtils::Format("[{:0.2f}]  {}", relevance, info.GetTitle2());
             CFileItemPtr item(new CFileItem("", false));
             item->SetLabel(strTemp);
 
@@ -1716,7 +1716,7 @@ CMusicInfoScanner::DownloadArtistInfo(const CArtist& artist,
 {
   if (m_handle)
   {
-    m_handle->SetTitle(StringUtils::Format(g_localizeStrings.Get(20320), info->Name()));
+    m_handle->SetTitle(KODI::StringUtils::Format(g_localizeStrings.Get(20320), info->Name()));
     m_handle->SetText(artist.strArtist);
   }
 
@@ -1856,9 +1856,9 @@ CMusicInfoScanner::DownloadArtistInfo(const CArtist& artist,
               strTemp += " - " + scraper.GetArtist(i).GetArtist().strDisambiguation;
             if (!scraper.GetArtist(i).GetArtist().genre.empty())
             {
-              std::string genres = StringUtils::Join(scraper.GetArtist(i).GetArtist().genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+              std::string genres = KODI::StringUtils::Join(scraper.GetArtist(i).GetArtist().genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
               if (!genres.empty())
-                strTemp = StringUtils::Format("[{}] {}", genres, strTemp);
+                strTemp = KODI::StringUtils::Format("[{}] {}", genres, strTemp);
             }
             item.SetLabel(strTemp);
             item.m_idepth = i; // use this to hold the index of the album in the scraper
@@ -2039,7 +2039,7 @@ bool CMusicInfoScanner::AddAlbumArtwork(CAlbum& album)
   {
     // When "prefer online album art" enabled and we have a thumb as embedded art
     // then replace it if we find a scraped cover
-    if (thumb != album.art.end() && StringUtils::StartsWith(thumb->second, "image://"))
+    if (thumb != album.art.end() && KODI::StringUtils::StartsWith(thumb->second, "image://"))
       replaceThumb = true;
   }
 
@@ -2083,7 +2083,7 @@ bool CMusicInfoScanner::AddAlbumArtwork(CAlbum& album)
         // Handle thumbs separately. Get thumb for path from textures db cached during scan
         // (could be embedded or local file from multiple confgurable file names)
         CFileItem item(pathpair.first.c_str(), true);
-        std::string strArtType = StringUtils::Format("{}{}", "thumb", discnum);
+        std::string strArtType = KODI::StringUtils::Format("{}{}", "thumb", discnum);
         strArt = loader.GetCachedImage(item, "thumb");
         if (strArt.empty())
           strArt = CScraperUrl::GetThumbUrl(album.thumbURL.GetFirstUrlByType(strArtType));
@@ -2194,9 +2194,9 @@ bool CMusicInfoScanner::AddLocalArtwork(std::map<std::string, std::string>& art,
       continue;
     std::string strCandidate = URIUtils::GetFileName(artFile->GetPath());
     // Strip media name
-    if (!mediaName.empty() && StringUtils::StartsWith(strCandidate, mediaName))
+    if (!mediaName.empty() && KODI::StringUtils::StartsWith(strCandidate, mediaName))
       strCandidate.erase(0, mediaName.length());
-    StringUtils::ToLower(strCandidate);
+    KODI::StringUtils::ToLower(strCandidate);
     // Skip files already used as "thumb"
     // Typically folder.jpg but can be from multiple confgurable file names
     if (std::find(thumbs.begin(), thumbs.end(), strCandidate) != thumbs.end())
@@ -2282,7 +2282,7 @@ bool CMusicInfoScanner::AddRemoteArtwork(std::map<std::string, std::string>& art
     { // Check whitelist for art type family e.g. "discart" for aspect="discart2"
       std::string strName = url.m_aspect;
       if (iArtLevel != CSettings::MUSICLIBRARY_ARTWORK_LEVEL_BASIC)
-        StringUtils::TrimRight(strName, "0123456789");
+        KODI::StringUtils::TrimRight(strName, "0123456789");
       if (std::find(whitelistarttypes.begin(), whitelistarttypes.end(), strName) ==
           whitelistarttypes.end())
         continue;

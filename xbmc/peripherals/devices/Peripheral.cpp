@@ -63,13 +63,13 @@ CPeripheral::CPeripheral(CPeripherals& manager,
   if (scanResult.m_iSequence > 0)
   {
     m_strFileLocation =
-        StringUtils::Format("peripherals://{}/{}_{}.dev",
+        KODI::StringUtils::Format("peripherals://{}/{}_{}.dev",
                             PeripheralTypeTranslator::BusTypeToString(scanResult.m_busType),
                             scanResult.m_strLocation, scanResult.m_iSequence);
   }
   else
   {
-    m_strFileLocation = StringUtils::Format(
+    m_strFileLocation = KODI::StringUtils::Format(
         "peripherals://{}/{}.dev", PeripheralTypeTranslator::BusTypeToString(scanResult.m_busType),
         scanResult.m_strLocation);
   }
@@ -146,11 +146,11 @@ bool CPeripheral::Initialise(void)
   m_manager.GetSettingsFromMapping(*this);
 
   std::string safeDeviceName = m_strDeviceName;
-  StringUtils::Replace(safeDeviceName, ' ', '_');
+  KODI::StringUtils::Replace(safeDeviceName, ' ', '_');
 
   if (m_iVendorId == 0x0000 && m_iProductId == 0x0000)
   {
-    m_strSettingsFile = StringUtils::Format(
+    m_strSettingsFile = KODI::StringUtils::Format(
         "special://profile/peripheral_data/{}_{}.xml",
         PeripheralTypeTranslator::BusTypeToString(m_mappedBusType),
         CUtil::MakeLegalFileName(std::move(safeDeviceName), LEGAL_WIN32_COMPAT));
@@ -158,12 +158,12 @@ bool CPeripheral::Initialise(void)
   else
   {
     // Backwards compatibility - old settings files didn't include the device name
-    m_strSettingsFile = StringUtils::Format(
+    m_strSettingsFile = KODI::StringUtils::Format(
         "special://profile/peripheral_data/{}_{}_{}.xml",
         PeripheralTypeTranslator::BusTypeToString(m_mappedBusType), m_strVendorId, m_strProductId);
 
     if (!CFileUtils::Exists(m_strSettingsFile))
-      m_strSettingsFile = StringUtils::Format(
+      m_strSettingsFile = KODI::StringUtils::Format(
           "special://profile/peripheral_data/{}_{}_{}_{}.xml",
           PeripheralTypeTranslator::BusTypeToString(m_mappedBusType), m_strVendorId, m_strProductId,
           CUtil::MakeLegalFileName(std::move(safeDeviceName), LEGAL_WIN32_COMPAT));
@@ -468,7 +468,7 @@ bool CPeripheral::SetSetting(const std::string& strKey, const std::string& strVa
           std::static_pointer_cast<CSettingString>((*it).second.m_setting);
       if (stringSetting)
       {
-        bChanged = !StringUtils::EqualsNoCase(stringSetting->GetValue(), strValue);
+        bChanged = !KODI::StringUtils::EqualsNoCase(stringSetting->GetValue(), strValue);
         stringSetting->SetValue(strValue);
         if (bChanged && m_bInitialised)
           m_changedSettings.insert(strKey);
@@ -523,7 +523,7 @@ void CPeripheral::PersistSettings(bool bExiting /* = false */)
         std::shared_ptr<CSettingNumber> floatSetting =
             std::static_pointer_cast<CSettingNumber>(itr.second.m_setting);
         if (floatSetting)
-          strValue = StringUtils::Format("{:.2f}", floatSetting->GetValue());
+          strValue = KODI::StringUtils::Format("{:.2f}", floatSetting->GetValue());
       }
       break;
       case SettingType::Boolean:
@@ -787,7 +787,7 @@ std::string CPeripheral::GetIcon() const
 
 bool CPeripheral::operator==(const PeripheralScanResult& right) const
 {
-  return StringUtils::EqualsNoCase(m_strLocation, right.m_strLocation);
+  return KODI::StringUtils::EqualsNoCase(m_strLocation, right.m_strLocation);
 }
 
 bool CPeripheral::operator!=(const PeripheralScanResult& right) const

@@ -38,8 +38,8 @@ namespace XBMCAddon
       // parse the status
       if (!status.empty())
       {
-        std::vector<String> statusParts = StringUtils::Split(status, ' ', 2);
-        if (statusParts.size() == 2 && StringUtils::IsNaturalNumber(statusParts.front()))
+        std::vector<String> statusParts = KODI::StringUtils::Split(status, ' ', 2);
+        if (statusParts.size() == 2 && KODI::StringUtils::IsNaturalNumber(statusParts.front()))
         {
           int64_t parsedStatus = strtol(statusParts.front().c_str(), NULL, 0);
           if (parsedStatus >= MHD_HTTP_OK && parsedStatus <= MHD_HTTP_NOT_EXTENDED)

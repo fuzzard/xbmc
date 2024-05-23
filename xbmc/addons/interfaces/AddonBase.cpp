@@ -271,31 +271,31 @@ char* Interface_Base::get_addon_info(const KODI_ADDON_BACKEND_HDL hdl, const cha
   }
 
   std::string str;
-  if (StringUtils::CompareNoCase(id, "author") == 0)
+  if (KODI::StringUtils::CompareNoCase(id, "author") == 0)
     str = addon->Author();
-  else if (StringUtils::CompareNoCase(id, "changelog") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "changelog") == 0)
     str = addon->ChangeLog();
-  else if (StringUtils::CompareNoCase(id, "description") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "description") == 0)
     str = addon->Description();
-  else if (StringUtils::CompareNoCase(id, "disclaimer") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "disclaimer") == 0)
     str = addon->Disclaimer();
-  else if (StringUtils::CompareNoCase(id, "fanart") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "fanart") == 0)
     str = addon->FanArt();
-  else if (StringUtils::CompareNoCase(id, "icon") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "icon") == 0)
     str = addon->Icon();
-  else if (StringUtils::CompareNoCase(id, "id") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "id") == 0)
     str = addon->ID();
-  else if (StringUtils::CompareNoCase(id, "name") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "name") == 0)
     str = addon->Name();
-  else if (StringUtils::CompareNoCase(id, "path") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "path") == 0)
     str = addon->Path();
-  else if (StringUtils::CompareNoCase(id, "profile") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "profile") == 0)
     str = addon->Profile();
-  else if (StringUtils::CompareNoCase(id, "summary") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "summary") == 0)
     str = addon->Summary();
-  else if (StringUtils::CompareNoCase(id, "type") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "type") == 0)
     str = ADDON::CAddonInfo::TranslateType(addon->Type());
-  else if (StringUtils::CompareNoCase(id, "version") == 0)
+  else if (KODI::StringUtils::CompareNoCase(id, "version") == 0)
     str = addon->Version().asString();
   else
   {
@@ -579,7 +579,7 @@ bool Interface_Base::set_setting_float(const KODI_ADDON_BACKEND_HDL hdl,
   }
 
   if (Interface_Base::UpdateSettingInActiveDialog(addon, ADDON_SETTINGS_ID, id,
-                                                  StringUtils::Format("{:f}", value)))
+                                                  KODI::StringUtils::Format("{:f}", value)))
     return true;
 
   if (!addon->UpdateSettingNumber(id, static_cast<double>(value)))

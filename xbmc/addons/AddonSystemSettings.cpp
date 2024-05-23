@@ -72,7 +72,7 @@ void CAddonSystemSettings::OnSettingAction(const std::shared_ptr<const CSetting>
     if (removedItems.size() > 0)
     {
       const auto message =
-          StringUtils::Format(g_localizeStrings.Get(36641), StringUtils::Join(removedItems, ", "));
+          KODI::StringUtils::Format(g_localizeStrings.Get(36641), KODI::StringUtils::Join(removedItems, ", "));
 
       ShowOKDialogText(CVariant{36640}, CVariant{message}); // "following orphaned were removed..."
     }

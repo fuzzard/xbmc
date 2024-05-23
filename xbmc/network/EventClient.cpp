@@ -71,7 +71,7 @@ void CEventButtonState::Load()
   else
   {
     if (m_mapName.length() > 3 &&
-        (StringUtils::StartsWith(m_mapName, "JS")) )
+        (KODI::StringUtils::StartsWith(m_mapName, "JS")) )
     {
       m_joystickName = m_mapName.substr(2);  // <num>:joyname
       m_iControllerNumber = (unsigned char)(*(m_joystickName.c_str()))
@@ -80,7 +80,7 @@ void CEventButtonState::Load()
     }
 
     if (m_mapName.length() > 3 &&
-        (StringUtils::StartsWith(m_mapName, "CC")) ) // custom map - CC:<controllerName>
+        (KODI::StringUtils::StartsWith(m_mapName, "CC")) ) // custom map - CC:<controllerName>
     {
       m_customControllerName = m_mapName.substr(3);
     }

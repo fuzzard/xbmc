@@ -610,7 +610,7 @@ bool CAddon::InitSettings(AddonInstanceId id)
       data.m_addonSettingsPath =
           URIUtils::AddFileToFolder(m_addonInfo->Path(), "resources", "instance-settings.xml");
       data.m_userSettingsPath =
-          URIUtils::AddFileToFolder(Profile(), StringUtils::Format("instance-settings-{}.xml", id));
+          URIUtils::AddFileToFolder(Profile(), KODI::StringUtils::Format("instance-settings-{}.xml", id));
     }
 
     m_settings[id] = std::move(data);

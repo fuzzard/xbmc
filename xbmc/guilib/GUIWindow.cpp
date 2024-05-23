@@ -38,7 +38,7 @@ using namespace KODI;
 
 bool CGUIWindow::icompare::operator()(const std::string &s1, const std::string &s2) const
 {
-  return StringUtils::CompareNoCase(s1, s2) < 0;
+  return KODI::StringUtils::CompareNoCase(s1, s2) < 0;
 }
 
 CGUIWindow::CGUIWindow(int id, const std::string &xmlFile)
@@ -101,7 +101,7 @@ bool CGUIWindow::Load(const std::string& strFileName, bool bContainsPath)
   {
     // FIXME: strLowerPath needs to eventually go since resToUse can get incorrectly overridden
     std::string strFileNameLower = strFileName;
-    StringUtils::ToLower(strFileNameLower);
+    KODI::StringUtils::ToLower(strFileNameLower);
     strLowerPath =  g_SkinInfo->GetSkinPath(strFileNameLower, &m_coordsRes);
     strPath = g_SkinInfo->GetSkinPath(strFileName, &m_coordsRes);
   }
@@ -129,7 +129,7 @@ bool CGUIWindow::LoadXML(const std::string &strPath, const std::string &strLower
   {
     CXBMCTinyXML xmlDoc;
     std::string strPathLower = strPath;
-    StringUtils::ToLower(strPathLower);
+    KODI::StringUtils::ToLower(strPathLower);
     if (!xmlDoc.LoadFile(strPath) && !xmlDoc.LoadFile(strPathLower) && !xmlDoc.LoadFile(strLowerPath))
     {
       CLog::Log(LOGERROR, "Unable to load window XML: {}. Line {}\n{}", strPath, xmlDoc.ErrorRow(),
@@ -139,7 +139,7 @@ bool CGUIWindow::LoadXML(const std::string &strPath, const std::string &strLower
     }
 
     // xml need a <window> root element
-    if (!StringUtils::EqualsNoCase(xmlDoc.RootElement()->Value(), "window"))
+    if (!KODI::StringUtils::EqualsNoCase(xmlDoc.RootElement()->Value(), "window"))
     {
       CLog::Log(LOGERROR, "XML file {} does not contain a <window> root element",
                 GetProperty("xmlfile").asString());
@@ -199,7 +199,7 @@ bool CGUIWindow::Load(TiXmlElement *pRootElement)
     else if (strValue == "defaultcontrol" && pChild->FirstChild())
     {
       const char *always = pChild->Attribute("always");
-      if (always && StringUtils::EqualsNoCase(always, "true"))
+      if (always && KODI::StringUtils::EqualsNoCase(always, "true"))
         m_defaultAlways = true;
       m_defaultControl = atoi(pChild->FirstChild()->Value());
     }
@@ -259,7 +259,7 @@ bool CGUIWindow::Load(TiXmlElement *pRootElement)
       TiXmlElement *pControl = pChild->FirstChildElement();
       while (pControl)
       {
-        if (StringUtils::EqualsNoCase(pControl->Value(), "control"))
+        if (KODI::StringUtils::EqualsNoCase(pControl->Value(), "control"))
         {
           LoadControl(pControl, nullptr, CRect(0, 0, static_cast<float>(m_coordsRes.iWidth), static_cast<float>(m_coordsRes.iHeight)));
         }

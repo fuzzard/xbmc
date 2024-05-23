@@ -114,28 +114,28 @@ std::shared_ptr<CDVDInputStream> CDVDFactoryInputStream::CreateInputStream(IVide
 #ifdef HAVE_LIBBLURAY
   else if (fileitem.IsType(".bdmv") || fileitem.IsType(".mpls")
           || fileitem.IsType(".bdm") || fileitem.IsType(".mpl")
-          || StringUtils::StartsWithNoCase(file, "bluray:"))
+          || KODI::StringUtils::StartsWithNoCase(file, "bluray:"))
     return std::make_shared<CDVDInputStreamBluray>(pPlayer, fileitem);
 #endif
-  else if (StringUtils::StartsWithNoCase(file, "rtp://") ||
-           StringUtils::StartsWithNoCase(file, "rtsp://") ||
-           StringUtils::StartsWithNoCase(file, "rtsps://") ||
-           StringUtils::StartsWithNoCase(file, "satip://") ||
-           StringUtils::StartsWithNoCase(file, "sdp://") ||
-           StringUtils::StartsWithNoCase(file, "udp://") ||
-           StringUtils::StartsWithNoCase(file, "tcp://") ||
-           StringUtils::StartsWithNoCase(file, "mms://") ||
-           StringUtils::StartsWithNoCase(file, "mmst://") ||
-           StringUtils::StartsWithNoCase(file, "mmsh://") ||
-           StringUtils::StartsWithNoCase(file, "rtmp://") ||
-           StringUtils::StartsWithNoCase(file, "rtmpt://") ||
-           StringUtils::StartsWithNoCase(file, "rtmpe://") ||
-           StringUtils::StartsWithNoCase(file, "rtmpte://") ||
-           StringUtils::StartsWithNoCase(file, "rtmps://"))
+  else if (KODI::StringUtils::StartsWithNoCase(file, "rtp://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtsp://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtsps://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "satip://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "sdp://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "udp://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "tcp://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "mms://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "mmst://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "mmsh://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtmp://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtmpt://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtmpe://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtmpte://") ||
+           KODI::StringUtils::StartsWithNoCase(file, "rtmps://"))
   {
     return std::make_shared<CDVDInputStreamFFmpeg>(fileitem);
   }
-  else if(StringUtils::StartsWithNoCase(file, "stack://"))
+  else if(KODI::StringUtils::StartsWithNoCase(file, "stack://"))
     return std::make_shared<CDVDInputStreamStack>(fileitem);
 
   CFileItem finalFileitem(fileitem);

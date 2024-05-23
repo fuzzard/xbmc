@@ -34,7 +34,7 @@ bool CDVDSubtitleParserSubrip::Open(CDVDStreamInfo& hints)
 
   while (m_pStream->ReadLine(line))
   {
-    StringUtils::Trim(line);
+    KODI::StringUtils::Trim(line);
 
     if (line.length() > 0)
     {
@@ -57,7 +57,7 @@ bool CDVDSubtitleParserSubrip::Open(CDVDStreamInfo& hints)
         std::string convText;
         while (m_pStream->ReadLine(line))
         {
-          StringUtils::Trim(line);
+          KODI::StringUtils::Trim(line);
 
           // empty line, next subtitle is about to start
           if (line.empty())

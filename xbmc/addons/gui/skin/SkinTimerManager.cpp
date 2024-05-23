@@ -34,7 +34,7 @@ void CSkinTimerManager::LoadTimers(const std::string& path)
   }
 
   auto* root = doc.RootElement();
-  if (!root || !StringUtils::EqualsNoCase(root->Value(), "timers"))
+  if (!root || !KODI::StringUtils::EqualsNoCase(root->Value(), "timers"))
   {
     CLog::LogF(LOGERROR, "Error loading timers file {}: Root element <timers> required.", path);
     return;
@@ -73,7 +73,7 @@ void CSkinTimerManager::LoadTimerInternal(const tinyxml2::XMLNode* node)
     startInfo = m_infoMgr.Register(node->FirstChildElement("start")->FirstChild()->Value());
     // check if timer needs to be reset after start
     if (node->FirstChildElement("start")->Attribute("reset") &&
-        StringUtils::EqualsNoCase(node->FirstChildElement("start")->Attribute("reset"), "true"))
+        KODI::StringUtils::EqualsNoCase(node->FirstChildElement("start")->Attribute("reset"), "true"))
     {
       resetOnStart = true;
     }

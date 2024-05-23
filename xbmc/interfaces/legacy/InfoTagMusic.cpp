@@ -78,7 +78,7 @@ namespace XBMCAddon
 
     String InfoTagMusic::getGenre()
     {
-      return StringUtils::Join(infoTag->GetGenre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+      return KODI::StringUtils::Join(infoTag->GetGenre(), CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
     }
 
     std::vector<String> InfoTagMusic::getGenres()

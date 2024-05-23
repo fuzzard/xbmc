@@ -32,7 +32,7 @@ std::string CMusicDatabaseFile::TranslateUrl(const CURL& url)
   std::string strExtension = URIUtils::GetExtension(strFileName);
   URIUtils::RemoveExtension(strFileName);
 
-  if (!StringUtils::IsNaturalNumber(strFileName))
+  if (!KODI::StringUtils::IsNaturalNumber(strFileName))
     return "";
 
   int idSong = atoi(strFileName.c_str());
@@ -41,7 +41,7 @@ std::string CMusicDatabaseFile::TranslateUrl(const CURL& url)
   if (!musicDatabase.GetSong(idSong, song))
     return "";
 
-  StringUtils::ToLower(strExtension);
+  KODI::StringUtils::ToLower(strExtension);
   if (!URIUtils::HasExtension(song.strFileName, strExtension))
     return "";
 

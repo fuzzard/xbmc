@@ -354,11 +354,11 @@ std::string CUtil::GetTitleFromPath(const CURL& url, bool bIsFolder /* = false *
     strFilename = g_localizeStrings.Get(744);
 
   // Music Playlists
-  else if (StringUtils::StartsWith(path, "special://musicplaylists"))
+  else if (KODI::StringUtils::StartsWith(path, "special://musicplaylists"))
     strFilename = g_localizeStrings.Get(136);
 
   // Video Playlists
-  else if (StringUtils::StartsWith(path, "special://videoplaylists"))
+  else if (KODI::StringUtils::StartsWith(path, "special://videoplaylists"))
     strFilename = g_localizeStrings.Get(136);
 
   else if (URIUtils::HasParentInHostname(url) && strFilename.empty())
@@ -389,7 +389,7 @@ void GetTrailingDiscNumberSegmentInfoFromPath(const std::string& pathIn,
   number.clear();
 
   // Handle Disc, Disk and locale specific spellings
-  std::string discStr{StringUtils::Format("/{} ", g_localizeStrings.Get(427))};
+  std::string discStr{KODI::StringUtils::Format("/{} ", g_localizeStrings.Get(427))};
   size_t discPos = path.rfind(discStr);
 
   if (discPos == std::string::npos)
@@ -469,7 +469,7 @@ bool CUtil::GetFilenameIdentifier(const std::string& fileName,
         match = reIdentifier.GetMatch(0);
         identifierType = reIdentifier.GetMatch(1);
         identifier = reIdentifier.GetMatch(2);
-        StringUtils::ToLower(identifierType);
+        KODI::StringUtils::ToLower(identifierType);
         return true;
       }
     }
@@ -500,7 +500,7 @@ void CUtil::CleanString(const std::string& strFileName,
   std::string identifierType;
   std::string identifierMatch;
   if (GetFilenameIdentifier(strFileName, identifierType, identifier, identifierMatch))
-    StringUtils::Replace(strTitleAndYear, identifierMatch, "");
+    KODI::StringUtils::Replace(strTitleAndYear, identifierMatch, "");
 
   const std::shared_ptr<CAdvancedSettings> advancedSettings = CServiceBroker::GetSettingsComponent()->GetAdvancedSettings();
   const std::vector<std::string> &regexps = advancedSettings->m_videoCleanStringRegExps;
@@ -558,7 +558,7 @@ void CUtil::CleanString(const std::string& strFileName,
     }
   }
 
-  StringUtils::Trim(strTitleAndYear);
+  KODI::StringUtils::Trim(strTitleAndYear);
   strTitle = strTitleAndYear;
 
   // append year
@@ -590,8 +590,8 @@ void CUtil::GetQualifiedFilename(const std::string &strBasePath, std::string &st
   strFilename = URIUtils::AddFileToFolder(strBasePath, strFilename);
 
   // get rid of any /./ or \.\ that happen to be there
-  StringUtils::Replace(strFilename, "\\.\\", "\\");
-  StringUtils::Replace(strFilename, "/./", "/");
+  KODI::StringUtils::Replace(strFilename, "\\.\\", "\\");
+  KODI::StringUtils::Replace(strFilename, "/./", "/");
 
   // now find any "\\..\\" and remove them via GetParentPath
   size_t pos;
@@ -667,13 +667,13 @@ void CUtil::GetFileAndProtocol(const std::string& strURL, std::string& strDir)
   if (URIUtils::IsDVD(strURL)) return ;
 
   CURL url(strURL);
-  strDir = StringUtils::Format("{}://{}", url.GetProtocol(), url.GetFileName());
+  strDir = KODI::StringUtils::Format("{}://{}", url.GetProtocol(), url.GetFileName());
 }
 
 int CUtil::GetDVDIfoTitle(const std::string& strFile)
 {
   std::string strFilename = URIUtils::GetFileName(strFile);
-  if (StringUtils::EqualsNoCase(strFilename, "video_ts.ifo")) return 0;
+  if (KODI::StringUtils::EqualsNoCase(strFilename, "video_ts.ifo")) return 0;
   //VTS_[TITLE]_0.IFO
   return atoi(strFilename.substr(4, 2).c_str());
 }
@@ -813,7 +813,7 @@ std::string CUtil::GetNextFilename(const std::string &fn_template, int max)
 {
   std::string searchPath = URIUtils::GetDirectory(fn_template);
   std::string mask = URIUtils::GetExtension(fn_template);
-  std::string name = StringUtils::Format(fn_template, 0);
+  std::string name = KODI::StringUtils::Format(fn_template, 0);
 
   CFileItemList items;
   if (!CDirectory::GetDirectory(searchPath, items, mask, DIR_FLAG_NO_FILE_DIRS))
@@ -822,7 +822,7 @@ std::string CUtil::GetNextFilename(const std::string &fn_template, int max)
   items.SetFastLookup(true);
   for (int i = 0; i <= max; i++)
   {
-    std::string name = StringUtils::Format(fn_template, i);
+    std::string name = KODI::StringUtils::Format(fn_template, i);
     if (!items.Get(name))
       return name;
   }
@@ -836,7 +836,7 @@ std::string CUtil::GetNextPathname(const std::string &path_template, int max)
 
   for (int i = 0; i <= max; i++)
   {
-    std::string name = StringUtils::Format(path_template, i);
+    std::string name = KODI::StringUtils::Format(path_template, i);
     if (!CFile::Exists(name) && !CDirectory::Exists(name))
       return name;
   }
@@ -1016,21 +1016,21 @@ bool CUtil::CreateDirectoryEx(const std::string& strPath)
 
 std::string CUtil::MakeLegalFileName(std::string strFile, int LegalType)
 {
-  StringUtils::Replace(strFile, '/', '_');
-  StringUtils::Replace(strFile, '\\', '_');
-  StringUtils::Replace(strFile, '?', '_');
+  KODI::StringUtils::Replace(strFile, '/', '_');
+  KODI::StringUtils::Replace(strFile, '\\', '_');
+  KODI::StringUtils::Replace(strFile, '?', '_');
 
   if (LegalType == LEGAL_WIN32_COMPAT)
   {
     // just filter out some illegal characters on windows
-    StringUtils::Replace(strFile, ':', '_');
-    StringUtils::Replace(strFile, '*', '_');
-    StringUtils::Replace(strFile, '?', '_');
-    StringUtils::Replace(strFile, '\"', '_');
-    StringUtils::Replace(strFile, '<', '_');
-    StringUtils::Replace(strFile, '>', '_');
-    StringUtils::Replace(strFile, '|', '_');
-    StringUtils::TrimRight(strFile, ". ");
+    KODI::StringUtils::Replace(strFile, ':', '_');
+    KODI::StringUtils::Replace(strFile, '*', '_');
+    KODI::StringUtils::Replace(strFile, '?', '_');
+    KODI::StringUtils::Replace(strFile, '\"', '_');
+    KODI::StringUtils::Replace(strFile, '<', '_');
+    KODI::StringUtils::Replace(strFile, '>', '_');
+    KODI::StringUtils::Replace(strFile, '|', '_');
+    KODI::StringUtils::TrimRight(strFile, ". ");
   }
   return strFile;
 }
@@ -1068,19 +1068,19 @@ std::string CUtil::ValidatePath(std::string path, bool bFixDoubleSlashes /* = fa
   // recurse and crash XBMC
   if (URIUtils::IsURL(path) &&
       (path.find('%') != std::string::npos ||
-      StringUtils::StartsWithNoCase(path, "apk:") ||
-      StringUtils::StartsWithNoCase(path, "zip:") ||
-      StringUtils::StartsWithNoCase(path, "rar:") ||
-      StringUtils::StartsWithNoCase(path, "stack:") ||
-      StringUtils::StartsWithNoCase(path, "bluray:") ||
-      StringUtils::StartsWithNoCase(path, "multipath:") ))
+      KODI::StringUtils::StartsWithNoCase(path, "apk:") ||
+      KODI::StringUtils::StartsWithNoCase(path, "zip:") ||
+      KODI::StringUtils::StartsWithNoCase(path, "rar:") ||
+      KODI::StringUtils::StartsWithNoCase(path, "stack:") ||
+      KODI::StringUtils::StartsWithNoCase(path, "bluray:") ||
+      KODI::StringUtils::StartsWithNoCase(path, "multipath:") ))
     return path;
 
     // check the path for incorrect slashes
 #ifdef TARGET_WINDOWS
   if (URIUtils::IsDOSPath(path))
   {
-    StringUtils::Replace(path, '/', '\\');
+    KODI::StringUtils::Replace(path, '/', '\\');
     /* The double slash correction should only be used when *absolutely*
        necessary! This applies to certain DLLs or use from Python DLLs/scripts
        that incorrectly generate double (back) slashes.
@@ -1098,7 +1098,7 @@ std::string CUtil::ValidatePath(std::string path, bool bFixDoubleSlashes /* = fa
   else if (path.find("://") != std::string::npos || path.find(":\\\\") != std::string::npos)
 #endif
   {
-    StringUtils::Replace(path, '\\', '/');
+    KODI::StringUtils::Replace(path, '\\', '/');
     /* The double slash correction should only be used when *absolutely*
        necessary! This applies to certain DLLs or use from Python DLLs/scripts
        that incorrectly generate double (back) slashes.
@@ -1224,7 +1224,7 @@ int CUtil::GetMatchingSource(const std::string& strPath1, VECSOURCES& VECSOURCES
   // Check for special protocols
   CURL checkURL(strPath);
 
-  if (StringUtils::StartsWith(strPath, "special://skin/"))
+  if (KODI::StringUtils::StartsWith(strPath, "special://skin/"))
     return 1;
 
   // do not return early if URL protocol is "plugin"
@@ -1262,7 +1262,7 @@ int CUtil::GetMatchingSource(const std::string& strPath1, VECSOURCES& VECSOURCES
       if (iPos != std::string::npos && iPos > 1)
         strName.resize(iPos - 1);
     }
-    if (StringUtils::EqualsNoCase(strPath, strName))
+    if (KODI::StringUtils::EqualsNoCase(strPath, strName))
     {
       bIsSourceName = true;
       return i;
@@ -1319,7 +1319,7 @@ int CUtil::GetMatchingSource(const std::string& strPath1, VECSOURCES& VECSOURCES
         strShare += "/";
       size_t iLenShare = strShare.size();
 
-      if ((iLenPath >= iLenShare) && StringUtils::StartsWithNoCase(strDest, strShare) && (iLenShare > iLength))
+      if ((iLenPath >= iLenShare) && KODI::StringUtils::StartsWithNoCase(strDest, strShare) && (iLenShare > iLength))
       {
         // if exact match, return it immediately
         if (iLenPath == iLenShare)
@@ -1343,7 +1343,7 @@ int CUtil::GetMatchingSource(const std::string& strPath1, VECSOURCES& VECSOURCES
 
     // rar:// and zip://
     // if archive wasn't mounted, look for a matching share for the archive instead
-    if( StringUtils::StartsWithNoCase(strPath, "rar://") || StringUtils::StartsWithNoCase(strPath, "zip://") )
+    if( KODI::StringUtils::StartsWithNoCase(strPath, "rar://") || KODI::StringUtils::StartsWithNoCase(strPath, "zip://") )
     {
       // get the hostname portion of the url since it contains the archive file
       strPath = checkURL.GetHostName();
@@ -1362,28 +1362,28 @@ std::string CUtil::TranslateSpecialSource(const std::string &strSpecial)
 {
   if (!strSpecial.empty() && strSpecial[0] == '$')
   {
-    if (StringUtils::StartsWithNoCase(strSpecial, "$home"))
+    if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$home"))
       return URIUtils::AddFileToFolder("special://home/", strSpecial.substr(5));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$subtitles"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$subtitles"))
       return URIUtils::AddFileToFolder("special://subtitles/", strSpecial.substr(10));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$userdata"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$userdata"))
       return URIUtils::AddFileToFolder("special://userdata/", strSpecial.substr(9));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$database"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$database"))
       return URIUtils::AddFileToFolder("special://database/", strSpecial.substr(9));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$thumbnails"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$thumbnails"))
       return URIUtils::AddFileToFolder("special://thumbnails/", strSpecial.substr(11));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$recordings"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$recordings"))
       return URIUtils::AddFileToFolder("special://recordings/", strSpecial.substr(11));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$screenshots"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$screenshots"))
       return URIUtils::AddFileToFolder("special://screenshots/", strSpecial.substr(12));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$musicplaylists"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$musicplaylists"))
       return URIUtils::AddFileToFolder("special://musicplaylists/", strSpecial.substr(15));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$videoplaylists"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$videoplaylists"))
       return URIUtils::AddFileToFolder("special://videoplaylists/", strSpecial.substr(15));
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$cdrips"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$cdrips"))
       return URIUtils::AddFileToFolder("special://cdrips/", strSpecial.substr(7));
     // this one will be removed post 2.0
-    else if (StringUtils::StartsWithNoCase(strSpecial, "$playlists"))
+    else if (KODI::StringUtils::StartsWithNoCase(strSpecial, "$playlists"))
       return URIUtils::AddFileToFolder(CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(CSettings::SETTING_SYSTEM_PLAYLISTSPATH), strSpecial.substr(10));
   }
   return strSpecial;
@@ -1431,7 +1431,7 @@ void CUtil::DeleteDirectoryCache(const std::string &prefix)
     if (item->m_bIsFolder)
       continue;
     std::string fileName = URIUtils::GetFileName(item->GetPath());
-    if (StringUtils::StartsWith(fileName, prefix))
+    if (KODI::StringUtils::StartsWith(fileName, prefix))
       XFILE::CFile::Delete(item->GetPath());
   }
 }
@@ -1480,17 +1480,17 @@ double CUtil::AlbumRelevance(const std::string& strAlbumTemp1, const std::string
   // weighting is identical, both album and artist are 50% of the total relevance
   // a missing artist means the maximum relevance can only be 0.50
   std::string strAlbumTemp = strAlbumTemp1;
-  StringUtils::ToLower(strAlbumTemp);
+  KODI::StringUtils::ToLower(strAlbumTemp);
   std::string strAlbum = strAlbum1;
-  StringUtils::ToLower(strAlbum);
+  KODI::StringUtils::ToLower(strAlbum);
   double fAlbumPercentage = fstrcmp(strAlbumTemp.c_str(), strAlbum.c_str());
   double fArtistPercentage = 0.0;
   if (!strArtist1.empty())
   {
     std::string strArtistTemp = strArtistTemp1;
-    StringUtils::ToLower(strArtistTemp);
+    KODI::StringUtils::ToLower(strArtistTemp);
     std::string strArtist = strArtist1;
-    StringUtils::ToLower(strArtist);
+    KODI::StringUtils::ToLower(strArtist);
     fArtistPercentage = fstrcmp(strArtistTemp.c_str(), strArtist.c_str());
   }
   double fRelevance = fAlbumPercentage * 0.5 + fArtistPercentage * 0.5;
@@ -1543,9 +1543,9 @@ bool CUtil::MakeShortenPath(std::string StrInput, std::string& StrOutput, size_t
     iStrInputSize = StrInput.size();
   }
   // replace any additional /../../ with just /../ if necessary
-  std::string replaceDots = StringUtils::Format("..{}..", cDelim);
+  std::string replaceDots = KODI::StringUtils::Format("..{}..", cDelim);
   while (StrInput.size() > (unsigned int)iTextMaxLength)
-    if (!StringUtils::Replace(StrInput, replaceDots, ".."))
+    if (!KODI::StringUtils::Replace(StrInput, replaceDots, ".."))
       break;
   // finally, truncate our string to force inside our max text length,
   // replacing the last 2 characters with ".."
@@ -1585,7 +1585,7 @@ bool CUtil::SupportsWriteFileOperations(const std::string& strPath)
     for (const auto& addon : CServiceBroker::GetVFSAddonCache().GetAddonInstances())
     {
       const auto& info = addon->GetProtocolInfo();
-      auto prots = StringUtils::Split(info.type, "|");
+      auto prots = KODI::StringUtils::Split(info.type, "|");
       if (info.supportWrite &&
           std::find(prots.begin(), prots.end(), url.GetProtocol()) != prots.end())
         return true;
@@ -1621,8 +1621,8 @@ void CUtil::GetSkinThemes(std::vector<std::string>& vecTheme)
     {
       std::string strExtension = URIUtils::GetExtension(pItem->GetPath());
       std::string strLabel = pItem->GetLabel();
-      if ((strExtension == ".xbt" && !StringUtils::EqualsNoCase(strLabel, TexturesXbt)))
-        vecTheme.push_back(StringUtils::Left(strLabel, strLabel.size() - strExtension.size()));
+      if ((strExtension == ".xbt" && !KODI::StringUtils::EqualsNoCase(strLabel, TexturesXbt)))
+        vecTheme.push_back(KODI::StringUtils::Left(strLabel, strLabel.size() - strExtension.size()));
     }
     else
     {
@@ -1632,11 +1632,11 @@ void CUtil::GetSkinThemes(std::vector<std::string>& vecTheme)
         continue;
 
       std::string strLabel = URIUtils::GetFileName(itemUrl.GetHostName());
-      if (!StringUtils::EqualsNoCase(strLabel, TexturesXbt))
-        vecTheme.push_back(StringUtils::Left(strLabel, strLabel.size() - URIUtils::GetExtension(strLabel).size()));
+      if (!KODI::StringUtils::EqualsNoCase(strLabel, TexturesXbt))
+        vecTheme.push_back(KODI::StringUtils::Left(strLabel, strLabel.size() - URIUtils::GetExtension(strLabel).size()));
     }
   }
-  std::sort(vecTheme.begin(), vecTheme.end(), sortstringbyname());
+  std::sort(vecTheme.begin(), vecTheme.end(), KODI::sortstringbyname());
 }
 
 void CUtil::InitRandomSeed()
@@ -1651,7 +1651,7 @@ void CUtil::InitRandomSeed()
 #if defined(TARGET_POSIX) && !defined(TARGET_DARWIN_TVOS)
 bool CUtil::RunCommandLine(const std::string& cmdLine, bool waitExit)
 {
-  std::vector<std::string> args = StringUtils::Split(cmdLine, ",");
+  std::vector<std::string> args = KODI::StringUtils::Split(cmdLine, ",");
 
   // Strip quotes and whitespace around the arguments, or exec will fail.
   // This allows the python invocation to be written more naturally with any amount of whitespace around the args.
@@ -1868,7 +1868,7 @@ std::string CUtil::ResolveExecutablePath()
 
   std::string appName = CCompileInfo::GetAppName();
   std::string libName = "lib" + appName + ".so";
-  StringUtils::ToLower(libName);
+  KODI::StringUtils::ToLower(libName);
   strExecutablePath += "/" + libName;
 #else
   /* Get our PID and build the name of the link in /proc */
@@ -1939,7 +1939,7 @@ void CUtil::GetItemsToScan(const std::string& videoPath,
   {
     for (const auto& subdir : sub_dirs)
     {
-      if (StringUtils::EqualsNoCase(item->GetLabel(), subdir))
+      if (KODI::StringUtils::EqualsNoCase(item->GetLabel(), subdir))
         additionalPaths.push_back(item->GetPath());
     }
   }
@@ -1971,7 +1971,7 @@ void CUtil::ScanPathsForAssociatedItems(const std::string& videoName,
 
     URIUtils::RemoveExtension(strCandidate);
     // NOTE: We don't know if one of videoName or strCandidate is URL-encoded and the other is not, so try both
-    if (StringUtils::StartsWithNoCase(strCandidate, videoName) || (StringUtils::StartsWithNoCase(strCandidate, CURL::Decode(videoName))))
+    if (KODI::StringUtils::StartsWithNoCase(strCandidate, videoName) || (KODI::StringUtils::StartsWithNoCase(strCandidate, CURL::Decode(videoName))))
     {
       if (URIUtils::IsRAR(pItem->GetPath()) || URIUtils::IsZIP(pItem->GetPath()))
         CUtil::ScanArchiveForAssociatedItems(pItem->GetPath(), "", item_exts, associatedFiles);
@@ -2031,13 +2031,13 @@ int CUtil::ScanArchiveForAssociatedItems(const std::string& strArchivePath,
     size_t fnl = videoNameNoExt.size();
     // NOTE: We don't know if videoNameNoExt is URL-encoded, so try both
     if (fnl &&
-      !(StringUtils::StartsWithNoCase(URIUtils::GetFileName(strPathInRar), videoNameNoExt) ||
-        StringUtils::StartsWithNoCase(URIUtils::GetFileName(strPathInRar), CURL::Decode(videoNameNoExt))))
+      !(KODI::StringUtils::StartsWithNoCase(URIUtils::GetFileName(strPathInRar), videoNameNoExt) ||
+        KODI::StringUtils::StartsWithNoCase(URIUtils::GetFileName(strPathInRar), CURL::Decode(videoNameNoExt))))
       continue;
 
     for (const auto& ext : item_exts)
     {
-      if (StringUtils::EqualsNoCase(strExt, ext))
+      if (KODI::StringUtils::EqualsNoCase(strExt, ext))
       {
         CLog::Log(LOGINFO, "{}: found associated file {}", __FUNCTION__,
                   CURL::GetRedacted(strPathInRar));
@@ -2107,7 +2107,7 @@ void CUtil::ScanForExternalSubtitles(const std::string& strMovie, std::vector<st
     items.Append(moreItems);
   }
 
-  std::vector<std::string> exts = StringUtils::Split(subtitleExtensions, '|');
+  std::vector<std::string> exts = KODI::StringUtils::Split(subtitleExtensions, '|');
   exts.erase(std::remove(exts.begin(), exts.end(), ".zip"), exts.end());
   exts.erase(std::remove(exts.begin(), exts.end(), ".rar"), exts.end());
 
@@ -2129,7 +2129,7 @@ void CUtil::ScanForExternalSubtitles(const std::string& strMovie, std::vector<st
           for (const auto &lang : TagConv.m_Langclass)
           {
             std::string strDest =
-                StringUtils::Format("special://temp/subtitle.{}.{}.smi", lang.Name, i);
+                KODI::StringUtils::Format("special://temp/subtitle.{}.{}.smi", lang.Name, i);
             if (CFile::Copy(vecSubtitles[i], strDest))
             {
               CLog::Log(LOGINFO, " cached subtitle {}->{}", CURL::GetRedacted(vecSubtitles[i]),
@@ -2158,7 +2158,7 @@ ExternalStreamInfo CUtil::GetExternalStreamDetailsFromFilename(const std::string
   URIUtils::RemoveExtension(toParse);
 
   // we check left part - if it's same as video base name - strip it
-  if (StringUtils::StartsWithNoCase(toParse, videoBaseName))
+  if (KODI::StringUtils::StartsWithNoCase(toParse, videoBaseName))
     toParse = toParse.substr(videoBaseName.length());
   else if (URIUtils::GetExtension(associatedFile) == ".sub" && URIUtils::IsInArchive(associatedFile))
   {
@@ -2169,7 +2169,7 @@ ExternalStreamInfo CUtil::GetExternalStreamDetailsFromFilename(const std::string
   }
 
   // trim any non-alphanumeric char in the beginning
-  std::string::iterator result = std::find_if(toParse.begin(), toParse.end(), StringUtils::isasciialphanum);
+  std::string::iterator result = std::find_if(toParse.begin(), toParse.end(), KODI::StringUtils::isasciialphanum);
 
   std::string name;
   if (result != toParse.end()) // if we have anything to parse
@@ -2177,13 +2177,13 @@ ExternalStreamInfo CUtil::GetExternalStreamDetailsFromFilename(const std::string
     std::string inputString(result, toParse.end());
     std::string delimiters(" .-");
     std::vector<std::string> tokens;
-    StringUtils::Tokenize(inputString, tokens, delimiters);
+    KODI::StringUtils::Tokenize(inputString, tokens, delimiters);
 
     for (auto it = tokens.rbegin(); it != tokens.rend(); ++it)
     {
       // try to recognize a flag
       std::string flag_tmp(*it);
-      StringUtils::ToLower(flag_tmp);
+      KODI::StringUtils::ToLower(flag_tmp);
       if (!flag_tmp.compare("none"))
       {
         info.flag |= StreamFlags::FLAG_NONE;
@@ -2216,8 +2216,8 @@ ExternalStreamInfo CUtil::GetExternalStreamDetailsFromFilename(const std::string
   }
   name += " ";
   name += g_localizeStrings.Get(21602); // External
-  StringUtils::Trim(name);
-  info.name = StringUtils::RemoveDuplicatedSpacesAndTabs(name);
+  KODI::StringUtils::Trim(name);
+  info.name = KODI::StringUtils::RemoveDuplicatedSpacesAndTabs(name);
   if (info.flag == 0)
     info.flag = StreamFlags::FLAG_NONE;
 
@@ -2247,7 +2247,7 @@ bool CUtil::FindVobSubPair(const std::vector<std::string>& vecSubtitles, const s
           (URIUtils::PathEquals(URIUtils::ReplaceExtension(strIdxPath,""),
                                 URIUtils::ReplaceExtension(subtitlePath,"")) ||
            (strSubDirectory.size() >= 11 &&
-            StringUtils::EqualsNoCase(strSubDirectory.substr(6, strSubDirectory.length()-11), URIUtils::ReplaceExtension(strIdxPath,"")))))
+            KODI::StringUtils::EqualsNoCase(strSubDirectory.substr(6, strSubDirectory.length()-11), URIUtils::ReplaceExtension(strIdxPath,"")))))
       {
         strSubPath = subtitlePath;
         return true;
@@ -2277,7 +2277,7 @@ bool CUtil::IsVobSub(const std::vector<std::string>& vecSubtitles, const std::st
           (URIUtils::PathEquals(URIUtils::ReplaceExtension(subtitlePath,""),
                                 URIUtils::ReplaceExtension(strSubPath,"")) ||
            (strSubDirectory.size() >= 11 &&
-            StringUtils::EqualsNoCase(strSubDirectory.substr(6, strSubDirectory.length()-11), URIUtils::ReplaceExtension(subtitlePath,"")))))
+            KODI::StringUtils::EqualsNoCase(strSubDirectory.substr(6, strSubDirectory.length()-11), URIUtils::ReplaceExtension(subtitlePath,"")))))
         return true;
     }
   }
@@ -2359,7 +2359,7 @@ void CUtil::ScanForExternalAudio(const std::string& videoPath, std::vector<std::
   const std::vector<std::string> common_sub_dirs = { "audio", "tracks"};
   GetItemsToScan(strBasePath, CServiceBroker::GetFileExtensionProvider().GetMusicExtensions(), common_sub_dirs, items);
 
-  std::vector<std::string> exts = StringUtils::Split(CServiceBroker::GetFileExtensionProvider().GetMusicExtensions(), "|");
+  std::vector<std::string> exts = KODI::StringUtils::Split(CServiceBroker::GetFileExtensionProvider().GetMusicExtensions(), "|");
 
   CVideoDatabase database;
   database.Open();

@@ -145,7 +145,7 @@ bool CVideoThumbLoader::IsValidArtType(const std::string& potentialArtType)
   return !potentialArtType.empty() && potentialArtType.length() <= 25 &&
     std::find_if_not(
       potentialArtType.begin(), potentialArtType.end(),
-      StringUtils::isasciialphanum
+      KODI::StringUtils::isasciialphanum
     ) == potentialArtType.end();
 }
 
@@ -154,7 +154,7 @@ bool CVideoThumbLoader::IsArtTypeInWhitelist(const std::string& artType, const s
   // whitelist contains art "families", 'fanart' also matches 'fanart1', 'fanart2', and so on
   std::string compareArtType = artType;
   if (!exact)
-    StringUtils::TrimRight(compareArtType, "0123456789");
+    KODI::StringUtils::TrimRight(compareArtType, "0123456789");
 
   return std::find(whitelist.begin(), whitelist.end(), compareArtType) != whitelist.end();
 }
@@ -373,7 +373,7 @@ bool CVideoThumbLoader::FillLibraryArt(CFileItem &item)
     {
       // Musicvideo album - try to match album in music db on artist(s) and album name.
       // Get review if available and save the matching music library album id.
-      std::string strArtist = StringUtils::Join(
+      std::string strArtist = KODI::StringUtils::Join(
           tag.m_artist,
           CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
       std::string strReview;
@@ -566,7 +566,7 @@ std::string CVideoThumbLoader::GetEmbeddedThumbURL(const CFileItem &item)
 void CVideoThumbLoader::DetectAndAddMissingItemData(CFileItem &item)
 {
   // @todo remove exception for hybrid movie/folder of versions
-  if (item.m_bIsFolder && !StringUtils::StartsWith(item.GetPath(), VIDEODB_PATH_VERSION_ID_ALL))
+  if (item.m_bIsFolder && !KODI::StringUtils::StartsWith(item.GetPath(), VIDEODB_PATH_VERSION_ID_ALL))
     return;
 
   if (item.HasVideoInfoTag())

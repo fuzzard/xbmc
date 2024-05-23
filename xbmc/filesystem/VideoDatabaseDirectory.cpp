@@ -178,13 +178,13 @@ void CVideoDatabaseDirectory::ClearDirectoryCache(const std::string& strDirector
 
   uint32_t crc = Crc32::ComputeFromLowerCase(path);
 
-  std::string strFileName = StringUtils::Format("special://temp/archive_cache/{:08x}.fi", crc);
+  std::string strFileName = KODI::StringUtils::Format("special://temp/archive_cache/{:08x}.fi", crc);
   CFile::Delete(strFileName);
 }
 
 bool CVideoDatabaseDirectory::IsAllItem(const std::string& strDirectory)
 {
-  if (StringUtils::EndsWith(strDirectory, "/-1/"))
+  if (KODI::StringUtils::EndsWith(strDirectory, "/-1/"))
     return true;
   return false;
 }

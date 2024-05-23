@@ -33,7 +33,7 @@ bool ParseSettingIdentifier(const std::string& settingId, std::string& categoryT
   if (settingId.empty())
     return false;
 
-  auto parts = StringUtils::Split(settingId, Separator);
+  auto parts = KODI::StringUtils::Split(settingId, Separator);
   if (parts.size() < 1 || parts.at(0).empty())
     return false;
 
@@ -48,7 +48,7 @@ bool ParseSettingIdentifier(const std::string& settingId, std::string& categoryT
   parts.erase(parts.begin());
 
   // put together the setting tag
-  settingTag = StringUtils::Join(parts, Separator);
+  settingTag = KODI::StringUtils::Join(parts, Separator);
 
   return true;
 }
@@ -85,7 +85,7 @@ bool CSettingsManager::Initialize(const TiXmlElement *root)
   if (m_initialized || root == nullptr)
     return false;
 
-  if (!StringUtils::EqualsNoCase(root->ValueStr(), SETTING_XML_ROOT))
+  if (!KODI::StringUtils::EqualsNoCase(root->ValueStr(), SETTING_XML_ROOT))
   {
     m_logger->error("error reading settings definition: doesn't contain <" SETTING_XML_ROOT
                     "> tag");
@@ -552,7 +552,7 @@ SettingSectionPtr CSettingsManager::GetSection(std::string section) const
   if (section.empty())
     return nullptr;
 
-  StringUtils::ToLower(section);
+  KODI::StringUtils::ToLower(section);
 
   auto sectionIt = m_sections.find(section);
   if (sectionIt != m_sections.end())
@@ -941,9 +941,9 @@ void CSettingsManager::OnSettingPropertyChanged(const std::shared_ptr<const CSet
   // check the changed property and if it may have an influence on the
   // children of the setting
   SettingDependencyType dependencyType = SettingDependencyType::Unknown;
-  if (StringUtils::EqualsNoCase(propertyName, "enabled"))
+  if (KODI::StringUtils::EqualsNoCase(propertyName, "enabled"))
     dependencyType = SettingDependencyType::Enable;
-  else if (StringUtils::EqualsNoCase(propertyName, "visible"))
+  else if (KODI::StringUtils::EqualsNoCase(propertyName, "visible"))
     dependencyType = SettingDependencyType::Visible;
 
   if (dependencyType != SettingDependencyType::Unknown)
@@ -955,21 +955,21 @@ void CSettingsManager::OnSettingPropertyChanged(const std::shared_ptr<const CSet
 
 SettingPtr CSettingsManager::CreateSetting(const std::string &settingType, const std::string &settingId, CSettingsManager *settingsManager /* = nullptr */) const
 {
-  if (StringUtils::EqualsNoCase(settingType, "boolean"))
+  if (KODI::StringUtils::EqualsNoCase(settingType, "boolean"))
     return std::make_shared<CSettingBool>(settingId, const_cast<CSettingsManager*>(this));
-  else if (StringUtils::EqualsNoCase(settingType, "integer"))
+  else if (KODI::StringUtils::EqualsNoCase(settingType, "integer"))
     return std::make_shared<CSettingInt>(settingId, const_cast<CSettingsManager*>(this));
-  else if (StringUtils::EqualsNoCase(settingType, "number"))
+  else if (KODI::StringUtils::EqualsNoCase(settingType, "number"))
     return std::make_shared<CSettingNumber>(settingId, const_cast<CSettingsManager*>(this));
-  else if (StringUtils::EqualsNoCase(settingType, "string"))
+  else if (KODI::StringUtils::EqualsNoCase(settingType, "string"))
     return std::make_shared<CSettingString>(settingId, const_cast<CSettingsManager*>(this));
-  else if (StringUtils::EqualsNoCase(settingType, "action"))
+  else if (KODI::StringUtils::EqualsNoCase(settingType, "action"))
     return std::make_shared<CSettingAction>(settingId, const_cast<CSettingsManager*>(this));
   else if (settingType.size() > 6 &&
-           StringUtils::StartsWith(settingType, "list[") &&
-           StringUtils::EndsWith(settingType, "]"))
+           KODI::StringUtils::StartsWith(settingType, "list[") &&
+           KODI::StringUtils::EndsWith(settingType, "]"))
   {
-    std::string elementType = StringUtils::Mid(settingType, 5, settingType.size() - 6);
+    std::string elementType = KODI::StringUtils::Mid(settingType, 5, settingType.size() - 6);
     SettingPtr elementSetting = CreateSetting(elementType, settingId + ".definition", const_cast<CSettingsManager*>(this));
     if (elementSetting != nullptr)
       return std::make_shared<CSettingList>(settingId, elementSetting, const_cast<CSettingsManager*>(this));
@@ -1094,9 +1094,9 @@ bool CSettingsManager::LoadSetting(const TiXmlNode* node, const SettingPtr& sett
 
   // check if the default="true" attribute is set for the value
   auto isDefaultAttribute = settingElement->Attribute(SETTING_XML_ELM_DEFAULT);
-  bool isDefault = isDefaultAttribute != nullptr && StringUtils::EqualsNoCase(isDefaultAttribute, "true");
+  bool isDefault = isDefaultAttribute != nullptr && KODI::StringUtils::EqualsNoCase(isDefaultAttribute, "true");
 
-  if (!setting->FromString(settingElement->FirstChild() != nullptr ? settingElement->FirstChild()->ValueStr() : StringUtils::Empty))
+  if (!setting->FromString(settingElement->FirstChild() != nullptr ? settingElement->FirstChild()->ValueStr() : KODI::StringUtils::Empty))
   {
     m_logger->warn("unable to read value of setting \"{}\"", settingId);
     return false;
@@ -1147,7 +1147,7 @@ bool CSettingsManager::UpdateSetting(const TiXmlNode* node,
     if (oldSettingNode == nullptr)
       return false;
 
-    if (setting->FromString(oldSettingNode->FirstChild() != nullptr ? oldSettingNode->FirstChild()->ValueStr() : StringUtils::Empty))
+    if (setting->FromString(oldSettingNode->FirstChild() != nullptr ? oldSettingNode->FirstChild()->ValueStr() : KODI::StringUtils::Empty))
       updated = true;
     else
       m_logger->warn("unable to update \"{}\" through automatically renaming from \"{}\"",
@@ -1438,18 +1438,18 @@ void CSettingsManager::ResolveSettingDependencies(const Setting& setting)
 
 CSettingsManager::SettingMap::const_iterator CSettingsManager::FindSetting(std::string settingId) const
 {
-  StringUtils::ToLower(settingId);
+  KODI::StringUtils::ToLower(settingId);
   return m_settings.find(settingId);
 }
 
 CSettingsManager::SettingMap::iterator CSettingsManager::FindSetting(std::string settingId)
 {
-  StringUtils::ToLower(settingId);
+  KODI::StringUtils::ToLower(settingId);
   return m_settings.find(settingId);
 }
 
 std::pair<CSettingsManager::SettingMap::iterator, bool> CSettingsManager::InsertSetting(std::string settingId, const Setting& setting)
 {
-  StringUtils::ToLower(settingId);
+  KODI::StringUtils::ToLower(settingId);
   return m_settings.insert(std::make_pair(settingId, setting));
 }

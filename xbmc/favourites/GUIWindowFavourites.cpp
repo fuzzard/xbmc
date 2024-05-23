@@ -63,7 +63,7 @@ protected:
   {
     // part numbers are 1-based
     FAVOURITES_UTILS::ExecuteAction(
-        {"PlayMedia", *m_item, StringUtils::Format("playoffset={}", part - 1)});
+        {"PlayMedia", *m_item, KODI::StringUtils::Format("playoffset={}", part - 1)});
     return true;
   }
 
@@ -183,7 +183,7 @@ bool CGUIWindowFavourites::OnAction(const CAction& action)
       {
         // build a playmedia execute string for given target
         target = CFavouritesURL{CFavouritesURL::Action::PLAY_MEDIA,
-                                {StringUtils::Paramify(item->GetPath())}};
+                                {KODI::StringUtils::Paramify(item->GetPath())}};
       }
       return FAVOURITES_UTILS::ExecuteAction(target);
     }

@@ -124,7 +124,7 @@ JSONRPC_STATUS CProfilesOperations::LoadProfile(const std::string &method, ITran
       md5pword2 = password;
 
     // Verify provided password
-    if (StringUtils::EqualsNoCase(strToVerify, md5pword2))
+    if (KODI::StringUtils::EqualsNoCase(strToVerify, md5pword2))
       bLoadProfile = true;
   }
 

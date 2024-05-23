@@ -109,7 +109,7 @@ static const ControlMapping controls[] = {
 CGUIControl::GUICONTROLTYPES CGUIControlFactory::TranslateControlType(const std::string& type)
 {
   for (const ControlMapping& control : controls)
-    if (StringUtils::EqualsNoCase(type, control.name))
+    if (KODI::StringUtils::EqualsNoCase(type, control.name))
       return control.type;
   return CGUIControl::GUICONTROL_UNKNOWN;
 }
@@ -216,7 +216,7 @@ bool CGUIControlFactory::GetDimension(const TiXmlNode* pRootNode,
   const TiXmlElement* pNode = pRootNode->FirstChildElement(strTag);
   if (!pNode || !pNode->FirstChild())
     return false;
-  if (0 == StringUtils::CompareNoCase("auto", pNode->FirstChild()->Value(), 4))
+  if (0 == KODI::StringUtils::CompareNoCase("auto", pNode->FirstChild()->Value(), 4))
   { // auto-width - at least min must be set
     value = ParsePosition(pNode->Attribute("max"), parentSize);
     min = ParsePosition(pNode->Attribute("min"), parentSize);
@@ -327,42 +327,42 @@ bool CGUIControlFactory::GetAspectRatio(const TiXmlNode* pRootNode,
     return false;
 
   ratio = node->FirstChild()->Value();
-  if (StringUtils::EqualsNoCase(ratio, "keep"))
+  if (KODI::StringUtils::EqualsNoCase(ratio, "keep"))
     aspect.ratio = CAspectRatio::AR_KEEP;
-  else if (StringUtils::EqualsNoCase(ratio, "scale"))
+  else if (KODI::StringUtils::EqualsNoCase(ratio, "scale"))
     aspect.ratio = CAspectRatio::AR_SCALE;
-  else if (StringUtils::EqualsNoCase(ratio, "center"))
+  else if (KODI::StringUtils::EqualsNoCase(ratio, "center"))
     aspect.ratio = CAspectRatio::AR_CENTER;
-  else if (StringUtils::EqualsNoCase(ratio, "stretch"))
+  else if (KODI::StringUtils::EqualsNoCase(ratio, "stretch"))
     aspect.ratio = CAspectRatio::AR_STRETCH;
 
   const char* attribute = node->Attribute("align");
   if (attribute)
   {
     std::string align(attribute);
-    if (StringUtils::EqualsNoCase(align, "center"))
+    if (KODI::StringUtils::EqualsNoCase(align, "center"))
       aspect.align = ASPECT_ALIGN_CENTER | (aspect.align & ASPECT_ALIGNY_MASK);
-    else if (StringUtils::EqualsNoCase(align, "right"))
+    else if (KODI::StringUtils::EqualsNoCase(align, "right"))
       aspect.align = ASPECT_ALIGN_RIGHT | (aspect.align & ASPECT_ALIGNY_MASK);
-    else if (StringUtils::EqualsNoCase(align, "left"))
+    else if (KODI::StringUtils::EqualsNoCase(align, "left"))
       aspect.align = ASPECT_ALIGN_LEFT | (aspect.align & ASPECT_ALIGNY_MASK);
   }
   attribute = node->Attribute("aligny");
   if (attribute)
   {
     std::string align(attribute);
-    if (StringUtils::EqualsNoCase(align, "center"))
+    if (KODI::StringUtils::EqualsNoCase(align, "center"))
       aspect.align = ASPECT_ALIGNY_CENTER | (aspect.align & ASPECT_ALIGN_MASK);
-    else if (StringUtils::EqualsNoCase(align, "bottom"))
+    else if (KODI::StringUtils::EqualsNoCase(align, "bottom"))
       aspect.align = ASPECT_ALIGNY_BOTTOM | (aspect.align & ASPECT_ALIGN_MASK);
-    else if (StringUtils::EqualsNoCase(align, "top"))
+    else if (KODI::StringUtils::EqualsNoCase(align, "top"))
       aspect.align = ASPECT_ALIGNY_TOP | (aspect.align & ASPECT_ALIGN_MASK);
   }
   attribute = node->Attribute("scalediffuse");
   if (attribute)
   {
     std::string scale(attribute);
-    if (StringUtils::EqualsNoCase(scale, "true") || StringUtils::EqualsNoCase(scale, "yes"))
+    if (KODI::StringUtils::EqualsNoCase(scale, "true") || KODI::StringUtils::EqualsNoCase(scale, "yes"))
       aspect.scaleDiffuse = true;
     else
       aspect.scaleDiffuse = false;
@@ -394,19 +394,19 @@ bool CGUIControlFactory::GetTexture(const TiXmlNode* pRootNode,
   {
     GetRectFromString(border, image.border);
     const char* borderinfill = pNode->Attribute("infill");
-    image.m_infill = (!borderinfill || !StringUtils::EqualsNoCase(borderinfill, "false"));
+    image.m_infill = (!borderinfill || !KODI::StringUtils::EqualsNoCase(borderinfill, "false"));
   }
   image.orientation = 0;
   const char* flipX = pNode->Attribute("flipx");
-  if (flipX && StringUtils::CompareNoCase(flipX, "true") == 0)
+  if (flipX && KODI::StringUtils::CompareNoCase(flipX, "true") == 0)
     image.orientation = 1;
   const char* flipY = pNode->Attribute("flipy");
-  if (flipY && StringUtils::CompareNoCase(flipY, "true") == 0)
+  if (flipY && KODI::StringUtils::CompareNoCase(flipY, "true") == 0)
     image.orientation = 3 - image.orientation; // either 3 or 2
   image.diffuse = XMLUtils::GetAttribute(pNode, "diffuse");
   image.diffuseColor.Parse(XMLUtils::GetAttribute(pNode, "colordiffuse"), 0);
   const char* background = pNode->Attribute("background");
-  if (background && StringUtils::CompareNoCase(background, "true", 4) == 0)
+  if (background && KODI::StringUtils::CompareNoCase(background, "true", 4) == 0)
     image.useLarge = true;
   image.filename = pNode->FirstChild() ? pNode->FirstChild()->Value() : "";
   return true;
@@ -415,7 +415,7 @@ bool CGUIControlFactory::GetTexture(const TiXmlNode* pRootNode,
 void CGUIControlFactory::GetRectFromString(const std::string& string, CRect& rect)
 {
   // format is rect="left[,top,right,bottom]"
-  std::vector<std::string> strRect = StringUtils::Split(string, ',');
+  std::vector<std::string> strRect = KODI::StringUtils::Split(string, ',');
   if (strRect.size() == 1)
   {
     rect.x1 = (float)atof(strRect[0].c_str());
@@ -528,7 +528,7 @@ bool CGUIControlFactory::GetAnimations(TiXmlNode* control,
       CAnimation anim;
       anim.Create(node, rect, context);
       animations.push_back(anim);
-      if (StringUtils::CompareNoCase(node->FirstChild()->Value(), "VisibleChange") == 0)
+      if (KODI::StringUtils::CompareNoCase(node->FirstChild()->Value(), "VisibleChange") == 0)
       { // add the hidden one as well
         TiXmlElement hidden(*node);
         hidden.FirstChild()->SetValue("hidden");
@@ -659,9 +659,9 @@ bool CGUIControlFactory::GetInfoLabelFromElement(const TiXmlElement* element,
     return false;
 
   std::string fallback = XMLUtils::GetAttribute(element, "fallback");
-  if (StringUtils::IsNaturalNumber(label))
+  if (KODI::StringUtils::IsNaturalNumber(label))
     label = g_localizeStrings.Get(atoi(label.c_str()));
-  if (StringUtils::IsNaturalNumber(fallback))
+  if (KODI::StringUtils::IsNaturalNumber(fallback))
     fallback = g_localizeStrings.Get(atoi(fallback.c_str()));
   else
     g_charsetConverter.unknownToUTF8(fallback);
@@ -705,7 +705,7 @@ void CGUIControlFactory::GetInfoLabels(const TiXmlNode* pControlNode,
     {
       if (infoNode->FirstChild())
       {
-        std::string info = StringUtils::Format("$INFO[{}]", infoNode->FirstChild()->Value());
+        std::string info = KODI::StringUtils::Format("$INFO[{}]", infoNode->FirstChild()->Value());
         infoLabels.emplace_back(info, fallback, parentID);
       }
       infoNode = infoNode->NextSibling("info");
@@ -717,7 +717,7 @@ void CGUIControlFactory::GetInfoLabels(const TiXmlNode* pControlNode,
 std::string CGUIControlFactory::FilterLabel(const std::string& label)
 {
   std::string viewLabel = label;
-  if (StringUtils::IsNaturalNumber(viewLabel))
+  if (KODI::StringUtils::IsNaturalNumber(viewLabel))
     viewLabel = g_localizeStrings.Get(atoi(label.c_str()));
   else
     g_charsetConverter.unknownToUTF8(viewLabel);
@@ -730,7 +730,7 @@ bool CGUIControlFactory::GetString(const TiXmlNode* pRootNode,
 {
   if (!XMLUtils::GetString(pRootNode, strTag, text))
     return false;
-  if (StringUtils::IsNaturalNumber(text))
+  if (KODI::StringUtils::IsNaturalNumber(text))
     text = g_localizeStrings.Get(atoi(text.c_str()));
   return true;
 }
@@ -751,11 +751,11 @@ bool CGUIControlFactory::GetMovingSpeedConfig(const TiXmlNode* pRootNode,
   if (!msNode)
     return false;
 
-  float globalAccel{StringUtils::ToFloat(XMLUtils::GetAttribute(msNode, "acceleration"))};
-  float globalMaxVel{StringUtils::ToFloat(XMLUtils::GetAttribute(msNode, "maxvelocity"))};
+  float globalAccel{KODI::StringUtils::ToFloat(XMLUtils::GetAttribute(msNode, "acceleration"))};
+  float globalMaxVel{KODI::StringUtils::ToFloat(XMLUtils::GetAttribute(msNode, "maxvelocity"))};
   uint32_t globalResetTimeout{
-      StringUtils::ToUint32(XMLUtils::GetAttribute(msNode, "resettimeout"))};
-  float globalDelta{StringUtils::ToFloat(XMLUtils::GetAttribute(msNode, "delta"))};
+      KODI::StringUtils::ToUint32(XMLUtils::GetAttribute(msNode, "resettimeout"))};
+  float globalDelta{KODI::StringUtils::ToFloat(XMLUtils::GetAttribute(msNode, "delta"))};
 
   const TiXmlElement* configElement{msNode->FirstChildElement("eventconfig")};
   while (configElement)
@@ -768,17 +768,17 @@ bool CGUIControlFactory::GetMovingSpeedConfig(const TiXmlNode* pRootNode,
     }
 
     const char* accelerationStr{configElement->Attribute("acceleration")};
-    float acceleration = accelerationStr ? StringUtils::ToFloat(accelerationStr) : globalAccel;
+    float acceleration = accelerationStr ? KODI::StringUtils::ToFloat(accelerationStr) : globalAccel;
 
     const char* maxVelocityStr{configElement->Attribute("maxvelocity")};
-    float maxVelocity = maxVelocityStr ? StringUtils::ToFloat(maxVelocityStr) : globalMaxVel;
+    float maxVelocity = maxVelocityStr ? KODI::StringUtils::ToFloat(maxVelocityStr) : globalMaxVel;
 
     const char* resetTimeoutStr{configElement->Attribute("resettimeout")};
     uint32_t resetTimeout =
-        resetTimeoutStr ? StringUtils::ToUint32(resetTimeoutStr) : globalResetTimeout;
+        resetTimeoutStr ? KODI::StringUtils::ToUint32(resetTimeoutStr) : globalResetTimeout;
 
     const char* deltaStr{configElement->Attribute("delta")};
-    float delta = deltaStr ? StringUtils::ToFloat(deltaStr) : globalDelta;
+    float delta = deltaStr ? KODI::StringUtils::ToFloat(deltaStr) : globalDelta;
 
     UTILS::MOVING_SPEED::EventCfg eventCfg{acceleration, maxVelocity, resetTimeout, delta};
     movingSpeedCfg.emplace(UTILS::MOVING_SPEED::ParseEventType(eventType), eventCfg);
@@ -968,7 +968,7 @@ CGUIControl* CGUIControlFactory::Create(int parentID,
   if (XMLUtils::GetInt(pControlNode, "defaultcontrol", defaultControl))
   {
     const char* always = pControlNode->FirstChildElement("defaultcontrol")->Attribute("always");
-    if (always && StringUtils::CompareNoCase(always, "true", 4) == 0)
+    if (always && KODI::StringUtils::CompareNoCase(always, "true", 4) == 0)
       defaultAlways = true;
   }
   XMLUtils::GetInt(pControlNode, "pagecontrol", pageControl);
@@ -1077,7 +1077,7 @@ CGUIControl* CGUIControlFactory::Create(int parentID,
 
   if (XMLUtils::GetString(pControlNode, "subtype", strSubType))
   {
-    StringUtils::ToLower(strSubType);
+    KODI::StringUtils::ToLower(strSubType);
 
     if (strSubType == "int")
       iType = SPIN_CONTROL_TYPE_INT;
@@ -1121,7 +1121,7 @@ CGUIControl* CGUIControlFactory::Create(int parentID,
 
   if (XMLUtils::GetString(pControlNode, "orientation", strTmp))
   {
-    StringUtils::ToLower(strTmp);
+    KODI::StringUtils::ToLower(strTmp);
     if (strTmp == "horizontal")
       orientation = HORIZONTAL;
   }

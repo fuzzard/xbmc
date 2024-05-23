@@ -68,7 +68,7 @@ void CAlbum::SetArtistCredits(const std::vector<std::string>& names, const std::
 {
   std::vector<std::string> albumartistHints = hints;
   //Split the artist sort string to try and get sort names for individual artists
-  auto artistSort = StringUtils::Split(strArtistSort, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+  auto artistSort = KODI::StringUtils::Split(strArtistSort, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
   artistCredits.clear();
 
   if (!mbids.empty())
@@ -103,7 +103,7 @@ void CAlbum::SetArtistCredits(const std::vector<std::string>& names, const std::
           albumartistHints = names;
         else if (albumartistHints.size() < mbids.size())
         { // Try splitting the hints until have matching number
-          albumartistHints = StringUtils::SplitMulti(albumartistHints, separators, mbids.size());
+          albumartistHints = KODI::StringUtils::SplitMulti(albumartistHints, separators, mbids.size());
         }
         else
           // Extra hints, discard them.
@@ -114,7 +114,7 @@ void CAlbum::SetArtistCredits(const std::vector<std::string>& names, const std::
         albumartistHints = names;
       // Still mismatch, try splitting the hints (now artists) until have matching number
       if (albumartistHints.size() < mbids.size())
-        albumartistHints = StringUtils::SplitMulti(albumartistHints, separators, mbids.size());
+        albumartistHints = KODI::StringUtils::SplitMulti(albumartistHints, separators, mbids.size());
       // Try matching on artists or artist hints field, if it is reliable
       if (albumartistHints.size() != mbids.size())
       {
@@ -150,7 +150,7 @@ void CAlbum::SetArtistCredits(const std::vector<std::string>& names, const std::
     // Try to get number of artist sort names and musicbrainz ids to match. Split sort names
     // further using multiple possible delimiters, over single separator applied in Tag loader
     if (artistSort.size() != mbids.size())
-      artistSort = StringUtils::SplitMulti(artistSort, { ";", ":", "|", "#" });
+      artistSort = KODI::StringUtils::SplitMulti(artistSort, { ";", ":", "|", "#" });
 
     for (size_t i = 0; i < mbids.size(); i++)
     {
@@ -170,9 +170,9 @@ void CAlbum::SetArtistCredits(const std::vector<std::string>& names, const std::
       // Use artist sort name providing we have as many as we have mbid,
       // otherwise something is wrong with them so ignore and leave blank
       if (artistSort.size() == mbids.size())
-        artistCredits.emplace_back(StringUtils::Trim(artistName), StringUtils::Trim(artistSort[i]), artistId);
+        artistCredits.emplace_back(KODI::StringUtils::Trim(artistName), KODI::StringUtils::Trim(artistSort[i]), artistId);
       else
-        artistCredits.emplace_back(StringUtils::Trim(artistName), "", artistId);
+        artistCredits.emplace_back(KODI::StringUtils::Trim(artistName), "", artistId);
     }
   }
   else
@@ -189,19 +189,19 @@ void CAlbum::SetArtistCredits(const std::vector<std::string>& names, const std::
       albumArtists = albumartistHints;
     else
       // Split album artist names further using multiple possible delimiters, over single separator applied in Tag loader
-      albumArtists = StringUtils::SplitMulti(albumArtists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicArtistSeparators);
+      albumArtists = KODI::StringUtils::SplitMulti(albumArtists, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicArtistSeparators);
 
     if (artistSort.size() != albumArtists.size())
       // Split artist sort names further using multiple possible delimiters, over single separator applied in Tag loader
-      artistSort = StringUtils::SplitMulti(artistSort, { ";", ":", "|", "#" });
+      artistSort = KODI::StringUtils::SplitMulti(artistSort, { ";", ":", "|", "#" });
 
     for (size_t i = 0; i < albumArtists.size(); i++)
     {
-      artistCredits.emplace_back(StringUtils::Trim(albumArtists[i]));
+      artistCredits.emplace_back(KODI::StringUtils::Trim(albumArtists[i]));
       // Set artist sort name providing we have as many as we have artists,
       // otherwise something is wrong with them so ignore rather than guess.
       if (artistSort.size() == albumArtists.size())
-        artistCredits.back().SetSortName(StringUtils::Trim(artistSort[i]));
+        artistCredits.back().SetSortName(KODI::StringUtils::Trim(artistSort[i]));
     }
   }
 }
@@ -271,7 +271,7 @@ void CAlbum::MergeScrapedAlbum(const CAlbum& source, bool override /* = true */)
       {
         for (const auto& sourceartistCredit : source.artistCredits)
         {
-          if (StringUtils::EqualsNoCase(artistCredit.GetArtist(), sourceartistCredit.GetArtist()))
+          if (KODI::StringUtils::EqualsNoCase(artistCredit.GetArtist(), sourceartistCredit.GetArtist()))
           {
             artistCredit.SetMusicBrainzArtistID(sourceartistCredit.GetMusicBrainzArtistID());
             artistCredit.SetScrapedMBID(true);
@@ -339,7 +339,7 @@ void CAlbum::MergeScrapedAlbum(const CAlbum& source, bool override /* = true */)
 
 std::string CAlbum::GetGenreString() const
 {
-  return StringUtils::Join(genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+  return KODI::StringUtils::Join(genre, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
 }
 
 const std::vector<std::string> CAlbum::GetAlbumArtist() const
@@ -375,7 +375,7 @@ const std::string CAlbum::GetAlbumArtistString() const
     artistvector.emplace_back(i.GetArtist());
   std::string artistString;
   if (!artistvector.empty())
-    artistString = StringUtils::Join(artistvector, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
+    artistString = KODI::StringUtils::Join(artistvector, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
   return artistString;
 }
 
@@ -391,7 +391,7 @@ const std::string CAlbum::GetAlbumArtistSort() const
       artistvector.emplace_back(artistcredit.GetSortName());
   std::string artistString;
   if (!artistvector.empty())
-    artistString = StringUtils::Join(artistvector, "; ");
+    artistString = KODI::StringUtils::Join(artistvector, "; ");
   return artistString;
 }
 
@@ -504,14 +504,14 @@ bool CAlbum::Load(const TiXmlElement *album, bool append, bool prioritise)
   XMLUtils::GetString(album, "releasestatus", strReleaseStatus);
 
   XMLUtils::GetString(album, "releasedate", strReleaseDate);
-  StringUtils::Trim(strReleaseDate);  // @todo: validate ISO8601 format
+  KODI::StringUtils::Trim(strReleaseDate);  // @todo: validate ISO8601 format
   // Support old style <year></year> for backwards compatibility
   if (strReleaseDate.empty())
   {
     int year;
     XMLUtils::GetInt(album, "year", year);
     if (year > 0)
-      strReleaseDate = StringUtils::Format("{:04}", year);
+      strReleaseDate = KODI::StringUtils::Format("{:04}", year);
   }
   XMLUtils::GetString(album, "originalreleasedate", strOrigReleaseDate);
 

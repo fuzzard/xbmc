@@ -38,7 +38,7 @@ CPlayList* CPlayListFactory::Create(const CFileItem& item)
       const_cast<CFileItem&>(item).FillInMimeType();
 
     std::string strMimeType = item.GetMimeType();
-    StringUtils::ToLower(strMimeType);
+    KODI::StringUtils::ToLower(strMimeType);
 
     if (strMimeType == "video/x-ms-asf"
     || strMimeType == "video/x-ms-asx"
@@ -71,7 +71,7 @@ CPlayList* CPlayListFactory::Create(const CFileItem& item)
   std::string path = item.GetDynPath();
 
   std::string extension = URIUtils::GetExtension(path);
-  StringUtils::ToLower(extension);
+  KODI::StringUtils::ToLower(extension);
 
   if (extension == ".m3u" || (extension == ".m3u8" && !NETWORK::IsInternetStream(item)) ||
       extension == ".strm")
@@ -108,7 +108,7 @@ CPlayList* CPlayListFactory::Create(const CFileItem& item)
 bool CPlayListFactory::IsPlaylist(const CFileItem& item)
 {
   std::string strMimeType = item.GetMimeType();
-  StringUtils::ToLower(strMimeType);
+  KODI::StringUtils::ToLower(strMimeType);
 
 /* These are a bit uncertain
   if(strMimeType == "video/x-ms-asf"

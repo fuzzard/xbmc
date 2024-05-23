@@ -87,7 +87,7 @@ unsigned int CVideoSelectActionProcessorBase::ChooseStackItemPartNumber() const
   XFILE::CDirectory::GetDirectory(m_item->GetDynPath(), parts, "", XFILE::DIR_FLAG_DEFAULTS);
 
   for (int i = 0; i < parts.Size(); ++i)
-    parts[i]->SetLabel(StringUtils::Format(g_localizeStrings.Get(23051), i + 1)); // Part #
+    parts[i]->SetLabel(KODI::StringUtils::Format(g_localizeStrings.Get(23051), i + 1)); // Part #
 
   CGUIDialogSelect* dialog =
       CServiceBroker::GetGUI()->GetWindowManager().GetWindow<CGUIDialogSelect>(

@@ -30,7 +30,7 @@ CPVREpgSearchPath::CPVREpgSearchPath(const std::string& strPath)
 }
 
 CPVREpgSearchPath::CPVREpgSearchPath(const CPVREpgSearchFilter& search)
-  : m_path(StringUtils::Format("pvr://search/{}/savedsearches/{}",
+  : m_path(KODI::StringUtils::Format("pvr://search/{}/savedsearches/{}",
                                search.IsRadio() ? "radio" : "tv",
                                search.GetDatabaseId())),
     m_bValid(true),

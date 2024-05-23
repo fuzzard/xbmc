@@ -249,8 +249,8 @@ bool CGameClientProperties::GetProxyAddons(ADDON::VECADDONS& addons)
 
   if (!missingDependencies.empty())
   {
-    std::string strDependencies = StringUtils::Join(missingDependencies, ", ");
-    std::string dialogText = StringUtils::Format(g_localizeStrings.Get(35223), strDependencies);
+    std::string strDependencies = KODI::StringUtils::Join(missingDependencies, ", ");
+    std::string dialogText = KODI::StringUtils::Format(g_localizeStrings.Get(35223), strDependencies);
 
     // "Failed to play game"
     // "Add-on is incompatible due to unmet dependencies."

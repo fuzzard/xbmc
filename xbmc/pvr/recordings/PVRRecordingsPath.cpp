@@ -33,7 +33,7 @@ CPVRRecordingsPath::CPVRRecordingsPath(const std::string& strPath)
   const std::vector<std::string> segments = URIUtils::SplitPath(strVarPath);
 
   m_bValid = ((segments.size() >= 4) && // at least pvr://recordings/[tv|radio]/[active|deleted]
-              StringUtils::StartsWith(strVarPath, "pvr://") && (segments.at(1) == "recordings") &&
+              KODI::StringUtils::StartsWith(strVarPath, "pvr://") && (segments.at(1) == "recordings") &&
               ((segments.at(2) == "tv") || (segments.at(2) == "radio")) &&
               ((segments.at(3) == "active") || (segments.at(3) == "deleted")));
   if (m_bValid)
@@ -72,7 +72,7 @@ CPVRRecordingsPath::CPVRRecordingsPath(bool bDeleted, bool bRadio)
     m_bRoot(true),
     m_bActive(!bDeleted),
     m_bRadio(bRadio),
-    m_path(StringUtils::Format(
+    m_path(KODI::StringUtils::Format(
         "pvr://recordings/{}/{}/", bRadio ? "radio" : "tv", bDeleted ? "deleted" : "active"))
 {
 }
@@ -92,38 +92,38 @@ CPVRRecordingsPath::CPVRRecordingsPath(bool bDeleted,
 {
   std::string strDirectoryN(TrimSlashes(strDirectory));
   if (!strDirectoryN.empty())
-    strDirectoryN = StringUtils::Format("{}/", strDirectoryN);
+    strDirectoryN = KODI::StringUtils::Format("{}/", strDirectoryN);
 
   std::string strTitleN(strTitle);
   strTitleN = CURL::Encode(strTitleN);
 
   std::string strSeasonEpisodeN;
   if ((iSeason > -1 && iEpisode > -1 && (iSeason > 0 || iEpisode > 0)))
-    strSeasonEpisodeN = StringUtils::Format("s{:02}e{:02}", iSeason, iEpisode);
+    strSeasonEpisodeN = KODI::StringUtils::Format("s{:02}e{:02}", iSeason, iEpisode);
   if (!strSeasonEpisodeN.empty())
-    strSeasonEpisodeN = StringUtils::Format(" {}", strSeasonEpisodeN);
+    strSeasonEpisodeN = KODI::StringUtils::Format(" {}", strSeasonEpisodeN);
 
-  std::string strYearN(iYear > 0 ? StringUtils::Format(" ({})", iYear) : "");
+  std::string strYearN(iYear > 0 ? KODI::StringUtils::Format(" ({})", iYear) : "");
 
   std::string strSubtitleN;
   if (!strSubtitle.empty())
   {
-    strSubtitleN = StringUtils::Format(" {}", strSubtitle);
+    strSubtitleN = KODI::StringUtils::Format(" {}", strSubtitle);
     strSubtitleN = CURL::Encode(strSubtitleN);
   }
 
   std::string strChannelNameN;
   if (!strChannelName.empty())
   {
-    strChannelNameN = StringUtils::Format(" ({})", strChannelName);
+    strChannelNameN = KODI::StringUtils::Format(" ({})", strChannelName);
     strChannelNameN = CURL::Encode(strChannelNameN);
   }
 
-  m_directoryPath = StringUtils::Format("{}{}{}{}{}", strDirectoryN, strTitleN, strSeasonEpisodeN,
+  m_directoryPath = KODI::StringUtils::Format("{}{}{}{}{}", strDirectoryN, strTitleN, strSeasonEpisodeN,
                                         strYearN, strSubtitleN);
-  m_params = StringUtils::Format(", TV{}, {}, {}.pvr", strChannelNameN,
+  m_params = KODI::StringUtils::Format(", TV{}, {}, {}.pvr", strChannelNameN,
                                  recordingTime.GetAsSaveString(), strId);
-  m_path = StringUtils::Format("pvr://recordings/{}/{}/{}{}", bRadio ? "radio" : "tv",
+  m_path = KODI::StringUtils::Format("pvr://recordings/{}/{}/{}{}", bRadio ? "radio" : "tv",
                                bDeleted ? "deleted" : "active", m_directoryPath, m_params);
 }
 
@@ -140,9 +140,9 @@ bool PathHasParent(const std::string& path, const std::string& parent)
     return true;
 
   if (!parent.empty() && parent.back() != '/')
-    return StringUtils::StartsWith(path, parent + '/');
+    return KODI::StringUtils::StartsWith(path, parent + '/');
 
-  return StringUtils::StartsWith(path, parent);
+  return KODI::StringUtils::StartsWith(path, parent);
 }
 } // unnamed namespace
 

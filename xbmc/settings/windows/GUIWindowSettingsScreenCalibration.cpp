@@ -72,7 +72,7 @@ void CGUIWindowSettingsScreenCalibration::ResetCalibration()
   CGUIDialogYesNo* pDialog =
       CServiceBroker::GetGUI()->GetWindowManager().GetWindow<CGUIDialogYesNo>(WINDOW_DIALOG_YES_NO);
   pDialog->SetHeading(CVariant{20325});
-  std::string strText = StringUtils::Format(
+  std::string strText = KODI::StringUtils::Format(
       g_localizeStrings.Get(20326),
       CServiceBroker::GetWinSystem()->GetGfxContext().GetResInfo(m_Res[m_iCurRes]).strMode);
   pDialog->SetText(CVariant{std::move(strText)});
@@ -432,10 +432,10 @@ bool CGUIWindowSettingsScreenCalibration::UpdateFromControl(int iControl)
       // recenter our control...
       pControl->SetPosition((static_cast<float>(info.iWidth) - pControl->GetWidth()) / 2,
                             (static_cast<float>(info.iHeight) - pControl->GetHeight()) / 2);
-      labelDescription = StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(272),
+      labelDescription = KODI::StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(272),
                                              g_localizeStrings.Get(273));
-      labelValue = StringUtils::Format("{:5.3f}", info.fPixelRatio);
-      labelValue = StringUtils::Format(g_localizeStrings.Get(20327), labelValue);
+      labelValue = KODI::StringUtils::Format("{:5.3f}", info.fPixelRatio);
+      labelValue = KODI::StringUtils::Format(g_localizeStrings.Get(20327), labelValue);
     }
   }
   else
@@ -449,11 +449,11 @@ bool CGUIWindowSettingsScreenCalibration::UpdateFromControl(int iControl)
         {
           info.Overscan.left = pControl->GetXLocation();
           info.Overscan.top = pControl->GetYLocation();
-          labelDescription = StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(274),
+          labelDescription = KODI::StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(274),
                                                  g_localizeStrings.Get(276));
           labelValue =
-              StringUtils::Format("{}, {}", pControl->GetXLocation(), pControl->GetYLocation());
-          labelValue = StringUtils::Format(g_localizeStrings.Get(20327), labelValue);
+              KODI::StringUtils::Format("{}, {}", pControl->GetXLocation(), pControl->GetYLocation());
+          labelValue = KODI::StringUtils::Format(g_localizeStrings.Get(20327), labelValue);
           // Update reset control position
           CGUIMoverControl* pControl = dynamic_cast<CGUIMoverControl*>(GetControl(CONTROL_RESET));
           if (pControl)
@@ -473,10 +473,10 @@ bool CGUIWindowSettingsScreenCalibration::UpdateFromControl(int iControl)
           info.Overscan.bottom = pControl->GetYLocation();
           int iXOff1 = info.iWidth - pControl->GetXLocation();
           int iYOff1 = info.iHeight - pControl->GetYLocation();
-          labelDescription = StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(275),
+          labelDescription = KODI::StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(275),
                                                  g_localizeStrings.Get(276));
-          labelValue = StringUtils::Format("{}, {}", iXOff1, iYOff1);
-          labelValue = StringUtils::Format(g_localizeStrings.Get(20327), labelValue);
+          labelValue = KODI::StringUtils::Format("{}, {}", iXOff1, iYOff1);
+          labelValue = KODI::StringUtils::Format(g_localizeStrings.Get(20327), labelValue);
           // Update reset control position
           pControl = dynamic_cast<CGUIMoverControl*>(GetControl(CONTROL_RESET));
           if (pControl)
@@ -497,14 +497,14 @@ bool CGUIWindowSettingsScreenCalibration::UpdateFromControl(int iControl)
             info.iSubtitles =
                 pControl->GetYLocation() - m_subtitlesHalfSpace + m_subtitleVerticalMargin;
 
-            labelDescription = StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(277),
+            labelDescription = KODI::StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(277),
                                                    g_localizeStrings.Get(278));
-            labelValue = StringUtils::Format(g_localizeStrings.Get(39184), info.iSubtitles,
+            labelValue = KODI::StringUtils::Format(g_localizeStrings.Get(39184), info.iSubtitles,
                                              info.iSubtitles - m_subtitleVerticalMargin);
           }
           else
           {
-            labelDescription = StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(277),
+            labelDescription = KODI::StringUtils::Format("[B]{}[/B][CR]{}", g_localizeStrings.Get(277),
                                                    g_localizeStrings.Get(39189));
           }
         }
@@ -527,12 +527,12 @@ bool CGUIWindowSettingsScreenCalibration::UpdateFromControl(int iControl)
   if (CServiceBroker::GetWinSystem()->IsFullScreen())
   {
     resInfo =
-        StringUtils::Format("{} {}x{}@{:.2f} - {}", g_localizeStrings.Get(13287), info.iScreenWidth,
+        KODI::StringUtils::Format("{} {}x{}@{:.2f} - {}", g_localizeStrings.Get(13287), info.iScreenWidth,
                             info.iScreenHeight, info.fRefreshRate, g_localizeStrings.Get(244));
   }
   else
   {
-    resInfo = StringUtils::Format("{} {}x{} - {}", g_localizeStrings.Get(13287), info.iScreenWidth,
+    resInfo = KODI::StringUtils::Format("{} {}x{} - {}", g_localizeStrings.Get(13287), info.iScreenWidth,
                                   info.iScreenHeight, g_localizeStrings.Get(242));
   }
   SET_CONTROL_LABEL(CONTROL_LABEL_RES, resInfo);

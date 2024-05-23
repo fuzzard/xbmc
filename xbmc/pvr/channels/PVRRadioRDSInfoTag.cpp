@@ -682,8 +682,8 @@ bool CPVRRadioRDSInfoTag::IsPlayingRadioTextPlus() const
 std::string CPVRRadioRDSInfoTag::Trim(const std::string& value)
 {
   std::string trimmedValue(value);
-  StringUtils::TrimLeft(trimmedValue);
-  StringUtils::TrimRight(trimmedValue, " \n\r");
+  KODI::StringUtils::TrimLeft(trimmedValue);
+  KODI::StringUtils::TrimRight(trimmedValue, " \n\r");
   return trimmedValue;
 }
 

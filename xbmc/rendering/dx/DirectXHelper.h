@@ -91,7 +91,7 @@ namespace DX
     WCHAR buff[2048];
     DXGetErrorDescriptionW(hr, buff, 2048);
 
-    return FromW(StringUtils::Format(L"{:X} - {} ({})", hr, DXGetErrorStringW(hr), buff));
+    return FromW(KODI::StringUtils::Format(L"{:X} - {} ({})", hr, DXGetErrorStringW(hr), buff));
   }
 
   inline std::string GetFeatureLevelDescription(D3D_FEATURE_LEVEL featureLevel)
@@ -99,7 +99,7 @@ namespace DX
     uint32_t fl_major = (featureLevel & 0xF000u) >> 12;
     uint32_t fl_minor = (featureLevel & 0x0F00u) >> 8;
 
-    return StringUtils::Format("D3D_FEATURE_LEVEL_{}_{}", fl_major, fl_minor);
+    return KODI::StringUtils::Format("D3D_FEATURE_LEVEL_{}_{}", fl_major, fl_minor);
   }
 
   constexpr std::string_view GetGFXProviderName(UINT vendorId)

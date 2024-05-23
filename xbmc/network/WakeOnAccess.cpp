@@ -81,12 +81,12 @@ static void ShowDiscoveryMessage(const char* function, const char* server_name, 
   if (new_entry)
   {
     CLog::Log(LOGINFO, "{} - Create new entry for host '{}'", function, server_name);
-    message = StringUtils::Format(LOCALIZED(13035), server_name);
+    message = KODI::StringUtils::Format(LOCALIZED(13035), server_name);
   }
   else
   {
     CLog::Log(LOGINFO, "{} - Update existing entry for host '{}'", function, server_name);
-    message = StringUtils::Format(LOCALIZED(13034), server_name);
+    message = KODI::StringUtils::Format(LOCALIZED(13034), server_name);
   }
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, LOCALIZED(13033), message, 4000, true, 3000);
 }
@@ -493,7 +493,7 @@ bool CWakeOnAccess::WakeUpHost(const std::string& hostName, const std::string& c
 
 bool CWakeOnAccess::WakeUpHost(const WakeUpEntry& server)
 {
-  std::string heading = StringUtils::Format(LOCALIZED(13027), server.friendlyName);
+  std::string heading = KODI::StringUtils::Format(LOCALIZED(13027), server.friendlyName);
 
   ProgressDialogHelper dlg (heading);
 
@@ -570,7 +570,7 @@ bool CWakeOnAccess::FindOrTouchHostEntry(const std::string& hostName, bool upnpM
 
   for (auto& server : m_entries)
   {
-    if (upnp ? StringUtils::EqualsNoCase(upnp->m_mac, server.mac) : StringUtils::EqualsNoCase(hostName, server.host))
+    if (upnp ? KODI::StringUtils::EqualsNoCase(upnp->m_mac, server.mac) : KODI::StringUtils::EqualsNoCase(hostName, server.host))
     {
       CDateTime now = CDateTime::GetCurrentDateTime();
 
@@ -608,7 +608,7 @@ void CWakeOnAccess::TouchHostEntry(const std::string& hostName, bool upnpMode)
 
   for (auto& server : m_entries)
   {
-    if (upnp ? StringUtils::EqualsNoCase(upnp->m_mac, server.mac) : StringUtils::EqualsNoCase(hostName, server.host))
+    if (upnp ? KODI::StringUtils::EqualsNoCase(upnp->m_mac, server.mac) : KODI::StringUtils::EqualsNoCase(hostName, server.host))
     {
       server.nextWake = CDateTime::GetCurrentDateTime() + server.timeout;
 
@@ -623,7 +623,7 @@ void CWakeOnAccess::TouchHostEntry(const std::string& hostName, bool upnpMode)
 static void AddHost (const std::string& host, std::vector<std::string>& hosts)
 {
   for (const auto& it : hosts)
-    if (StringUtils::EqualsNoCase(host, it))
+    if (KODI::StringUtils::EqualsNoCase(host, it))
       return; // already there ..
 
   if (!host.empty())
@@ -632,7 +632,7 @@ static void AddHost (const std::string& host, std::vector<std::string>& hosts)
 
 static void AddHostFromDatabase(const DatabaseSettings& setting, std::vector<std::string>& hosts)
 {
-  if (StringUtils::EqualsNoCase(setting.type, "mysql"))
+  if (KODI::StringUtils::EqualsNoCase(setting.type, "mysql"))
     AddHost(setting.host, hosts);
 }
 
@@ -712,7 +712,7 @@ void CWakeOnAccess::SaveMACDiscoveryResult(const std::string& host, const std::s
 
   for (auto& i : m_entries)
   {
-    if (StringUtils::EqualsNoCase(host, i.host))
+    if (KODI::StringUtils::EqualsNoCase(host, i.host))
     {
       i.mac = mac;
       ShowDiscoveryMessage(__FUNCTION__, host.c_str(), false);
@@ -754,7 +754,7 @@ void CWakeOnAccess::OnJobComplete(unsigned int jobID, bool success, CJob *job)
     if (IsEnabled())
     {
       const std::string& heading = LOCALIZED(13033);
-      std::string message = StringUtils::Format(LOCALIZED(13036), host);
+      std::string message = KODI::StringUtils::Format(LOCALIZED(13036), host);
       CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error, heading, message, 4000, true, 3000);
     }
   }
@@ -809,7 +809,7 @@ void CWakeOnAccess::LoadFromXML()
   }
 
   auto* rootElement = xmlDoc.RootElement();
-  if (StringUtils::CompareNoCase(rootElement->Value(), "onaccesswakeup"))
+  if (KODI::StringUtils::CompareNoCase(rootElement->Value(), "onaccesswakeup"))
   {
     CLog::LogF(LOGERROR, "XML file {} doesn't contain <onaccesswakeup>", GetSettingFile());
     return;

@@ -72,7 +72,7 @@ bool CFileItemHandler::GetField(const std::string& field,
       {
         // string -> Video.Cast
         const std::vector<std::string> actors =
-            StringUtils::Split(info[field].asString(), EPG_STRING_TOKEN_SEPARATOR);
+            KODI::StringUtils::Split(info[field].asString(), EPG_STRING_TOKEN_SEPARATOR);
 
         result[field] = CVariant(CVariant::VariantTypeArray);
         for (const auto& actor : actors)
@@ -86,7 +86,7 @@ bool CFileItemHandler::GetField(const std::string& field,
       else if (field == "director" || field == "writer")
       {
         // string -> Array.String
-        result[field] = StringUtils::Split(info[field].asString(), EPG_STRING_TOKEN_SEPARATOR);
+        result[field] = KODI::StringUtils::Split(info[field].asString(), EPG_STRING_TOKEN_SEPARATOR);
         return true;
       }
       else if (field == "isrecording")
@@ -416,7 +416,7 @@ void CFileItemHandler::HandleFileItem(const char* ID,
       else if (item->HasVideoInfoTag() && item->GetVideoInfoTag()->m_iDbId > 0)
         object[ID] = item->GetVideoInfoTag()->m_iDbId;
 
-      if (StringUtils::CompareNoCase(ID, "id") == 0)
+      if (KODI::StringUtils::CompareNoCase(ID, "id") == 0)
       {
         if (item->HasPVRChannelInfoTag())
           object["type"] = "channel";

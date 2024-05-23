@@ -232,7 +232,7 @@ bool CLibraryGUIInfo::GetBool(bool& value, const CGUIListItem *gitem, int contex
       int artistcount = -1;
       for (const auto &role : m_libraryRoleCounts)
       {
-        if (StringUtils::EqualsNoCase(strRole, role.first))
+        if (KODI::StringUtils::EqualsNoCase(strRole, role.first))
         {
           artistcount = role.second;
           break;

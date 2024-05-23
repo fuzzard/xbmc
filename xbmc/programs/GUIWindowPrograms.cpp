@@ -147,7 +147,7 @@ bool CGUIWindowPrograms::OnPlayMedia(int iItem, const std::string&)
 
 std::string CGUIWindowPrograms::GetStartFolder(const std::string &dir)
 {
-  std::string lower(dir); StringUtils::ToLower(lower);
+  std::string lower(dir); KODI::StringUtils::ToLower(lower);
   if (lower == "plugins" || lower == "addons")
     return "addons://sources/executable/";
   else if (lower == "androidapps")

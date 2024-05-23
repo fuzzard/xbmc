@@ -140,7 +140,7 @@ bool CEdl::ReadEdl(const std::string& strMovie, const float fFramesPerSecond)
       strFields[1] = strFields[0];
     }
 
-    if (StringUtils::StartsWith(strFields[0], "##"))
+    if (KODI::StringUtils::StartsWith(strFields[0], "##"))
     {
       CLog::Log(LOGDEBUG, "Skipping comment line {} in EDL file: {}", iLine,
                 CURL::GetRedacted(edlFilename));
@@ -155,10 +155,10 @@ bool CEdl::ReadEdl(const std::string& strMovie, const float fFramesPerSecond)
     {
       if (strFields[i].find(':') != std::string::npos) // HH:MM:SS.sss format
       {
-        std::vector<std::string> fieldParts = StringUtils::Split(strFields[i], '.');
+        std::vector<std::string> fieldParts = KODI::StringUtils::Split(strFields[i], '.');
         if (fieldParts.size() == 1) // No ms
         {
-          editStartEnd[i] = StringUtils::TimeStringToSeconds(fieldParts[0]) *
+          editStartEnd[i] = KODI::StringUtils::TimeStringToSeconds(fieldParts[0]) *
                             static_cast<int64_t>(1000); // seconds to ms
         }
         else if (fieldParts.size() == 2) // Has ms. Everything after the dot (.) is ms
@@ -179,7 +179,7 @@ bool CEdl::ReadEdl(const std::string& strMovie, const float fFramesPerSecond)
             fieldParts[1] = fieldParts[1].substr(0, 3);
           }
           editStartEnd[i] =
-              static_cast<int64_t>(StringUtils::TimeStringToSeconds(fieldParts[0])) * 1000 +
+              static_cast<int64_t>(KODI::StringUtils::TimeStringToSeconds(fieldParts[0])) * 1000 +
               std::atoi(fieldParts[1].c_str()); // seconds to ms
         }
         else
@@ -930,8 +930,8 @@ bool CEdl::GetNextSceneMarker(bool bPlus, const int iClock, int *iSceneMarker)
 
 std::string CEdl::MillisecondsToTimeString(const int iMilliseconds)
 {
-  std::string strTimeString = StringUtils::SecondsToTimeString((long)(iMilliseconds / 1000), TIME_FORMAT_HH_MM_SS); // milliseconds to seconds
-  strTimeString += StringUtils::Format(".{:03}", iMilliseconds % 1000);
+  std::string strTimeString = KODI::StringUtils::SecondsToTimeString((long)(iMilliseconds / 1000), TIME_FORMAT_HH_MM_SS); // milliseconds to seconds
+  strTimeString += KODI::StringUtils::Format(".{:03}", iMilliseconds % 1000);
   return strTimeString;
 }
 

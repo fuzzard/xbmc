@@ -119,17 +119,17 @@ std::shared_ptr<CFileItem> CBlurayDirectory::GetTitle(const BLURAY_TITLE_INFO* t
   std::string chap;
   CFileItemPtr item(new CFileItem("", false));
   CURL path(m_url);
-  buf = StringUtils::Format("BDMV/PLAYLIST/{:05}.mpls", title->playlist);
+  buf = KODI::StringUtils::Format("BDMV/PLAYLIST/{:05}.mpls", title->playlist);
   path.SetFileName(buf);
   item->SetPath(path.Get());
   int duration = (int)(title->duration / 90000);
   item->GetVideoInfoTag()->SetDuration(duration);
   item->GetVideoInfoTag()->m_iTrack = title->playlist;
-  buf = StringUtils::Format(label, title->playlist);
+  buf = KODI::StringUtils::Format(label, title->playlist);
   item->m_strTitle = buf;
   item->SetLabel(buf);
-  chap = StringUtils::Format(g_localizeStrings.Get(25007), title->chapter_count,
-                             StringUtils::SecondsToTimeString(duration));
+  chap = KODI::StringUtils::Format(g_localizeStrings.Get(25007), title->chapter_count,
+                             KODI::StringUtils::SecondsToTimeString(duration));
   item->SetLabel2(chap);
   item->m_dwSize = 0;
   item->SetArt("icon", "DefaultVideo.png");
@@ -314,7 +314,7 @@ std::vector<BLURAY_TITLE_INFO*> CBlurayDirectory::GetUserPlaylists()
     while ((maxLines > 0) && file.ReadString(buffer, 1024))
     {
       maxLines--;
-      if (StringUtils::StartsWithNoCase(buffer, "playlists"))
+      if (KODI::StringUtils::StartsWithNoCase(buffer, "playlists"))
       {
         int pos = 0;
         while ((pos = pl.RegFind(buffer, static_cast<unsigned int>(pos))) >= 0)

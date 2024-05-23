@@ -192,7 +192,7 @@ CGUIFont* GUIFontManager::LoadTTF(const std::string& strFontName,
 
   // check if we already have this font file loaded (font object could differ only by color or style)
   const std::string fontIdent =
-      StringUtils::Format("{}_{:f}_{:f}{}", strFilename, newSize, aspect, border ? "_border" : "");
+      KODI::StringUtils::Format("{}_{:f}_{:f}{}", strFilename, newSize, aspect, border ? "_border" : "");
 
   CGUIFontTTF* pFontFile = GetFontFile(fontIdent);
   if (!pFontFile)
@@ -293,7 +293,7 @@ void GUIFontManager::ReloadTTFFonts(void)
     RescaleFontSizeAndAspect(winSystem->GetGfxContext(), &newSize, &aspect, fontInfo.sourceRes,
                              fontInfo.preserveAspect);
 
-    const std::string fontIdent = StringUtils::Format("{}_{:f}_{:f}{}", strFilename, newSize,
+    const std::string fontIdent = KODI::StringUtils::Format("{}_{:f}_{:f}{}", strFilename, newSize,
                                                       aspect, fontInfo.border ? "_border" : "");
     CGUIFontTTF* pFontFile = GetFontFile(fontIdent);
     if (!pFontFile)
@@ -319,7 +319,7 @@ void GUIFontManager::Unload(const std::string& strFontName)
 {
   for (auto iFont = m_vecFonts.begin(); iFont != m_vecFonts.end(); ++iFont)
   {
-    if (StringUtils::EqualsNoCase((*iFont)->GetFontName(), strFontName))
+    if (KODI::StringUtils::EqualsNoCase((*iFont)->GetFontName(), strFontName))
     {
       m_vecFonts.erase(iFont);
       return;
@@ -343,7 +343,7 @@ CGUIFontTTF* GUIFontManager::GetFontFile(const std::string& fontIdent)
 {
   for (const auto& it : m_vecFontFiles)
   {
-    if (StringUtils::EqualsNoCase(it->GetFontIdent(), fontIdent))
+    if (KODI::StringUtils::EqualsNoCase(it->GetFontIdent(), fontIdent))
       return it.get();
   }
 
@@ -355,12 +355,12 @@ CGUIFont* GUIFontManager::GetFont(const std::string& strFontName, bool fallback 
   for (const auto& it : m_vecFonts)
   {
     CGUIFont* pFont = it.get();
-    if (StringUtils::EqualsNoCase(pFont->GetFontName(), strFontName))
+    if (KODI::StringUtils::EqualsNoCase(pFont->GetFontName(), strFontName))
       return pFont;
   }
 
   // fall back to "font13" if we have none
-  if (fallback && !strFontName.empty() && !StringUtils::EqualsNoCase(strFontName, "font13"))
+  if (fallback && !strFontName.empty() && !KODI::StringUtils::EqualsNoCase(strFontName, "font13"))
     return GetFont("font13");
 
   return nullptr;
@@ -438,7 +438,7 @@ bool GUIFontManager::LoadFontsFromFile(const std::string& fontsetFilePath,
         if (firstFontset.empty())
           firstFontset = idAttr;
 
-        if (StringUtils::EqualsNoCase(fontSet, idAttr))
+        if (KODI::StringUtils::EqualsNoCase(fontSet, idAttr))
         {
           // Found the requested fontset, so load the fonts and return
           CLog::LogF(LOGINFO, "Loading <fontset> with name '{}' from '{}'", fontSet,
@@ -521,7 +521,7 @@ void GUIFontManager::GetStyle(const TiXmlNode* fontNode, int& iStyle)
   iStyle = FONT_STYLE_NORMAL;
   if (XMLUtils::GetString(fontNode, "style", style))
   {
-    std::vector<std::string> styles = StringUtils::Tokenize(style, " ");
+    std::vector<std::string> styles = KODI::StringUtils::Tokenize(style, " ");
     for (const std::string& i : styles)
     {
       if (i == "bold")
@@ -694,7 +694,7 @@ std::vector<std::string> GUIFontManager::GetUserFontsFamilyNames()
   // We ensure to have unique font family names and sorted alphabetically
   // Duplicated family names can happens for example when a font have each style
   // on different files
-  std::set<std::string, sortstringbyname> familyNames;
+  std::set<std::string, KODI::sortstringbyname> familyNames;
   for (const FontMetadata& fontMetadata : m_userFontsCache)
   {
     for (const std::string& familyName : fontMetadata.m_familyNames)

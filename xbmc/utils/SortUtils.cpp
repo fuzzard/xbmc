@@ -31,7 +31,7 @@ std::string ArrayToString(SortAttribute attributes, const CVariant &variant, con
         strArray.push_back(it->asString());
     }
 
-    return StringUtils::Join(strArray, separator);
+    return KODI::StringUtils::Join(strArray, separator);
   }
   else if (variant.isString())
   {
@@ -56,13 +56,13 @@ std::string ByFile(SortAttribute attributes, const SortItem &values)
 {
   CURL url(values.at(FieldPath).asString());
 
-  return StringUtils::Format("{} {}", url.GetFileNameWithoutPath(),
+  return KODI::StringUtils::Format("{} {}", url.GetFileNameWithoutPath(),
                              values.at(FieldStartOffset).asInteger());
 }
 
 std::string ByPath(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", values.at(FieldPath).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldPath).asString(),
                              values.at(FieldStartOffset).asInteger());
 }
 
@@ -71,13 +71,13 @@ std::string ByLastPlayed(SortAttribute attributes, const SortItem &values)
   if (attributes & SortAttributeIgnoreLabel)
     return values.at(FieldLastPlayed).asString();
 
-  return StringUtils::Format("{} {}", values.at(FieldLastPlayed).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldLastPlayed).asString(),
                              ByLabel(attributes, values));
 }
 
 std::string ByPlaycount(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldPlaycount).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldPlaycount).asInteger(),
                              ByLabel(attributes, values));
 }
 
@@ -88,7 +88,7 @@ std::string ByDate(SortAttribute attributes, const SortItem &values)
 
 std::string ByDateAdded(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", values.at(FieldDateAdded).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldDateAdded).asString(),
                              (int)values.at(FieldId).asInteger());
 }
 
@@ -99,7 +99,7 @@ std::string BySize(SortAttribute attributes, const SortItem &values)
 
 std::string ByDriveType(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldDriveType).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldDriveType).asInteger(),
                              ByLabel(attributes, values));
 }
 
@@ -118,11 +118,11 @@ std::string ByAlbum(SortAttribute attributes, const SortItem &values)
     album = SortUtils::RemoveArticles(album);
 
   std::string label =
-      StringUtils::Format("{} {}", album, ArrayToString(attributes, values.at(FieldArtist)));
+      KODI::StringUtils::Format("{} {}", album, ArrayToString(attributes, values.at(FieldArtist)));
 
   const CVariant &track = values.at(FieldTrackNumber);
   if (!track.isNull())
-    label += StringUtils::Format(" {}", (int)track.asInteger());
+    label += KODI::StringUtils::Format(" {}", (int)track.asInteger());
 
   return label;
 }
@@ -150,7 +150,7 @@ std::string ByArtist(SortAttribute attributes, const SortItem &values)
 
   const CVariant &track = values.at(FieldTrackNumber);
   if (!track.isNull())
-    label += StringUtils::Format(" {}", (int)track.asInteger());
+    label += KODI::StringUtils::Format(" {}", (int)track.asInteger());
 
   return label;
 }
@@ -169,7 +169,7 @@ std::string ByArtistThenYear(SortAttribute attributes, const SortItem &values)
 
   const CVariant &year = values.at(FieldYear);
   if (!year.isNull())
-    label += StringUtils::Format(" {}", static_cast<int>(year.asInteger()));
+    label += KODI::StringUtils::Format(" {}", static_cast<int>(year.asInteger()));
 
   const CVariant &album = values.at(FieldAlbum);
   if (!album.isNull())
@@ -177,7 +177,7 @@ std::string ByArtistThenYear(SortAttribute attributes, const SortItem &values)
 
   const CVariant &track = values.at(FieldTrackNumber);
   if (!track.isNull())
-    label += StringUtils::Format(" {}", (int)track.asInteger());
+    label += KODI::StringUtils::Format(" {}", (int)track.asInteger());
 
   return label;
 }
@@ -189,7 +189,7 @@ std::string ByTrackNumber(SortAttribute attributes, const SortItem &values)
 
 std::string ByTotalDiscs(SortAttribute attributes, const SortItem& values)
 {
-  return StringUtils::Format("{} {}", static_cast<int>(values.at(FieldTotalDiscs).asInteger()),
+  return KODI::StringUtils::Format("{} {}", static_cast<int>(values.at(FieldTotalDiscs).asInteger()),
                              ByLabel(attributes, values));
 }
 std::string ByTime(SortAttribute attributes, const SortItem &values)
@@ -239,7 +239,7 @@ std::string ByYear(SortAttribute attributes, const SortItem &values)
 
   const CVariant &track = values.at(FieldTrackNumber);
   if (!track.isNull())
-    label += StringUtils::Format(" {}", (int)track.asInteger());
+    label += KODI::StringUtils::Format(" {}", (int)track.asInteger());
 
   label += " " + ByLabel(attributes, values);
 
@@ -257,7 +257,7 @@ std::string ByOrigDate(SortAttribute attributes, const SortItem& values)
 
   const CVariant &track = values.at(FieldTrackNumber);
   if (!track.isNull())
-    label += StringUtils::Format(" {}", static_cast<int>(track.asInteger()));
+    label += KODI::StringUtils::Format(" {}", static_cast<int>(track.asInteger()));
 
   label += " " + ByLabel(attributes, values);
 
@@ -294,25 +294,25 @@ std::string ByOriginalTitle(SortAttribute attributes, const SortItem& values)
 
 std::string ByRating(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{:f} {}", values.at(FieldRating).asFloat(),
+  return KODI::StringUtils::Format("{:f} {}", values.at(FieldRating).asFloat(),
                              ByLabel(attributes, values));
 }
 
 std::string ByUserRating(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", static_cast<int>(values.at(FieldUserRating).asInteger()),
+  return KODI::StringUtils::Format("{} {}", static_cast<int>(values.at(FieldUserRating).asInteger()),
                              ByLabel(attributes, values));
 }
 
 std::string ByVotes(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldVotes).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldVotes).asInteger(),
                              ByLabel(attributes, values));
 }
 
 std::string ByTop250(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldTop250).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldTop250).asInteger(),
                              ByLabel(attributes, values));
 }
 
@@ -351,7 +351,7 @@ std::string ByEpisodeNumber(SortAttribute attributes, const SortItem &values)
   if (title.empty())
     title = ByLabel(attributes, values);
 
-  return StringUtils::Format("{} {}", num, title);
+  return KODI::StringUtils::Format("{} {}", num, title);
 }
 
 std::string BySeason(SortAttribute attributes, const SortItem &values)
@@ -361,18 +361,18 @@ std::string BySeason(SortAttribute attributes, const SortItem &values)
   if (!specialSeason.isNull())
     season = (int)specialSeason.asInteger();
 
-  return StringUtils::Format("{} {}", season, ByLabel(attributes, values));
+  return KODI::StringUtils::Format("{} {}", season, ByLabel(attributes, values));
 }
 
 std::string ByNumberOfEpisodes(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldNumberOfEpisodes).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldNumberOfEpisodes).asInteger(),
                              ByLabel(attributes, values));
 }
 
 std::string ByNumberOfWatchedEpisodes(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldNumberOfWatchedEpisodes).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldNumberOfWatchedEpisodes).asInteger(),
                              ByLabel(attributes, values));
 }
 
@@ -393,43 +393,43 @@ std::string ByProductionCode(SortAttribute attributes, const SortItem &values)
 
 std::string ByVideoResolution(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldVideoResolution).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldVideoResolution).asInteger(),
                              ByLabel(attributes, values));
 }
 
 std::string ByVideoCodec(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", values.at(FieldVideoCodec).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldVideoCodec).asString(),
                              ByLabel(attributes, values));
 }
 
 std::string ByVideoAspectRatio(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{:.3f} {}", values.at(FieldVideoAspectRatio).asFloat(),
+  return KODI::StringUtils::Format("{:.3f} {}", values.at(FieldVideoAspectRatio).asFloat(),
                              ByLabel(attributes, values));
 }
 
 std::string ByAudioChannels(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", (int)values.at(FieldAudioChannels).asInteger(),
+  return KODI::StringUtils::Format("{} {}", (int)values.at(FieldAudioChannels).asInteger(),
                              ByLabel(attributes, values));
 }
 
 std::string ByAudioCodec(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", values.at(FieldAudioCodec).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldAudioCodec).asString(),
                              ByLabel(attributes, values));
 }
 
 std::string ByAudioLanguage(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", values.at(FieldAudioLanguage).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldAudioLanguage).asString(),
                              ByLabel(attributes, values));
 }
 
 std::string BySubtitleLanguage(SortAttribute attributes, const SortItem &values)
 {
-  return StringUtils::Format("{} {}", values.at(FieldSubtitleLanguage).asString(),
+  return KODI::StringUtils::Format("{} {}", values.at(FieldSubtitleLanguage).asString(),
                              ByLabel(attributes, values));
 }
 
@@ -500,7 +500,7 @@ std::string ByLastUsed(SortAttribute attributes, const SortItem &values)
 
 std::string ByBPM(SortAttribute attributes, const SortItem& values)
 {
-  return StringUtils::Format("{} {}", static_cast<int>(values.at(FieldBPM).asInteger()),
+  return KODI::StringUtils::Format("{} {}", static_cast<int>(values.at(FieldBPM).asInteger()),
                              ByLabel(attributes, values));
 }
 
@@ -577,7 +577,7 @@ bool SorterAscending(const SortItem &left, const SortItem &right)
   if (preliminarySort(left, right, true, result, labelLeft, labelRight))
     return result;
 
-  return StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) < 0;
+  return KODI::StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) < 0;
 }
 
 bool SorterDescending(const SortItem &left, const SortItem &right)
@@ -587,7 +587,7 @@ bool SorterDescending(const SortItem &left, const SortItem &right)
   if (preliminarySort(left, right, true, result, labelLeft, labelRight))
     return result;
 
-  return StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) > 0;
+  return KODI::StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) > 0;
 }
 
 bool SorterIgnoreFoldersAscending(const SortItem &left, const SortItem &right)
@@ -597,7 +597,7 @@ bool SorterIgnoreFoldersAscending(const SortItem &left, const SortItem &right)
   if (preliminarySort(left, right, false, result, labelLeft, labelRight))
     return result;
 
-  return StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) < 0;
+  return KODI::StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) < 0;
 }
 
 bool SorterIgnoreFoldersDescending(const SortItem &left, const SortItem &right)
@@ -607,7 +607,7 @@ bool SorterIgnoreFoldersDescending(const SortItem &left, const SortItem &right)
   if (preliminarySort(left, right, false, result, labelLeft, labelRight))
     return result;
 
-  return StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) > 0;
+  return KODI::StringUtils::AlphaNumericCompare(labelLeft.c_str(), labelRight.c_str()) > 0;
 }
 
 bool SorterIndirectAscending(const SortItemPtr &left, const SortItemPtr &right)
@@ -1132,7 +1132,7 @@ std::string SortUtils::RemoveArticles(const std::string &label)
   std::set<std::string> sortTokens = g_langInfo.GetSortTokens();
   for (std::set<std::string>::const_iterator token = sortTokens.begin(); token != sortTokens.end(); ++token)
   {
-    if (token->size() < label.size() && StringUtils::StartsWithNoCase(label, *token))
+    if (token->size() < label.size() && KODI::StringUtils::StartsWithNoCase(label, *token))
       return label.substr(token->size());
   }
 
@@ -1287,7 +1287,7 @@ const std::string& TypeToString(const std::map<std::string, T>& typeMap, const T
   });
 
   if (it == typeMap.end())
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   return it->first;
 }

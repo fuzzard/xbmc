@@ -20,7 +20,7 @@ namespace KODI::MUSIC
 bool IsAudio(const CFileItem& item)
 {
   /* check preset mime type */
-  if (StringUtils::StartsWithNoCase(item.GetMimeType(), "audio/"))
+  if (KODI::StringUtils::StartsWithNoCase(item.GetMimeType(), "audio/"))
     return true;
 
   if (item.HasMusicInfoTag())
@@ -38,11 +38,11 @@ bool IsAudio(const CFileItem& item)
   if (IsCDDA(item))
     return true;
 
-  if (StringUtils::StartsWithNoCase(item.GetMimeType(), "application/"))
+  if (KODI::StringUtils::StartsWithNoCase(item.GetMimeType(), "application/"))
   { /* check for some standard types */
     std::string extension = item.GetMimeType().substr(12);
-    if (StringUtils::EqualsNoCase(extension, "ogg") ||
-        StringUtils::EqualsNoCase(extension, "mp4") || StringUtils::EqualsNoCase(extension, "mxf"))
+    if (KODI::StringUtils::EqualsNoCase(extension, "ogg") ||
+        KODI::StringUtils::EqualsNoCase(extension, "mp4") || KODI::StringUtils::EqualsNoCase(extension, "mxf"))
       return true;
   }
 

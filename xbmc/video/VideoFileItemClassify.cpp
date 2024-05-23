@@ -23,10 +23,10 @@ namespace KODI::VIDEO
 bool IsBDFile(const CFileItem& item)
 {
   const std::string strFileName = URIUtils::GetFileName(item.GetDynPath());
-  return (StringUtils::EqualsNoCase(strFileName, "index.bdmv") ||
-          StringUtils::EqualsNoCase(strFileName, "MovieObject.bdmv") ||
-          StringUtils::EqualsNoCase(strFileName, "INDEX.BDM") ||
-          StringUtils::EqualsNoCase(strFileName, "MOVIEOBJ.BDM"));
+  return (KODI::StringUtils::EqualsNoCase(strFileName, "index.bdmv") ||
+          KODI::StringUtils::EqualsNoCase(strFileName, "MovieObject.bdmv") ||
+          KODI::StringUtils::EqualsNoCase(strFileName, "INDEX.BDM") ||
+          KODI::StringUtils::EqualsNoCase(strFileName, "MOVIEOBJ.BDM"));
 }
 
 bool IsDiscStub(const CFileItem& item)
@@ -48,18 +48,18 @@ bool IsDVDFile(const CFileItem& item, bool bVobs /*= true*/, bool bIfos /*= true
   const std::string strFileName = URIUtils::GetFileName(item.GetDynPath());
   if (bIfos)
   {
-    if (StringUtils::EqualsNoCase(strFileName, "video_ts.ifo"))
+    if (KODI::StringUtils::EqualsNoCase(strFileName, "video_ts.ifo"))
       return true;
-    if (StringUtils::StartsWithNoCase(strFileName, "vts_") &&
-        StringUtils::EndsWithNoCase(strFileName, "_0.ifo") && strFileName.length() == 12)
+    if (KODI::StringUtils::StartsWithNoCase(strFileName, "vts_") &&
+        KODI::StringUtils::EndsWithNoCase(strFileName, "_0.ifo") && strFileName.length() == 12)
       return true;
   }
   if (bVobs)
   {
-    if (StringUtils::EqualsNoCase(strFileName, "video_ts.vob"))
+    if (KODI::StringUtils::EqualsNoCase(strFileName, "video_ts.vob"))
       return true;
-    if (StringUtils::StartsWithNoCase(strFileName, "vts_") &&
-        StringUtils::EndsWithNoCase(strFileName, ".vob"))
+    if (KODI::StringUtils::StartsWithNoCase(strFileName, "vts_") &&
+        KODI::StringUtils::EndsWithNoCase(strFileName, ".vob"))
       return true;
   }
 
@@ -74,7 +74,7 @@ bool IsProtectedBlurayDisc(const CFileItem& item)
 
 bool IsBlurayPlaylist(const CFileItem& item)
 {
-  return StringUtils::EqualsNoCase(URIUtils::GetExtension(item.GetDynPath()), ".mpls");
+  return KODI::StringUtils::EqualsNoCase(URIUtils::GetExtension(item.GetDynPath()), ".mpls");
 }
 
 bool IsSubtitle(const CFileItem& item)
@@ -86,7 +86,7 @@ bool IsSubtitle(const CFileItem& item)
 bool IsVideo(const CFileItem& item)
 {
   /* check preset mime type */
-  if (StringUtils::StartsWithNoCase(item.GetMimeType(), "video/"))
+  if (KODI::StringUtils::StartsWithNoCase(item.GetMimeType(), "video/"))
     return true;
 
   if (item.HasVideoInfoTag())
@@ -113,11 +113,11 @@ bool IsVideo(const CFileItem& item)
     return true;
 
   std::string extension;
-  if (StringUtils::StartsWithNoCase(item.GetMimeType(), "application/"))
+  if (KODI::StringUtils::StartsWithNoCase(item.GetMimeType(), "application/"))
   { /* check for some standard types */
     extension = item.GetMimeType().substr(12);
-    if (StringUtils::EqualsNoCase(extension, "ogg") ||
-        StringUtils::EqualsNoCase(extension, "mp4") || StringUtils::EqualsNoCase(extension, "mxf"))
+    if (KODI::StringUtils::EqualsNoCase(extension, "ogg") ||
+        KODI::StringUtils::EqualsNoCase(extension, "mp4") || KODI::StringUtils::EqualsNoCase(extension, "mxf"))
       return true;
   }
 
@@ -146,7 +146,7 @@ bool IsVideoDb(const CFileItem& item)
 bool IsVideoExtrasFolder(const CFileItem& item)
 {
   return item.m_bIsFolder &&
-         StringUtils::EqualsNoCase(URIUtils::GetFileOrFolderName(item.GetPath()), "extras");
+         KODI::StringUtils::EqualsNoCase(URIUtils::GetFileOrFolderName(item.GetPath()), "extras");
 }
 
 } // namespace KODI::VIDEO

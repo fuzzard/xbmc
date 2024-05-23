@@ -259,7 +259,7 @@ void CPVRTimerType::InitDescription()
     ? 824  // Reminder: ...
     : 825; // Recording: ...
 
-  m_strDescription = StringUtils::Format(g_localizeStrings.Get(prefixId), m_strDescription);
+  m_strDescription = KODI::StringUtils::Format(g_localizeStrings.Get(prefixId), m_strDescription);
 }
 
 void CPVRTimerType::InitAttributeValues(const PVR_TIMER_TYPE& type)
@@ -331,7 +331,7 @@ void CPVRTimerType::InitLifetimeValues(const PVR_TIMER_TYPE& type)
     // No values given by addon, but lifetime supported. Use default values 1..365
     for (int i = 1; i < 366; ++i)
     {
-      m_lifetimeValues.emplace_back(StringUtils::Format(g_localizeStrings.Get(17999), i),
+      m_lifetimeValues.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(17999), i),
                                     i); // "{} days"
     }
     m_iLifetimeDefault = DEFAULT_RECORDING_LIFETIME;
@@ -419,7 +419,7 @@ void CPVRTimerType::InitRecordingGroupValues(const PVR_TIMER_TYPE& type)
       if (strDescr.empty())
       {
         // No description given by addon. Create one from value.
-        strDescr = StringUtils::Format("{} {}",
+        strDescr = KODI::StringUtils::Format("{} {}",
                                        g_localizeStrings.Get(811), // Recording group
                                        type.recordingGroup[i].iValue);
       }

@@ -157,7 +157,7 @@ bool CGUIDialogMediaSource::ShowAndEditMediaSource(const std::string &type, cons
   {
     for (unsigned int i = 0;i<pShares->size();++i)
     {
-      if (StringUtils::EqualsNoCase((*pShares)[i].strName, share))
+      if (KODI::StringUtils::EqualsNoCase((*pShares)[i].strName, share))
         return ShowAndEditMediaSource(type, (*pShares)[i]);
     }
   }
@@ -179,7 +179,7 @@ bool CGUIDialogMediaSource::ShowAndEditMediaSource(const std::string &type, cons
     // Update media source
     // Get unique new source name when changed
     std::string strName(dialog->m_name);
-    if (!StringUtils::EqualsNoCase(dialog->m_name, strOldName))
+    if (!KODI::StringUtils::EqualsNoCase(dialog->m_name, strOldName))
       strName = dialog->GetUniqueMediaSourceName();
 
     CMediaSource newShare;
@@ -203,12 +203,12 @@ std::string CGUIDialogMediaSource::GetUniqueMediaSourceName()
   {
     for (i = 0; i<pShares->size(); ++i)
     {
-      if (StringUtils::EqualsNoCase((*pShares)[i].strName, strName))
+      if (KODI::StringUtils::EqualsNoCase((*pShares)[i].strName, strName))
         break;
     }
     if (i < pShares->size())
       // found a match -  try next
-      strName = StringUtils::Format("{} ({})", m_name, j++);
+      strName = KODI::StringUtils::Format("{} ({})", m_name, j++);
     else
       bConfirmed = true;
   }
@@ -218,9 +218,9 @@ std::string CGUIDialogMediaSource::GetUniqueMediaSourceName()
 void CGUIDialogMediaSource::OnMediaSourceChanged(const std::string& type, const std::string& oldName, const CMediaSource& share)
 {
   // Processing once media source added/edited - library scraping and scanning
-  if (!StringUtils::StartsWithNoCase(share.strPath, "rss://") &&
-    !StringUtils::StartsWithNoCase(share.strPath, "rsss://") &&
-    !StringUtils::StartsWithNoCase(share.strPath, "upnp://"))
+  if (!KODI::StringUtils::StartsWithNoCase(share.strPath, "rss://") &&
+    !KODI::StringUtils::StartsWithNoCase(share.strPath, "rsss://") &&
+    !KODI::StringUtils::StartsWithNoCase(share.strPath, "upnp://"))
   {
     if (type == "video" && !URIUtils::IsLiveTV(share.strPath))
       // Assign content to a path, refresh scraper information optionally start a scan
@@ -448,7 +448,7 @@ void CGUIDialogMediaSource::OnOK()
   CMediaSource share;
   share.FromNameAndPaths(m_type, m_name, GetPaths());
 
-  if (StringUtils::StartsWithNoCase(share.strPath, "plugin://") ||
+  if (KODI::StringUtils::StartsWithNoCase(share.strPath, "plugin://") ||
     CDirectory::GetDirectory(share.strPath, items, "", DIR_FLAG_NO_FILE_DIRS | DIR_FLAG_ALLOW_PROMPT) ||
     CGUIDialogYesNo::ShowAndGetInput(CVariant{ 1001 }, CVariant{ 1025 }))
   {

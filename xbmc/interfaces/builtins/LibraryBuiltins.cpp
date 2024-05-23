@@ -39,11 +39,11 @@ static int CleanLibrary(const std::vector<std::string>& params)
 {
   bool userInitiated = true;
   if (params.size() > 1)
-    userInitiated = StringUtils::EqualsNoCase(params[1], "true");
-  if (!params.size() || StringUtils::EqualsNoCase(params[0], "video")
-                     || StringUtils::EqualsNoCase(params[0], "movies")
-                     || StringUtils::EqualsNoCase(params[0], "tvshows")
-                     || StringUtils::EqualsNoCase(params[0], "musicvideos"))
+    userInitiated = KODI::StringUtils::EqualsNoCase(params[1], "true");
+  if (!params.size() || KODI::StringUtils::EqualsNoCase(params[0], "video")
+                     || KODI::StringUtils::EqualsNoCase(params[0], "movies")
+                     || KODI::StringUtils::EqualsNoCase(params[0], "tvshows")
+                     || KODI::StringUtils::EqualsNoCase(params[0], "musicvideos"))
   {
     if (!CVideoLibraryQueue::GetInstance().IsScanningLibrary())
     {
@@ -92,7 +92,7 @@ static int CleanLibrary(const std::vector<std::string>& params)
     else
       CLog::Log(LOGERROR, "CleanLibrary is not possible while scanning or cleaning");
   }
-  else if (StringUtils::EqualsNoCase(params[0], "music"))
+  else if (KODI::StringUtils::EqualsNoCase(params[0], "music"))
   {
     if (!CMusicLibraryQueue::GetInstance().IsScanningLibrary())
     {
@@ -119,7 +119,7 @@ static int CleanLibrary(const std::vector<std::string>& params)
 static int ExportLibrary(const std::vector<std::string>& params)
 {
   int iHeading = 647;
-  if (StringUtils::EqualsNoCase(params[0], "music"))
+  if (KODI::StringUtils::EqualsNoCase(params[0], "music"))
     iHeading = 20196;
   std::string path;
   VECSOURCES shares;
@@ -133,7 +133,7 @@ static int ExportLibrary(const std::vector<std::string>& params)
   bool cancelled=false;
 
   if (params.size() > 1)
-    singleFile = StringUtils::EqualsNoCase(params[1], "false");
+    singleFile = KODI::StringUtils::EqualsNoCase(params[1], "false");
   else
   {
     HELPERS::DialogResponse result = HELPERS::ShowYesNoDialogText(CVariant{iHeading}, CVariant{20426}, CVariant{20428}, CVariant{20429});
@@ -147,7 +147,7 @@ static int ExportLibrary(const std::vector<std::string>& params)
   if (!singleFile)
   {
     if (params.size() > 2)
-      thumbs = StringUtils::EqualsNoCase(params[2], "true");
+      thumbs = KODI::StringUtils::EqualsNoCase(params[2], "true");
     else
     {
       HELPERS::DialogResponse result = HELPERS::ShowYesNoDialogText(CVariant{iHeading}, CVariant{20430});
@@ -159,7 +159,7 @@ static int ExportLibrary(const std::vector<std::string>& params)
   if (cancelled)
     return -1;
 
-  if (thumbs && !singleFile && StringUtils::EqualsNoCase(params[0], "video"))
+  if (thumbs && !singleFile && KODI::StringUtils::EqualsNoCase(params[0], "video"))
   {
     std::string movieSetsInfoPath = CServiceBroker::GetSettingsComponent()->GetSettings()->
         GetString(CSettings::SETTING_VIDEOLIBRARY_MOVIESETSFOLDER);
@@ -173,10 +173,10 @@ static int ExportLibrary(const std::vector<std::string>& params)
   if (cancelled)
     return -1;
 
-  if (thumbs && StringUtils::EqualsNoCase(params[0], "video"))
+  if (thumbs && KODI::StringUtils::EqualsNoCase(params[0], "video"))
   {
     if (params.size() > 4)
-      actorThumbs = StringUtils::EqualsNoCase(params[4], "true");
+      actorThumbs = KODI::StringUtils::EqualsNoCase(params[4], "true");
     else
     {
       HELPERS::DialogResponse result = HELPERS::ShowYesNoDialogText(CVariant{iHeading}, CVariant{20436});
@@ -191,7 +191,7 @@ static int ExportLibrary(const std::vector<std::string>& params)
   if (!singleFile)
   {
     if (params.size() > 3)
-      overwrite = StringUtils::EqualsNoCase(params[3], "true");
+      overwrite = KODI::StringUtils::EqualsNoCase(params[3], "true");
     else
     {
       HELPERS::DialogResponse result = HELPERS::ShowYesNoDialogText(CVariant{iHeading}, CVariant{20431});
@@ -209,7 +209,7 @@ static int ExportLibrary(const std::vector<std::string>& params)
       CGUIDialogFileBrowser::ShowAndGetDirectory(shares, g_localizeStrings.Get(661),
                                                  path, true))
   {
-    if (StringUtils::EqualsNoCase(params[0], "video"))
+    if (KODI::StringUtils::EqualsNoCase(params[0], "video"))
     {
       CVideoDatabase videodatabase;
       videodatabase.Open();
@@ -255,9 +255,9 @@ static int ExportLibrary2(const std::vector<std::string>& params)
     return -1;
   settings.m_strPath = params[2];
   settings.SetExportType(ELIBEXPORT_SINGLEFILE);
-  if (StringUtils::EqualsNoCase(params[1], "separate"))
+  if (KODI::StringUtils::EqualsNoCase(params[1], "separate"))
     settings.SetExportType(ELIBEXPORT_SEPARATEFILES);
-  else if (StringUtils::EqualsNoCase(params[1], "library"))
+  else if (KODI::StringUtils::EqualsNoCase(params[1], "library"))
   {
     settings.SetExportType(ELIBEXPORT_TOLIBRARYFOLDER);
     settings.m_strPath.clear();
@@ -266,26 +266,26 @@ static int ExportLibrary2(const std::vector<std::string>& params)
 
   for (unsigned int i = 2; i < params.size(); i++)
   {
-    if (StringUtils::EqualsNoCase(params[i], "artwork"))
+    if (KODI::StringUtils::EqualsNoCase(params[i], "artwork"))
       settings.m_artwork = true;
-    else if (StringUtils::EqualsNoCase(params[i], "overwrite"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "overwrite"))
       settings.m_overwrite = true;
-    else if (StringUtils::EqualsNoCase(params[i], "unscraped"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "unscraped"))
       settings.m_unscraped = true;
-    else if (StringUtils::EqualsNoCase(params[i], "skipnfo"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "skipnfo"))
       settings.m_skipnfo = true;
-    else if (StringUtils::EqualsNoCase(params[i], "albums"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "albums"))
       settings.AddItem(ELIBEXPORT_ALBUMS);
-    else if (StringUtils::EqualsNoCase(params[i], "albumartists"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "albumartists"))
       settings.AddItem(ELIBEXPORT_ALBUMARTISTS);
-    else if (StringUtils::EqualsNoCase(params[i], "songartists"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "songartists"))
       settings.AddItem(ELIBEXPORT_SONGARTISTS);
-    else if (StringUtils::EqualsNoCase(params[i], "otherartists"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "otherartists"))
       settings.AddItem(ELIBEXPORT_OTHERARTISTS);
-    else if (StringUtils::EqualsNoCase(params[i], "actorthumbs"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "actorthumbs"))
       settings.AddItem(ELIBEXPORT_ACTORTHUMBS);
   }
-  if (StringUtils::EqualsNoCase(params[0], "music"))
+  if (KODI::StringUtils::EqualsNoCase(params[0], "music"))
   {
     // Export music library (not showing progress dialog)
     CMusicLibraryQueue::GetInstance().ExportLibrary(settings, false);
@@ -311,8 +311,8 @@ static int UpdateLibrary(const std::vector<std::string>& params)
 {
   bool userInitiated = true;
   if (params.size() > 2)
-    userInitiated = StringUtils::EqualsNoCase(params[2], "true");
-  if (StringUtils::EqualsNoCase(params[0], "music"))
+    userInitiated = KODI::StringUtils::EqualsNoCase(params[2], "true");
+  if (KODI::StringUtils::EqualsNoCase(params[0], "music"))
   {
     if (CMusicLibraryQueue::GetInstance().IsScanningLibrary())
       CMusicLibraryQueue::GetInstance().StopLibraryScanning();
@@ -321,7 +321,7 @@ static int UpdateLibrary(const std::vector<std::string>& params)
                                                     MUSIC_INFO::CMusicInfoScanner::SCAN_NORMAL,
                                                     userInitiated);
   }
-  else if (StringUtils::EqualsNoCase(params[0], "video"))
+  else if (KODI::StringUtils::EqualsNoCase(params[0], "video"))
   {
     if (CVideoLibraryQueue::GetInstance().IsScanningLibrary())
       CVideoLibraryQueue::GetInstance().StopLibraryScanning();

@@ -613,7 +613,7 @@ bool CPVRManager::SetWakeupCommand()
       time_t iWakeupTime;
       nextEvent.GetAsTime(iWakeupTime);
 
-      std::string strExecCommand = StringUtils::Format("{} {}", strWakeupCommand, iWakeupTime);
+      std::string strExecCommand = KODI::StringUtils::Format("{} {}", strWakeupCommand, iWakeupTime);
 
       const int iReturn = system(strExecCommand.c_str());
       if (iReturn != 0)

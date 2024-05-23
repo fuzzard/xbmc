@@ -133,14 +133,14 @@ bool CNetworkBase::IsLocalHost(const std::string& hostname)
   if (hostname.empty())
     return false;
 
-  if (StringUtils::StartsWith(hostname, "127.")
+  if (KODI::StringUtils::StartsWith(hostname, "127.")
       || (hostname == "::1")
-      || StringUtils::EqualsNoCase(hostname, "localhost"))
+      || KODI::StringUtils::EqualsNoCase(hostname, "localhost"))
     return true;
 
   std::string myhostname;
   if (GetHostName(myhostname)
-      && StringUtils::EqualsNoCase(hostname, myhostname))
+      && KODI::StringUtils::EqualsNoCase(hostname, myhostname))
     return true;
 
   std::vector<CNetworkInterface*>& ifaces = GetInterfaceList();

@@ -250,9 +250,9 @@ void CSeekHandler::SettingOptionsSeekStepsFiller(const SettingConstPtr& setting,
   for (int seconds : CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_seekSteps)
   {
     if (seconds > 60)
-      label = StringUtils::Format(g_localizeStrings.Get(14044), seconds / 60);
+      label = KODI::StringUtils::Format(g_localizeStrings.Get(14044), seconds / 60);
     else
-      label = StringUtils::Format(g_localizeStrings.Get(14045), seconds);
+      label = KODI::StringUtils::Format(g_localizeStrings.Get(14045), seconds);
 
     list.insert(list.begin(), IntegerSettingOption("-" + label, seconds * -1));
     list.emplace_back(label, seconds);

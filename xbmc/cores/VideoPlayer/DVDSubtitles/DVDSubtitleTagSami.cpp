@@ -29,7 +29,7 @@ std::string TranslateColorValue(std::string value)
   // Find hex by color name
   //! @todo: is needed to implement a common way to get color resources
   //!        in order to find the color name on CSS colors list
-  StringUtils::ToLower(value);
+  KODI::StringUtils::ToLower(value);
   const auto itHtmlColor = UTILS::COLOR::HTML_BASIC_COLORS.find(value);
   if (itHtmlColor != UTILS::COLOR::HTML_BASIC_COLORS.cend())
     return UTILS::COLOR::ConvertToHexRGB(itHtmlColor->second);
@@ -81,7 +81,7 @@ bool CDVDSubtitleTagSami::Init()
 
 void CDVDSubtitleTagSami::ConvertLine(std::string& strUTF8, const char* langClassID)
 {
-  StringUtils::Trim(strUTF8);
+  KODI::StringUtils::Trim(strUTF8);
 
   int pos = 0;
   int del_start = 0;
@@ -89,7 +89,7 @@ void CDVDSubtitleTagSami::ConvertLine(std::string& strUTF8, const char* langClas
   {
     // Parser for SubRip/SAMI Tags
     std::string fullTag = m_tags->GetMatch(0);
-    StringUtils::ToLower(fullTag);
+    KODI::StringUtils::ToLower(fullTag);
     strUTF8.erase(pos, fullTag.length());
     if (fullTag == "<b>")
     {
@@ -145,7 +145,7 @@ void CDVDSubtitleTagSami::ConvertLine(std::string& strUTF8, const char* langClas
       strUTF8.insert(pos, "{\\c}");
       pos += 4;
     }
-    else if (StringUtils::StartsWith(fullTag, "<font"))
+    else if (KODI::StringUtils::StartsWith(fullTag, "<font"))
     {
       int pos2 = 5;
       while ((pos2 = m_tagOptions->RegFind(fullTag.c_str(), pos2)) >= 0)
@@ -169,13 +169,13 @@ void CDVDSubtitleTagSami::ConvertLine(std::string& strUTF8, const char* langClas
       }
     }
     // Parse specific SAMI Tags (all below)
-    else if (langClassID && (StringUtils::StartsWith(fullTag, "<p ")))
+    else if (langClassID && (KODI::StringUtils::StartsWith(fullTag, "<p ")))
     {
       int pos2 = 3;
       while ((pos2 = m_tagOptions->RegFind(fullTag.c_str(), pos2)) >= 0)
       {
         std::string tagOptionName = m_tagOptions->GetMatch(1);
-        std::string tagOptionValue = StringUtils::ToLower(m_tagOptions->GetMatch(2));
+        std::string tagOptionValue = KODI::StringUtils::ToLower(m_tagOptions->GetMatch(2));
         pos2 += static_cast<int>(tagOptionName.length() + tagOptionValue.length());
         if (tagOptionName == "class")
         {
@@ -203,7 +203,7 @@ void CDVDSubtitleTagSami::ConvertLine(std::string& strUTF8, const char* langClas
       pos = del_start;
       m_flag[FLAG_LANGUAGE] = false;
     }
-    else if ((fullTag == "\\n") || (StringUtils::StartsWith(fullTag, "<br") && !strUTF8.empty()))
+    else if ((fullTag == "\\n") || (KODI::StringUtils::StartsWith(fullTag, "<br") && !strUTF8.empty()))
     {
       strUTF8.insert(pos, "\n");
       pos += 1;
@@ -275,13 +275,13 @@ void CDVDSubtitleTagSami::LoadHead(CDVDSubtitleStream* samiStream)
   std::string line;
   while (samiStream->ReadLine(line))
   {
-    StringUtils::Trim(line);
+    KODI::StringUtils::Trim(line);
 
-    if (StringUtils::EqualsNoCase(line, "<BODY>"))
+    if (KODI::StringUtils::EqualsNoCase(line, "<BODY>"))
       break;
     if (inSTYLE)
     {
-      if (StringUtils::EqualsNoCase(line, "</STYLE>"))
+      if (KODI::StringUtils::EqualsNoCase(line, "</STYLE>"))
         break;
       else
       {
@@ -292,16 +292,16 @@ void CDVDSubtitleTagSami::LoadHead(CDVDSubtitleStream* samiStream)
           lc.Name = reg.GetMatch(2);
           lc.Lang = reg.GetMatch(3);
           lc.SAMIType = reg.GetMatch(4);
-          StringUtils::Trim(lc.Name);
-          StringUtils::Trim(lc.Lang);
-          StringUtils::Trim(lc.SAMIType);
+          KODI::StringUtils::Trim(lc.Name);
+          KODI::StringUtils::Trim(lc.Lang);
+          KODI::StringUtils::Trim(lc.SAMIType);
           m_Langclass.push_back(lc);
         }
       }
     }
     else
     {
-      if (StringUtils::EqualsNoCase(line, "<STYLE TYPE=\"text/css\">"))
+      if (KODI::StringUtils::EqualsNoCase(line, "<STYLE TYPE=\"text/css\">"))
         inSTYLE = true;
     }
   }

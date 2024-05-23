@@ -292,8 +292,8 @@ bool CWinLibraryFile::IsInAccessList(const CURL& url)
       packagePath = FromW(Package::Current().InstalledLocation().Path().c_str());
 
     // don't check files inside local folder and installation folder
-    if ( StringUtils::StartsWithNoCase(url.Get(), localPath)
-      || StringUtils::StartsWithNoCase(url.Get(), packagePath))
+    if ( KODI::StringUtils::StartsWithNoCase(url.Get(), localPath)
+      || KODI::StringUtils::StartsWithNoCase(url.Get(), packagePath))
       return false;
 
     return IsInList(url, StorageApplicationPermissions::FutureAccessList())

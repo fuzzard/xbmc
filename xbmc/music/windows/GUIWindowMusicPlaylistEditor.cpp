@@ -225,7 +225,7 @@ void CGUIWindowMusicPlaylistEditor::UpdateButtons()
   CGUIWindowMusicBase::UpdateButtons();
 
   // Update object count label
-  std::string items = StringUtils::Format("{} {}", m_vecItems->GetObjectCount(),
+  std::string items = KODI::StringUtils::Format("{} {}", m_vecItems->GetObjectCount(),
                                           g_localizeStrings.Get(127)); // " 14 Objects"
   SET_CONTROL_LABEL(CONTROL_LABELFILES, items);
 }
@@ -304,7 +304,7 @@ void CGUIWindowMusicPlaylistEditor::UpdatePlaylist()
   OnMessage(msg);
 
   // indicate how many songs we have
-  std::string items = StringUtils::Format("{} {}", m_playlist->Size(),
+  std::string items = KODI::StringUtils::Format("{} {}", m_playlist->Size(),
                                           g_localizeStrings.Get(134)); // "123 Songs"
   SET_CONTROL_LABEL(CONTROL_LABEL_PLAYLIST, items);
 

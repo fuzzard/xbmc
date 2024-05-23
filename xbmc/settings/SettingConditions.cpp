@@ -59,7 +59,7 @@ bool CheckMasterLock(const std::string& condition,
                      const SettingConstPtr& setting,
                      void* data)
 {
-  return g_passwordManager.IsMasterLockUnlocked(StringUtils::EqualsNoCase(value, "true"));
+  return g_passwordManager.IsMasterLockUnlocked(KODI::StringUtils::EqualsNoCase(value, "true"));
 }
 
 bool HasPeripherals(const std::string& condition,
@@ -248,13 +248,13 @@ bool ProfileHasSettingsLocked(const std::string& condition,
                               void* data)
 {
   LOCK_LEVEL::SETTINGS_LOCK slValue=LOCK_LEVEL::ALL;
-  if (StringUtils::EqualsNoCase(value, "none"))
+  if (KODI::StringUtils::EqualsNoCase(value, "none"))
     slValue = LOCK_LEVEL::NONE;
-  else if (StringUtils::EqualsNoCase(value, "standard"))
+  else if (KODI::StringUtils::EqualsNoCase(value, "standard"))
     slValue = LOCK_LEVEL::STANDARD;
-  else if (StringUtils::EqualsNoCase(value, "advanced"))
+  else if (KODI::StringUtils::EqualsNoCase(value, "advanced"))
     slValue = LOCK_LEVEL::ADVANCED;
-  else if (StringUtils::EqualsNoCase(value, "expert"))
+  else if (KODI::StringUtils::EqualsNoCase(value, "expert"))
     slValue = LOCK_LEVEL::EXPERT;
   return slValue <= CSettingConditions::GetCurrentProfile().settingsLockLevel();
 }
@@ -295,7 +295,7 @@ bool GreaterThan(const std::string& condition,
   char* tmp = nullptr;
 
   int lhs = settingInt->GetValue();
-  int rhs = StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
+  int rhs = KODI::StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
 
   return lhs > rhs;
 }
@@ -315,7 +315,7 @@ bool GreaterThanOrEqual(const std::string& condition,
   char* tmp = nullptr;
 
   int lhs = settingInt->GetValue();
-  int rhs = StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
+  int rhs = KODI::StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
 
   return lhs >= rhs;
 }
@@ -335,7 +335,7 @@ bool LessThan(const std::string& condition,
   char* tmp = nullptr;
 
   int lhs = settingInt->GetValue();
-  int rhs = StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
+  int rhs = KODI::StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
 
   return lhs < rhs;
 }
@@ -355,7 +355,7 @@ bool LessThanOrEqual(const std::string& condition,
   char* tmp = nullptr;
 
   int lhs = settingInt->GetValue();
-  int rhs = StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
+  int rhs = KODI::StringUtils::IsInteger(value) ? (int)strtol(value.c_str(), &tmp, 0) : 0;
 
   return lhs <= rhs;
 }

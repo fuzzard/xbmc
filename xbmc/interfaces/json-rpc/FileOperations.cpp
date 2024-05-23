@@ -35,7 +35,7 @@ using namespace JSONRPC;
 JSONRPC_STATUS CFileOperations::GetRootDirectory(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
   std::string media = parameterObject["media"].asString();
-  StringUtils::ToLower(media);
+  KODI::StringUtils::ToLower(media);
 
   VECSOURCES *sources = CMediaSourceSettings::GetInstance().GetSources(media);
   if (sources)
@@ -72,7 +72,7 @@ JSONRPC_STATUS CFileOperations::GetRootDirectory(const std::string &method, ITra
 JSONRPC_STATUS CFileOperations::GetDirectory(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
   std::string media = parameterObject["media"].asString();
-  StringUtils::ToLower(media);
+  KODI::StringUtils::ToLower(media);
 
   CFileItemList items;
   std::string strPath = parameterObject["directory"].asString();
@@ -221,7 +221,7 @@ JSONRPC_STATUS CFileOperations::GetFileDetails(const std::string &method, ITrans
 JSONRPC_STATUS CFileOperations::SetFileDetails(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
   std::string media = parameterObject["media"].asString();
-  StringUtils::ToLower(media);
+  KODI::StringUtils::ToLower(media);
 
   if (media.compare("video") != 0)
     return InvalidParams;
@@ -348,7 +348,7 @@ bool CFileOperations::FillFileItemList(const CVariant &parameterObject, CFileIte
   if (parameterObject.isMember("directory"))
   {
     std::string media =  parameterObject["media"].asString();
-    StringUtils::ToLower(media);
+    KODI::StringUtils::ToLower(media);
 
     std::string strPath = parameterObject["directory"].asString();
     if (!strPath.empty())

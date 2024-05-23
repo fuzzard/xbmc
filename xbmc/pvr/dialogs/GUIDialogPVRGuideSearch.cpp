@@ -146,7 +146,7 @@ void CGUIDialogPVRGuideSearch::UpdateDurationSpin()
 
   labels.emplace_back("-", EPG_SEARCH_UNSET);
   for (int i = 1; i < 12*60/5; ++i)
-    labels.emplace_back(StringUtils::Format(g_localizeStrings.Get(14044), i * 5), i * 5);
+    labels.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(14044), i * 5), i * 5);
 
   SET_CONTROL_LABELS(CONTROL_SPIN_MIN_DURATION, m_searchFilter->GetMinimumDuration(), &labels);
 
@@ -155,7 +155,7 @@ void CGUIDialogPVRGuideSearch::UpdateDurationSpin()
 
   labels.emplace_back("-", EPG_SEARCH_UNSET);
   for (int i = 1; i < 12*60/5; ++i)
-    labels.emplace_back(StringUtils::Format(g_localizeStrings.Get(14044), i * 5), i * 5);
+    labels.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(14044), i * 5), i * 5);
 
   SET_CONTROL_LABELS(CONTROL_SPIN_MAX_DURATION, m_searchFilter->GetMaximumDuration(), &labels);
 }
@@ -205,7 +205,7 @@ bool CGUIDialogPVRGuideSearch::OnMessage(CGUIMessage& message)
           if (title.empty())
             title = g_localizeStrings.Get(137); // "Search"
           else
-            StringUtils::Trim(title, "\"");
+            KODI::StringUtils::Trim(title, "\"");
 
           if (!CGUIKeyboardFactory::ShowAndGetInput(
                   title, CVariant{g_localizeStrings.Get(528)}, // "Enter title"

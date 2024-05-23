@@ -53,14 +53,14 @@ bool DeserializeOptionsSort(const TiXmlElement* optionsElement, SettingOptionsSo
   if (optionsElement->QueryStringAttribute("sort", &sort) != TIXML_SUCCESS)
     return true;
 
-  if (StringUtils::EqualsNoCase(sort, "false") || StringUtils::EqualsNoCase(sort, "off") ||
-    StringUtils::EqualsNoCase(sort, "no") || StringUtils::EqualsNoCase(sort, "disabled"))
+  if (KODI::StringUtils::EqualsNoCase(sort, "false") || KODI::StringUtils::EqualsNoCase(sort, "off") ||
+    KODI::StringUtils::EqualsNoCase(sort, "no") || KODI::StringUtils::EqualsNoCase(sort, "disabled"))
     optionsSort = SettingOptionsSort::NoSorting;
-  else if (StringUtils::EqualsNoCase(sort, "asc") || StringUtils::EqualsNoCase(sort, "ascending") ||
-    StringUtils::EqualsNoCase(sort, "true") || StringUtils::EqualsNoCase(sort, "on") ||
-    StringUtils::EqualsNoCase(sort, "yes") || StringUtils::EqualsNoCase(sort, "enabled"))
+  else if (KODI::StringUtils::EqualsNoCase(sort, "asc") || KODI::StringUtils::EqualsNoCase(sort, "ascending") ||
+    KODI::StringUtils::EqualsNoCase(sort, "true") || KODI::StringUtils::EqualsNoCase(sort, "on") ||
+    KODI::StringUtils::EqualsNoCase(sort, "yes") || KODI::StringUtils::EqualsNoCase(sort, "enabled"))
     optionsSort = SettingOptionsSort::Ascending;
-  else if (StringUtils::EqualsNoCase(sort, "desc") || StringUtils::EqualsNoCase(sort, "descending"))
+  else if (KODI::StringUtils::EqualsNoCase(sort, "desc") || KODI::StringUtils::EqualsNoCase(sort, "descending"))
     optionsSort = SettingOptionsSort::Descending;
   else
     return false;
@@ -232,7 +232,7 @@ void CSetting::MakeReference(const std::string& referencedId /* = "" */)
   if (referencedId.empty())
     tmpReferencedId = m_id;
 
-  m_id = StringUtils::Format("#{}[{}]", tmpReferencedId, StringUtils::CreateUUID());
+  m_id = KODI::StringUtils::Format("#{}[{}]", tmpReferencedId, KODI::StringUtils::CreateUUID());
   m_referencedId = tmpReferencedId;
 }
 
@@ -617,7 +617,7 @@ void CSettingList::copy(const SettingList &srcValues, SettingList &dstValues)
 
 bool CSettingList::fromString(const std::string &strValue, SettingList &values) const
 {
-  return fromValues(StringUtils::Split(strValue, m_delimiter), values);
+  return fromValues(KODI::StringUtils::Split(strValue, m_delimiter), values);
 }
 
 bool CSettingList::fromValues(const std::vector<std::string> &strValues, SettingList &values) const
@@ -630,7 +630,7 @@ bool CSettingList::fromValues(const std::vector<std::string> &strValues, Setting
   int index = 0;
   for (const auto& value : strValues)
   {
-    auto settingValue = m_definition->Clone(StringUtils::Format("{}.{}", m_id, index++));
+    auto settingValue = m_definition->Clone(KODI::StringUtils::Format("{}.{}", m_id, index++));
     if (settingValue == nullptr ||
         !settingValue->FromString(value))
     {
@@ -656,7 +656,7 @@ std::string CSettingList::toString(const SettingList &values) const
       strValues.push_back(value->ToString());
   }
 
-  return StringUtils::Join(strValues, m_delimiter);
+  return KODI::StringUtils::Join(strValues, m_delimiter);
 }
 
 Logger CSettingBool::s_logger;
@@ -793,12 +793,12 @@ void CSettingBool::copy(const CSettingBool &setting)
 
 bool CSettingBool::fromString(const std::string &strValue, bool &value) const
 {
-  if (StringUtils::EqualsNoCase(strValue, "true"))
+  if (KODI::StringUtils::EqualsNoCase(strValue, "true"))
   {
     value = true;
     return true;
   }
-  if (StringUtils::EqualsNoCase(strValue, "false"))
+  if (KODI::StringUtils::EqualsNoCase(strValue, "false"))
   {
     value = false;
     return true;

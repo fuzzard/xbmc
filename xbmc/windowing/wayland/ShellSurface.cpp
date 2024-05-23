@@ -31,5 +31,5 @@ std::string IShellSurface::StateToString(StateBitset state)
   {
     parts.emplace_back("resizing");
   }
-  return parts.empty() ? "none" : StringUtils::Join(parts, ",");
+  return parts.empty() ? "none" : KODI::StringUtils::Join(parts, ",");
 }

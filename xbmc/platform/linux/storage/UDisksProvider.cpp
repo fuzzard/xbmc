@@ -129,8 +129,8 @@ CMediaSource CUDiskDevice::ToMediaShare() const
   source.strPath = m_MountPath;
   if (m_Label.empty())
   {
-    std::string strSize = StringUtils::SizeToString(m_PartitionSize);
-    source.strName = StringUtils::Format("{} {}", strSize, g_localizeStrings.Get(155));
+    std::string strSize = KODI::StringUtils::SizeToString(m_PartitionSize);
+    source.strName = KODI::StringUtils::Format("{} {}", strSize, g_localizeStrings.Get(155));
   }
   else
     source.strName = m_Label;
@@ -196,7 +196,7 @@ MEDIA_DETECT::STORAGE::StorageDevice CUDiskDevice::ToStorageDevice() const
 
 std::string CUDiskDevice::ToString() const
 {
-  return StringUtils::Format("DeviceUDI {}: IsFileSystem {} HasFileSystem {} "
+  return KODI::StringUtils::Format("DeviceUDI {}: IsFileSystem {} HasFileSystem {} "
                              "IsSystemInternal {} IsMounted {} IsRemovable {} IsPartition {} "
                              "IsOptical {}",
                              m_DeviceKitUDI, BOOL2SZ(m_isFileSystem), m_FileSystem,

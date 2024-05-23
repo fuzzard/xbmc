@@ -160,7 +160,7 @@ bool CMultiPathDirectory::GetPaths(const std::string& path, std::vector<std::str
   path1.erase(path1.find_last_not_of('/')+1);
 
   // split on "/"
-  std::vector<std::string> temp = StringUtils::Split(path1, '/');
+  std::vector<std::string> temp = KODI::StringUtils::Split(path1, '/');
   if (temp.empty())
     return false;
 
@@ -177,7 +177,7 @@ bool CMultiPathDirectory::HasPath(const std::string& strPath, const std::string&
   URIUtils::RemoveSlashAtEnd(strPath1);
 
   // split on "/"
-  std::vector<std::string> vecTemp = StringUtils::Split(strPath1, '/');
+  std::vector<std::string> vecTemp = KODI::StringUtils::Split(strPath1, '/');
   if (vecTemp.empty())
     return false;
 

@@ -52,7 +52,7 @@ AESinkDevice CAESinkFactory::ParseDevice(const std::string& device)
 
     for (const auto& reg : m_AESinkRegEntry)
     {
-      if (!StringUtils::EqualsNoCase(dev.driver, reg.second.sinkName))
+      if (!KODI::StringUtils::EqualsNoCase(dev.driver, reg.second.sinkName))
         continue;
 
       dev.name = dev.name.substr(pos + 1, dev.name.length() - pos - 1);

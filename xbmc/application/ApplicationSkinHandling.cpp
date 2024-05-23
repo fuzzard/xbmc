@@ -274,7 +274,7 @@ bool CApplicationSkinHandling::LoadCustomWindows()
           continue;
 
         std::string skinFile = URIUtils::GetFileName(item->GetPath());
-        if (StringUtils::StartsWithNoCase(skinFile, "custom"))
+        if (KODI::StringUtils::StartsWithNoCase(skinFile, "custom"))
         {
           CXBMCTinyXML xmlDoc;
           if (!xmlDoc.LoadFile(item->GetPath()))
@@ -287,7 +287,7 @@ bool CApplicationSkinHandling::LoadCustomWindows()
           // Root element should be <window>
           TiXmlElement* pRootElement = xmlDoc.RootElement();
           std::string strValue = pRootElement->Value();
-          if (!StringUtils::EqualsNoCase(strValue, "window"))
+          if (!KODI::StringUtils::EqualsNoCase(strValue, "window"))
           {
             CLog::Log(LOGERROR, "No <window> root element found for custom window in {}", skinFile);
             continue;
@@ -328,7 +328,7 @@ bool CApplicationSkinHandling::LoadCustomWindows()
           CGUIWindow* pWindow = nullptr;
           bool hasVisibleCondition = false;
 
-          if (StringUtils::EqualsNoCase(strType, "dialog"))
+          if (KODI::StringUtils::EqualsNoCase(strType, "dialog"))
           {
             DialogModalityType modality = DialogModalityType::MODAL;
             hasVisibleCondition = pRootElement->FirstChildElement("visible") != nullptr;
@@ -336,16 +336,16 @@ bool CApplicationSkinHandling::LoadCustomWindows()
             // set to "modal" by the skinner using the "modality" attribute in the root XML element of the window
             if (hasVisibleCondition &&
                 (!pRootElement->Attribute("modality") ||
-                 !StringUtils::EqualsNoCase(pRootElement->Attribute("modality"), "modal")))
+                 !KODI::StringUtils::EqualsNoCase(pRootElement->Attribute("modality"), "modal")))
               modality = DialogModalityType::MODELESS;
 
             pWindow = new CGUIDialog(windowId, skinFile, modality);
           }
-          else if (StringUtils::EqualsNoCase(strType, "submenu"))
+          else if (KODI::StringUtils::EqualsNoCase(strType, "submenu"))
           {
             pWindow = new CGUIDialogSubMenu(windowId, skinFile);
           }
-          else if (StringUtils::EqualsNoCase(strType, "buttonmenu"))
+          else if (KODI::StringUtils::EqualsNoCase(strType, "buttonmenu"))
           {
             pWindow = new CGUIDialogButtonMenu(windowId, skinFile);
           }
@@ -482,7 +482,7 @@ bool CApplicationSkinHandling::OnSettingChanged(const CSetting& setting)
 
       // we also need to adjust the skin color theme and fontset
       std::string theme = static_cast<const CSettingString&>(setting).GetValue();
-      if (setting.IsDefault() || StringUtils::EqualsNoCase(theme, "Textures.xbt"))
+      if (setting.IsDefault() || KODI::StringUtils::EqualsNoCase(theme, "Textures.xbt"))
       {
         skinColorsSetting->Reset();
         skinFontSetting->Reset();

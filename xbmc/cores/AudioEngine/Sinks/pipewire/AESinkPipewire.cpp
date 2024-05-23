@@ -309,7 +309,7 @@ void CAESinkPipewire::EnumerateDevicesEx(AEDeviceInfoList& list, bool force)
     device.m_deviceType = AE_DEVTYPE_PCM;
     device.m_deviceName = global->GetName();
     device.m_displayName = global->GetDescription();
-    device.m_displayNameExtra = StringUtils::Format("{} (PIPEWIRE)", global->GetDescription());
+    device.m_displayNameExtra = KODI::StringUtils::Format("{} (PIPEWIRE)", global->GetDescription());
     device.m_wantsIECPassthrough = true;
 
     std::for_each(formatMap.cbegin(), formatMap.cend(),
@@ -423,9 +423,9 @@ bool CAESinkPipewire::Initialize(AEAudioFormat& format, std::string& device)
   m_latency = DEFAULT_BUFFER_DURATION;
   uint32_t frames = std::nearbyint(DEFAULT_PERIOD_DURATION.count() * format.m_sampleRate);
   std::string fraction =
-      StringUtils::Format("{}/{}", frames / DEFAULT_LATENCY_DIVIDER, format.m_sampleRate);
+      KODI::StringUtils::Format("{}/{}", frames / DEFAULT_LATENCY_DIVIDER, format.m_sampleRate);
 
-  std::string srate = StringUtils::Format("1/{}", format.m_sampleRate);
+  std::string srate = KODI::StringUtils::Format("1/{}", format.m_sampleRate);
 
   std::array<spa_dict_item, 6> items = {
       SPA_DICT_ITEM_INIT(PW_KEY_MEDIA_TYPE, "Audio"),

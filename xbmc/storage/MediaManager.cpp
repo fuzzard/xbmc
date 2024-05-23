@@ -93,7 +93,7 @@ bool CMediaManager::LoadSources()
     return false;
 
   TiXmlElement* pRootElement = xmlDoc.RootElement();
-  if (!pRootElement || StringUtils::CompareNoCase(pRootElement->Value(), "mediasources") != 0)
+  if (!pRootElement || KODI::StringUtils::CompareNoCase(pRootElement->Value(), "mediasources") != 0)
   {
     CLog::Log(LOGERROR, "Error loading {}, Line {} ({})", MEDIA_SOURCES_XML, xmlDoc.ErrorRow(),
               xmlDoc.ErrorDesc());
@@ -188,7 +188,7 @@ void CMediaManager::GetNetworkLocations(VECSOURCES &locations, bool autolocation
     {
       const std::string& strDevices = g_localizeStrings.Get(33040); //"% Devices"
       share.strPath = "upnp://";
-      share.strName = StringUtils::Format(strDevices, "UPnP"); //"UPnP Devices"
+      share.strName = KODI::StringUtils::Format(strDevices, "UPnP"); //"UPnP Devices"
       locations.push_back(share);
     }
 #endif
@@ -370,7 +370,7 @@ std::string CMediaManager::TranslateDevicePath(const std::string& devicePath, bo
   std::string strDevice = devicePath;
   // fallback for cdda://local/ and empty devicePath
 #ifdef HAS_OPTICAL_DRIVE
-  if(devicePath.empty() || StringUtils::StartsWith(devicePath, "cdda://local"))
+  if(devicePath.empty() || KODI::StringUtils::StartsWith(devicePath, "cdda://local"))
     strDevice = m_strFirstAvailDrive;
 #endif
 
@@ -379,9 +379,9 @@ std::string CMediaManager::TranslateDevicePath(const std::string& devicePath, bo
     return "";
 
   if(bReturnAsDevice == false)
-    StringUtils::Replace(strDevice, "\\\\.\\","");
+    KODI::StringUtils::Replace(strDevice, "\\\\.\\","");
   else if(!strDevice.empty() && strDevice[1]==':')
-    strDevice = StringUtils::Format("\\\\.\\{}:", strDevice[0]);
+    strDevice = KODI::StringUtils::Format("\\\\.\\{}:", strDevice[0]);
 
   URIUtils::RemoveSlashAtEnd(strDevice);
 #endif
@@ -551,7 +551,7 @@ std::string CMediaManager::GetDiskLabel(const std::string& devicePath)
   if(GetVolumeInformationW(strDeviceW.c_str(), cVolumenName, 127, NULL, NULL, NULL, cFSName, 127)==0)
     return "";
   g_charsetConverter.wToUTF8(cVolumenName, strDevice);
-  info.name = StringUtils::TrimRight(strDevice, " ");
+  info.name = KODI::StringUtils::TrimRight(strDevice, " ");
   if (!info.name.empty())
     m_mapDiscInfo[mediaPath] = info;
 
@@ -593,7 +593,7 @@ std::string CMediaManager::GetDiskUniqueId(const std::string& devicePath)
     return "";
   }
 
-  std::string strID = StringUtils::Format("removable://{}_{}", info.name, info.serial);
+  std::string strID = KODI::StringUtils::Format("removable://{}_{}", info.name, info.serial);
   CLog::Log(LOGDEBUG, "GetDiskUniqueId: Got ID {} for disc with path {}", strID,
             CURL::GetRedacted(mediaPath));
 
@@ -749,8 +749,8 @@ UTILS::DISCS::DiscInfo CMediaManager::GetDiscInfo(const std::string& mediaPath)
   // Try finding VIDEO_TS/VIDEO_TS.IFO - this indicates a DVD disc is inserted
   std::string pathVideoTS = URIUtils::AddFileToFolder(mediaPath, "VIDEO_TS", "VIDEO_TS.IFO");
   // correct the filename if needed
-  if (StringUtils::StartsWith(mediaPath, "dvd://") ||
-      StringUtils::StartsWith(mediaPath, "iso9660://"))
+  if (KODI::StringUtils::StartsWith(mediaPath, "dvd://") ||
+      KODI::StringUtils::StartsWith(mediaPath, "iso9660://"))
   {
     pathVideoTS = TranslateDevicePath("");
   }
@@ -793,7 +793,7 @@ bool CMediaManager::playStubFile(const CFileItem& item)
   if (discStubXML.LoadFile(item.GetPath()))
   {
     TiXmlElement* pRootElement = discStubXML.RootElement();
-    if (!pRootElement || StringUtils::CompareNoCase(pRootElement->Value(), "discstub") != 0)
+    if (!pRootElement || KODI::StringUtils::CompareNoCase(pRootElement->Value(), "discstub") != 0)
       CLog::Log(LOGINFO, "No <discstub> node found for {}. Using default info dialog message",
                 item.GetPath());
     else

@@ -795,7 +795,7 @@ LRESULT CALLBACK CWinEventsWin32::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
               // optical medium
               if (lpdbv -> dbcv_flags & DBTF_MEDIA)
               {
-                std::string strdrive = StringUtils::Format(
+                std::string strdrive = KODI::StringUtils::Format(
                     "{}:", CWIN32Util::FirstDriveFromMask(lpdbv->dbcv_unitmask));
                 if(wParam == DBT_DEVICEARRIVAL)
                 {

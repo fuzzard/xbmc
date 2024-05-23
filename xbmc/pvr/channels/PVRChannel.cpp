@@ -44,14 +44,14 @@ bool CPVRChannel::operator!=(const CPVRChannel& right) const
 
 CPVRChannel::CPVRChannel(bool bRadio)
   : m_bIsRadio(bRadio),
-    m_iconPath("", StringUtils::Format(IMAGE_OWNER_PATTERN, bRadio ? "radio" : "tv"))
+    m_iconPath("", KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, bRadio ? "radio" : "tv"))
 {
   UpdateEncryptionName();
 }
 
 CPVRChannel::CPVRChannel(bool bRadio, const std::string& iconPath)
   : m_bIsRadio(bRadio),
-    m_iconPath(iconPath, StringUtils::Format(IMAGE_OWNER_PATTERN, bRadio ? "radio" : "tv"))
+    m_iconPath(iconPath, KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, bRadio ? "radio" : "tv"))
 {
   UpdateEncryptionName();
 }
@@ -60,7 +60,7 @@ CPVRChannel::CPVRChannel(const PVR_CHANNEL& channel, unsigned int iClientId)
   : m_bIsRadio(channel.bIsRadio),
     m_bIsHidden(channel.bIsHidden),
     m_iconPath(channel.strIconPath,
-               StringUtils::Format(IMAGE_OWNER_PATTERN, channel.bIsRadio ? "radio" : "tv")),
+               KODI::StringUtils::Format(IMAGE_OWNER_PATTERN, channel.bIsRadio ? "radio" : "tv")),
     m_strChannelName(channel.strChannelName),
     m_bHasArchive(channel.bHasArchive),
     m_bEPGEnabled(!channel.bIsHidden),
@@ -74,7 +74,7 @@ CPVRChannel::CPVRChannel(const PVR_CHANNEL& channel, unsigned int iClientId)
     m_iClientProviderUid(channel.iClientProviderUid)
 {
   if (m_strChannelName.empty())
-    m_strChannelName = StringUtils::Format("{} {}", g_localizeStrings.Get(19029), m_iUniqueId);
+    m_strChannelName = KODI::StringUtils::Format("{} {}", g_localizeStrings.Get(19029), m_iUniqueId);
 
   UpdateEncryptionName();
 }
@@ -345,7 +345,7 @@ bool CPVRChannel::SetArchive(bool bHasArchive)
 
 bool CPVRChannel::SetIconPath(const std::string& strIconPath, bool bIsUserSetIcon /* = false */)
 {
-  if (StringUtils::StartsWith(strIconPath, "image://"))
+  if (KODI::StringUtils::StartsWith(strIconPath, "image://"))
   {
     CLog::LogF(LOGERROR, "Not allowed to call this method with an image URL");
     return false;
@@ -371,7 +371,7 @@ bool CPVRChannel::SetChannelName(const std::string& strChannelName, bool bIsUser
   std::string strName(strChannelName);
 
   if (strName.empty())
-    strName = StringUtils::Format(g_localizeStrings.Get(19085),
+    strName = KODI::StringUtils::Format(g_localizeStrings.Get(19085),
                                   m_clientChannelNumber.FormattedChannelNumber());
 
   std::unique_lock<CCriticalSection> lock(m_critSection);
@@ -506,7 +506,7 @@ std::string CPVRChannel::GetEncryptionName(int iCaid)
     strName = "Verimatrix";
 
   if (iCaid >= 0)
-    strName += StringUtils::Format(" ({:04X})", iCaid);
+    strName += KODI::StringUtils::Format(" ({:04X})", iCaid);
 
   return strName;
 }
@@ -659,10 +659,10 @@ void CPVRChannel::ToSortable(SortItem& sortable, Field field) const
   {
     const CDateTime lastWatched(m_iLastWatched);
     sortable[FieldLastPlayed] =
-        lastWatched.IsValid() ? lastWatched.GetAsDBDateTime() : StringUtils::Empty;
+        lastWatched.IsValid() ? lastWatched.GetAsDBDateTime() : KODI::StringUtils::Empty;
   }
   else if (field == FieldProvider)
-    sortable[FieldProvider] = StringUtils::Format("{} {}", m_iClientId, m_iClientProviderUid);
+    sortable[FieldProvider] = KODI::StringUtils::Format("{} {}", m_iClientId, m_iClientProviderUid);
 }
 
 int CPVRChannel::ChannelID() const

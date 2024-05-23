@@ -28,8 +28,8 @@ CFilesystemInstaller::CFilesystemInstaller()
 bool CFilesystemInstaller::InstallToFilesystem(const std::string& archive, const std::string& addonId)
 {
   auto addonFolder = URIUtils::AddFileToFolder(m_addonFolder, addonId);
-  auto newAddonData = URIUtils::AddFileToFolder(m_tempFolder, StringUtils::CreateUUID());
-  auto oldAddonData = URIUtils::AddFileToFolder(m_tempFolder, StringUtils::CreateUUID());
+  auto newAddonData = URIUtils::AddFileToFolder(m_tempFolder, KODI::StringUtils::CreateUUID());
+  auto oldAddonData = URIUtils::AddFileToFolder(m_tempFolder, KODI::StringUtils::CreateUUID());
 
   if (!CDirectory::Create(newAddonData))
     return false;
@@ -70,7 +70,7 @@ bool CFilesystemInstaller::InstallToFilesystem(const std::string& archive, const
 
 bool CFilesystemInstaller::UnInstallFromFilesystem(const std::string& addonFolder)
 {
-  auto tempFolder = URIUtils::AddFileToFolder(m_tempFolder, StringUtils::CreateUUID());
+  auto tempFolder = URIUtils::AddFileToFolder(m_tempFolder, KODI::StringUtils::CreateUUID());
   if (!CFile::Rename(addonFolder, tempFolder))
   {
     CLog::Log(LOGERROR, "Failed to move old addon files from '{}' to '{}'", addonFolder,

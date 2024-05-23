@@ -80,7 +80,7 @@ public:
       return;
 
     auto lowerAppName = std::string{CCompileInfo::GetAppName()};
-    StringUtils::ToLower(lowerAppName);
+    KODI::StringUtils::ToLower(lowerAppName);
     auto path = URIUtils::AddFileToFolder(CSpecialProtocol::TranslatePath("special://logpath/"),
                                           lowerAppName + ".log");
 

@@ -208,23 +208,23 @@ std::string CDriverPrimitive::ToString() const
   switch (m_type)
   {
     case PRIMITIVE_TYPE::BUTTON:
-      return StringUtils::Format("button {}", m_driverIndex);
+      return KODI::StringUtils::Format("button {}", m_driverIndex);
     case PRIMITIVE_TYPE::MOTOR:
-      return StringUtils::Format("motor {}", m_driverIndex);
+      return KODI::StringUtils::Format("motor {}", m_driverIndex);
     case PRIMITIVE_TYPE::MOUSE_BUTTON:
-      return StringUtils::Format("mouse button {}", m_driverIndex);
+      return KODI::StringUtils::Format("mouse button {}", m_driverIndex);
     case PRIMITIVE_TYPE::HAT:
     {
       switch (m_hatDirection)
       {
         case HAT_DIRECTION::UP:
-          return StringUtils::Format("hat {} up", m_driverIndex);
+          return KODI::StringUtils::Format("hat {} up", m_driverIndex);
         case HAT_DIRECTION::DOWN:
-          return StringUtils::Format("hat {} down", m_driverIndex);
+          return KODI::StringUtils::Format("hat {} down", m_driverIndex);
         case HAT_DIRECTION::RIGHT:
-          return StringUtils::Format("hat {} right", m_driverIndex);
+          return KODI::StringUtils::Format("hat {} right", m_driverIndex);
         case HAT_DIRECTION::LEFT:
-          return StringUtils::Format("hat {} left", m_driverIndex);
+          return KODI::StringUtils::Format("hat {} left", m_driverIndex);
         default:
           break;
       }
@@ -235,29 +235,29 @@ std::string CDriverPrimitive::ToString() const
       switch (m_semiAxisDirection)
       {
         case SEMIAXIS_DIRECTION::POSITIVE:
-          return StringUtils::Format("semiaxis +{}", m_driverIndex);
+          return KODI::StringUtils::Format("semiaxis +{}", m_driverIndex);
         case SEMIAXIS_DIRECTION::NEGATIVE:
-          return StringUtils::Format("semiaxis -{}", m_driverIndex);
+          return KODI::StringUtils::Format("semiaxis -{}", m_driverIndex);
         default:
           break;
       }
       break;
     }
     case PRIMITIVE_TYPE::KEY:
-      return StringUtils::Format("key {}",
+      return KODI::StringUtils::Format("key {}",
                                  KEYBOARD::CKeyboardTranslator::TranslateKeycode(m_keycode));
     case PRIMITIVE_TYPE::RELATIVE_POINTER:
     {
       switch (m_pointerDirection)
       {
         case RELATIVE_POINTER_DIRECTION::UP:
-          return StringUtils::Format("pointer {} up", m_driverIndex);
+          return KODI::StringUtils::Format("pointer {} up", m_driverIndex);
         case RELATIVE_POINTER_DIRECTION::DOWN:
-          return StringUtils::Format("pointer {} down", m_driverIndex);
+          return KODI::StringUtils::Format("pointer {} down", m_driverIndex);
         case RELATIVE_POINTER_DIRECTION::RIGHT:
-          return StringUtils::Format("pointer {} right", m_driverIndex);
+          return KODI::StringUtils::Format("pointer {} right", m_driverIndex);
         case RELATIVE_POINTER_DIRECTION::LEFT:
-          return StringUtils::Format("pointer {} left", m_driverIndex);
+          return KODI::StringUtils::Format("pointer {} left", m_driverIndex);
         default:
           break;
       }

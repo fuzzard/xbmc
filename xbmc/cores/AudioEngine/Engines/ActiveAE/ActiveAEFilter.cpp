@@ -84,7 +84,7 @@ bool CActiveAEFilter::CreateFilterGraph()
   const AVFilter* srcFilter = avfilter_get_by_name("abuffer");
   const AVFilter* outFilter = avfilter_get_by_name("abuffersink");
 
-  std::string args = StringUtils::Format(
+  std::string args = KODI::StringUtils::Format(
       "time_base=1/{}:sample_rate={}:sample_fmt={}:channel_layout={}", m_sampleRate, m_sampleRate,
       av_get_sample_fmt_name(m_sampleFormat), m_channelLayout);
 
@@ -113,7 +113,7 @@ bool CActiveAEFilter::CreateAtempoFilter()
 
   atempo = avfilter_get_by_name("atempo");
   m_pFilterCtxAtempo = avfilter_graph_alloc_filter(m_pFilterGraph, atempo, "atempo");
-  std::string args = StringUtils::Format("tempo={:f}", m_tempo);
+  std::string args = KODI::StringUtils::Format("tempo={:f}", m_tempo);
   int ret = avfilter_init_str(m_pFilterCtxAtempo, args.c_str());
 
   if (ret < 0)

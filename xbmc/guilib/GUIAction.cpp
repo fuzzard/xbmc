@@ -73,7 +73,7 @@ bool CGUIAction::ExecuteActions(int controlID,
   {
     if (!i.HasCondition() || infoMgr.EvaluateBool(i.GetCondition(), 0, item))
     {
-      if (!StringUtils::IsInteger(i.GetAction()))
+      if (!KODI::StringUtils::IsInteger(i.GetAction()))
         actions.emplace_back(i.GetAction());
     }
   }
@@ -97,7 +97,7 @@ int CGUIAction::GetNavigation() const
   CGUIInfoManager& infoMgr = CServiceBroker::GetGUI()->GetInfoManager();
   for (const auto &i : m_actions)
   {
-    if (StringUtils::IsInteger(i.GetAction()))
+    if (KODI::StringUtils::IsInteger(i.GetAction()))
     {
       if (!i.HasCondition() || infoMgr.EvaluateBool(i.GetCondition(), INFO::DEFAULT_CONTEXT))
         return std::stoi(i.GetAction());
@@ -114,7 +114,7 @@ void CGUIAction::SetNavigation(int id)
   std::string strId = std::to_string(id);
   for (auto &i : m_actions)
   {
-    if (StringUtils::IsInteger(i.GetAction()) && !i.HasCondition())
+    if (KODI::StringUtils::IsInteger(i.GetAction()) && !i.HasCondition())
     {
       i.SetAction(strId);
       return;

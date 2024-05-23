@@ -78,7 +78,7 @@ bool CSettingUtils::ValuesToList(const std::shared_ptr<const CSettingList>& sett
   for (const auto& value : values)
   {
     SettingPtr settingValue =
-        setting->GetDefinition()->Clone(StringUtils::Format("{}.{}", setting->GetId(), index++));
+        setting->GetDefinition()->Clone(KODI::StringUtils::Format("{}.{}", setting->GetId(), index++));
     if (settingValue == NULL)
       return false;
 

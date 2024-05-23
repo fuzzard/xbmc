@@ -26,7 +26,7 @@ struct TestSysfsPath : public ::testing::Test
       tmpdir.assign(test_tmpdir);
     }
 
-    return tmpdir + "/kodi-test-" + StringUtils::CreateUUID();
+    return tmpdir + "/kodi-test-" + KODI::StringUtils::CreateUUID();
   }
 };
 

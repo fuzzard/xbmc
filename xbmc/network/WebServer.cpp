@@ -401,9 +401,9 @@ MHD_RESULT CWebServer::FinalizeRequest(const std::shared_ptr<IHTTPRequestHandler
     if (handler->CanBeCached() && maxAge == 0 && !responseDetails.contentType.empty())
     {
       // don't cache HTML, CSS and JavaScript files
-      if (!StringUtils::EqualsNoCase(responseDetails.contentType, "text/html") &&
-          !StringUtils::EqualsNoCase(responseDetails.contentType, "text/css") &&
-          !StringUtils::EqualsNoCase(responseDetails.contentType, "application/javascript"))
+      if (!KODI::StringUtils::EqualsNoCase(responseDetails.contentType, "text/html") &&
+          !KODI::StringUtils::EqualsNoCase(responseDetails.contentType, "text/css") &&
+          !KODI::StringUtils::EqualsNoCase(responseDetails.contentType, "application/javascript"))
         maxAge = CDateTimeSpan(365, 0, 0, 0).GetSecondsTotal();
     }
 
@@ -414,7 +414,7 @@ MHD_RESULT CWebServer::FinalizeRequest(const std::shared_ptr<IHTTPRequestHandler
     else
     {
       // create the value of the Cache-Control header
-      std::string cacheControl = StringUtils::Format("public, max-age={}", maxAge);
+      std::string cacheControl = KODI::StringUtils::Format("public, max-age={}", maxAge);
 
       // check if the response contains a Set-Cookie header because they must not be cached
       if (handler->HasResponseHeader(MHD_HTTP_HEADER_SET_COOKIE))
@@ -465,10 +465,10 @@ bool CWebServer::IsRequestCacheable(const HTTPRequest& request) const
       request.connection, MHD_HEADER_KIND, MHD_HTTP_HEADER_CACHE_CONTROL);
   if (!cacheControl.empty())
   {
-    std::vector<std::string> cacheControls = StringUtils::Split(cacheControl, ",");
+    std::vector<std::string> cacheControls = KODI::StringUtils::Split(cacheControl, ",");
     for (auto control : cacheControls)
     {
-      control = StringUtils::Trim(control);
+      control = KODI::StringUtils::Trim(control);
 
       // handle no-cache
       if (control.compare(HEADER_VALUE_NO_CACHE) == 0)
@@ -531,8 +531,8 @@ void CWebServer::SetupPostDataProcessing(const HTTPRequest& request,
 
   // if the content-type is neither application/x-ww-form-urlencoded nor multipart/form-data we need
   // to handle it ourselves
-  if (!StringUtils::EqualsNoCase(contentType, MHD_HTTP_POST_ENCODING_FORM_URLENCODED) &&
-      !StringUtils::EqualsNoCase(contentType, MHD_HTTP_POST_ENCODING_MULTIPART_FORMDATA))
+  if (!KODI::StringUtils::EqualsNoCase(contentType, MHD_HTTP_POST_ENCODING_FORM_URLENCODED) &&
+      !KODI::StringUtils::EqualsNoCase(contentType, MHD_HTTP_POST_ENCODING_MULTIPART_FORMDATA))
     return;
 
   // otherwise we can use MHD's POST processor
@@ -812,7 +812,7 @@ MHD_RESULT CWebServer::CreateFileDownloadResponse(
   if (mimeType.empty())
   {
     std::string ext = URIUtils::GetExtension(filePath);
-    StringUtils::ToLower(ext);
+    KODI::StringUtils::ToLower(ext);
     mimeType = CreateMimeTypeFromExtension(ext.c_str());
   }
 
@@ -1138,7 +1138,7 @@ static void logFromMHD(void* unused, const char* fmt, va_list ap)
     GetMhdLogger()->error("reported error with empty string");
   else
   {
-    std::string errDsc = StringUtils::FormatV(fmt, ap);
+    std::string errDsc = KODI::StringUtils::FormatV(fmt, ap);
     if (errDsc.empty())
       GetMhdLogger()->error("reported error with unprintable string \"{}\"", fmt);
     else
@@ -1248,7 +1248,7 @@ bool CWebServer::Start(uint16_t port, const std::string& username, const std::st
   if (!m_running)
   {
     // use a new logger containing the port in the name
-    m_logger = CServiceBroker::GetLogging().GetLogger(StringUtils::Format("CWebserver[{}]", port));
+    m_logger = CServiceBroker::GetLogging().GetLogger(KODI::StringUtils::Format("CWebserver[{}]", port));
 
     int v6testSock;
     if ((v6testSock = socket(AF_INET6, SOCK_STREAM, 0)) >= 0)
@@ -1354,7 +1354,7 @@ void CWebServer::LogRequest(const HTTPRequest& request) const
     for (const auto& get : getValues)
       values.push_back(get.first + " = " + get.second);
 
-    m_logger->debug(" [IN] Query arguments: {}", StringUtils::Join(values, "; "));
+    m_logger->debug(" [IN] Query arguments: {}", KODI::StringUtils::Join(values, "; "));
   }
 
   for (const auto& header : headerValues)

@@ -153,7 +153,7 @@ void CGUIGameControl::UpdateInfo(const CGUIListItem* item /* = nullptr */)
     }
 
     std::string strRotation = m_rotationInfo.GetItemLabel(item);
-    if (StringUtils::IsNaturalNumber(strRotation))
+    if (KODI::StringUtils::IsNaturalNumber(strRotation))
     {
       unsigned int rotation;
       std::istringstream(strRotation) >> rotation;

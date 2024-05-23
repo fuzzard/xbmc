@@ -152,7 +152,7 @@ bool CSettingDependencyCondition::Check() const
         case SettingDependencyOperator::LessThan:
         {
           const auto value = setting->ToString();
-          if (StringUtils::IsInteger(m_value))
+          if (KODI::StringUtils::IsInteger(m_value))
             result = strtol(value.c_str(), nullptr, 0) < strtol(m_value.c_str(), nullptr, 0);
           else
             result = value.compare(m_value) < 0;
@@ -162,7 +162,7 @@ bool CSettingDependencyCondition::Check() const
         case SettingDependencyOperator::GreaterThan:
         {
           const auto value = setting->ToString();
-          if (StringUtils::IsInteger(m_value))
+          if (KODI::StringUtils::IsInteger(m_value))
             result = strtol(value.c_str(), nullptr, 0) > strtol(m_value.c_str(), nullptr, 0);
           else
             result = value.compare(m_value) > 0;
@@ -206,9 +206,9 @@ bool CSettingDependencyCondition::Check() const
 
 bool CSettingDependencyCondition::setTarget(const std::string &target)
 {
-  if (StringUtils::EqualsNoCase(target, "setting"))
+  if (KODI::StringUtils::EqualsNoCase(target, "setting"))
     m_target = SettingDependencyTarget::Setting;
-  else if (StringUtils::EqualsNoCase(target, "property"))
+  else if (KODI::StringUtils::EqualsNoCase(target, "property"))
     m_target = SettingDependencyTarget::Property;
   else
     return false;
@@ -219,32 +219,32 @@ bool CSettingDependencyCondition::setTarget(const std::string &target)
 bool CSettingDependencyCondition::setOperator(const std::string &op)
 {
   size_t length = 0;
-  if (StringUtils::EndsWithNoCase(op, "is"))
+  if (KODI::StringUtils::EndsWithNoCase(op, "is"))
   {
     m_operator = SettingDependencyOperator::Equals;
     length = 2;
   }
-  else if (StringUtils::EndsWithNoCase(op, "lessthan"))
+  else if (KODI::StringUtils::EndsWithNoCase(op, "lessthan"))
   {
     m_operator = SettingDependencyOperator::LessThan;
     length = 8;
   }
-  else if (StringUtils::EndsWithNoCase(op, "lt"))
+  else if (KODI::StringUtils::EndsWithNoCase(op, "lt"))
   {
     m_operator = SettingDependencyOperator::LessThan;
     length = 2;
   }
-  else if (StringUtils::EndsWithNoCase(op, "greaterthan"))
+  else if (KODI::StringUtils::EndsWithNoCase(op, "greaterthan"))
   {
     m_operator = SettingDependencyOperator::GreaterThan;
     length = 11;
   }
-  else if (StringUtils::EndsWithNoCase(op, "gt"))
+  else if (KODI::StringUtils::EndsWithNoCase(op, "gt"))
   {
     m_operator = SettingDependencyOperator::GreaterThan;
     length = 2;
   }
-  else if (StringUtils::EndsWithNoCase(op, "contains"))
+  else if (KODI::StringUtils::EndsWithNoCase(op, "contains"))
   {
     m_operator = SettingDependencyOperator::Contains;
     length = 8;
@@ -254,7 +254,7 @@ bool CSettingDependencyCondition::setOperator(const std::string &op)
     return false;
   if (op.size() == length + 1)
   {
-    if (!StringUtils::StartsWith(op, "!"))
+    if (!KODI::StringUtils::StartsWith(op, "!"))
       return false;
     m_negated = true;
   }
@@ -408,11 +408,11 @@ CSettingDependencyConditionCombinationPtr CSettingDependency::Or()
 
 bool CSettingDependency::setType(const std::string &type)
 {
-  if (StringUtils::EqualsNoCase(type, "enable"))
+  if (KODI::StringUtils::EqualsNoCase(type, "enable"))
     m_type = SettingDependencyType::Enable;
-  else if (StringUtils::EqualsNoCase(type, "update"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "update"))
     m_type = SettingDependencyType::Update;
-  else if (StringUtils::EqualsNoCase(type, "visible"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "visible"))
     m_type = SettingDependencyType::Visible;
   else
     return false;

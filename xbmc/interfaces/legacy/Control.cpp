@@ -802,10 +802,10 @@ namespace XBMCAddon
         const String& cAttr = pTuple.second();
 
         TiXmlElement pNode("animation");
-        std::vector<std::string> attrs = StringUtils::Split(cAttr, " ");
+        std::vector<std::string> attrs = KODI::StringUtils::Split(cAttr, " ");
         for (const auto& i : attrs)
         {
-          std::vector<std::string> attrs2 = StringUtils::Split(i, "=");
+          std::vector<std::string> attrs2 = KODI::StringUtils::Split(i, "=");
           if (attrs2.size() == 2)
             pNode.SetAttribute(attrs2[0], attrs2[1]);
         }

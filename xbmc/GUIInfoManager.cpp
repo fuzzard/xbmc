@@ -10008,7 +10008,7 @@ const std::string &CGUIInfoManager::Property::param(unsigned int n /* = 0 */) co
 {
   if (n < params.size())
     return params[n];
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 unsigned int CGUIInfoManager::Property::num_params() const
@@ -10042,7 +10042,7 @@ void CGUIInfoManager::SplitInfoString(const std::string &infoString, std::vector
     {
       if (!property.empty()) // add our property and parameters
       {
-        StringUtils::ToLower(property);
+        KODI::StringUtils::ToLower(property);
         info.emplace_back(property, param);
       }
       property.clear();
@@ -10060,7 +10060,7 @@ void CGUIInfoManager::SplitInfoString(const std::string &infoString, std::vector
 
   if (!property.empty())
   {
-    StringUtils::ToLower(property);
+    KODI::StringUtils::ToLower(property);
     info.emplace_back(property, param);
   }
 }
@@ -10082,7 +10082,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
    */
   // trim whitespaces
   std::string strTest = strCondition;
-  StringUtils::Trim(strTest);
+  KODI::StringUtils::Trim(strTest);
 
   std::vector< Property> info;
   SplitInfoString(strTest, info);
@@ -10116,7 +10116,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
             int data1 = TranslateSingleString(prop.param(0), listItemDependent);
             // pipe our original string through the localize parsing then make it lowercase (picks up $LBRACKET etc.)
             std::string label = CGUIInfoLabel::GetLabel(prop.param(1), INFO::DEFAULT_CONTEXT);
-            StringUtils::ToLower(label);
+            KODI::StringUtils::ToLower(label);
             // 'true', 'false', 'yes', 'no' are valid strings, do not resolve them to SYSTEM_ALWAYS_TRUE or SYSTEM_ALWAYS_FALSE
             if (label != "true" && label != "false" && label != "yes" && label != "no")
             {
@@ -10178,7 +10178,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
       {
         for (const infomap& player_proces : player_process)
         {
-          if (StringUtils::EqualsNoCase(prop.param(), player_proces.str))
+          if (KODI::StringUtils::EqualsNoCase(prop.param(), player_proces.str))
             return player_proces.val;
         }
       }
@@ -10236,7 +10236,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
         if (prop.name == "getbool")
         {
           std::string paramCopy = param;
-          StringUtils::ToLower(paramCopy);
+          KODI::StringUtils::ToLower(paramCopy);
           return AddMultiInfo(CGUIInfo(SYSTEM_GET_BOOL, paramCopy));
         }
         for (const infomap& i : system_param)
@@ -10264,7 +10264,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
           if (infoLabel > 0)
             return AddMultiInfo(CGUIInfo(SYSTEM_ADDON_TITLE, infoLabel, 0));
           std::string label = CGUIInfoLabel::GetLabel(param, INFO::DEFAULT_CONTEXT);
-          StringUtils::ToLower(label);
+          KODI::StringUtils::ToLower(label);
           return AddMultiInfo(CGUIInfo(SYSTEM_ADDON_TITLE, label, 1));
         }
         else if (prop.name == "addonicon")
@@ -10273,7 +10273,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
           if (infoLabel > 0)
             return AddMultiInfo(CGUIInfo(SYSTEM_ADDON_ICON, infoLabel, 0));
           std::string label = CGUIInfoLabel::GetLabel(param, INFO::DEFAULT_CONTEXT);
-          StringUtils::ToLower(label);
+          KODI::StringUtils::ToLower(label);
           return AddMultiInfo(CGUIInfo(SYSTEM_ADDON_ICON, label, 1));
         }
         else if (prop.name == "addonversion")
@@ -10282,7 +10282,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
           if (infoLabel > 0)
             return AddMultiInfo(CGUIInfo(SYSTEM_ADDON_VERSION, infoLabel, 0));
           std::string label = CGUIInfoLabel::GetLabel(param, INFO::DEFAULT_CONTEXT);
-          StringUtils::ToLower(label);
+          KODI::StringUtils::ToLower(label);
           return AddMultiInfo(CGUIInfo(SYSTEM_ADDON_VERSION, label, 1));
         }
         else if (prop.name == "idletime")
@@ -10304,10 +10304,10 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
       else if (prop.name == "date")
       {
         if (prop.num_params() == 2)
-          return AddMultiInfo(CGUIInfo(SYSTEM_DATE, StringUtils::DateStringToYYYYMMDD(prop.param(0)) % 10000, StringUtils::DateStringToYYYYMMDD(prop.param(1)) % 10000));
+          return AddMultiInfo(CGUIInfo(SYSTEM_DATE, KODI::StringUtils::DateStringToYYYYMMDD(prop.param(0)) % 10000, KODI::StringUtils::DateStringToYYYYMMDD(prop.param(1)) % 10000));
         else if (prop.num_params() == 1)
         {
-          int dateformat = StringUtils::DateStringToYYYYMMDD(prop.param(0));
+          int dateformat = KODI::StringUtils::DateStringToYYYYMMDD(prop.param(0));
           if (dateformat <= 0) // not concrete date
             return AddMultiInfo(CGUIInfo(SYSTEM_DATE, prop.param(0), -1));
           else
@@ -10323,11 +10323,11 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
         {
           TIME_FORMAT timeFormat = TranslateTimeFormat(prop.param(0));
           if (timeFormat == TIME_FORMAT_GUESS)
-            return AddMultiInfo(CGUIInfo(SYSTEM_TIME, StringUtils::TimeStringToSeconds(prop.param(0))));
+            return AddMultiInfo(CGUIInfo(SYSTEM_TIME, KODI::StringUtils::TimeStringToSeconds(prop.param(0))));
           return AddMultiInfo(CGUIInfo(SYSTEM_TIME, timeFormat));
         }
         else
-          return AddMultiInfo(CGUIInfo(SYSTEM_TIME, StringUtils::TimeStringToSeconds(prop.param(0)), StringUtils::TimeStringToSeconds(prop.param(1))));
+          return AddMultiInfo(CGUIInfo(SYSTEM_TIME, KODI::StringUtils::TimeStringToSeconds(prop.param(0)), KODI::StringUtils::TimeStringToSeconds(prop.param(1))));
       }
     }
     else if (cat.name == "library")
@@ -10341,7 +10341,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
       else if (prop.name == "hascontent" && prop.num_params())
       {
         std::string cat = prop.param(0);
-        StringUtils::ToLower(cat);
+        KODI::StringUtils::ToLower(cat);
         if (cat == "music")
           return LIBRARY_HAS_MUSIC;
         else if (cat == "video")
@@ -10366,7 +10366,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
       else if (prop.name == "hasnode" && prop.num_params())
       {
         std::string node = prop.param(0);
-        StringUtils::ToLower(node);
+        KODI::StringUtils::ToLower(node);
         return AddMultiInfo(CGUIInfo(LIBRARY_HAS_NODE, prop.param(), 0));
       }
     }
@@ -10381,7 +10381,7 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
         return AddMultiInfo(CGUIInfo(MUSICPLAYER_CONTENT, prop.param(), 0));
       else if (prop.name == "property")
       {
-        if (StringUtils::EqualsNoCase(prop.param(), "fanart_image"))
+        if (KODI::StringUtils::EqualsNoCase(prop.param(), "fanart_image"))
           return AddMultiInfo(CGUIInfo(PLAYER_ITEM_ART, "fanart"));
 
         return AddMultiInfo(CGUIInfo(MUSICPLAYER_PROPERTY, prop.param()));
@@ -10454,9 +10454,9 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
       if (prop.name == "sortdirection")
       {
         SortOrder order = SortOrderNone;
-        if (StringUtils::EqualsNoCase(prop.param(), "ascending"))
+        if (KODI::StringUtils::EqualsNoCase(prop.param(), "ascending"))
           order = SortOrderAscending;
-        else if (StringUtils::EqualsNoCase(prop.param(), "descending"))
+        else if (KODI::StringUtils::EqualsNoCase(prop.param(), "descending"))
           order = SortOrderDescending;
         return AddMultiInfo(CGUIInfo(CONTAINER_SORT_DIRECTION, order));
       }
@@ -10574,9 +10574,9 @@ int CGUIInfoManager::TranslateSingleString(const std::string &strCondition, bool
         else
         {
           PLAYLIST::Id playlistid = PLAYLIST::Id::TYPE_NONE;
-          if (StringUtils::EqualsNoCase(prop.param(), "video"))
+          if (KODI::StringUtils::EqualsNoCase(prop.param(), "video"))
             playlistid = PLAYLIST::Id::TYPE_VIDEO;
-          else if (StringUtils::EqualsNoCase(prop.param(), "music"))
+          else if (KODI::StringUtils::EqualsNoCase(prop.param(), "music"))
             playlistid = PLAYLIST::Id::TYPE_MUSIC;
 
           if (playlistid != PLAYLIST::Id::TYPE_NONE)
@@ -10724,7 +10724,7 @@ int CGUIInfoManager::TranslateListItem(const Property& cat, const Property& prop
   if (prop.num_params() == 1)
   {
     // special case: map 'property(fanart_image)' to 'art(fanart)'
-    if (prop.name == "property" && StringUtils::EqualsNoCase(prop.param(), "fanart_image"))
+    if (prop.name == "property" && KODI::StringUtils::EqualsNoCase(prop.param(), "fanart_image"))
     {
       ret = LISTITEM_ART;
       data3 = "fanart";
@@ -10813,35 +10813,35 @@ TIME_FORMAT CGUIInfoManager::TranslateTimeFormat(const std::string &format)
 {
   if (format.empty())
     return TIME_FORMAT_GUESS;
-  else if (StringUtils::EqualsNoCase(format, "hh"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "hh"))
     return TIME_FORMAT_HH;
-  else if (StringUtils::EqualsNoCase(format, "mm"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "mm"))
     return TIME_FORMAT_MM;
-  else if (StringUtils::EqualsNoCase(format, "ss"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "ss"))
     return TIME_FORMAT_SS;
-  else if (StringUtils::EqualsNoCase(format, "hh:mm"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "hh:mm"))
     return TIME_FORMAT_HH_MM;
-  else if (StringUtils::EqualsNoCase(format, "mm:ss"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "mm:ss"))
     return TIME_FORMAT_MM_SS;
-  else if (StringUtils::EqualsNoCase(format, "hh:mm:ss"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "hh:mm:ss"))
     return TIME_FORMAT_HH_MM_SS;
-  else if (StringUtils::EqualsNoCase(format, "hh:mm:ss xx"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "hh:mm:ss xx"))
     return TIME_FORMAT_HH_MM_SS_XX;
-  else if (StringUtils::EqualsNoCase(format, "h"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "h"))
     return TIME_FORMAT_H;
-  else if (StringUtils::EqualsNoCase(format, "m"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "m"))
     return TIME_FORMAT_M;
-  else if (StringUtils::EqualsNoCase(format, "h:mm:ss"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "h:mm:ss"))
     return TIME_FORMAT_H_MM_SS;
-  else if (StringUtils::EqualsNoCase(format, "h:mm:ss xx"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "h:mm:ss xx"))
     return TIME_FORMAT_H_MM_SS_XX;
-  else if (StringUtils::EqualsNoCase(format, "xx"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "xx"))
     return TIME_FORMAT_XX;
-  else if (StringUtils::EqualsNoCase(format, "secs"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "secs"))
     return TIME_FORMAT_SECS;
-  else if (StringUtils::EqualsNoCase(format, "mins"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "mins"))
     return TIME_FORMAT_MINS;
-  else if (StringUtils::EqualsNoCase(format, "hours"))
+  else if (KODI::StringUtils::EqualsNoCase(format, "hours"))
     return TIME_FORMAT_HOURS;
   return TIME_FORMAT_GUESS;
 }
@@ -10892,7 +10892,7 @@ bool CGUIInfoManager::GetInt(int &value, int info, int contextWindow, const CGUI
 INFO::InfoPtr CGUIInfoManager::Register(const std::string &expression, int context)
 {
   std::string condition(CGUIInfoLabel::ReplaceLocalize(expression));
-  StringUtils::Trim(condition);
+  KODI::StringUtils::Trim(condition);
 
   if (condition.empty())
     return INFO::InfoPtr();
@@ -11028,23 +11028,23 @@ bool CGUIInfoManager::GetMultiInfoBool(const CGUIInfo &info, int contextWindow, 
           { // conditional string
             compare = info.GetData3();
           }
-          StringUtils::ToLower(compare);
+          KODI::StringUtils::ToLower(compare);
 
           std::string label;
           if (item && item->IsFileItem() && IsListItemInfo(info.GetData1()))
             label = GetItemImage(item, contextWindow, info.GetData1());
           else
             label = GetImage(info.GetData1(), contextWindow);
-          StringUtils::ToLower(label);
+          KODI::StringUtils::ToLower(label);
 
           if (condition == STRING_STARTS_WITH)
-            bReturn = StringUtils::StartsWith(label, compare);
+            bReturn = KODI::StringUtils::StartsWith(label, compare);
           else if (condition == STRING_ENDS_WITH)
-            bReturn = StringUtils::EndsWith(label, compare);
+            bReturn = KODI::StringUtils::EndsWith(label, compare);
           else if (condition == STRING_CONTAINS)
             bReturn = label.find(compare) != std::string::npos;
           else
-            bReturn = StringUtils::EqualsNoCase(label, compare);
+            bReturn = KODI::StringUtils::EqualsNoCase(label, compare);
         }
         break;
       case INTEGER_IS_EQUAL:
@@ -11068,7 +11068,7 @@ bool CGUIInfoManager::GetMultiInfoBool(const CGUIInfo &info, int contextWindow, 
               // Handle the case when a value contains time separator (:). This makes Integer.IsGreater
               // useful for Player.Time* members without adding a separate set of members returning time in seconds
               if (value.find_first_of(':') != value.npos)
-                intValue = StringUtils::TimeStringToSeconds(value);
+                intValue = KODI::StringUtils::TimeStringToSeconds(value);
               else
                 std::from_chars(value.data(), value.data() + value.size(), intValue);
             }
@@ -11359,7 +11359,7 @@ std::string CGUIInfoManager::GetMultiInfoItemLabel(const CFileItem *item, int co
         if (info.m_info == LISTITEM_FILE_EXTENSION)
         {
           std::string strExtension = URIUtils::GetExtension(strFile);
-          return StringUtils::TrimLeft(strExtension, ".");
+          return KODI::StringUtils::TrimLeft(strExtension, ".");
         }
         else if (info.m_info == LISTITEM_FILENAME_NO_EXTENSION)
         {
@@ -11377,7 +11377,7 @@ std::string CGUIInfoManager::GetMultiInfoItemLabel(const CFileItem *item, int co
         break;
       case LISTITEM_SIZE:
         if (!item->m_bIsFolder || item->m_dwSize)
-          return StringUtils::SizeToString(item->m_dwSize);
+          return KODI::StringUtils::SizeToString(item->m_dwSize);
         break;
       case LISTITEM_PROGRAM_COUNT:
         return std::to_string(item->m_iprogramCount);
@@ -11423,7 +11423,7 @@ std::string CGUIInfoManager::GetMultiInfoItemLabel(const CFileItem *item, int co
       {
         std::string letter;
         std::wstring character(1, item->GetSortLabel()[0]);
-        StringUtils::ToUpper(character);
+        KODI::StringUtils::ToUpper(character);
         g_charsetConverter.wToUTF8(character, letter);
         return letter;
       }
@@ -11557,7 +11557,7 @@ int CGUIInfoManager::TranslateSkinVariableString(const std::string& name, int co
   for (std::vector<CSkinVariableString>::const_iterator it = m_skinVariableStrings.begin();
        it != m_skinVariableStrings.end(); ++it)
   {
-    if (StringUtils::EqualsNoCase(it->GetName(), name) && it->GetContext() == context)
+    if (KODI::StringUtils::EqualsNoCase(it->GetName(), name) && it->GetContext() == context)
       return it - m_skinVariableStrings.begin() + CONDITIONAL_LABEL_START;
   }
   return 0;

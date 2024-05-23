@@ -60,10 +60,10 @@ CInputStreamAddon::CInputStreamAddon(const AddonInfoPtr& addonInfo,
       addonInfo->Type(AddonType::INPUTSTREAM)->GetValue("@listitemprops").asString();
   std::string name(addonInfo->ID());
 
-  m_fileItemProps = StringUtils::Tokenize(listitemprops, "|");
+  m_fileItemProps = KODI::StringUtils::Tokenize(listitemprops, "|");
   for (auto &key : m_fileItemProps)
   {
-    StringUtils::Trim(key);
+    KODI::StringUtils::Trim(key);
     key = name + "." + key;
   }
   m_caps = {};
@@ -99,10 +99,10 @@ bool CInputStreamAddon::Supports(const AddonInfoPtr& addonInfo, const CFileItem&
         addonInfo->Type(AddonType::INPUTSTREAM)->GetValue("@protocols").asString();
     if (!protocols.empty())
     {
-      std::vector<std::string> protocolsList = StringUtils::Tokenize(protocols, "|");
+      std::vector<std::string> protocolsList = KODI::StringUtils::Tokenize(protocols, "|");
       for (auto& value : protocolsList)
       {
-        StringUtils::Trim(value);
+        KODI::StringUtils::Trim(value);
         if (value == protocol)
           return true;
       }
@@ -116,10 +116,10 @@ bool CInputStreamAddon::Supports(const AddonInfoPtr& addonInfo, const CFileItem&
         addonInfo->Type(AddonType::INPUTSTREAM)->GetValue("@extension").asString();
     if (!extensions.empty())
     {
-      std::vector<std::string> extensionsList = StringUtils::Tokenize(extensions, "|");
+      std::vector<std::string> extensionsList = KODI::StringUtils::Tokenize(extensions, "|");
       for (auto& value : extensionsList)
       {
-        StringUtils::Trim(value);
+        KODI::StringUtils::Trim(value);
         if (value == filetype)
           return true;
       }
@@ -400,7 +400,7 @@ KODI_HANDLE CInputStreamAddon::cb_get_stream_transfer(KODI_HANDLE handle,
   if (stream->m_streamType != INPUTSTREAM_TYPE_TELETEXT &&
       stream->m_streamType != INPUTSTREAM_TYPE_RDS && stream->m_streamType != INPUTSTREAM_TYPE_ID3)
   {
-    StringUtils::ToLower(codecName);
+    KODI::StringUtils::ToLower(codecName);
     codec = avcodec_find_decoder_by_name(codecName.c_str());
     if (!codec)
       return nullptr;

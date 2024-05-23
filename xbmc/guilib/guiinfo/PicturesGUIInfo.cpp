@@ -166,7 +166,7 @@ bool CPicturesGUIInfo::GetLabel(std::string& value, const CFileItem *item, int c
       {
         if (!m_currentSlide->m_bIsFolder || m_currentSlide->m_dwSize)
         {
-          value = StringUtils::SizeToString(m_currentSlide->m_dwSize);
+          value = KODI::StringUtils::SizeToString(m_currentSlide->m_dwSize);
           return true;
         }
         break;
@@ -185,7 +185,7 @@ bool CPicturesGUIInfo::GetLabel(std::string& value, const CFileItem *item, int c
         CSlideShowDelegator& slideshow = CServiceBroker::GetSlideShowDelegator();
         if (slideshow.NumSlides() > 0)
         {
-          value = StringUtils::Format("{}/{}", slideshow.CurrentSlide(), slideshow.NumSlides());
+          value = KODI::StringUtils::Format("{}/{}", slideshow.CurrentSlide(), slideshow.NumSlides());
           return true;
         }
         break;

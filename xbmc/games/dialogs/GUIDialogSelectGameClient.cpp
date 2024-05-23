@@ -36,7 +36,7 @@ std::string CGUIDialogSelectGameClient::ShowAndGetGameClient(const std::string& 
 
   // "Select emulator for {0:s}"
   CGUIDialogSelect* dialog =
-      GetDialog(StringUtils::Format(g_localizeStrings.Get(35258), extension));
+      GetDialog(KODI::StringUtils::Format(g_localizeStrings.Get(35258), extension));
   if (dialog != nullptr)
   {
     // Turn the addons into items

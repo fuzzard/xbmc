@@ -61,10 +61,10 @@ bool IDirectory::IsAllowed(const CURL& url) const
 
     // Allow filenames of the form video_ts.ifo or vts_##_0.ifo
 
-    return StringUtils::EqualsNoCase(fileName, "video_ts.ifo") ||
+    return KODI::StringUtils::EqualsNoCase(fileName, "video_ts.ifo") ||
           (fileName.length() == 12 &&
-           StringUtils::StartsWithNoCase(fileName, "vts_") &&
-           StringUtils::EndsWithNoCase(fileName, "_0.ifo"));
+           KODI::StringUtils::StartsWithNoCase(fileName, "vts_") &&
+           KODI::StringUtils::EndsWithNoCase(fileName, "_0.ifo"));
   }
 
   if (URIUtils::HasExtension(url, ".dat"))
@@ -73,16 +73,16 @@ bool IDirectory::IsAllowed(const CURL& url) const
     std::string folder = URIUtils::GetDirectory(fileName);
     URIUtils::RemoveSlashAtEnd(folder);
     folder = URIUtils::GetFileName(folder);
-    if (StringUtils::EqualsNoCase(folder, "vcd") ||
-        StringUtils::EqualsNoCase(folder, "mpegav") ||
-        StringUtils::EqualsNoCase(folder, "cdda"))
+    if (KODI::StringUtils::EqualsNoCase(folder, "vcd") ||
+        KODI::StringUtils::EqualsNoCase(folder, "mpegav") ||
+        KODI::StringUtils::EqualsNoCase(folder, "cdda"))
     {
       // Allow filenames of the form AVSEQ##(#).DAT, ITEM###(#).DAT
       // and MUSIC##(#).DAT
       return (fileName.length() == 11 || fileName.length() == 12) &&
-             (StringUtils::StartsWithNoCase(fileName, "AVSEQ") ||
-              StringUtils::StartsWithNoCase(fileName, "MUSIC") ||
-              StringUtils::StartsWithNoCase(fileName, "ITEM"));
+             (KODI::StringUtils::StartsWithNoCase(fileName, "AVSEQ") ||
+              KODI::StringUtils::StartsWithNoCase(fileName, "MUSIC") ||
+              KODI::StringUtils::StartsWithNoCase(fileName, "ITEM"));
     }
   }
   return true;
@@ -102,7 +102,7 @@ void IDirectory::SetMask(const std::string& strMask)
 {
   m_strFileMask = strMask;
   // ensure it's completed with a | so that filtering is easy.
-  StringUtils::ToLower(m_strFileMask);
+  KODI::StringUtils::ToLower(m_strFileMask);
   if (m_strFileMask.size() && m_strFileMask[m_strFileMask.size() - 1] != '|')
     m_strFileMask += '|';
 }

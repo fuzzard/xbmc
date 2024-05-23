@@ -313,13 +313,13 @@ void CGUIDialogNumeric::FrameMove()
     strLabel = m_number;
   else if (m_mode == INPUT_TIME)
   { // format up the time
-    strLabel = StringUtils::Format("{:2}:{:02}", m_datetime.hour, m_datetime.minute);
+    strLabel = KODI::StringUtils::Format("{:2}:{:02}", m_datetime.hour, m_datetime.minute);
     start = m_block * 3;
     end = m_block * 3 + 2;
   }
   else if (m_mode == INPUT_TIME_SECONDS)
   { // format up the time
-    strLabel = StringUtils::Format("{:2}:{:02}:{:02}", m_datetime.hour, m_datetime.minute,
+    strLabel = KODI::StringUtils::Format("{:2}:{:02}:{:02}", m_datetime.hour, m_datetime.minute,
                                    m_datetime.second);
     start = m_block * 3;
     end = m_block * 3 + 2;
@@ -327,7 +327,7 @@ void CGUIDialogNumeric::FrameMove()
   else if (m_mode == INPUT_DATE)
   { // format up the date
     strLabel =
-        StringUtils::Format("{:2}/{:2}/{:4}", m_datetime.day, m_datetime.month, m_datetime.year);
+        KODI::StringUtils::Format("{:2}/{:2}/{:4}", m_datetime.day, m_datetime.month, m_datetime.year);
     start = m_block * 3;
     end = m_block * 3 + 2;
     if (m_block == 2)
@@ -335,7 +335,7 @@ void CGUIDialogNumeric::FrameMove()
   }
   else if (m_mode == INPUT_IP_ADDRESS)
   { // format up the date
-    strLabel = StringUtils::Format("{:3}.{:3}.{:3}.{:3}", m_ip[0], m_ip[1], m_ip[2], m_ip[3]);
+    strLabel = KODI::StringUtils::Format("{:3}.{:3}.{:3}.{:3}", m_ip[0], m_ip[1], m_ip[2], m_ip[3]);
     start = m_block * 4;
     end = m_block * 4 + 3;
   }
@@ -414,7 +414,7 @@ void CGUIDialogNumeric::SetMode(INPUT_MODE mode, const std::string &initial)
     else if (m_mode == INPUT_DATE)
     {
       std::string tmp = initial;
-      StringUtils::Replace(tmp, '/', '.');
+      KODI::StringUtils::Replace(tmp, '/', '.');
       dateTime.SetFromDBDate(tmp);
     }
 
@@ -427,7 +427,7 @@ void CGUIDialogNumeric::SetMode(INPUT_MODE mode, const std::string &initial)
   else if (m_mode == INPUT_IP_ADDRESS)
   {
     m_lastblock = 3;
-    auto blocks = StringUtils::Split(initial, '.');
+    auto blocks = KODI::StringUtils::Split(initial, '.');
     if (blocks.size() != 4)
       return;
 
@@ -454,15 +454,15 @@ std::string CGUIDialogNumeric::GetOutputString() const
   switch (m_mode)
   {
   case INPUT_DATE:
-    return StringUtils::Format("{:02}/{:02}/{:04}", m_datetime.day, m_datetime.month,
+    return KODI::StringUtils::Format("{:02}/{:02}/{:04}", m_datetime.day, m_datetime.month,
                                m_datetime.year);
   case INPUT_TIME:
-    return StringUtils::Format("{}:{:02}", m_datetime.hour, m_datetime.minute);
+    return KODI::StringUtils::Format("{}:{:02}", m_datetime.hour, m_datetime.minute);
   case INPUT_TIME_SECONDS:
-    return StringUtils::Format("{}:{:02}:{:02}", m_datetime.hour, m_datetime.minute,
+    return KODI::StringUtils::Format("{}:{:02}:{:02}", m_datetime.hour, m_datetime.minute,
                                m_datetime.second);
   case INPUT_IP_ADDRESS:
-    return StringUtils::Format("{}.{}.{}.{}", m_ip[0], m_ip[1], m_ip[2], m_ip[3]);
+    return KODI::StringUtils::Format("{}.{}.{}.{}", m_ip[0], m_ip[1], m_ip[2], m_ip[3]);
   case INPUT_NUMBER:
   case INPUT_PASSWORD:
     return m_number;
@@ -476,7 +476,7 @@ bool CGUIDialogNumeric::ShowAndGetSeconds(std::string &timeString, const std::st
 {
   CGUIDialogNumeric *pDialog = CServiceBroker::GetGUI()->GetWindowManager().GetWindow<CGUIDialogNumeric>(WINDOW_DIALOG_NUMERIC);
   if (!pDialog) return false;
-  int seconds = StringUtils::TimeStringToSeconds(timeString);
+  int seconds = KODI::StringUtils::TimeStringToSeconds(timeString);
   KODI::TIME::SystemTime time = {};
   time.hour = seconds / 3600;
   time.minute = (seconds - time.hour * 3600) / 60;
@@ -488,7 +488,7 @@ bool CGUIDialogNumeric::ShowAndGetSeconds(std::string &timeString, const std::st
     return false;
   time = pDialog->GetOutput();
   seconds = time.hour * 3600 + time.minute * 60 + time.second;
-  timeString = StringUtils::SecondsToTimeString(seconds);
+  timeString = KODI::StringUtils::SecondsToTimeString(seconds);
   return true;
 }
 
@@ -602,7 +602,7 @@ int CGUIDialogNumeric::ShowAndVerifyPassword(std::string& strPassword, const std
   if (iRetries > 0)
   {
     // Show a string telling user they have iRetries retries left
-    strTempHeading = StringUtils::Format("{}. {} {} {}", strHeading, g_localizeStrings.Get(12342),
+    strTempHeading = KODI::StringUtils::Format("{}. {} {} {}", strHeading, g_localizeStrings.Get(12342),
                                          iRetries, g_localizeStrings.Get(12343));
   }
 
@@ -653,7 +653,7 @@ InputVerificationResult CGUIDialogNumeric::ShowAndVerifyInput(std::string& strTo
     return InputVerificationResult::SUCCESS;
   }
 
-  return StringUtils::EqualsNoCase(strToVerify, md5pword2) ? InputVerificationResult::SUCCESS : InputVerificationResult::FAILED;
+  return KODI::StringUtils::EqualsNoCase(strToVerify, md5pword2) ? InputVerificationResult::SUCCESS : InputVerificationResult::FAILED;
 }
 
 bool CGUIDialogNumeric::IsConfirmed() const

@@ -61,7 +61,7 @@ CHTTPImageTransformationHandler::CHTTPImageTransformationHandler(const HTTPReque
 
   // determine the content type
   std::string ext = URIUtils::GetExtension(pathToUrl.GetHostName());
-  StringUtils::ToLower(ext);
+  KODI::StringUtils::ToLower(ext);
   m_response.contentType = CMime::GetMimeType(ext);
 
   //! @todo determine the maximum age
@@ -131,7 +131,7 @@ MHD_RESULT CHTTPImageTransformationHandler::HandleRequest()
   if (!urlOptions.empty())
   {
     imagePath += "?";
-    imagePath += StringUtils::Join(urlOptions, "&");
+    imagePath += KODI::StringUtils::Join(urlOptions, "&");
   }
 
   // resize the image into the local buffer

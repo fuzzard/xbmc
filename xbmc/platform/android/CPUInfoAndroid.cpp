@@ -29,7 +29,7 @@ CCPUInfoAndroid::CCPUInfoAndroid() : m_posixFile(std::make_unique<CPosixFile>())
 
     if (0 < m_posixFile->Read(buffer.data(), buffer.size()))
     {
-      for (const auto& line : StringUtils::Split(buffer.data(), '\n'))
+      for (const auto& line : KODI::StringUtils::Split(buffer.data(), '\n'))
       {
         if (line.find("vendor_id") != std::string::npos)
           m_cpuVendor = line.substr(line.find(':') + 2);

@@ -285,7 +285,7 @@ std::string CGUIWindowGames::GetStartFolder(const std::string& dir)
 {
   // From CGUIWindowPictures::GetStartFolder()
 
-  if (StringUtils::EqualsNoCase(dir, "plugins") || StringUtils::EqualsNoCase(dir, "addons"))
+  if (KODI::StringUtils::EqualsNoCase(dir, "plugins") || KODI::StringUtils::EqualsNoCase(dir, "addons"))
   {
     return "addons://sources/game/";
   }

@@ -94,7 +94,7 @@ bool CCDDARipJob::DoWork()
 
   int iTrack = atoi(m_input.substr(13, m_input.size() - 13 - 5).c_str());
   std::string strLine0 =
-      StringUtils::Format("{:02}. {} - {}", iTrack, m_tag.GetArtistString(), m_tag.GetTitle());
+      KODI::StringUtils::Format("{:02}. {} - {}", iTrack, m_tag.GetArtistString(), m_tag.GetTitle());
   handle->SetText(strLine0);
 
   // start ripping
@@ -203,18 +203,18 @@ std::unique_ptr<CEncoder> CCDDARipJob::SetupEncoder(CFile& reader)
     return std::unique_ptr<CEncoder>{};
 
   // we have to set the tags before we init the Encoder
-  const std::string strTrack = StringUtils::Format(
+  const std::string strTrack = KODI::StringUtils::Format(
       "{}", std::stol(m_input.substr(13, m_input.size() - 13 - 5), nullptr, 10));
 
   const std::string itemSeparator =
       CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator;
 
   encoder->SetComment(std::string("Ripped with ") + CSysInfo::GetAppName());
-  encoder->SetArtist(StringUtils::Join(m_tag.GetArtist(), itemSeparator));
+  encoder->SetArtist(KODI::StringUtils::Join(m_tag.GetArtist(), itemSeparator));
   encoder->SetTitle(m_tag.GetTitle());
   encoder->SetAlbum(m_tag.GetAlbum());
-  encoder->SetAlbumArtist(StringUtils::Join(m_tag.GetAlbumArtist(), itemSeparator));
-  encoder->SetGenre(StringUtils::Join(m_tag.GetGenre(), itemSeparator));
+  encoder->SetAlbumArtist(KODI::StringUtils::Join(m_tag.GetAlbumArtist(), itemSeparator));
+  encoder->SetGenre(KODI::StringUtils::Join(m_tag.GetGenre(), itemSeparator));
   encoder->SetTrack(strTrack);
   encoder->SetTrackLength(static_cast<int>(reader.GetLength()));
   encoder->SetYear(m_tag.GetYearString());

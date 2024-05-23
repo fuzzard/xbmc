@@ -150,7 +150,7 @@ static const std::array<std::pair<std::string, std::string>, 1> computer_tag{
     {{"<pub:Computer>", "</pub:Computer>"}}};
 
 CWSDiscoveryListenerUDP::CWSDiscoveryListenerUDP()
-  : CThread("WSDiscoveryListenerUDP"), wsd_instance_address(StringUtils::CreateUUID())
+  : CThread("WSDiscoveryListenerUDP"), wsd_instance_address(KODI::StringUtils::CreateUUID())
 {
 }
 
@@ -495,7 +495,7 @@ bool CWSDiscoveryListenerUDP::buildSoapMessage(const std::string& action,
                                                std::string& msg,
                                                const std::string& extraparameter)
 {
-  auto msg_uuid = StringUtils::CreateUUID();
+  auto msg_uuid = KODI::StringUtils::CreateUUID();
   std::string body;
   std::string relatesTo; // Not implemented, may not be needed for our limited usage
   int messagenumber = 1;
@@ -583,7 +583,7 @@ void CWSDiscoveryListenerUDP::UnicastGet(wsd_req_info& info)
   }
 
   std::string msg =
-      fmt::format(get_msg, info.address, StringUtils::CreateUUID(), wsd_instance_address);
+      fmt::format(get_msg, info.address, KODI::StringUtils::CreateUUID(), wsd_instance_address);
   XFILE::CCurlFile file;
   file.SetAcceptEncoding("identity");
   file.SetMimeType("application/soap+xml");

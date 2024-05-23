@@ -161,7 +161,7 @@ void CMusicDatabaseDirectory::ClearDirectoryCache(const std::string& strDirector
 
   uint32_t crc = Crc32::ComputeFromLowerCase(path);
 
-  std::string strFileName = StringUtils::Format("special://temp/archive_cache/{:08x}.fi", crc);
+  std::string strFileName = KODI::StringUtils::Format("special://temp/archive_cache/{:08x}.fi", crc);
   CFile::Delete(strFileName);
 }
 
@@ -169,8 +169,8 @@ bool CMusicDatabaseDirectory::IsAllItem(const std::string& strDirectory)
 {
   //Last query parameter, ignoring any appended options, is -1 or -2
   CURL url(strDirectory);
-  if (StringUtils::EndsWith(url.GetWithoutOptions(), "/-1/") || // any albumid
-      StringUtils::EndsWith(url.GetWithoutOptions(), "/-1/-2/")) // any albumid + flattened
+  if (KODI::StringUtils::EndsWith(url.GetWithoutOptions(), "/-1/") || // any albumid
+      KODI::StringUtils::EndsWith(url.GetWithoutOptions(), "/-1/-2/")) // any albumid + flattened
     return true;
   return false;
 }

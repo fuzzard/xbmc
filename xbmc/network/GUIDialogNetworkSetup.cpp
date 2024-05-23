@@ -354,7 +354,7 @@ std::string CGUIDialogNetworkSetup::ConstructPath() const
 
     if (url.IsProtocol("smb") && username.find('\\') != std::string::npos)
     {
-      auto pair = StringUtils::Split(username, "\\", 2);
+      auto pair = KODI::StringUtils::Split(username, "\\", 2);
       url.SetDomain(pair[0]);
       url.SetUserName(pair[1]);
     }
@@ -445,7 +445,7 @@ void CGUIDialogNetworkSetup::UpdateAvailableProtocols()
       if (!addon->GetProtocolInfo().type.empty())
       {
         // only use first protocol
-        auto prots = StringUtils::Split(info.type, "|");
+        auto prots = KODI::StringUtils::Split(info.type, "|");
         m_protocols.emplace_back(Protocol{
             info.supportPath, info.supportUsername, info.supportPassword, info.supportPort,
             info.supportBrowsing, info.defaultPort, prots.front(), info.label, addon->ID()});

@@ -178,7 +178,7 @@ bool CGUIInfoLabel::ReplaceSpecialKeywordReferences(const std::string &strInput,
   while ((startPos = strInput.find(dollarStrPrefix, index)) != std::string::npos)
   {
     size_t valuePos = startPos + dollarStrPrefix.size();
-    size_t endPos = StringUtils::FindEndBracket(strInput, '[', ']', valuePos);
+    size_t endPos = KODI::StringUtils::FindEndBracket(strInput, '[', ']', valuePos);
     if (endPos != std::string::npos)
     {
       if (index == 0)  // first occurrence?
@@ -316,11 +316,11 @@ void CGUIInfoLabel::Parse(const std::string& label,
       if (pos1 > 0)
         infoPortion.emplace_back(0, work.substr(0, pos1), "");
 
-      pos2 = StringUtils::FindEndBracket(work, '[', ']', pos1 + len);
+      pos2 = KODI::StringUtils::FindEndBracket(work, '[', ']', pos1 + len);
       if (pos2 != std::string::npos)
       {
         // decipher the block
-        std::vector<std::string> params = StringUtils::Split(work.substr(pos1 + len, pos2 - pos1 - len), ",");
+        std::vector<std::string> params = KODI::StringUtils::Split(work.substr(pos1 + len, pos2 - pos1 - len), ",");
         if (!params.empty())
         {
           CGUIInfoManager& infoMgr = CServiceBroker::GetGUI()->GetInfoManager();
@@ -367,10 +367,10 @@ CGUIInfoLabel::CInfoPortion::CInfoPortion(int info, const std::string &prefix, c
   m_info = info;
   m_escaped = escaped;
   // filter our prefix and postfix for comma's
-  StringUtils::Replace(m_prefix, "$COMMA", ",");
-  StringUtils::Replace(m_postfix, "$COMMA", ",");
-  StringUtils::Replace(m_prefix, "$LBRACKET", "["); StringUtils::Replace(m_prefix, "$RBRACKET", "]");
-  StringUtils::Replace(m_postfix, "$LBRACKET", "["); StringUtils::Replace(m_postfix, "$RBRACKET", "]");
+  KODI::StringUtils::Replace(m_prefix, "$COMMA", ",");
+  KODI::StringUtils::Replace(m_postfix, "$COMMA", ",");
+  KODI::StringUtils::Replace(m_prefix, "$LBRACKET", "["); KODI::StringUtils::Replace(m_prefix, "$RBRACKET", "]");
+  KODI::StringUtils::Replace(m_postfix, "$LBRACKET", "["); KODI::StringUtils::Replace(m_postfix, "$RBRACKET", "]");
 }
 
 bool CGUIInfoLabel::CInfoPortion::NeedsUpdate(const std::string &label) const
@@ -392,8 +392,8 @@ std::string CGUIInfoLabel::CInfoPortion::Get() const
   std::string label = m_prefix + m_label + m_postfix;
   if (m_escaped) // escape all quotes and backslashes, then quote
   {
-    StringUtils::Replace(label, "\\", "\\\\");
-    StringUtils::Replace(label, "\"", "\\\"");
+    KODI::StringUtils::Replace(label, "\\", "\\\\");
+    KODI::StringUtils::Replace(label, "\"", "\\\"");
     return "\"" + label + "\"";
   }
   return label;

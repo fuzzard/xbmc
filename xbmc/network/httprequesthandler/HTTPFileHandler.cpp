@@ -59,7 +59,7 @@ void CHTTPFileHandler::SetFile(const std::string& file, int responseStatus)
   {
     // determine the content type
     std::string ext = URIUtils::GetExtension(m_url);
-    StringUtils::ToLower(ext);
+    KODI::StringUtils::ToLower(ext);
     m_response.contentType = CMime::GetMimeType(ext);
 
     // determine the last modified date

@@ -311,7 +311,7 @@ NPT_Result PopulateObjectFromTag(CMusicInfoTag& tag,
   object.m_MiscInfo.original_track_number = tag.GetTrackNumber();
   if (tag.GetDatabaseId() >= 0)
   {
-    object.m_ReferenceID = EncodeObjectId(StringUtils::Format(
+    object.m_ReferenceID = EncodeObjectId(KODI::StringUtils::Format(
         "musicdb://songs/{}{}", tag.GetDatabaseId(), URIUtils::GetExtension(tag.GetURL())));
   }
   if (object.m_ReferenceID == object.m_ObjectID)
@@ -345,7 +345,7 @@ NPT_Result PopulateObjectFromTag(CVideoInfoTag& tag,
     {
       object.m_ObjectClass.type = "object.item.videoItem.musicVideoClip";
       object.m_Creator =
-          StringUtils::Join(
+          KODI::StringUtils::Join(
               tag.m_artist,
               CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator)
               .c_str();
@@ -355,7 +355,7 @@ NPT_Result PopulateObjectFromTag(CVideoInfoTag& tag,
       object.m_Title = tag.m_strTitle.c_str();
       object.m_Date = tag.GetPremiered().GetAsW3CDate().c_str();
       object.m_ReferenceID =
-          EncodeObjectId(StringUtils::Format("videodb://musicvideos/titles/{}", tag.m_iDbId));
+          EncodeObjectId(KODI::StringUtils::Format("videodb://musicvideos/titles/{}", tag.m_iDbId));
     }
     else if (tag.m_type == MediaTypeMovie)
     {
@@ -363,7 +363,7 @@ NPT_Result PopulateObjectFromTag(CVideoInfoTag& tag,
       object.m_Title = tag.m_strTitle.c_str();
       object.m_Date = tag.GetPremiered().GetAsW3CDate().c_str();
       object.m_ReferenceID =
-          EncodeObjectId(StringUtils::Format("videodb://movies/titles/{}", tag.m_iDbId));
+          EncodeObjectId(KODI::StringUtils::Format("videodb://movies/titles/{}", tag.m_iDbId));
     }
     else
     {
@@ -380,7 +380,7 @@ NPT_Result PopulateObjectFromTag(CVideoInfoTag& tag,
         else
           object.m_Date = tag.m_premiered.GetAsW3CDate().c_str();
         object.m_ReferenceID =
-            EncodeObjectId(StringUtils::Format("videodb://tvshows/titles/{}", tag.m_iDbId));
+            EncodeObjectId(KODI::StringUtils::Format("videodb://tvshows/titles/{}", tag.m_iDbId));
       }
       else if (tag.m_type == MediaTypeSeason)
       {
@@ -393,7 +393,7 @@ NPT_Result PopulateObjectFromTag(CVideoInfoTag& tag,
         else
           object.m_Date = tag.m_premiered.GetAsW3CDate().c_str();
         object.m_ReferenceID = EncodeObjectId(
-            StringUtils::Format("videodb://tvshows/titles/{}/{}", tag.m_iIdShow, tag.m_iSeason));
+            KODI::StringUtils::Format("videodb://tvshows/titles/{}/{}", tag.m_iIdShow, tag.m_iSeason));
       }
       else
       {
@@ -406,7 +406,7 @@ NPT_Result PopulateObjectFromTag(CVideoInfoTag& tag,
         object.m_Recorded.episode_number = tag.m_iEpisode;
         object.m_Recorded.episode_season = tag.m_iSeason;
         object.m_Title = object.m_Recorded.series_title + " - " + object.m_Recorded.program_title;
-        object.m_ReferenceID = EncodeObjectId(StringUtils::Format(
+        object.m_ReferenceID = EncodeObjectId(KODI::StringUtils::Format(
             "videodb://tvshows/titles/{}/{}/{}", tag.m_iIdShow, tag.m_iSeason, tag.m_iDbId));
         object.m_Date = tag.m_firstAired.GetAsW3CDate().c_str();
       }
@@ -688,7 +688,7 @@ PLT_MediaObject* BuildObject(CFileItem& item,
         case VIDEODATABASEDIRECTORY::NODE_TYPE_ACTOR:
           container->m_ObjectClass.type += ".person.videoArtist";
           container->m_Creator =
-              StringUtils::Join(tag.m_artist,
+              KODI::StringUtils::Join(tag.m_artist,
                                 settingsComponent->GetAdvancedSettings()->m_videoItemSeparator)
                   .c_str();
           container->m_Title = tag.m_strTitle.c_str();
@@ -728,7 +728,7 @@ PLT_MediaObject* BuildObject(CFileItem& item,
     if (with_count && upnp_server)
     {
       const NPT_String decodedObjectId = DecodeObjectId(object->m_ObjectID.GetChars());
-      if (StringUtils::StartsWithNoCase(decodedObjectId, "virtualpath://"))
+      if (KODI::StringUtils::StartsWithNoCase(decodedObjectId, "virtualpath://"))
       {
         NPT_LargeSize count = 0;
         NPT_CHECK_LABEL(NPT_File::GetSize(file_path, count), failure);
@@ -946,7 +946,7 @@ const std::string& CorrectAllItemsSortHack(const std::string& item)
   // workaround
   if ((item.size() == 1 && item[0] == 0x01) ||
       (item.size() > 1 && ((unsigned char)item[1]) == 0xff))
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   return item;
 }
@@ -1066,7 +1066,7 @@ int PopulateTagFromObject(CVideoInfoTag& tag,
           tag.m_artist.emplace_back(object.m_People.artists.GetItem(index)->name.GetChars());
       }
       else if (!object.m_Creator.IsEmpty() && object.m_Creator != "Unknown")
-        tag.m_artist = StringUtils::Split(
+        tag.m_artist = KODI::StringUtils::Split(
             object.m_Creator.GetChars(),
             CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator);
       tag.m_strAlbum = object.m_Affiliation.album;
@@ -1359,7 +1359,7 @@ bool GetResource(const PLT_MediaObject* entry, CFileItem& item)
     }
 
     // if this is an image fill the thumb of the item
-    if (StringUtils::StartsWithNoCase(resource.m_ProtocolInfo.GetContentType(), "image"))
+    if (KODI::StringUtils::StartsWithNoCase(resource.m_ProtocolInfo.GetContentType(), "image"))
     {
       item.SetArt("thumb", std::string(resource.m_Uri));
     }
@@ -1385,7 +1385,7 @@ bool GetResource(const PLT_MediaObject* entry, CFileItem& item)
         logger->info("adding subtitle: #{}, type '{}', URI '{}'", subIdx, type,
                      res.m_Uri.GetChars());
 
-        std::string prop = StringUtils::Format("subtitle:{}", subIdx);
+        std::string prop = KODI::StringUtils::Format("subtitle:{}", subIdx);
         item.SetProperty(prop, (const char*)res.m_Uri);
       }
     }
@@ -1434,7 +1434,7 @@ NPT_String EncodeObjectId(const std::string& id)
   // if WMP_ID_MAPPING is defined which doesn't seem to happen anywhere in the code. Consider removing
   // WMP_ID_MAPPING ifdef blocks in the future and reduce the scope of this comparison by including the
   // actual used integer ids (0 and -1)
-  if (StringUtils::IsInteger(id))
+  if (KODI::StringUtils::IsInteger(id))
   {
     return id.c_str();
   }
@@ -1455,7 +1455,7 @@ NPT_String DecodeObjectId(const std::string& id)
   // if WMP_ID_MAPPING is defined which doesn't seem to happen anywhere in the code. Consider removing
   // WMP_ID_MAPPING ifdef blocks in the future and reduce the scope of this comparison by including the
   // actual used integer ids (0 and -1)
-  if (StringUtils::IsInteger(id))
+  if (KODI::StringUtils::IsInteger(id))
   {
     return id.c_str();
   }

@@ -62,7 +62,7 @@ bool CUPnPSettings::Load(const std::string &file)
   }
 
   auto* rootElement = doc.RootElement();
-  if (!rootElement || !StringUtils::EqualsNoCase(rootElement->Value(), XML_UPNP))
+  if (!rootElement || !KODI::StringUtils::EqualsNoCase(rootElement->Value(), XML_UPNP))
   {
     m_logger->error("error loading {}, no <upnpserver> node", file);
     return false;

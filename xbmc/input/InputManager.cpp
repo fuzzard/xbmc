@@ -549,11 +549,11 @@ bool CInputManager::HandleKey(const CKey& key)
   appPower->ResetSystemIdleTimer();
   bool processKey = AlwaysProcess(action);
 
-  if (StringUtils::StartsWithNoCase(action.GetName(), "CECToggleState") ||
-      StringUtils::StartsWithNoCase(action.GetName(), "CECStandby"))
+  if (KODI::StringUtils::StartsWithNoCase(action.GetName(), "CECToggleState") ||
+      KODI::StringUtils::StartsWithNoCase(action.GetName(), "CECStandby"))
   {
     // do not wake up the screensaver right after switching off the playing device
-    if (StringUtils::StartsWithNoCase(action.GetName(), "CECToggleState"))
+    if (KODI::StringUtils::StartsWithNoCase(action.GetName(), "CECToggleState"))
     {
       CLog::LogF(LOGDEBUG, "action {} [{}], toggling state of playing device", action.GetName(),
                  action.GetID());

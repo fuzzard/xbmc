@@ -90,13 +90,13 @@ static CFileItemPtr GetFileItem(const std::string& label,
 template<class SettingOption>
 static bool CompareSettingOptionAseconding(const SettingOption& lhs, const SettingOption& rhs)
 {
-  return StringUtils::CompareNoCase(lhs.label, rhs.label) < 0;
+  return KODI::StringUtils::CompareNoCase(lhs.label, rhs.label) < 0;
 }
 
 template<class SettingOption>
 static bool CompareSettingOptionDeseconding(const SettingOption& lhs, const SettingOption& rhs)
 {
-  return StringUtils::CompareNoCase(lhs.label, rhs.label) > 0;
+  return KODI::StringUtils::CompareNoCase(lhs.label, rhs.label) > 0;
 }
 
 static bool GetIntegerOptions(const SettingConstPtr& setting,
@@ -159,9 +159,9 @@ static bool GetIntegerOptions(const SettingConstPtr& setting,
         if (i == pSettingInt->GetMinimum() && control->GetMinimumLabel() > -1)
           strLabel = Localize(control->GetMinimumLabel(), localizer);
         else if (control->GetFormatLabel() > -1)
-          strLabel = StringUtils::Format(Localize(control->GetFormatLabel(), localizer), i);
+          strLabel = KODI::StringUtils::Format(Localize(control->GetFormatLabel(), localizer), i);
         else
-          strLabel = StringUtils::Format(control->GetFormatString(), i);
+          strLabel = KODI::StringUtils::Format(control->GetFormatString(), i);
 
         options.emplace_back(strLabel, i);
       }
@@ -468,9 +468,9 @@ CGUIControlSpinExSetting::CGUIControlSpinExSetting(CGUISpinControlEx* pSpin,
         if (value == pSettingNumber->GetMinimum() && control->GetMinimumLabel() > -1)
           strLabel = Localize(control->GetMinimumLabel());
         else if (control->GetFormatLabel() > -1)
-          strLabel = StringUtils::Format(Localize(control->GetFormatLabel()), value);
+          strLabel = KODI::StringUtils::Format(Localize(control->GetFormatLabel()), value);
         else
-          strLabel = StringUtils::Format(control->GetFormatString(), value);
+          strLabel = KODI::StringUtils::Format(control->GetFormatString(), value);
 
         m_pSpin->AddLabel(strLabel, index);
       }
@@ -728,7 +728,7 @@ bool CGUIControlListSetting::OnClick()
           strLabel, CVariant{ Localize(control->GetAddButtonLabel()) }, false))
         {
           // Validate new value is unique and truncate at any comma
-          StringUtils::Trim(strLabel);
+          KODI::StringUtils::Trim(strLabel);
           strLabel = strLabel.substr(0, strLabel.find(','));
           if (!strLabel.empty())
           {
@@ -840,7 +840,7 @@ void CGUIControlListSetting::Update(bool fromControl, bool updateDisplayOnly)
           labels.push_back(pItem->GetLabel());
       }
 
-      label2 = StringUtils::Join(labels, ", ");
+      label2 = KODI::StringUtils::Join(labels, ", ");
     }
   }
 
@@ -1094,7 +1094,7 @@ void CGUIControlButtonSetting::Update(bool fromControl, bool updateDisplayOnly)
             if (addonNames.empty())
               strText = g_localizeStrings.Get(231); // None
             else
-              strText = StringUtils::Join(addonNames, ", ");
+              strText = KODI::StringUtils::Join(addonNames, ", ");
           }
           else
           {
@@ -1178,7 +1178,7 @@ bool CGUIControlButtonSetting::GetPath(const std::shared_ptr<CSettingPath>& path
   const std::vector<std::string>& sources = pathSetting->GetSources();
   for (const auto& source : sources)
   {
-    if (StringUtils::EqualsNoCase(source, "local"))
+    if (KODI::StringUtils::EqualsNoCase(source, "local"))
       localSharesOnly = true;
     else
     {
@@ -1528,9 +1528,9 @@ bool CGUIControlSliderSetting::FormatText(const std::string& formatString,
   try
   {
     if (value.isDouble())
-      formattedText = StringUtils::Format(formatString, value.asDouble());
+      formattedText = KODI::StringUtils::Format(formatString, value.asDouble());
     else
-      formattedText = StringUtils::Format(formatString, static_cast<int>(value.asInteger()));
+      formattedText = KODI::StringUtils::Format(formatString, static_cast<int>(value.asInteger()));
   }
   catch (const std::runtime_error& err)
   {
@@ -1702,12 +1702,12 @@ void CGUIControlRangeSetting::Update(bool fromControl, bool updateDisplayOnly)
       }
       else
       {
-        strTextLower = StringUtils::Format(valueFormat, valueLower);
-        strTextUpper = StringUtils::Format(valueFormat, valueUpper);
+        strTextLower = KODI::StringUtils::Format(valueFormat, valueLower);
+        strTextUpper = KODI::StringUtils::Format(valueFormat, valueUpper);
       }
 
       if (valueLower != valueUpper)
-        strText = StringUtils::Format(formatString, strTextLower, strTextUpper);
+        strText = KODI::StringUtils::Format(formatString, strTextLower, strTextUpper);
       else
         strText = strTextLower;
       break;
@@ -1731,11 +1731,11 @@ void CGUIControlRangeSetting::Update(bool fromControl, bool updateDisplayOnly)
         m_pSlider->SetFloatValue((float)valueUpper, CGUISliderControl::RangeSelectorUpper);
       }
 
-      strTextLower = StringUtils::Format(valueFormat, valueLower);
+      strTextLower = KODI::StringUtils::Format(valueFormat, valueLower);
       if (valueLower != valueUpper)
       {
-        strTextUpper = StringUtils::Format(valueFormat, valueUpper);
-        strText = StringUtils::Format(formatString, strTextLower, strTextUpper);
+        strTextUpper = KODI::StringUtils::Format(valueFormat, valueUpper);
+        strText = KODI::StringUtils::Format(formatString, strTextLower, strTextUpper);
       }
       else
         strText = strTextLower;

@@ -417,7 +417,7 @@ bool CGUIDialogMusicInfo::OnMessage(CGUIMessage& message)
         if (m_album.idAlbum >= 0)
         {
           // Play album
-          const std::string path = StringUtils::Format("musicdb://albums/{}", m_album.idAlbum);
+          const std::string path = KODI::StringUtils::Format("musicdb://albums/{}", m_album.idAlbum);
           OnPlayItem(std::make_shared<CFileItem>(path, m_album));
           return true;
         }
@@ -800,7 +800,7 @@ void CGUIDialogMusicInfo::OnGetArt()
   for (unsigned int i = 0; i < remotethumbs.size(); ++i)
   {
     std::string strItemPath;
-    strItemPath = StringUtils::Format("thumb://Remote{}", i);
+    strItemPath = KODI::StringUtils::Format("thumb://Remote{}", i);
     CFileItemPtr item(new CFileItem(strItemPath, false));
     item->SetArt("thumb", remotethumbs[i]);
     item->SetArt("icon", "DefaultPicture.png");
@@ -844,7 +844,7 @@ void CGUIDialogMusicInfo::OnGetArt()
         {
           std::string strCandidate = URIUtils::GetFileName(items[j]->GetPath());
           URIUtils::RemoveExtension(strCandidate);
-          if (StringUtils::EqualsNoCase(strCandidate, type))
+          if (KODI::StringUtils::EqualsNoCase(strCandidate, type))
           {
             localArt = items[j]->GetPath();
             break;
@@ -881,7 +881,7 @@ void CGUIDialogMusicInfo::OnGetArt()
   for (auto& item : items)
   {
     // Skip images from remote sources, recache done by refresh (could be slow)
-    if (StringUtils::StartsWith(item->GetPath(), "thumb://Remote"))
+    if (KODI::StringUtils::StartsWith(item->GetPath(), "thumb://Remote"))
       continue;
     std::string thumb(item->GetArt("thumb"));
     if (thumb.empty())
@@ -911,14 +911,14 @@ void CGUIDialogMusicInfo::OnGetArt()
     // User didn't choose the one they have.
     // Overwrite with the new art or clear it
     std::string newArt;
-    if (StringUtils::StartsWith(result, "thumb://Remote"))
+    if (KODI::StringUtils::StartsWith(result, "thumb://Remote"))
     {
       int number = atoi(result.substr(14).c_str());
       newArt = remotethumbs[number];
     }
     else if (result == "thumb://Thumb")
       newArt = m_item->GetArt("thumb");
-    else if (StringUtils::StartsWith(result, "Local Art: "))
+    else if (KODI::StringUtils::StartsWith(result, "Local Art: "))
       newArt = localArt;
     else if (CFileUtils::Exists(result))
       newArt = result;
@@ -964,14 +964,14 @@ void CGUIDialogMusicInfo::OnSetUserrating() const
 
 void CGUIDialogMusicInfo::ShowForAlbum(int idAlbum)
 {
-  std::string path = StringUtils::Format("musicdb://albums/{}", idAlbum);
+  std::string path = KODI::StringUtils::Format("musicdb://albums/{}", idAlbum);
   CFileItem item(path, true); // An album, but IsAlbum() not set as didn't use SetAlbum()
   ShowFor(&item);
 }
 
 void CGUIDialogMusicInfo::ShowForArtist(int idArtist)
 {
-  std::string path = StringUtils::Format("musicdb://artists/{}", idArtist);
+  std::string path = KODI::StringUtils::Format("musicdb://artists/{}", idArtist);
   CFileItem item(path, true);
   ShowFor(&item);
 }
@@ -979,7 +979,7 @@ void CGUIDialogMusicInfo::ShowForArtist(int idArtist)
 void CGUIDialogMusicInfo::ShowFor(CFileItem* pItem)
 {
   if (pItem->IsParentFolder() || URIUtils::IsSpecial(pItem->GetPath()) ||
-    StringUtils::StartsWithNoCase(pItem->GetPath(), "musicsearch://"))
+    KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "musicsearch://"))
     return; // nothing to do
 
   if (!pItem->m_bIsFolder)

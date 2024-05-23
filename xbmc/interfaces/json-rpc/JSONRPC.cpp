@@ -140,7 +140,7 @@ JSONRPC_STATUS CJSONRPC::Version(const std::string &method, ITransportLayer *tra
   const char* version = CJSONServiceDescription::GetVersion();
   if (version != NULL)
   {
-    std::vector<std::string> parts = StringUtils::Split(version, ".");
+    std::vector<std::string> parts = KODI::StringUtils::Split(version, ".");
     if (!parts.empty())
       result["version"]["major"] = (int)strtol(parts[0].c_str(), NULL, 10);
     if (parts.size() > 1)
@@ -298,7 +298,7 @@ bool CJSONRPC::HandleMethodCall(const CVariant& request, CVariant& response, ITr
     isNotification = !request.isMember("id");
 
     std::string methodName = request["method"].asString();
-    StringUtils::ToLower(methodName);
+    KODI::StringUtils::ToLower(methodName);
 
     JSONRPC::MethodCall method;
     CVariant params;

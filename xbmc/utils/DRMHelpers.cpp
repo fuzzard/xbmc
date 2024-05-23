@@ -53,7 +53,7 @@ std::string ModifierToString(uint64_t modifier)
 
   return modifierVendorStr + "_" + modifierNameStr;
 #else
-  return StringUtils::Format("{:#x}", modifier);
+  return KODI::StringUtils::Format("{:#x}", modifier);
 #endif
 }
 

@@ -40,8 +40,8 @@ bool CDVDInputStreamFFmpeg::Open()
 
   m_aborted = false;
 
-  if (StringUtils::CompareNoCase(m_item.GetDynPath(), "udp://", 6) == 0 ||
-      StringUtils::CompareNoCase(m_item.GetDynPath(), "rtp://", 6) == 0)
+  if (KODI::StringUtils::CompareNoCase(m_item.GetDynPath(), "udp://", 6) == 0 ||
+      KODI::StringUtils::CompareNoCase(m_item.GetDynPath(), "rtp://", 6) == 0)
   {
     m_realtime = true;
   }
@@ -116,7 +116,7 @@ std::string CDVDInputStreamFFmpeg::GetFileName()
       url.IsProtocol("rtmpe") || url.IsProtocol("rtmpte") ||
       url.IsProtocol("rtmps"))
   {
-    std::vector<std::string> opts = StringUtils::Split(url.Get(), " ");
+    std::vector<std::string> opts = KODI::StringUtils::Split(url.Get(), " ");
     if (opts.size() > 0)
     {
       return opts.front();

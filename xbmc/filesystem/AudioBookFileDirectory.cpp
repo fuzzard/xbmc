@@ -59,11 +59,11 @@ bool CAudioBookFileDirectory::GetDirectory(const CURL& url,
   AVDictionaryEntry* tag=nullptr;
   while ((tag = av_dict_get(m_fctx->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
   {
-    if (StringUtils::CompareNoCase(tag->key, "title") == 0)
+    if (KODI::StringUtils::CompareNoCase(tag->key, "title") == 0)
       title = tag->value;
-    else if (StringUtils::CompareNoCase(tag->key, "album") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tag->key, "album") == 0)
       album = tag->value;
-    else if (StringUtils::CompareNoCase(tag->key, "artist") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tag->key, "artist") == 0)
       author = tag->value;
   }
 
@@ -74,16 +74,16 @@ bool CAudioBookFileDirectory::GetDirectory(const CURL& url,
   for (size_t i=0;i<m_fctx->nb_chapters;++i)
   {
     tag=nullptr;
-    std::string chaptitle = StringUtils::Format(g_localizeStrings.Get(25010), i + 1);
+    std::string chaptitle = KODI::StringUtils::Format(g_localizeStrings.Get(25010), i + 1);
     std::string chapauthor;
     std::string chapalbum;
     while ((tag=av_dict_get(m_fctx->chapters[i]->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
     {
-      if (StringUtils::CompareNoCase(tag->key, "title") == 0)
+      if (KODI::StringUtils::CompareNoCase(tag->key, "title") == 0)
         chaptitle = tag->value;
-      else if (StringUtils::CompareNoCase(tag->key, "artist") == 0)
+      else if (KODI::StringUtils::CompareNoCase(tag->key, "artist") == 0)
         chapauthor = tag->value;
-      else if (StringUtils::CompareNoCase(tag->key, "album") == 0)
+      else if (KODI::StringUtils::CompareNoCase(tag->key, "album") == 0)
         chapalbum = tag->value;
     }
     CFileItemPtr item(new CFileItem(url.Get(),false));
@@ -101,7 +101,7 @@ bool CAudioBookFileDirectory::GetDirectory(const CURL& url,
     else
       item->GetMusicInfoTag()->SetArtist(chapauthor);
 
-    item->SetLabel(StringUtils::Format("{0:02}. {1} - {2}", i + 1,
+    item->SetLabel(KODI::StringUtils::Format("{0:02}. {1} - {2}", i + 1,
                                        item->GetMusicInfoTag()->GetAlbum(),
                                        item->GetMusicInfoTag()->GetTitle()));
     item->SetStartOffset(CUtil::ConvertSecsToMilliSecs(m_fctx->chapters[i]->start *

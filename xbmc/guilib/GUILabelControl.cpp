@@ -245,8 +245,8 @@ std::string CGUILabelControl::ShortenPath(const std::string &path)
   std::string workPath(path);
   // remove trailing slashes
   if (workPath.size() > 3)
-    if (!StringUtils::EndsWith(workPath, "://") &&
-        !StringUtils::EndsWith(workPath, ":\\"))
+    if (!KODI::StringUtils::EndsWith(workPath, "://") &&
+        !KODI::StringUtils::EndsWith(workPath, ":\\"))
       if (nPos == workPath.size() - 1)
       {
         workPath.erase(workPath.size() - 1);

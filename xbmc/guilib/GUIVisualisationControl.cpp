@@ -288,7 +288,7 @@ void CGUIVisualisationControl::UpdateTrack()
 
   const std::string artist(tag->GetArtistString());
   const std::string albumArtist(tag->GetAlbumArtistString());
-  const std::string genre(StringUtils::Join(
+  const std::string genre(KODI::StringUtils::Join(
       tag->GetGenre(),
       CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
 

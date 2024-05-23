@@ -273,7 +273,7 @@ PeripheralPtr CPeripheralAddon::GetByPath(const std::string& strPath) const
   std::unique_lock<CCriticalSection> lock(m_critSection);
   for (const auto& it : m_peripherals)
   {
-    if (StringUtils::EqualsNoCase(strPath, it.second->FileLocation()))
+    if (KODI::StringUtils::EqualsNoCase(strPath, it.second->FileLocation()))
     {
       result = it.second;
       break;
@@ -389,7 +389,7 @@ bool CPeripheralAddon::PerformDeviceScan(PeripheralScanResults& results)
       }
 
       result.m_strDeviceName = peripheral.Name();
-      result.m_strLocation = StringUtils::Format("{}/{}", ID(), peripheral.Index());
+      result.m_strLocation = KODI::StringUtils::Format("{}/{}", ID(), peripheral.Index());
       result.m_iVendorId = peripheral.VendorID();
       result.m_iProductId = peripheral.ProductID();
       result.m_mappedType = PERIPHERAL_JOYSTICK;

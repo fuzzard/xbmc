@@ -647,7 +647,7 @@ void CFileItemList::FilterCueItems()
                 }
                 else
                 { // try replacing the extension with one of our allowed ones.
-                  std::vector<std::string> extensions = StringUtils::Split(
+                  std::vector<std::string> extensions = KODI::StringUtils::Split(
                       CServiceBroker::GetFileExtensionProvider().GetMusicExtensions(), "|");
                   for (std::vector<std::string>::const_iterator i = extensions.begin();
                        i != extensions.end(); ++i)
@@ -670,7 +670,7 @@ void CFileItemList::FilterCueItems()
               for (int j = 0; j < (int)m_items.size(); j++)
               {
                 CFileItemPtr pItem = m_items[j];
-                if (StringUtils::CompareNoCase(pItem->GetPath(), strMediaFile) == 0)
+                if (KODI::StringUtils::CompareNoCase(pItem->GetPath(), strMediaFile) == 0)
                   pItem->SetCueDocument(cuesheet);
               }
             }
@@ -686,7 +686,7 @@ void CFileItemList::FilterCueItems()
     for (int j = 0; j < (int)m_items.size(); j++)
     {
       CFileItemPtr pItem = m_items[j];
-      if (StringUtils::CompareNoCase(pItem->GetPath(), itemstodelete[i]) == 0)
+      if (KODI::StringUtils::CompareNoCase(pItem->GetPath(), itemstodelete[i]) == 0)
       { // delete this item
         m_items.erase(m_items.begin() + j);
         break;
@@ -900,12 +900,12 @@ void CFileItemList::StackFiles()
                         Ignore2 = expr->GetMatch(3), Extension2 = expr->GetMatch(4);
             if (offset)
               Title2 = file2.substr(0, expr->GetSubStart(2));
-            if (StringUtils::EqualsNoCase(Title1, Title2))
+            if (KODI::StringUtils::EqualsNoCase(Title1, Title2))
             {
-              if (!StringUtils::EqualsNoCase(Volume1, Volume2))
+              if (!KODI::StringUtils::EqualsNoCase(Volume1, Volume2))
               {
-                if (StringUtils::EqualsNoCase(Ignore1, Ignore2) &&
-                    StringUtils::EqualsNoCase(Extension1, Extension2))
+                if (KODI::StringUtils::EqualsNoCase(Ignore1, Ignore2) &&
+                    KODI::StringUtils::EqualsNoCase(Extension1, Extension2))
                 {
                   if (stack.empty())
                   {
@@ -923,7 +923,7 @@ void CFileItemList::StackFiles()
                   break;
                 }
               }
-              else if (!StringUtils::EqualsNoCase(Ignore1,
+              else if (!KODI::StringUtils::EqualsNoCase(Ignore1,
                                                   Ignore2)) // False positive, try again with offset
               {
                 offset = expr->GetSubStart(3);
@@ -1032,8 +1032,8 @@ bool CFileItemList::Save(int windowID)
     // Before caching save simplified cache file name in every item so the cache file can be
     // identifed and removed if the item is updated. List path and options (used for file
     // name when list cached) can not be accurately derived from item path.
-    StringUtils::Replace(cachefile, "special://temp/archive_cache/", "");
-    StringUtils::Replace(cachefile, ".fi", "");
+    KODI::StringUtils::Replace(cachefile, "special://temp/archive_cache/", "");
+    KODI::StringUtils::Replace(cachefile, ".fi", "");
     for (const auto& item : m_items)
       item->SetProperty("cachefilename", cachefile);
 
@@ -1066,7 +1066,7 @@ void CFileItemList::RemoveDiscCache(const std::string& cacheFile) const
 
 void CFileItemList::RemoveDiscCacheCRC(const std::string& crc) const
 {
-  std::string cachefile = StringUtils::Format("special://temp/archive_cache/{}.fi", crc);
+  std::string cachefile = KODI::StringUtils::Format("special://temp/archive_cache/{}.fi", crc);
   RemoveDiscCache(cachefile);
 }
 
@@ -1078,21 +1078,21 @@ std::string CFileItemList::GetDiscFileCache(int windowID) const
   uint32_t crc = Crc32::ComputeFromLowerCase(strPath);
 
   if (MUSIC::IsCDDA(*this) || IsOnDVD())
-    return StringUtils::Format("special://temp/archive_cache/r-{:08x}.fi", crc);
+    return KODI::StringUtils::Format("special://temp/archive_cache/r-{:08x}.fi", crc);
 
   if (MUSIC::IsMusicDb(*this))
-    return StringUtils::Format("special://temp/archive_cache/mdb-{:08x}.fi", crc);
+    return KODI::StringUtils::Format("special://temp/archive_cache/mdb-{:08x}.fi", crc);
 
   if (VIDEO::IsVideoDb(*this))
-    return StringUtils::Format("special://temp/archive_cache/vdb-{:08x}.fi", crc);
+    return KODI::StringUtils::Format("special://temp/archive_cache/vdb-{:08x}.fi", crc);
 
   if (IsSmartPlayList())
-    return StringUtils::Format("special://temp/archive_cache/sp-{:08x}.fi", crc);
+    return KODI::StringUtils::Format("special://temp/archive_cache/sp-{:08x}.fi", crc);
 
   if (windowID)
-    return StringUtils::Format("special://temp/archive_cache/{}-{:08x}.fi", windowID, crc);
+    return KODI::StringUtils::Format("special://temp/archive_cache/{}-{:08x}.fi", windowID, crc);
 
-  return StringUtils::Format("special://temp/archive_cache/{:08x}.fi", crc);
+  return KODI::StringUtils::Format("special://temp/archive_cache/{:08x}.fi", crc);
 }
 
 bool CFileItemList::AlwaysCache() const

@@ -148,8 +148,8 @@ void CGameUtils::GetGameClients(const CFileItem& file,
     std::string lhsName = lhs->Name();
     std::string rhsName = rhs->Name();
 
-    StringUtils::ToLower(lhsName);
-    StringUtils::ToLower(rhsName);
+    KODI::StringUtils::ToLower(lhsName);
+    KODI::StringUtils::ToLower(rhsName);
 
     return lhsName < rhsName;
   };
@@ -205,7 +205,7 @@ bool CGameUtils::HasGameExtension(const std::string& path)
   if (extension.empty())
     return false;
 
-  StringUtils::ToLower(extension);
+  KODI::StringUtils::ToLower(extension);
 
   // Look for a game client that supports this extension
   VECADDONS gameClients;

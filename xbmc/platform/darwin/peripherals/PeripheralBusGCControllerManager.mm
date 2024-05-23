@@ -166,7 +166,7 @@
 
 - (std::string)GetDeviceLocation:(int)deviceId
 {
-  return StringUtils::Format("{}{}", parentClass->getDeviceLocationPrefix(), deviceId);
+  return KODI::StringUtils::Format("{}{}", parentClass->getDeviceLocationPrefix(), deviceId);
 }
 
 #pragma mark - Logging Utils

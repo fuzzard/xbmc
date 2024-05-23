@@ -87,7 +87,7 @@ void CAddonStatusHandler::Process()
 {
   std::unique_lock<CCriticalSection> lock(m_critSection);
 
-  std::string heading = StringUtils::Format(
+  std::string heading = KODI::StringUtils::Format(
       "{}: {}", CAddonInfo::TranslateType(m_addon->Type(), true), m_addon->Name());
 
   /* Request to restart the AddOn and data structures need updated */

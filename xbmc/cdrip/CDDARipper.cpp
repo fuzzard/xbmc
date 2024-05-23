@@ -222,8 +222,8 @@ std::string CCDDARipper::GetAlbumDirName(const MUSIC_INFO::CMusicInfoTag& infoTa
     if (strAlbumArtist.empty())
       strAlbumArtist = "Unknown Artist";
     else
-      StringUtils::Replace(strAlbumArtist, '/', '_');
-    StringUtils::Replace(strAlbumDir, "%A", strAlbumArtist);
+      KODI::StringUtils::Replace(strAlbumArtist, '/', '_');
+    KODI::StringUtils::Replace(strAlbumDir, "%A", strAlbumArtist);
   }
 
   // replace %B with album title
@@ -231,24 +231,24 @@ std::string CCDDARipper::GetAlbumDirName(const MUSIC_INFO::CMusicInfoTag& infoTa
   {
     std::string strAlbum = infoTag.GetAlbum();
     if (strAlbum.empty())
-      strAlbum = StringUtils::Format("Unknown Album {}",
+      strAlbum = KODI::StringUtils::Format("Unknown Album {}",
                                      CDateTime::GetCurrentDateTime().GetAsLocalizedDateTime());
     else
-      StringUtils::Replace(strAlbum, '/', '_');
-    StringUtils::Replace(strAlbumDir, "%B", strAlbum);
+      KODI::StringUtils::Replace(strAlbum, '/', '_');
+    KODI::StringUtils::Replace(strAlbumDir, "%B", strAlbum);
   }
 
   // replace %G with genre
   if (strAlbumDir.find("%G") != std::string::npos)
   {
-    std::string strGenre = StringUtils::Join(
+    std::string strGenre = KODI::StringUtils::Join(
         infoTag.GetGenre(),
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator);
     if (strGenre.empty())
       strGenre = "Unknown Genre";
     else
-      StringUtils::Replace(strGenre, '/', '_');
-    StringUtils::Replace(strAlbumDir, "%G", strGenre);
+      KODI::StringUtils::Replace(strGenre, '/', '_');
+    KODI::StringUtils::Replace(strAlbumDir, "%G", strGenre);
   }
 
   // replace %Y with year
@@ -258,8 +258,8 @@ std::string CCDDARipper::GetAlbumDirName(const MUSIC_INFO::CMusicInfoTag& infoTa
     if (strYear.empty())
       strYear = "Unknown Year";
     else
-      StringUtils::Replace(strYear, '/', '_');
-    StringUtils::Replace(strAlbumDir, "%Y", strYear);
+      KODI::StringUtils::Replace(strYear, '/', '_');
+    KODI::StringUtils::Replace(strAlbumDir, "%Y", strYear);
   }
 
   return strAlbumDir;
@@ -288,7 +288,7 @@ std::string CCDDARipper::GetTrackName(CFileItem* item)
   // grab the label to use it as our ripped filename
   std::string track = destItem.GetLabel();
   if (track.empty())
-    track = StringUtils::Format("{}{:02}", "Track-", trackNumber);
+    track = KODI::StringUtils::Format("{}{:02}", "Track-", trackNumber);
 
   const std::string encoder = CServiceBroker::GetSettingsComponent()->GetSettings()->GetString(
       CSettings::SETTING_AUDIOCDS_ENCODER);

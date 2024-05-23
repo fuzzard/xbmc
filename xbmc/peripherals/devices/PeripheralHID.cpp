@@ -45,7 +45,7 @@ bool CPeripheralHID::InitialiseFeature(const PeripheralFeature feature)
 
     if (m_strKeymap.empty())
     {
-      m_strKeymap = StringUtils::Format("v{}p{}", VendorIdAsString(), ProductIdAsString());
+      m_strKeymap = KODI::StringUtils::Format("v{}p{}", VendorIdAsString(), ProductIdAsString());
       SetSetting("keymap", m_strKeymap);
     }
 
@@ -76,9 +76,9 @@ bool CPeripheralHID::InitialiseFeature(const PeripheralFeature feature)
 
 void CPeripheralHID::OnSettingChanged(const std::string& strChangedSetting)
 {
-  if (m_bInitialised && ((StringUtils::EqualsNoCase(strChangedSetting, "keymap") &&
+  if (m_bInitialised && ((KODI::StringUtils::EqualsNoCase(strChangedSetting, "keymap") &&
                           !GetSettingBool("do_not_use_custom_keymap")) ||
-                         StringUtils::EqualsNoCase(strChangedSetting, "keymap_enabled")))
+                         KODI::StringUtils::EqualsNoCase(strChangedSetting, "keymap_enabled")))
   {
     m_bInitialised = false;
     InitialiseFeature(FEATURE_HID);

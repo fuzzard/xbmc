@@ -278,7 +278,7 @@ void CDetectDVDMedia::DetectMediaType()
   else
   {
     strLabel = m_pCdInfo->GetDiscLabel();
-    StringUtils::TrimRight(strLabel);
+    KODI::StringUtils::TrimRight(strLabel);
   }
 
   SetNewDVDShareUrl( strNewUrl , bCDDA, strLabel);

@@ -60,10 +60,10 @@ LibraryLoader* DllLoaderContainer::GetModule(const char* sName)
 {
   for (int i = 0; i < m_iNrOfDlls && m_dlls[i] != NULL; i++)
   {
-    if (StringUtils::CompareNoCase(m_dlls[i]->GetName(), sName) == 0)
+    if (KODI::StringUtils::CompareNoCase(m_dlls[i]->GetName(), sName) == 0)
       return m_dlls[i];
     if (!m_dlls[i]->IsSystemDll() &&
-        StringUtils::CompareNoCase(m_dlls[i]->GetFileName(), sName) == 0)
+        KODI::StringUtils::CompareNoCase(m_dlls[i]->GetFileName(), sName) == 0)
       return m_dlls[i];
   }
 
@@ -149,11 +149,11 @@ LibraryLoader* DllLoaderContainer::FindModule(const char* sName, const char* sCu
 
 #if defined(TARGET_ANDROID)
   std::string systemLibs = getenv("KODI_ANDROID_SYSTEM_LIBS");
-  vecEnv = StringUtils::Split(systemLibs, ':');
+  vecEnv = KODI::StringUtils::Split(systemLibs, ':');
   std::string localLibs = getenv("KODI_ANDROID_LIBS");
   vecEnv.insert(vecEnv.begin(),localLibs);
 #else
-  vecEnv = StringUtils::Split(ENV_PATH, ';');
+  vecEnv = KODI::StringUtils::Split(ENV_PATH, ';');
 #endif
   LibraryLoader* pDll = NULL;
 
@@ -253,7 +253,7 @@ bool DllLoaderContainer::IsSystemDll(const char* sName)
 {
   for (int i = 0; i < m_iNrOfDlls && m_dlls[i] != NULL; i++)
   {
-    if (m_dlls[i]->IsSystemDll() && StringUtils::CompareNoCase(m_dlls[i]->GetName(), sName) == 0)
+    if (m_dlls[i]->IsSystemDll() && KODI::StringUtils::CompareNoCase(m_dlls[i]->GetName(), sName) == 0)
       return true;
   }
 

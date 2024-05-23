@@ -48,7 +48,7 @@ bool CWebSocketV13::Handshake(const char* data, size_t length, std::string &resp
   // The request must be GET
   value = header.getMethod();
   if (value == NULL ||
-      StringUtils::CompareNoCase(value, WS_HTTP_METHOD, strlen(WS_HTTP_METHOD)) != 0)
+      KODI::StringUtils::CompareNoCase(value, WS_HTTP_METHOD, strlen(WS_HTTP_METHOD)) != 0)
   {
     CLog::Log(LOGINFO, "WebSocket [RFC6455]: invalid HTTP method received (GET expected)");
     return false;
@@ -85,7 +85,7 @@ bool CWebSocketV13::Handshake(const char* data, size_t length, std::string &resp
 
   // There must be a "Upgrade" header with the value "websocket"
   value = header.getValue(WS_HEADER_UPGRADE_LC);
-  if (value == NULL || StringUtils::CompareNoCase(value, WS_HEADER_UPGRADE_VALUE,
+  if (value == NULL || KODI::StringUtils::CompareNoCase(value, WS_HEADER_UPGRADE_VALUE,
                                                   strlen(WS_HEADER_UPGRADE_VALUE)) != 0)
   {
     CLog::Log(LOGINFO, "WebSocket [RFC6455]: invalid \"{}\" received", WS_HEADER_UPGRADE);
@@ -96,8 +96,8 @@ bool CWebSocketV13::Handshake(const char* data, size_t length, std::string &resp
   value = header.getValue(WS_HEADER_CONNECTION_LC);
   std::vector<std::string> elements;
   if (value != nullptr)
-    elements = StringUtils::Split(value, ",");
-  if (elements.empty() || !std::any_of(elements.begin(), elements.end(), [](std::string& elem) { return StringUtils::EqualsNoCase(StringUtils::Trim(elem), WS_HEADER_UPGRADE); }))
+    elements = KODI::StringUtils::Split(value, ",");
+  if (elements.empty() || !std::any_of(elements.begin(), elements.end(), [](std::string& elem) { return KODI::StringUtils::EqualsNoCase(KODI::StringUtils::Trim(elem), WS_HEADER_UPGRADE); }))
   {
     CLog::Log(LOGINFO, "WebSocket [RFC6455]: invalid \"{}\" received", WS_HEADER_CONNECTION_LC);
     return true;
@@ -115,10 +115,10 @@ bool CWebSocketV13::Handshake(const char* data, size_t length, std::string &resp
   value = header.getValue(WS_HEADER_PROTOCOL_LC);
   if (value && strlen(value) > 0)
   {
-    std::vector<std::string> protocols = StringUtils::Split(value, ",");
+    std::vector<std::string> protocols = KODI::StringUtils::Split(value, ",");
     for (auto& protocol : protocols)
     {
-      StringUtils::Trim(protocol);
+      KODI::StringUtils::Trim(protocol);
       if (protocol == WS_PROTOCOL_JSONRPC)
       {
         websocketProtocol = WS_PROTOCOL_JSONRPC;

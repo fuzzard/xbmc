@@ -193,7 +193,7 @@ bool CAESinkDARWINOSX::Initialize(AEAudioFormat &format, std::string &device)
   }
 
   CADeviceList devices = GetDevices();
-  if (StringUtils::EqualsNoCase(device, "default"))
+  if (KODI::StringUtils::EqualsNoCase(device, "default"))
   {
     CCoreAudioHardware::GetOutputDeviceName(device);
     deviceID = CCoreAudioHardware::GetDefaultOutputDevice();

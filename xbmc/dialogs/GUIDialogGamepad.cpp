@@ -111,7 +111,7 @@ bool CGUIDialogGamepad::OnAction(const CAction &action)
 
     std::string md5pword2 = CDigest::Calculate(CDigest::Type::MD5, m_strUserInput);
 
-    if (!StringUtils::EqualsNoCase(m_strPassword, md5pword2))
+    if (!KODI::StringUtils::EqualsNoCase(m_strPassword, md5pword2))
     {
       // incorrect password entered
       m_iRetries--;
@@ -236,7 +236,7 @@ int CGUIDialogGamepad::ShowAndVerifyPassword(std::string& strPassword, const std
   if (0 < iRetries)
   {
     // Show a string telling user they have iRetries retries left
-    strLine2 = StringUtils::Format("{} {} {}", g_localizeStrings.Get(12342), iRetries,
+    strLine2 = KODI::StringUtils::Format("{} {} {}", g_localizeStrings.Get(12342), iRetries,
                                    g_localizeStrings.Get(12343));
   }
 
@@ -276,22 +276,22 @@ bool CGUIDialogGamepad::ShowAndVerifyInput(std::string& strToVerify, const std::
   pDialog->m_bHideInputChars = bHideInputChars;
 
   // HACK: This won't work if the label specified is actually a positive numeric value, but that's very unlikely
-  if (!StringUtils::IsNaturalNumber(dlgHeading))
+  if (!KODI::StringUtils::IsNaturalNumber(dlgHeading))
     pDialog->SetHeading(CVariant{dlgHeading});
   else
     pDialog->SetHeading(CVariant{atoi(dlgHeading.c_str())});
 
-  if (!StringUtils::IsNaturalNumber(dlgLine0))
+  if (!KODI::StringUtils::IsNaturalNumber(dlgLine0))
     pDialog->SetLine(0, CVariant{dlgLine0});
   else
     pDialog->SetLine(0, CVariant{atoi(dlgLine0.c_str())});
 
-  if (!StringUtils::IsNaturalNumber(dlgLine1))
+  if (!KODI::StringUtils::IsNaturalNumber(dlgLine1))
     pDialog->SetLine(1, CVariant{dlgLine1});
   else
     pDialog->SetLine(1, CVariant{atoi(dlgLine1.c_str())});
 
-  if (!StringUtils::IsNaturalNumber(dlgLine2))
+  if (!KODI::StringUtils::IsNaturalNumber(dlgLine2))
     pDialog->SetLine(2, CVariant{dlgLine2});
   else
     pDialog->SetLine(2, CVariant{atoi(dlgLine2.c_str())});

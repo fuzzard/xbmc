@@ -369,10 +369,10 @@ void CGUIDialogSubtitleSettings::SubtitleStreamsOptionFiller(
     if (info.name.length() == 0)
       strItem = strLanguage;
     else
-      strItem = StringUtils::Format("{} - {}", strLanguage, info.name);
+      strItem = KODI::StringUtils::Format("{} - {}", strLanguage, info.name);
 
     strItem += FormatFlags(info.flags);
-    strItem += StringUtils::Format(" ({}/{})", i + 1, subtitleStreamCount);
+    strItem += KODI::StringUtils::Format(" ({}/{})", i + 1, subtitleStreamCount);
 
     list.emplace_back(strItem, i);
   }
@@ -399,11 +399,11 @@ std::string CGUIDialogSubtitleSettings::SettingFormatterDelay(
   float fStep = step.asFloat();
 
   if (fabs(fValue) < 0.5f * fStep)
-    return StringUtils::Format(g_localizeStrings.Get(22003), 0.0);
+    return KODI::StringUtils::Format(g_localizeStrings.Get(22003), 0.0);
   if (fValue < 0)
-    return StringUtils::Format(g_localizeStrings.Get(22004), fabs(fValue));
+    return KODI::StringUtils::Format(g_localizeStrings.Get(22004), fabs(fValue));
 
-  return StringUtils::Format(g_localizeStrings.Get(22005), fValue);
+  return KODI::StringUtils::Format(g_localizeStrings.Get(22005), fValue);
 }
 
 std::string CGUIDialogSubtitleSettings::FormatFlags(StreamFlags flags)
@@ -418,10 +418,10 @@ std::string CGUIDialogSubtitleSettings::FormatFlags(StreamFlags flags)
   if (flags &  StreamFlags::FLAG_VISUAL_IMPAIRED)
     localizedFlags.emplace_back(g_localizeStrings.Get(39108));
 
-  std::string formated = StringUtils::Join(localizedFlags, ", ");
+  std::string formated = KODI::StringUtils::Join(localizedFlags, ", ");
 
   if (!formated.empty())
-    formated = StringUtils::Format(" [{}]", formated);
+    formated = KODI::StringUtils::Format(" [{}]", formated);
 
   return formated;
 }

@@ -335,7 +335,7 @@ void CGUIWindowPVRChannelsBase::UpdateEpg(const CFileItemPtr& item)
     epg->ForceUpdate();
 
     const std::string strMessage =
-        StringUtils::Format("{}: '{}'",
+        KODI::StringUtils::Format("{}: '{}'",
                             g_localizeStrings.Get(19253), // "Guide update scheduled for channel"
                             channel->ChannelName());
     CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info,
@@ -345,7 +345,7 @@ void CGUIWindowPVRChannelsBase::UpdateEpg(const CFileItemPtr& item)
   else
   {
     const std::string strMessage =
-        StringUtils::Format("{}: '{}'",
+        KODI::StringUtils::Format("{}: '{}'",
                             g_localizeStrings.Get(19254), // "Guide update failed for channel"
                             channel->ChannelName());
     CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error,

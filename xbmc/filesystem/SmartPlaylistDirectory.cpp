@@ -80,7 +80,7 @@ namespace XFILE
 
     std::string option = !filter ? "xsp" : "filter";
     std::string group = playlist.GetGroup();
-    bool isGrouped = !group.empty() && !StringUtils::EqualsNoCase(group, "none") && !playlist.IsGroupMixed();
+    bool isGrouped = !group.empty() && !KODI::StringUtils::EqualsNoCase(group, "none") && !playlist.IsGroupMixed();
     // Hint for playlist files like STRM
     PLAYLIST::Id playlistTypeHint = PLAYLIST::Id::TYPE_NONE;
 
@@ -339,7 +339,7 @@ namespace XFILE
         PLAYLIST::CSmartPlaylist playlist;
         if (playlist.OpenAndReadName(item->GetURL()))
         {
-          if (StringUtils::EqualsNoCase(playlist.GetName(), name))
+          if (KODI::StringUtils::EqualsNoCase(playlist.GetName(), name))
             return item->GetPath();
         }
       }

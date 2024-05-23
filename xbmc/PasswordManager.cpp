@@ -76,7 +76,7 @@ bool CPasswordManager::PromptToAuthenticateURL(CURL &url)
 
   if (url.IsProtocol("smb") && name.find('\\') != std::string::npos)
   {
-    auto pair = StringUtils::Split(name, '\\', 2);
+    auto pair = KODI::StringUtils::Split(name, '\\', 2);
     url.SetDomain(pair[0]);
     url.SetUserName(pair[1]);
   }

@@ -466,7 +466,7 @@ bool CPlayList::Expand(int position)
   // remove any item that points back to itself
   for (int i = 0;i<playlist->size();i++)
   {
-    if (StringUtils::EqualsNoCase((*playlist)[i]->GetPath(), path))
+    if (KODI::StringUtils::EqualsNoCase((*playlist)[i]->GetPath(), path))
     {
       playlist->Remove(i);
       i--;

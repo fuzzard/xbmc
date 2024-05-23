@@ -21,7 +21,7 @@ namespace KODI::VIDEO
 
 bool CVideoEmbeddedImageFileLoader::CanLoad(const std::string& specialType) const
 {
-  return StringUtils::StartsWith(specialType, "video_");
+  return KODI::StringUtils::StartsWith(specialType, "video_");
 }
 
 namespace

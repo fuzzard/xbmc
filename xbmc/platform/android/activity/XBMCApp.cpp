@@ -1179,7 +1179,7 @@ bool CXBMCApp::GetStorageUsage(const std::string &path, std::string &usage)
 
   fmt.width(PATH_MAXLEN);
   fmt << std::left
-      << (path.size() < PATH_MAXLEN - 1 ? path : StringUtils::Left(path, PATH_MAXLEN - 4) + "...");
+      << (path.size() < PATH_MAXLEN - 1 ? path : KODI::StringUtils::Left(path, PATH_MAXLEN - 4) + "...");
 
   fmt.width(11);
   fmt << std::right << totalSize << "G";
@@ -1586,7 +1586,7 @@ void CXBMCApp::SetupEnv()
   setenv("KODI_ANDROID_APK", getPackageResourcePath().c_str(), 0);
 
   std::string appName = CCompileInfo::GetAppName();
-  StringUtils::ToLower(appName);
+  KODI::StringUtils::ToLower(appName);
   std::string className = CCompileInfo::GetPackage();
 
   std::string cacheDir = getCacheDir().getAbsolutePath();
@@ -1641,7 +1641,7 @@ std::string CXBMCApp::GetFilenameFromIntent(const CJNIIntent &intent)
     if (!data)
       return ret;
     std::string scheme = data.getScheme();
-    StringUtils::ToLower(scheme);
+    KODI::StringUtils::ToLower(scheme);
     if (scheme == "content")
     {
       std::vector<std::string> filePathColumn;

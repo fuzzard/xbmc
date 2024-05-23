@@ -260,7 +260,7 @@ bool CPeripheralCecAdapter::InitialiseFeature(const PeripheralFeature feature)
           m_cecAdapter ? m_configuration.serverVersion : -1, CEC_LIB_SUPPORTED_VERSION);
 
       // display warning: incompatible libCEC
-      std::string strMessage = StringUtils::Format(
+      std::string strMessage = KODI::StringUtils::Format(
           g_localizeStrings.Get(36040), m_cecAdapter ? m_configuration.serverVersion : -1,
           CEC_LIB_SUPPORTED_VERSION);
       CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error, g_localizeStrings.Get(36000),
@@ -289,7 +289,7 @@ bool CPeripheralCecAdapter::InitialiseFeature(const PeripheralFeature feature)
 
 void CPeripheralCecAdapter::SetVersionInfo(const libcec_configuration& configuration)
 {
-  m_strVersionInfo = StringUtils::Format("libCEC {} - firmware v{}",
+  m_strVersionInfo = KODI::StringUtils::Format("libCEC {} - firmware v{}",
                                          m_cecAdapter->VersionToString(configuration.serverVersion),
                                          configuration.iFirmwareVersion);
 
@@ -297,7 +297,7 @@ void CPeripheralCecAdapter::SetVersionInfo(const libcec_configuration& configura
   if (configuration.iFirmwareBuildDate != CEC_FW_BUILD_UNKNOWN)
   {
     CDateTime dt((time_t)configuration.iFirmwareBuildDate);
-    m_strVersionInfo += StringUtils::Format(" ({})", dt.GetAsDBDate());
+    m_strVersionInfo += KODI::StringUtils::Format(" ({})", dt.GetAsDBDate());
   }
 }
 
@@ -319,7 +319,7 @@ bool CPeripheralCecAdapter::OpenConnection(void)
   // scanning the CEC bus takes about 5 seconds, so display a notification to inform users that
   // we're busy
   std::string strMessage =
-      StringUtils::Format(g_localizeStrings.Get(21336), g_localizeStrings.Get(36000));
+      KODI::StringUtils::Format(g_localizeStrings.Get(21336), g_localizeStrings.Get(36000));
   CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000),
                                         strMessage);
 
@@ -557,7 +557,7 @@ bool CPeripheralCecAdapter::IsMuted(void)
 
 void CPeripheralCecAdapter::SetMenuLanguage(const char* strLanguage)
 {
-  if (StringUtils::EqualsNoCase(m_strMenuLanguage, strLanguage))
+  if (KODI::StringUtils::EqualsNoCase(m_strMenuLanguage, strLanguage))
     return;
 
   std::string strGuiLanguage;
@@ -775,7 +775,7 @@ void CPeripheralCecAdapter::CecAlert(void* cbParam,
   {
     std::string strLog(g_localizeStrings.Get(iAlertString));
     if (data.paramType == CEC_PARAMETER_TYPE_STRING && data.paramData)
-      strLog += StringUtils::Format(" - {}", (const char*)data.paramData);
+      strLog += KODI::StringUtils::Format(" - {}", (const char*)data.paramData);
     CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36000),
                                           strLog);
   }
@@ -1165,7 +1165,7 @@ void CPeripheralCecAdapter::ResetButton(void)
 
 void CPeripheralCecAdapter::OnSettingChanged(const std::string& strChangedSetting)
 {
-  if (StringUtils::EqualsNoCase(strChangedSetting, "enabled"))
+  if (KODI::StringUtils::EqualsNoCase(strChangedSetting, "enabled"))
   {
     bool bEnabled(GetSettingBool("enabled"));
     if (!bEnabled && IsRunning())
@@ -1319,7 +1319,7 @@ void CPeripheralCecAdapter::SetConfigurationFromLibCEC(const CEC::libcec_configu
                            m_configuration.iHDMIPort > CEC_MAX_HDMI_PORTNUMBER))
   {
     m_configuration.iPhysicalAddress = config.iPhysicalAddress;
-    strPhysicalAddress = StringUtils::Format("{:x}", config.iPhysicalAddress);
+    strPhysicalAddress = KODI::StringUtils::Format("{:x}", config.iPhysicalAddress);
   }
   bChanged |= SetSetting("physical_address", strPhysicalAddress);
 
@@ -1416,7 +1416,7 @@ void CPeripheralCecAdapter::SetConfigurationFromSettings(void)
 
   // read the devices to wake when starting
   std::string strWakeDevices = GetSettingString("wake_devices_advanced");
-  StringUtils::Trim(strWakeDevices);
+  KODI::StringUtils::Trim(strWakeDevices);
   m_configuration.wakeDevices.Clear();
   if (!strWakeDevices.empty())
     ReadLogicalAddresses(strWakeDevices, m_configuration.wakeDevices);
@@ -1425,7 +1425,7 @@ void CPeripheralCecAdapter::SetConfigurationFromSettings(void)
 
   // read the devices to power off when stopping
   std::string strStandbyDevices = GetSettingString("standby_devices_advanced");
-  StringUtils::Trim(strStandbyDevices);
+  KODI::StringUtils::Trim(strStandbyDevices);
   m_configuration.powerOffDevices.Clear();
   if (!strStandbyDevices.empty())
     ReadLogicalAddresses(strStandbyDevices, m_configuration.powerOffDevices);
@@ -1464,7 +1464,7 @@ void CPeripheralCecAdapter::ReadLogicalAddresses(const std::string& strString,
   for (size_t iPtr = 0; iPtr < strString.size(); iPtr++)
   {
     std::string strDevice = strString.substr(iPtr, 1);
-    StringUtils::Trim(strDevice);
+    KODI::StringUtils::Trim(strDevice);
     if (!strDevice.empty())
     {
       int iDevice(0);
@@ -1507,8 +1507,8 @@ bool CPeripheralCecAdapter::WriteLogicalAddresses(const cec_logical_addresses& a
     std::string strPowerOffDevices;
     for (unsigned int iPtr = CECDEVICE_TV; iPtr <= CECDEVICE_BROADCAST; iPtr++)
       if (addresses[iPtr])
-        strPowerOffDevices += StringUtils::Format(" {:X}", iPtr);
-    StringUtils::Trim(strPowerOffDevices);
+        strPowerOffDevices += KODI::StringUtils::Format(" {:X}", iPtr);
+    KODI::StringUtils::Trim(strPowerOffDevices);
     bChanged = SetSetting(strAdvancedSettingName, strPowerOffDevices);
   }
 
@@ -1654,11 +1654,11 @@ bool CPeripheralCecAdapterUpdateThread::SetInitialConfiguration(void)
   // request the OSD name of the TV
   std::string strNotification;
   std::string tvName(m_adapter->m_cecAdapter->GetDeviceOSDName(CECDEVICE_TV));
-  strNotification = StringUtils::Format("{}: {}", g_localizeStrings.Get(36016), tvName);
+  strNotification = KODI::StringUtils::Format("{}: {}", g_localizeStrings.Get(36016), tvName);
 
   std::string strAmpName = UpdateAudioSystemStatus();
   if (!strAmpName.empty())
-    strNotification += StringUtils::Format("- {}", strAmpName);
+    strNotification += KODI::StringUtils::Format("- {}", strAmpName);
 
   m_adapter->m_bIsReady = true;
 

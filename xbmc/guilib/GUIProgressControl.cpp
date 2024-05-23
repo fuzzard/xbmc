@@ -217,7 +217,7 @@ bool CGUIProgressControl::UpdateColors(const CGUIListItem* item)
 
 std::string CGUIProgressControl::GetDescription() const
 {
-  return StringUtils::Format("{:1.0f}", m_fPercent);
+  return KODI::StringUtils::Format("{:1.0f}", m_fPercent);
 }
 
 bool CGUIProgressControl::UpdateLayout(void)

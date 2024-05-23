@@ -53,7 +53,7 @@ CDirectoryNode* CDirectoryNode::ParseURL(const std::string& strPath)
   std::string strDirectory = url.GetFileName();
   URIUtils::RemoveSlashAtEnd(strDirectory);
 
-  std::vector<std::string> Path = StringUtils::Tokenize(strDirectory, '/');
+  std::vector<std::string> Path = KODI::StringUtils::Tokenize(strDirectory, '/');
   // we always have a root node, it is special and has a path of ""
   Path.insert(Path.begin(), "");
 

@@ -149,7 +149,7 @@ bool CGUIDialogVideoManagerExtras::AddVideoExtra()
 
         CGUIDialogOK::ShowAndGetInput(
             CVariant{40015},
-            StringUtils::Format(g_localizeStrings.Get(msgid), newAsset.m_assetTypeName));
+            KODI::StringUtils::Format(g_localizeStrings.Get(msgid), newAsset.m_assetTypeName));
         return false;
       }
 
@@ -158,7 +158,7 @@ bool CGUIDialogVideoManagerExtras::AddVideoExtra()
       // The video is a version, ask for confirmation
       if (newAsset.m_assetType == VideoAssetType::VERSION &&
           !CGUIDialogYesNo::ShowAndGetInput(CVariant{40015},
-                                            StringUtils::Format(g_localizeStrings.Get(40036))))
+                                            KODI::StringUtils::Format(g_localizeStrings.Get(40036))))
       {
         return false;
       }
@@ -185,7 +185,7 @@ bool CGUIDialogVideoManagerExtras::AddVideoExtra()
         }
 
         if (!CGUIDialogYesNo::ShowAndGetInput(
-                CVariant{40015}, StringUtils::Format(g_localizeStrings.Get(msgid),
+                CVariant{40015}, KODI::StringUtils::Format(g_localizeStrings.Get(msgid),
                                                      newAsset.m_assetTypeName, videoTitle)))
         {
           return false;
@@ -277,8 +277,8 @@ std::string CGUIDialogVideoManagerExtras::GenerateVideoExtra(const std::string& 
   URIUtils::RemoveExtension(extrasVersion);
 
   // remove special characters
-  extrasVersion = StringUtils::ReplaceSpecialCharactersWithSpace(extrasVersion);
+  extrasVersion = KODI::StringUtils::ReplaceSpecialCharactersWithSpace(extrasVersion);
 
   // trim the string
-  return StringUtils::Trim(extrasVersion);
+  return KODI::StringUtils::Trim(extrasVersion);
 }

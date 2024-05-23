@@ -121,7 +121,7 @@ void CGUIDialogVideoManager::OnInitWindow()
   CGUIDialog::OnInitWindow();
 
   SET_CONTROL_LABEL(CONTROL_LABEL_TITLE,
-                    StringUtils::Format(g_localizeStrings.Get(GetHeadingId()),
+                    KODI::StringUtils::Format(g_localizeStrings.Get(GetHeadingId()),
                                         m_videoAsset->GetVideoInfoTag()->GetTitle()));
 
   CGUIMessage msg{GUI_MSG_LABEL_BIND, GetID(), CONTROL_LIST_ASSETS, 0, 0, m_videoAssetsList.get()};
@@ -307,7 +307,7 @@ void CGUIDialogVideoManager::Remove()
   // confirm to remove
   if (!CGUIDialogYesNo::ShowAndGetInput(
           CVariant(40018),
-          StringUtils::Format(g_localizeStrings.Get(40020),
+          KODI::StringUtils::Format(g_localizeStrings.Get(40020),
                               m_selectedVideoAsset->GetVideoInfoTag()->GetAssetInfo().GetTitle())))
   {
     return;
@@ -429,7 +429,7 @@ int CGUIDialogVideoManager::ChooseVideoAsset(const std::shared_ptr<CFileItem>& i
       if (CGUIKeyboardFactory::ShowAndGetInput(assetTitle,
                                                g_localizeStrings.Get(dialogNewHeadingMsgId), false))
       {
-        assetTitle = StringUtils::Trim(assetTitle);
+        assetTitle = KODI::StringUtils::Trim(assetTitle);
         //! @todo db refactor: should not be version, but asset
         assetId = videodb.AddVideoVersionType(assetTitle, VideoAssetTypeOwner::USER, assetType);
       }
@@ -458,7 +458,7 @@ int CGUIDialogVideoManager::ChooseVideoAsset(const std::shared_ptr<CFileItem>& i
                     { return asset->GetVideoInfoTag()->m_iDbId == assetId; }))
     {
       CGUIDialogOK::ShowAndGetInput(CVariant{40005},
-                                    StringUtils::Format(g_localizeStrings.Get(40007), assetTitle));
+                                    KODI::StringUtils::Format(g_localizeStrings.Get(40007), assetTitle));
     }
     else
       break;

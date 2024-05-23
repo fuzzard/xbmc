@@ -48,7 +48,7 @@ static void libass_log(int level, const char* fmt, va_list args, void* data)
 {
   if (level >= 5)
     return;
-  std::string log = StringUtils::FormatV(fmt, args);
+  std::string log = KODI::StringUtils::FormatV(fmt, args);
   CLog::Log(LOGDEBUG, "CDVDSubtitlesLibass: [ass] {}", log);
 }
 
@@ -134,7 +134,7 @@ void CDVDSubtitlesLibass::Configure()
     ass_add_font(m_library, const_cast<char*>(fileName.c_str()),
                  reinterpret_cast<char*>(buffer.data()), static_cast<int>(buffer.size()));
 #endif
-    if (StringUtils::CompareNoCase(fileName, FONT::FONT_DEFAULT_FILENAME) == 0)
+    if (KODI::StringUtils::CompareNoCase(fileName, FONT::FONT_DEFAULT_FILENAME) == 0)
     {
       m_defaultFontFamilyName = FONT::GetFontFamily(buffer);
     }

@@ -32,7 +32,7 @@ struct FFMpegException : public std::exception
   std::string s;
   template<typename... Args>
   FFMpegException(const std::string& fmt, Args&&... args)
-    : s(StringUtils::Format(fmt, std::forward<Args>(args)...))
+    : s(KODI::StringUtils::Format(fmt, std::forward<Args>(args)...))
   {
   }
   const char* what() const noexcept override { return s.c_str(); }

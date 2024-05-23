@@ -198,20 +198,20 @@ JSONRPC_STATUS CAddonsOperations::ExecuteAddon(const std::string &method, ITrans
     {
       if (it != params.begin_array())
         argv += ",";
-      argv += StringUtils::Paramify(it->asString());
+      argv += KODI::StringUtils::Paramify(it->asString());
     }
   }
   else if (params.isString())
   {
     if (!params.empty())
-      argv = StringUtils::Paramify(params.asString());
+      argv = KODI::StringUtils::Paramify(params.asString());
   }
 
   std::string cmd;
   if (params.empty())
-    cmd = StringUtils::Format("RunAddon({})", id);
+    cmd = KODI::StringUtils::Format("RunAddon({})", id);
   else
-    cmd = StringUtils::Format("RunAddon({}, {})", id, argv);
+    cmd = KODI::StringUtils::Format("RunAddon({}, {})", id, argv);
 
   if (params["wait"].asBoolean())
     CServiceBroker::GetAppMessenger()->SendMsg(TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr, cmd);

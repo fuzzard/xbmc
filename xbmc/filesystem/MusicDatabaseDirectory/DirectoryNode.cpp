@@ -54,7 +54,7 @@ CDirectoryNode* CDirectoryNode::ParseURL(const std::string& strPath)
   std::string strDirectory=url.GetFileName();
   URIUtils::RemoveSlashAtEnd(strDirectory);
 
-  std::vector<std::string> Path = StringUtils::Split(strDirectory, '/');
+  std::vector<std::string> Path = KODI::StringUtils::Split(strDirectory, '/');
   Path.insert(Path.begin(), "");
 
   CDirectoryNode* pNode = nullptr;

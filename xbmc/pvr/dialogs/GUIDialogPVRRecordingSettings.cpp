@@ -139,7 +139,7 @@ bool CGUIDialogPVRRecordingSettings::OnSettingChanging(
     {
       if (HELPERS::ShowYesNoDialogText(
               CVariant{19068}, // "Recording settings"
-              StringUtils::Format(g_localizeStrings.Get(19147),
+              KODI::StringUtils::Format(g_localizeStrings.Get(19147),
                                   iNewLifetime)) // "Setting the lifetime..."
           != HELPERS::DialogResponse::CHOICE_YES)
         return false;
@@ -226,7 +226,7 @@ void CGUIDialogPVRRecordingSettings::LifetimesFiller(const SettingConstPtr& sett
     {
       // PVR backend supplied value is not in the list of predefined values. Insert it.
       list.insert(it, IntegerSettingOption(
-                          StringUtils::Format(g_localizeStrings.Get(17999), current) /* {} days */,
+                          KODI::StringUtils::Format(g_localizeStrings.Get(17999), current) /* {} days */,
                           current));
     }
   }

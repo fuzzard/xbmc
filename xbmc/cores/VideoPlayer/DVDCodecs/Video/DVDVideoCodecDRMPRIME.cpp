@@ -227,7 +227,7 @@ enum AVPixelFormat CDVDVideoCodecDRMPRIME::GetFormat(struct AVCodecContext* avct
     formats.emplace_back(av_get_pix_fmt_name(fmt[n]));
   }
   CLog::Log(LOGERROR, "CDVDVideoCodecDRMPRIME::{} - no supported pixel formats: {}", __FUNCTION__,
-            StringUtils::Join(formats, ", "));
+            KODI::StringUtils::Join(formats, ", "));
 
   return AV_PIX_FMT_NONE;
 }

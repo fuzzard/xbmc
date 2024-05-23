@@ -93,7 +93,7 @@ bool CAESinkWASAPI::Initialize(AEAudioFormat &format, std::string &device)
   sinkReqFormat = format.m_dataFormat;
   sinkRetFormat = AE_FMT_INVALID;
 
-  if(StringUtils::EndsWithNoCase(device, std::string("default")))
+  if(KODI::StringUtils::EndsWithNoCase(device, std::string("default")))
     bdefault = true;
 
   if(!bdefault)

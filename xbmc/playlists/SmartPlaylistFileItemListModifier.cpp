@@ -51,7 +51,7 @@ bool CSmartPlaylistFileItemListModifier::Modify(CFileItemList &items) const
 std::string CSmartPlaylistFileItemListModifier::GetUrlOption(const std::string &path, const std::string &option)
 {
   if (path.empty() || option.empty())
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   CURL url(path);
   return url.GetOption(option);

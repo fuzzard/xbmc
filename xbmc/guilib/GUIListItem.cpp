@@ -18,7 +18,7 @@
 
 bool CGUIListItem::icompare::operator()(const std::string &s1, const std::string &s2) const
 {
-  return StringUtils::CompareNoCase(s1, s2) < 0;
+  return KODI::StringUtils::CompareNoCase(s1, s2) < 0;
 }
 
 CGUIListItem::CGUIListItem(const CGUIListItem& item)

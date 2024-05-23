@@ -268,8 +268,8 @@ bool CNFSDirectory::GetDirectory(const CURL& url, CFileItemList &items)
     bIsDir = tmpDirent.type == NF3DIR;
     lTimeDate = tmpDirent.mtime.tv_sec;
 
-    if (!StringUtils::EqualsNoCase(strName,".") && !StringUtils::EqualsNoCase(strName,"..")
-        && !StringUtils::EqualsNoCase(strName,"lost+found"))
+    if (!KODI::StringUtils::EqualsNoCase(strName,".") && !KODI::StringUtils::EqualsNoCase(strName,"..")
+        && !KODI::StringUtils::EqualsNoCase(strName,"lost+found"))
     {
       if(lTimeDate == 0) // if modification date is missing, use create date
       {

@@ -71,7 +71,7 @@ bool CDirectoryNodeMoviesOverview::GetContent(CFileItemList& items) const
     }
 
     CVideoDbUrl itemUrl = videoUrl;
-    std::string strDir = StringUtils::Format("{}/", MovieChildren[i].id);
+    std::string strDir = KODI::StringUtils::Format("{}/", MovieChildren[i].id);
     itemUrl.AppendPath(strDir);
 
     CFileItemPtr pItem(new CFileItem(itemUrl.ToString(), true));

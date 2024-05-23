@@ -80,7 +80,7 @@ INSTANTIATE_TEST_SUITE_P(TestMusicFileItemClassify, AudioTest, testing::ValuesIn
 TEST(TestMusicFileItemClassify, MusicExtensions)
 {
   const auto& exts = CServiceBroker::GetFileExtensionProvider().GetMusicExtensions();
-  for (const auto& ext : StringUtils::Split(exts, "|"))
+  for (const auto& ext : KODI::StringUtils::Split(exts, "|"))
   {
     if (!ext.empty())
     {

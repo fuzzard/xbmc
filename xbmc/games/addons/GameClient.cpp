@@ -68,7 +68,7 @@ std::string NormalizeExtension(const std::string& strExtension)
 
   if (!ext.empty() && ext != EXTENSION_WILDCARD)
   {
-    StringUtils::ToLower(ext);
+    KODI::StringUtils::ToLower(ext);
 
     if (ext[0] != '.')
       ext.insert(0, ".");
@@ -87,7 +87,7 @@ CGameClient::CGameClient(const ADDON::AddonInfoPtr& addonInfo)
 {
   using namespace ADDON;
 
-  std::vector<std::string> extensions = StringUtils::Split(
+  std::vector<std::string> extensions = KODI::StringUtils::Split(
       Type(AddonType::GAMEDLL)->GetValue(GAME_PROPERTY_EXTENSIONS).asString(), EXTENSION_SEPARATOR);
   std::transform(extensions.begin(), extensions.end(),
                  std::inserter(m_extensions, m_extensions.begin()), NormalizeExtension);
@@ -408,14 +408,14 @@ void CGameClient::NotifyError(GAME_ERROR error)
     // This game requires the following add-on: %s
     MESSAGING::HELPERS::ShowOKDialogText(
         CVariant{35210},
-        CVariant{StringUtils::Format(g_localizeStrings.Get(35211), missingResource)});
+        CVariant{KODI::StringUtils::Format(g_localizeStrings.Get(35211), missingResource)});
   }
   else
   {
     // Failed to play game
     // The emulator "%s" had an internal error.
     MESSAGING::HELPERS::ShowOKDialogText(
-        CVariant{35210}, CVariant{StringUtils::Format(g_localizeStrings.Get(35213), Name())});
+        CVariant{35210}, CVariant{KODI::StringUtils::Format(g_localizeStrings.Get(35213), Name())});
   }
 }
 
@@ -429,7 +429,7 @@ std::string CGameClient::GetMissingResource()
   for (auto it = dependencies.begin(); it != dependencies.end(); ++it)
   {
     const std::string& strDependencyId = it->id;
-    if (StringUtils::StartsWith(strDependencyId, "resource.games"))
+    if (KODI::StringUtils::StartsWith(strDependencyId, "resource.games"))
     {
       AddonPtr addon;
       const bool bInstalled =
@@ -571,7 +571,7 @@ void CGameClient::LogAddonProperties(void) const
   CLog::Log(LOGINFO, "GAME: Loaded DLL for {}", ID());
   CLog::Log(LOGINFO, "GAME: Client:              {}", Name());
   CLog::Log(LOGINFO, "GAME: Version:             {}", Version().asString());
-  CLog::Log(LOGINFO, "GAME: Valid extensions:    {}", StringUtils::Join(m_extensions, " "));
+  CLog::Log(LOGINFO, "GAME: Valid extensions:    {}", KODI::StringUtils::Join(m_extensions, " "));
   CLog::Log(LOGINFO, "GAME: Supports VFS:        {}", m_bSupportsVFS);
   CLog::Log(LOGINFO, "GAME: Supports standalone: {}", m_bSupportsStandalone);
   CLog::Log(LOGINFO, "GAME: ------------------------------------");
@@ -716,7 +716,7 @@ std::pair<std::string, std::string> CGameClient::ParseLibretroName(const std::st
   {
     emulatorName = addonName.substr(beginPos + 1, endPos - beginPos - 1);
     platforms = addonName.substr(0, beginPos);
-    StringUtils::TrimRight(platforms);
+    KODI::StringUtils::TrimRight(platforms);
   }
   else
   {

@@ -60,7 +60,7 @@ std::string CNetworkInterfaceWin32::GetMacAddress() const
 
   const unsigned char* mAddr = m_adapter.PhysicalAddress;
 
-  return StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", mAddr[0], mAddr[1],
+  return KODI::StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", mAddr[0], mAddr[1],
                              mAddr[2], mAddr[3], mAddr[4], mAddr[5]);
 }
 
@@ -300,7 +300,7 @@ bool CNetworkInterfaceWin32::GetHostMacAddress(struct sockaddr* host, std::strin
     return false;
   }
 
-  mac = StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
+  mac = KODI::StringUtils::Format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
                             neighborIp.PhysicalAddress[0], neighborIp.PhysicalAddress[1],
                             neighborIp.PhysicalAddress[2], neighborIp.PhysicalAddress[3],
                             neighborIp.PhysicalAddress[4], neighborIp.PhysicalAddress[5]);

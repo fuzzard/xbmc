@@ -188,7 +188,7 @@ bool CSettings::LoadSetting(const TiXmlNode *node, const std::string &settingId)
 bool CSettings::GetBool(const std::string& id) const
 {
   // Backward compatibility (skins use this setting)
-  if (StringUtils::EqualsNoCase(id, "lookandfeel.enablemouse"))
+  if (KODI::StringUtils::EqualsNoCase(id, "lookandfeel.enablemouse"))
     return CSettingsBase::GetBool(CSettings::SETTING_INPUT_ENABLEMOUSE);
 
   return CSettingsBase::GetBool(id);
@@ -358,7 +358,7 @@ void CSettings::InitializeDefaults()
   std::shared_ptr<CSettingString> deviceUUID = std::static_pointer_cast<CSettingString>(GetSettingsManager()->GetSetting(CSettings::SETTING_SERVICES_DEVICEUUID));
   if (deviceUUID->GetValue().empty())
   {
-    const std::string& uuid = StringUtils::CreateUUID();
+    const std::string& uuid = KODI::StringUtils::CreateUUID();
     auto setting = GetSettingsManager()->GetSetting(CSettings::SETTING_SERVICES_DEVICEUUID);
     if (!setting)
       CLog::Log(LOGERROR, "Failed to load setting for: {}", CSettings::SETTING_SERVICES_DEVICEUUID);

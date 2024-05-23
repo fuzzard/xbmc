@@ -64,11 +64,11 @@ OverlayMessage CDVDOverlayCodecSSA::Decode(DemuxPacket* pPacket)
     size_t pos;
     std::string line, line2;
     std::vector<std::string> lines;
-    StringUtils::Tokenize((const char*)data, lines, "\r\n");
+    KODI::StringUtils::Tokenize((const char*)data, lines, "\r\n");
     for (size_t i = 0; i < lines.size(); i++)
     {
       line = lines[i];
-      StringUtils::Trim(line);
+      KODI::StringUtils::Trim(line);
       std::unique_ptr<char[]> layer(new char[line.length() + 1]);
 
       if (sscanf(line.c_str(), "%*[^:]:%[^,],%d:%d:%d%*c%d,%d:%d:%d%*c%d", layer.get(), &sh, &sm,
@@ -84,7 +84,7 @@ OverlayMessage CDVDOverlayCodecSSA::Decode(DemuxPacket* pPacket)
       if (pos == std::string::npos)
         continue;
 
-      line2 = StringUtils::Format("{},{},{}", m_order++, layer.get(), line.substr(pos + 1));
+      line2 = KODI::StringUtils::Format("{},{},{}", m_order++, layer.get(), line.substr(pos + 1));
 
       m_libass->DecodeDemuxPkt(line2.c_str(), static_cast<int>(line2.length()), beg, end - beg);
     }

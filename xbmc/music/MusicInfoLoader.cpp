@@ -151,8 +151,8 @@ bool CMusicInfoLoader::LoadItemCached(CFileItem* pItem)
 {
   if ((pItem->m_bIsFolder && !MUSIC::IsAudio(*pItem)) || pItem->IsPlayList() ||
       pItem->IsSmartPlayList() ||
-      StringUtils::StartsWithNoCase(pItem->GetPath(), "newplaylist://") ||
-      StringUtils::StartsWithNoCase(pItem->GetPath(), "newsmartplaylist://") || pItem->IsNFO() ||
+      KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "newplaylist://") ||
+      KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "newsmartplaylist://") || pItem->IsNFO() ||
       (NETWORK::IsInternetStream(*pItem) && !MUSIC::IsMusicDb(*pItem)))
     return false;
 
@@ -169,8 +169,8 @@ bool CMusicInfoLoader::LoadItemLookup(CFileItem* pItem)
 
   if ((pItem->m_bIsFolder && !MUSIC::IsAudio(*pItem)) || //
       pItem->IsPlayList() || pItem->IsSmartPlayList() || //
-      StringUtils::StartsWithNoCase(pItem->GetPath(), "newplaylist://") || //
-      StringUtils::StartsWithNoCase(pItem->GetPath(), "newsmartplaylist://") || //
+      KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "newplaylist://") || //
+      KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "newsmartplaylist://") || //
       pItem->IsNFO() || (NETWORK::IsInternetStream(*pItem) && !MUSIC::IsMusicDb(*pItem)))
     return false;
 

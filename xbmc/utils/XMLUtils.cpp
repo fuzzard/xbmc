@@ -210,7 +210,7 @@ bool XMLUtils::GetBoolean(const TiXmlNode* pRootNode, const char* strTag, bool& 
   const TiXmlNode* pNode = pRootNode->FirstChild(strTag );
   if (!pNode || !pNode->FirstChild()) return false;
   std::string strEnabled = pNode->FirstChild()->ValueStr();
-  StringUtils::ToLower(strEnabled);
+  KODI::StringUtils::ToLower(strEnabled);
   if (strEnabled == "off" || strEnabled == "no" || strEnabled == "disabled" || strEnabled == "false" || strEnabled == "0" )
     bBoolValue = false;
   else
@@ -229,7 +229,7 @@ bool XMLUtils::GetBoolean(const tinyxml2::XMLNode* rootNode, const char* tag, bo
     return false;
 
   std::string enabled = node->FirstChild()->Value();
-  StringUtils::ToLower(enabled);
+  KODI::StringUtils::ToLower(enabled);
   if (enabled == "off" || enabled == "no" || enabled == "disabled" || enabled == "false" ||
       enabled == "0")
   {
@@ -254,7 +254,7 @@ bool XMLUtils::GetString(const TiXmlNode* pRootNode, const char* strTag, std::st
   if (pNode != NULL)
   {
     strStringValue = pNode->ValueStr();
-    if (encoded && StringUtils::CompareNoCase(encoded, "yes") == 0)
+    if (encoded && KODI::StringUtils::CompareNoCase(encoded, "yes") == 0)
       strStringValue = CURL::Decode(strStringValue);
     return true;
   }
@@ -273,7 +273,7 @@ bool XMLUtils::GetString(const tinyxml2::XMLNode* rootNode, const char* tag, std
   if (node)
   {
     value = node->Value();
-    if (encoded && StringUtils::CompareNoCase(encoded, "yes") == 0)
+    if (encoded && KODI::StringUtils::CompareNoCase(encoded, "yes") == 0)
       value = CURL::Decode(value);
     return true;
   }
@@ -329,7 +329,7 @@ bool XMLUtils::GetAdditiveString(const TiXmlNode* pRootNode, const char* strTag,
       bResult = true;
       strTemp = node->FirstChild()->Value();
       const char* clear=node->Attribute("clear");
-      if (strStringValue.empty() || (clear && StringUtils::CompareNoCase(clear, "true") == 0))
+      if (strStringValue.empty() || (clear && KODI::StringUtils::CompareNoCase(clear, "true") == 0))
         strStringValue = strTemp;
       else
         strStringValue += strSeparator+strTemp;
@@ -359,7 +359,7 @@ bool XMLUtils::GetAdditiveString(const tinyxml2::XMLNode* rootNode,
       result = true;
       temp = node->FirstChild()->Value();
       auto* clear = node->Attribute("clear");
-      if (value.empty() || (clear && StringUtils::CompareNoCase(clear, "true") == 0))
+      if (value.empty() || (clear && KODI::StringUtils::CompareNoCase(clear, "true") == 0))
         value = temp;
       else
         value += separator + temp;
@@ -389,7 +389,7 @@ bool XMLUtils::GetStringArray(const TiXmlNode* pRootNode, const char* strTag, st
       strTemp = node->FirstChild()->ValueStr();
 
       const char* clearAttr = node->Attribute("clear");
-      if (clearAttr && StringUtils::CompareNoCase(clearAttr, "true") == 0)
+      if (clearAttr && KODI::StringUtils::CompareNoCase(clearAttr, "true") == 0)
         arrayValue.clear();
 
       if (strTemp.empty())
@@ -399,7 +399,7 @@ bool XMLUtils::GetStringArray(const TiXmlNode* pRootNode, const char* strTag, st
         arrayValue.push_back(strTemp);
       else
       {
-        std::vector<std::string> tempArray = StringUtils::Split(strTemp, separator);
+        std::vector<std::string> tempArray = KODI::StringUtils::Split(strTemp, separator);
         arrayValue.insert(arrayValue.end(), tempArray.begin(), tempArray.end());
       }
     }
@@ -429,7 +429,7 @@ bool XMLUtils::GetStringArray(const tinyxml2::XMLNode* rootNode,
       temp = node->FirstChild()->Value();
 
       auto clearAttr = node->Attribute("clear");
-      if (clearAttr && StringUtils::CompareNoCase(clearAttr, "true") == 0)
+      if (clearAttr && KODI::StringUtils::CompareNoCase(clearAttr, "true") == 0)
         value.clear();
 
       if (temp.empty())
@@ -441,7 +441,7 @@ bool XMLUtils::GetStringArray(const tinyxml2::XMLNode* rootNode,
       }
       else
       {
-        std::vector<std::string> tempArray = StringUtils::Split(temp, separator);
+        std::vector<std::string> tempArray = KODI::StringUtils::Split(temp, separator);
         value.insert(value.end(), tempArray.begin(), tempArray.end());
       }
     }
@@ -461,7 +461,7 @@ bool XMLUtils::GetPath(const TiXmlNode* pRootNode, const char* strTag, std::stri
   if (pNode != NULL)
   {
     strStringValue = pNode->Value();
-    if (encoded && StringUtils::CompareNoCase(encoded, "yes") == 0)
+    if (encoded && KODI::StringUtils::CompareNoCase(encoded, "yes") == 0)
       strStringValue = CURL::Decode(strStringValue);
     return true;
   }
@@ -480,7 +480,7 @@ bool XMLUtils::GetPath(const tinyxml2::XMLNode* rootNode, const char* tag, std::
   if (node)
   {
     value = node->Value();
-    if (encoded && StringUtils::CompareNoCase(encoded, "yes") == 0)
+    if (encoded && KODI::StringUtils::CompareNoCase(encoded, "yes") == 0)
       value = CURL::Decode(value);
 
     return true;
@@ -559,7 +559,7 @@ std::string XMLUtils::GetAttribute(const tinyxml2::XMLElement* element, const ch
 
 void XMLUtils::SetAdditiveString(TiXmlNode* pRootNode, const char *strTag, const std::string& strSeparator, const std::string& strValue)
 {
-  std::vector<std::string> list = StringUtils::Split(strValue, strSeparator);
+  std::vector<std::string> list = KODI::StringUtils::Split(strValue, strSeparator);
   for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
     SetString(pRootNode, strTag, *i);
 }
@@ -569,7 +569,7 @@ void XMLUtils::SetAdditiveString(tinyxml2::XMLNode* rootNode,
                                  const std::string& separator,
                                  const std::string& value)
 {
-  std::vector<std::string> list = StringUtils::Split(value, separator);
+  std::vector<std::string> list = KODI::StringUtils::Split(value, separator);
   for (auto i = list.begin(); i != list.end(); ++i)
     SetString(rootNode, tag, *i);
 }
@@ -639,25 +639,25 @@ void XMLUtils::SetLong(tinyxml2::XMLNode* rootNode, const char* tag, long value)
 
 TiXmlNode* XMLUtils::SetFloat(TiXmlNode* pRootNode, const char *strTag, float value)
 {
-  std::string strValue = StringUtils::Format("{:f}", value);
+  std::string strValue = KODI::StringUtils::Format("{:f}", value);
   return SetString(pRootNode, strTag, strValue);
 }
 
 tinyxml2::XMLNode* XMLUtils::SetFloat(tinyxml2::XMLNode* rootNode, const char* tag, float value)
 {
-  std::string strValue = StringUtils::Format("{:f}", value);
+  std::string strValue = KODI::StringUtils::Format("{:f}", value);
   return SetString(rootNode, tag, strValue);
 }
 
 TiXmlNode* XMLUtils::SetDouble(TiXmlNode* pRootNode, const char* strTag, double value)
 {
-  std::string strValue = StringUtils::Format("{:f}", value);
+  std::string strValue = KODI::StringUtils::Format("{:f}", value);
   return SetString(pRootNode, strTag, strValue);
 }
 
 tinyxml2::XMLNode* XMLUtils::SetDouble(tinyxml2::XMLNode* rootNode, const char* tag, double value)
 {
-  std::string strValue = StringUtils::Format("{:f}", value);
+  std::string strValue = KODI::StringUtils::Format("{:f}", value);
   return SetString(rootNode, tag, strValue);
 }
 
@@ -673,13 +673,13 @@ void XMLUtils::SetBoolean(tinyxml2::XMLNode* rootNode, const char* tag, bool val
 
 void XMLUtils::SetHex(TiXmlNode* pRootNode, const char *strTag, uint32_t value)
 {
-  std::string strValue = StringUtils::Format("{:x}", value);
+  std::string strValue = KODI::StringUtils::Format("{:x}", value);
   SetString(pRootNode, strTag, strValue);
 }
 
 void XMLUtils::SetHex(tinyxml2::XMLNode* rootNode, const char* tag, uint32_t value)
 {
-  std::string strValue = StringUtils::Format("{:x}", value);
+  std::string strValue = KODI::StringUtils::Format("{:x}", value);
   SetString(rootNode, tag, strValue);
 }
 

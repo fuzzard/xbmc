@@ -156,7 +156,7 @@ bool CMusicDbUrl::validateOption(const std::string &key, const CVariant &value)
 
   // if the value is empty it will remove the option which is ok
   // otherwise we only care about the "filter" option here
-  if (value.empty() || !StringUtils::EqualsNoCase(key, "filter"))
+  if (value.empty() || !KODI::StringUtils::EqualsNoCase(key, "filter"))
     return true;
 
   if (!value.isString())

@@ -38,8 +38,8 @@ CTVOSFile::~CTVOSFile()
 
 bool CTVOSFile::WantsFile(const CURL& url)
 {
-  if (!StringUtils::EqualsNoCase(url.GetFileType(), "xml") ||
-      StringUtils::StartsWithNoCase(url.GetFileNameWithoutPath(), "customcontroller.SiriRemote"))
+  if (!KODI::StringUtils::EqualsNoCase(url.GetFileType(), "xml") ||
+      KODI::StringUtils::StartsWithNoCase(url.GetFileNameWithoutPath(), "customcontroller.SiriRemote"))
     return false;
   return CTVOSNSUserDefaults::IsKeyFromPath(url.Get());
 }

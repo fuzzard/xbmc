@@ -68,7 +68,7 @@ void CPVRClientCapabilities::InitRecordingsLifetimeValues()
     // No values given by addon, but lifetime supported. Use default values 1..365
     for (int i = 1; i < 366; ++i)
     {
-      m_recordingsLifetimeValues.emplace_back(StringUtils::Format(g_localizeStrings.Get(17999), i),
+      m_recordingsLifetimeValues.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(17999), i),
                                               i); // "{} days"
     }
   }

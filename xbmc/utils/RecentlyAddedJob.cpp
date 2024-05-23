@@ -63,7 +63,7 @@ bool CRecentlyAddedJob::UpdateVideo()
       auto item = items.Get(i);
       std::string value = std::to_string(i + 1);
       std::string strRating =
-          StringUtils::Format("{:.1f}", item->GetVideoInfoTag()->GetRating().rating);
+          KODI::StringUtils::Format("{:.1f}", item->GetVideoInfoTag()->GetRating().rating);
 
       home->SetProperty("LatestMovie." + value + ".Title"       , item->GetLabel());
       home->SetProperty("LatestMovie." + value + ".Rating"      , strRating);
@@ -106,10 +106,10 @@ bool CRecentlyAddedJob::UpdateVideo()
       auto item          = TVShowItems.Get(i);
       int          EpisodeSeason = item->GetVideoInfoTag()->m_iSeason;
       int          EpisodeNumber = item->GetVideoInfoTag()->m_iEpisode;
-      std::string EpisodeNo = StringUtils::Format("s{:02}e{:02}", EpisodeSeason, EpisodeNumber);
+      std::string EpisodeNo = KODI::StringUtils::Format("s{:02}e{:02}", EpisodeSeason, EpisodeNumber);
       std::string value = std::to_string(i + 1);
       std::string strRating =
-          StringUtils::Format("{:.1f}", item->GetVideoInfoTag()->GetRating().rating);
+          KODI::StringUtils::Format("{:.1f}", item->GetVideoInfoTag()->GetRating().rating);
 
       home->SetProperty("LatestEpisode." + value + ".ShowTitle"     , item->GetVideoInfoTag()->m_strShowTitle);
       home->SetProperty("LatestEpisode." + value + ".EpisodeTitle"  , item->GetVideoInfoTag()->m_strTitle);
@@ -171,7 +171,7 @@ bool CRecentlyAddedJob::UpdateVideo()
       home->SetProperty("LatestMusicVideo." + value + ".Plot"        , item->GetVideoInfoTag()->m_strPlot);
       home->SetProperty("LatestMusicVideo." + value + ".RunningTime" , item->GetVideoInfoTag()->GetDuration() / 60);
       home->SetProperty("LatestMusicVideo." + value + ".Path"        , item->GetVideoInfoTag()->m_strFileNameAndPath);
-      home->SetProperty("LatestMusicVideo." + value + ".Artist"      , StringUtils::Join(item->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator));
+      home->SetProperty("LatestMusicVideo." + value + ".Artist"      , KODI::StringUtils::Join(item->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator));
 
       if (!item->HasArt("thumb"))
         loader.LoadItem(item.get());
@@ -293,7 +293,7 @@ bool CRecentlyAddedJob::UpdateMusic()
         }
       }
 
-      std::string strDBpath = StringUtils::Format("musicdb://albums/{}/", album.idAlbum);
+      std::string strDBpath = KODI::StringUtils::Format("musicdb://albums/{}/", album.idAlbum);
 
       home->SetProperty("LatestAlbum." + value + ".Title"   , album.strAlbum);
       home->SetProperty("LatestAlbum." + value + ".Year"    , album.strReleaseDate);

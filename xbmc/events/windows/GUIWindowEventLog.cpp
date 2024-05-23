@@ -186,7 +186,7 @@ void CGUIWindowEventLog::UpdateButtons()
   EventLevel eventLevel = CViewStateSettings::GetInstance().GetEventLevel();
   // set the label of the "level" button
   SET_CONTROL_LABEL(CONTROL_BUTTON_LEVEL,
-                    StringUtils::Format(g_localizeStrings.Get(14119),
+                    KODI::StringUtils::Format(g_localizeStrings.Get(14119),
                                         g_localizeStrings.Get(14115 + (int)eventLevel)));
 
   // set the label, value and enabled state of the "level only" button

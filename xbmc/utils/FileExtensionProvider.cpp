@@ -105,7 +105,7 @@ bool CFileExtensionProvider::CanOperateExtension(const std::string& path) const
 
   // Get file extensions to find addon related to it.
   std::string strExtension = URIUtils::GetExtension(path);
-  StringUtils::ToLower(strExtension);
+  KODI::StringUtils::ToLower(strExtension);
   if (!strExtension.empty() && CServiceBroker::IsAddonInterfaceUp())
   {
     std::vector<std::unique_ptr<KODI::ADDONS::IAddonSupportCheck>> supportList;
@@ -224,7 +224,7 @@ void CFileExtensionProvider::SetAddonExtensions(AddonType type)
         if (addonInfo->Type(type)->GetValue("@encodedhostname").asBoolean())
         {
           std::string prot = addonInfo->Type(type)->GetValue("@protocols").asString();
-          auto prots = StringUtils::Split(prot, "|");
+          auto prots = KODI::StringUtils::Split(prot, "|");
           for (const std::string& it : prots)
             m_encoded.push_back(it);
         }
@@ -232,8 +232,8 @@ void CFileExtensionProvider::SetAddonExtensions(AddonType type)
     }
   }
 
-  m_addonExtensions[type] = StringUtils::Join(extensions, "|");
-  m_addonFileFolderExtensions[type] = StringUtils::Join(fileFolderExtensions, "|");
+  m_addonExtensions[type] = KODI::StringUtils::Join(extensions, "|");
+  m_addonFileFolderExtensions[type] = KODI::StringUtils::Join(fileFolderExtensions, "|");
 }
 
 void CFileExtensionProvider::OnAddonEvent(const AddonEvent& event)

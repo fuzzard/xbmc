@@ -84,7 +84,7 @@ CSeatSelection::CSeatSelection(CConnection& connection, wayland::seat_t const& s
     else
     {
       m_currentSelection = offer;
-      std::string offers = StringUtils::Join(m_mimeTypeOffers, ", ");
+      std::string offers = KODI::StringUtils::Join(m_mimeTypeOffers, ", ");
 
       // Match MIME type by priority: Find first preferred MIME type that is in the
       // set of offered types
@@ -92,7 +92,7 @@ CSeatSelection::CSeatSelection(CConnection& connection, wayland::seat_t const& s
       auto mimeIt = std::find_first_of(MIME_TYPES_PREFERENCE.cbegin(), MIME_TYPES_PREFERENCE.cend(),
                                        m_mimeTypeOffers.cbegin(), m_mimeTypeOffers.cend(),
                                        // static_cast needed for overload resolution
-                                       static_cast<bool (*)(std::string const&, std::string const&)> (&StringUtils::EqualsNoCase));
+                                       static_cast<bool (*)(std::string const&, std::string const&)> (&KODI::StringUtils::EqualsNoCase));
       if (mimeIt != MIME_TYPES_PREFERENCE.cend())
       {
         m_matchedMimeType = *mimeIt;

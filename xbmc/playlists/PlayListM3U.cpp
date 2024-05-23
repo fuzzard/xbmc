@@ -92,9 +92,9 @@ bool CPlayListM3U::Load(const std::string& strFileName)
   while (file.ReadString(szLine, 4095))
   {
     strLine = szLine;
-    StringUtils::Trim(strLine);
+    KODI::StringUtils::Trim(strLine);
 
-    if (StringUtils::StartsWith(strLine, InfoMarker))
+    if (KODI::StringUtils::StartsWith(strLine, InfoMarker))
     {
       // start of info
       size_t iColon = strLine.find(':');
@@ -113,7 +113,7 @@ bool CPlayListM3U::Load(const std::string& strFileName)
           g_charsetConverter.unknownToUTF8(strInfo);
       }
     }
-    else if (StringUtils::StartsWith(strLine, OffsetMarker))
+    else if (KODI::StringUtils::StartsWith(strLine, OffsetMarker))
     {
       size_t iColon = strLine.find(':');
       size_t iComma = strLine.find(',');
@@ -128,8 +128,8 @@ bool CPlayListM3U::Load(const std::string& strFileName)
         iEndOffset = atoi(strLine.substr(iComma).c_str());
       }
     }
-    else if (StringUtils::StartsWith(strLine, PropertyMarker)
-    || StringUtils::StartsWith(strLine, VLCOptMarker))
+    else if (KODI::StringUtils::StartsWith(strLine, PropertyMarker)
+    || KODI::StringUtils::StartsWith(strLine, VLCOptMarker))
     {
       size_t iColon = strLine.find(':');
       size_t iEqualSign = strLine.find('=');
@@ -139,13 +139,13 @@ bool CPlayListM3U::Load(const std::string& strFileName)
       {
         std::string strFirst, strSecond;
         properties.emplace_back(
-          StringUtils::Trim((strFirst = strLine.substr(iColon + 1, iEqualSign - iColon - 1))),
-          StringUtils::Trim((strSecond = strLine.substr(iEqualSign + 1))));
+          KODI::StringUtils::Trim((strFirst = strLine.substr(iColon + 1, iEqualSign - iColon - 1))),
+          KODI::StringUtils::Trim((strSecond = strLine.substr(iEqualSign + 1))));
       }
     }
     else if (strLine != StartMarker &&
-             !StringUtils::StartsWith(strLine, ArtistMarker) &&
-             !StringUtils::StartsWith(strLine, AlbumMarker))
+             !KODI::StringUtils::StartsWith(strLine, ArtistMarker) &&
+             !KODI::StringUtils::StartsWith(strLine, AlbumMarker))
     {
       std::string strFileName = strLine;
 
@@ -154,7 +154,7 @@ bool CPlayListM3U::Load(const std::string& strFileName)
 
       // Skip self - do not load playlist recursively
       // We compare case-less in case user has input incorrect case of the current playlist
-      if (StringUtils::EqualsNoCase(URIUtils::GetFileName(strFileName), m_strPlayListName))
+      if (KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(strFileName), m_strPlayListName))
         continue;
 
       if (strFileName.length() > 0)
@@ -232,7 +232,7 @@ void CPlayListM3U::Save(const std::string& strFileName) const
     CLog::Log(LOGERROR, "Could not save M3U playlist: [{}]", strPlaylist);
     return;
   }
-  std::string strLine = StringUtils::Format("{}\n", StartMarker);
+  std::string strLine = KODI::StringUtils::Format("{}\n", StartMarker);
   if (file.Write(strLine.c_str(), strLine.size()) != static_cast<ssize_t>(strLine.size()))
     return; // error
 
@@ -242,20 +242,20 @@ void CPlayListM3U::Save(const std::string& strFileName) const
     std::string strDescription=item->GetLabel();
     if (!utf8)
       g_charsetConverter.utf8ToStringCharset(strDescription);
-    strLine = StringUtils::Format("{}:{},{}\n", InfoMarker,
+    strLine = KODI::StringUtils::Format("{}:{},{}\n", InfoMarker,
                                   item->GetMusicInfoTag()->GetDuration(), strDescription);
     if (file.Write(strLine.c_str(), strLine.size()) != static_cast<ssize_t>(strLine.size()))
       return; // error
     if (item->GetStartOffset() != 0 || item->GetEndOffset() != 0)
     {
-      strLine = StringUtils::Format("{}:{},{}\n", OffsetMarker, item->GetStartOffset(),
+      strLine = KODI::StringUtils::Format("{}:{},{}\n", OffsetMarker, item->GetStartOffset(),
                                     item->GetEndOffset());
       file.Write(strLine.c_str(),strLine.size());
     }
     std::string strFileName = ResolveURL(item);
     if (!utf8)
       g_charsetConverter.utf8ToStringCharset(strFileName);
-    strLine = StringUtils::Format("{}\n", strFileName);
+    strLine = KODI::StringUtils::Format("{}\n", strFileName);
     if (file.Write(strLine.c_str(), strLine.size()) != static_cast<ssize_t>(strLine.size()))
       return; // error
   }
@@ -274,18 +274,18 @@ std::map< std::string, std::string > CPlayListM3U::ParseStreamLine(const std::st
   std::string strParams(streamLine.substr(strlen(StreamMarker) + 1));
 
   // separate the parameters
-  std::vector<std::string> vecParams = StringUtils::Split(strParams, ",");
+  std::vector<std::string> vecParams = KODI::StringUtils::Split(strParams, ",");
   for (std::vector<std::string>::iterator i = vecParams.begin(); i != vecParams.end(); ++i)
   {
     // split the param, ensure there was an =
-    StringUtils::Trim(*i);
-    std::vector<std::string> vecTuple = StringUtils::Split(*i, "=");
+    KODI::StringUtils::Trim(*i);
+    std::vector<std::string> vecTuple = KODI::StringUtils::Split(*i, "=");
     if (vecTuple.size() < 2)
       continue;
 
     // remove white space from name and value and store it in the dictionary
-    StringUtils::Trim(vecTuple[0]);
-    StringUtils::Trim(vecTuple[1]);
+    KODI::StringUtils::Trim(vecTuple[0]);
+    KODI::StringUtils::Trim(vecTuple[1]);
     params[vecTuple[0]] = vecTuple[1];
   }
 

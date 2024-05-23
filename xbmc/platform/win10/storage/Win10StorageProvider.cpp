@@ -150,7 +150,7 @@ std::vector<std::string> CStorageProvider::GetDiskUsage()
 
   auto localfolder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path();
   GetDiskFreeSpaceExW(localfolder.c_str(), nullptr, &ULTotal, &ULTotalFree);
-  strRet = StringUtils::Format("{}: {} MB {}", g_localizeStrings.Get(21440),
+  strRet = KODI::StringUtils::Format("{}: {} MB {}", g_localizeStrings.Get(21440),
                                (ULTotalFree.QuadPart / (1024 * 1024)), g_localizeStrings.Get(160));
   result.push_back(strRet);
 
@@ -172,7 +172,7 @@ std::vector<std::string> CStorageProvider::GetDiskUsage()
       && GetDiskFreeSpaceExA((strDrive.c_str()), nullptr, &ULTotal, &ULTotalFree))
     {
       strRet =
-          StringUtils::Format("{} {} MB {}", strDrive, int(ULTotalFree.QuadPart / (1024 * 1024)),
+          KODI::StringUtils::Format("{} {} MB {}", strDrive, int(ULTotalFree.QuadPart / (1024 * 1024)),
                               g_localizeStrings.Get(160));
       result.push_back(strRet);
     }
@@ -242,23 +242,23 @@ void CStorageProvider::GetDrivesByType(VECSOURCES & localDrives, Drive_Types eDr
       switch (uDriveType)
       {
       case DRIVE_CDROM:
-        share.strName = StringUtils::Format("{} ({})", share.strPath, g_localizeStrings.Get(218));
+        share.strName = KODI::StringUtils::Format("{} ({})", share.strPath, g_localizeStrings.Get(218));
         break;
       case DRIVE_REMOVABLE:
         if (share.strName.empty())
-          share.strName = StringUtils::Format("{} ({})", g_localizeStrings.Get(437), share.strPath);
+          share.strName = KODI::StringUtils::Format("{} ({})", g_localizeStrings.Get(437), share.strPath);
         break;
       default:
         if (share.strName.empty())
           share.strName = share.strPath;
         else
-          share.strName = StringUtils::Format("{} ({})", share.strPath, share.strName);
+          share.strName = KODI::StringUtils::Format("{} ({})", share.strPath, share.strName);
         break;
       }
     }
 
-    StringUtils::Replace(share.strName, ":\\", ":");
-    StringUtils::Replace(share.strPath, ":\\", ":");
+    KODI::StringUtils::Replace(share.strName, ":\\", ":");
+    KODI::StringUtils::Replace(share.strPath, ":\\", ":");
     share.m_ignore = true;
     if (!bUseDCD)
     {

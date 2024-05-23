@@ -146,7 +146,7 @@ void CURL::Parse(std::string strURL1)
   if (IsProtocol("udf") || IsProtocol("iso9660"))
   {
     std::string lower(strURL);
-    StringUtils::ToLower(lower);
+    KODI::StringUtils::ToLower(lower);
     size_t isoPos = lower.find(".iso\\", iPos);
     if (isoPos == std::string::npos)
       isoPos = lower.find(".udf\\", iPos);
@@ -290,7 +290,7 @@ void CURL::Parse(std::string strURL1)
   {
     if (m_strHostName != "" && m_strFileName != "")
     {
-      m_strFileName = StringUtils::Format("{}/{}", m_strHostName, m_strFileName);
+      m_strFileName = KODI::StringUtils::Format("{}/{}", m_strHostName, m_strFileName);
       m_strHostName = "";
     }
     else
@@ -303,7 +303,7 @@ void CURL::Parse(std::string strURL1)
     }
   }
 
-  StringUtils::Replace(m_strFileName, '\\', '/');
+  KODI::StringUtils::Replace(m_strFileName, '\\', '/');
 
   /* update extension + sharename */
   SetFileName(m_strFileName);
@@ -336,14 +336,14 @@ void CURL::SetFileName(std::string strFileName)
   else
     m_strShareName = m_strFileName.substr(0, slash);
 
-  StringUtils::Trim(m_strFileType);
-  StringUtils::ToLower(m_strFileType);
+  KODI::StringUtils::Trim(m_strFileType);
+  KODI::StringUtils::ToLower(m_strFileType);
 }
 
 void CURL::SetProtocol(std::string strProtocol)
 {
   m_strProtocol = std::move(strProtocol);
-  StringUtils::ToLower(m_strProtocol);
+  KODI::StringUtils::ToLower(m_strProtocol);
 }
 
 void CURL::SetOptions(std::string strOptions)
@@ -543,7 +543,7 @@ std::string CURL::GetWithoutUserDetails(bool redact) const
     if ( HasPort() )
     {
       protectIPv6(strHostName);
-      strURL += strHostName + StringUtils::Format(":{}", m_iPort);
+      strURL += strHostName + KODI::StringUtils::Format(":{}", m_iPort);
     }
     else
       strURL += strHostName;
@@ -606,7 +606,7 @@ std::string CURL::GetWithoutFilename() const
     if (HasPort())
     {
       protectIPv6(hostname);
-      strURL += hostname + StringUtils::Format(":{}", m_iPort);
+      strURL += hostname + KODI::StringUtils::Format(":{}", m_iPort);
     }
     else
       strURL += hostname;
@@ -647,7 +647,7 @@ bool CURL::IsFullPath(const std::string &url)
   if (url.size() && url[0] == '/') return true;     //   /foo/bar.ext
   if (url.find("://") != std::string::npos) return true;                 //   foo://bar.ext
   if (url.size() > 1 && url[1] == ':') return true; //   c:\\foo\\bar\\bar.ext
-  if (StringUtils::StartsWith(url, "\\\\")) return true;    //   \\UNC\path\to\file
+  if (KODI::StringUtils::StartsWith(url, "\\\\")) return true;    //   \\UNC\path\to\file
   return false;
 }
 
@@ -700,7 +700,7 @@ std::string CURL::Encode(std::string_view strURLData)
   {
     // Don't URL encode "-_.!()" according to RFC1738
     //! @todo Update it to "-_.~" after Gotham according to RFC3986
-    if (StringUtils::isasciialphanum(kar) || kar == '-' || kar == '.' || kar == '_' || kar == '!' || kar == '(' || kar == ')')
+    if (KODI::StringUtils::isasciialphanum(kar) || kar == '-' || kar == '.' || kar == '_' || kar == '!' || kar == '(' || kar == ')')
       strResult.push_back(kar);
     else
       fmt::format_to(std::back_insert_iterator(strResult), "%{:02x}",

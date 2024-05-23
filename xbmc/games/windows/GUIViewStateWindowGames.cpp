@@ -67,7 +67,7 @@ std::string CGUIViewStateWindowGames::GetExtensions()
   // Ensure .zip appears
   exts.insert(".zip");
 
-  return StringUtils::Join(exts, "|");
+  return KODI::StringUtils::Join(exts, "|");
 }
 
 VECSOURCES& CGUIViewStateWindowGames::GetSources()

@@ -287,7 +287,7 @@ static bool IsForeign(const std::string& languages)
   if (languages.empty())
     return false;
 
-  for (const auto& lang : StringUtils::Split(languages, " "))
+  for (const auto& lang : KODI::StringUtils::Split(languages, " "))
   {
     if (lang == "en" || lang == g_langInfo.GetLocale().GetLanguageCode() ||
         lang == g_langInfo.GetLocale().ToShortString())
@@ -353,7 +353,7 @@ void CGUIWindowAddonBrowser::UpdateStatus(const CFileItemPtr& item)
   if (CAddonInstaller::GetInstance().GetProgress(item->GetProperty("Addon.ID").asString(), percent,
                                                  downloadFinshed))
   {
-    std::string progress = StringUtils::Format(
+    std::string progress = KODI::StringUtils::Format(
         !downloadFinshed ? g_localizeStrings.Get(24042) : g_localizeStrings.Get(24044), percent);
     item->SetProperty("Addon.Status", progress);
     item->SetProperty("Addon.Downloading", true);
@@ -628,13 +628,13 @@ int CGUIWindowAddonBrowser::SelectAddonID(const std::vector<AddonType>& types,
 
 std::string CGUIWindowAddonBrowser::GetStartFolder(const std::string& dir)
 {
-  if (StringUtils::StartsWith(dir, "addons://"))
+  if (KODI::StringUtils::StartsWith(dir, "addons://"))
   {
-    if (StringUtils::StartsWith(dir, "addons://default_binary_addons_source/"))
+    if (KODI::StringUtils::StartsWith(dir, "addons://default_binary_addons_source/"))
     {
       const bool all = CServiceBroker::GetPlatform().SupportsUserInstalledBinaryAddons();
       std::string startDir = dir;
-      StringUtils::Replace(startDir, "/default_binary_addons_source/", all ? "/all/" : "/user/");
+      KODI::StringUtils::Replace(startDir, "/default_binary_addons_source/", all ? "/all/" : "/user/");
       return startDir;
     }
     else

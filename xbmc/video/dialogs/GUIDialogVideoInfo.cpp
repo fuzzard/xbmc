@@ -274,7 +274,7 @@ void CGUIDialogVideoInfo::OnInitWindow()
   const std::shared_ptr<CProfileManager> profileManager = CServiceBroker::GetSettingsComponent()->GetProfileManager();
 
   const std::string uniqueId = m_movieItem->GetProperty("xxuniqueid").asString();
-  if (uniqueId.empty() || !StringUtils::StartsWithNoCase(uniqueId.c_str(), "xx"))
+  if (uniqueId.empty() || !KODI::StringUtils::StartsWithNoCase(uniqueId.c_str(), "xx"))
     CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_REFRESH,
         (profileManager->GetCurrentProfile().canWriteDatabases() ||
         g_passwordManager.bMasterUser));
@@ -287,7 +287,7 @@ void CGUIDialogVideoInfo::OnInitWindow()
         CONTROL_BTN_GET_THUMB,
         (profileManager->GetCurrentProfile().canWriteDatabases() ||
          g_passwordManager.bMasterUser) &&
-            !StringUtils::StartsWithNoCase(m_movieItem->GetVideoInfoTag()->GetUniqueID().c_str(),
+            !KODI::StringUtils::StartsWithNoCase(m_movieItem->GetVideoInfoTag()->GetUniqueID().c_str(),
                                            "plugin"));
   else
     CONTROL_DISABLE(CONTROL_BTN_GET_THUMB);
@@ -299,7 +299,7 @@ void CGUIDialogVideoInfo::OnInitWindow()
   if (type == VideoDbContentType::TVSHOWS || type == VideoDbContentType::MOVIES)
     CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_GET_FANART, (profileManager->
         GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) &&
-        !StringUtils::StartsWithNoCase(m_movieItem->GetVideoInfoTag()->
+        !KODI::StringUtils::StartsWithNoCase(m_movieItem->GetVideoInfoTag()->
         GetUniqueID().c_str(), "plugin"));
   else
     CONTROL_DISABLE(CONTROL_BTN_GET_FANART);
@@ -491,7 +491,7 @@ void CGUIDialogVideoInfo::Update()
               setting, CSettings::VIDEOLIBRARY_PLOTS_SHOW_UNWATCHED_TVSHOWEPISODES))))
       strTmp = g_localizeStrings.Get(20370);
 
-  StringUtils::Trim(strTmp);
+  KODI::StringUtils::Trim(strTmp);
   SetLabel(CONTROL_TEXTAREA, strTmp);
 
   CGUIMessage msg(GUI_MSG_LABEL_BIND, GetID(), CONTROL_LIST, 0, 0, m_castList);
@@ -630,7 +630,7 @@ void CGUIDialogVideoInfo::DoSearch(std::string& strSearch, CFileItemList& items)
   {
     std::string label = movies[i]->GetVideoInfoTag()->m_strTitle;
     if (movies[i]->GetVideoInfoTag()->HasYear())
-      label += StringUtils::Format(" ({})", movies[i]->GetVideoInfoTag()->GetYear());
+      label += KODI::StringUtils::Format(" ({})", movies[i]->GetVideoInfoTag()->GetYear());
     movies[i]->SetLabel(label);
   }
   CGUIWindowVideoBase::AppendAndClearSearchItems(movies, "[" + g_localizeStrings.Get(20338) + "] ", items);
@@ -640,7 +640,7 @@ void CGUIDialogVideoInfo::DoSearch(std::string& strSearch, CFileItemList& items)
   {
     std::string label = movies[i]->GetVideoInfoTag()->m_strShowTitle;
     if (movies[i]->GetVideoInfoTag()->HasYear())
-      label += StringUtils::Format(" ({})", movies[i]->GetVideoInfoTag()->GetYear());
+      label += KODI::StringUtils::Format(" ({})", movies[i]->GetVideoInfoTag()->GetYear());
     movies[i]->SetLabel(label);
   }
   CGUIWindowVideoBase::AppendAndClearSearchItems(movies, "[" + g_localizeStrings.Get(20364) + "] ", items);
@@ -656,9 +656,9 @@ void CGUIDialogVideoInfo::DoSearch(std::string& strSearch, CFileItemList& items)
   db.GetMusicVideosByArtist(strSearch, movies);
   for (int i = 0; i < movies.Size(); ++i)
   {
-    std::string label = StringUtils::Join(movies[i]->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator) + " - " + movies[i]->GetVideoInfoTag()->m_strTitle;
+    std::string label = KODI::StringUtils::Join(movies[i]->GetVideoInfoTag()->m_artist, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_videoItemSeparator) + " - " + movies[i]->GetVideoInfoTag()->m_strTitle;
     if (movies[i]->GetVideoInfoTag()->HasYear())
-      label += StringUtils::Format(" ({})", movies[i]->GetVideoInfoTag()->GetYear());
+      label += KODI::StringUtils::Format(" ({})", movies[i]->GetVideoInfoTag()->GetYear());
     movies[i]->SetLabel(label);
   }
   CGUIWindowVideoBase::AppendAndClearSearchItems(movies, "[" + g_localizeStrings.Get(20391) + "] ", items);
@@ -795,14 +795,14 @@ void CGUIDialogVideoInfo::Play(bool resume)
       }
     }
     else if (videoTag->m_type == MediaTypeTvShow)
-      strPath = StringUtils::Format("videodb://tvshows/titles/{}/", videoTag->m_iDbId);
+      strPath = KODI::StringUtils::Format("videodb://tvshows/titles/{}/", videoTag->m_iDbId);
     else // season
-      strPath = StringUtils::Format("videodb://tvshows/titles/{}/{}/", videoTag->m_iIdShow,
+      strPath = KODI::StringUtils::Format("videodb://tvshows/titles/{}/{}/", videoTag->m_iIdShow,
                                     videoTag->m_iSeason);
   }
   else if (videoTag->m_type == MediaTypeVideoCollection)
   {
-    strPath = StringUtils::Format("videodb://movies/sets/{}/?setid={}", videoTag->m_iDbId,
+    strPath = KODI::StringUtils::Format("videodb://movies/sets/{}/?setid={}", videoTag->m_iDbId,
                                   videoTag->m_iDbId);
   }
 
@@ -1030,7 +1030,7 @@ void CGUIDialogVideoInfo::OnSetUserrating() const
     dialog->SetHeading(CVariant{ 38023 });
     dialog->Add(g_localizeStrings.Get(38022));
     for (int i = 1; i <= 10; i++)
-      dialog->Add(StringUtils::Format("{}: {}", g_localizeStrings.Get(563), i));
+      dialog->Add(KODI::StringUtils::Format("{}: {}", g_localizeStrings.Get(563), i));
 
     dialog->SetSelected(m_movieItem->GetVideoInfoTag()->m_iUserRating);
 
@@ -1138,8 +1138,8 @@ int CGUIDialogVideoInfo::ManageVideoItem(const std::shared_ptr<CFileItem>& item)
 
       buttons.Add(
           CONTEXT_BUTTON_TAGS_ADD_ITEMS,
-          StringUtils::Format(g_localizeStrings.Get(20460), GetLocalizedVideoType(mediaType)));
-      buttons.Add(CONTEXT_BUTTON_TAGS_REMOVE_ITEMS, StringUtils::Format(g_localizeStrings.Get(20461).c_str(), GetLocalizedVideoType(mediaType).c_str()));
+          KODI::StringUtils::Format(g_localizeStrings.Get(20460), GetLocalizedVideoType(mediaType)));
+      buttons.Add(CONTEXT_BUTTON_TAGS_REMOVE_ITEMS, KODI::StringUtils::Format(g_localizeStrings.Get(20461).c_str(), GetLocalizedVideoType(mediaType).c_str()));
     }
   }
 
@@ -1381,7 +1381,7 @@ bool CGUIDialogVideoInfo::DeleteVideoItemFromDatabase(const std::shared_ptr<CFil
   else
   {
     pDialog->SetLine(
-        0, CVariant{StringUtils::Format(
+        0, CVariant{KODI::StringUtils::Format(
                g_localizeStrings.Get(item->HasVideoVersions() ? 40021 : 433), item->GetLabel())});
     pDialog->SetLine(1, CVariant{""});
   }
@@ -1446,10 +1446,10 @@ bool CGUIDialogVideoInfo::DeleteVideoItem(const std::shared_ptr<CFileItem>& item
   {
     std::string strDeletePath = item->GetVideoInfoTag()->GetPath();
 
-    if (StringUtils::EqualsNoCase(URIUtils::GetFileName(strDeletePath), "VIDEO_TS.IFO"))
+    if (KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(strDeletePath), "VIDEO_TS.IFO"))
     {
       strDeletePath = URIUtils::GetDirectory(strDeletePath);
-      if (StringUtils::EndsWithNoCase(strDeletePath, "video_ts/"))
+      if (KODI::StringUtils::EndsWithNoCase(strDeletePath, "video_ts/"))
       {
         URIUtils::RemoveSlashAtEnd(strDeletePath);
         strDeletePath = URIUtils::GetDirectory(strDeletePath);
@@ -1529,7 +1529,7 @@ bool CGUIDialogVideoInfo::GetMoviesForSet(const CFileItem *setItem, CFileItemLis
     return false;
 
   std::string baseDir =
-      StringUtils::Format("videodb://movies/sets/{}", setItem->GetVideoInfoTag()->m_iDbId);
+      KODI::StringUtils::Format("videodb://movies/sets/{}", setItem->GetVideoInfoTag()->m_iDbId);
 
   if (!CDirectory::GetDirectory(baseDir, originalMovies, "", DIR_FLAG_DEFAULTS) ||
       originalMovies.Size() <= 0) // keep a copy of the original members of the set
@@ -1618,12 +1618,12 @@ bool CGUIDialogVideoInfo::GetSetForMovie(const CFileItem* movieItem,
       }
     }
     // add clear item
-    std::string strClear = StringUtils::Format(g_localizeStrings.Get(20467), currentSetLabel);
+    std::string strClear = KODI::StringUtils::Format(g_localizeStrings.Get(20467), currentSetLabel);
     CFileItemPtr clearItem(new CFileItem(strClear));
     clearItem->GetVideoInfoTag()->m_iDbId = -1; // -1 will be used to clear set
     listItems.AddFront(clearItem, 0);
     // add keep current set item
-    std::string strKeep = StringUtils::Format(g_localizeStrings.Get(20469), currentSetLabel);
+    std::string strKeep = KODI::StringUtils::Format(g_localizeStrings.Get(20469), currentSetLabel);
     CFileItemPtr keepItem(new CFileItem(strKeep));
     keepItem->GetVideoInfoTag()->m_iDbId = currentSetId;
     listItems.AddFront(keepItem, 1);
@@ -1772,7 +1772,7 @@ bool CGUIDialogVideoInfo::AddItemsToTag(const std::shared_ptr<CFileItem>& tagIte
 
   CFileItemList items;
   std::string localizedType = GetLocalizedVideoType(mediaType);
-  std::string strLabel = StringUtils::Format(g_localizeStrings.Get(20464), localizedType);
+  std::string strLabel = KODI::StringUtils::Format(g_localizeStrings.Get(20464), localizedType);
   if (!GetItemsForTag(strLabel, mediaType, items, tagItem->GetVideoInfoTag()->m_iDbId))
     return true;
 
@@ -1805,7 +1805,7 @@ bool CGUIDialogVideoInfo::RemoveItemsFromTag(const std::shared_ptr<CFileItem>& t
 
   CFileItemList items;
   std::string localizedType = GetLocalizedVideoType(mediaType);
-  std::string strLabel = StringUtils::Format(g_localizeStrings.Get(20464), localizedType);
+  std::string strLabel = KODI::StringUtils::Format(g_localizeStrings.Get(20464), localizedType);
   if (!GetItemsForTag(strLabel, mediaType, items, tagItem->GetVideoInfoTag()->m_iDbId, false))
     return true;
 
@@ -1922,7 +1922,7 @@ bool CGUIDialogVideoInfo::ManageVideoItemArtwork(const std::shared_ptr<CFileItem
   for (size_t i = 0; i < remoteArt.size(); ++i)
   {
     const auto itemRemote =
-        std::make_shared<CFileItem>(StringUtils::Format("thumb://Remote{0}", i), false);
+        std::make_shared<CFileItem>(KODI::StringUtils::Format("thumb://Remote{0}", i), false);
     itemRemote->SetArt("thumb", remoteArt[i]);
     itemRemote->SetArt("icon", "DefaultPicture.png");
     itemRemote->SetLabel(g_localizeStrings.Get(13513));
@@ -1972,9 +1972,9 @@ bool CGUIDialogVideoInfo::ManageVideoItemArtwork(const std::shared_ptr<CFileItem
   {
     result.clear();
   }
-  else if (StringUtils::StartsWith(result, "thumb://Remote"))
+  else if (KODI::StringUtils::StartsWith(result, "thumb://Remote"))
   {
-    const int index = std::atoi(StringUtils::Mid(result, 14).c_str());
+    const int index = std::atoi(KODI::StringUtils::Mid(result, 14).c_str());
     result = artHandler->UpdateRemoteArt(remoteArt, index);
   }
 

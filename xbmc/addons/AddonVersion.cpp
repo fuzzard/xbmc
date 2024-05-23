@@ -30,7 +30,7 @@ namespace ADDON
 CAddonVersion::CAddonVersion(const std::string& version)
   : mEpoch(0), mUpstream(version.empty() ? "0.0.0" : [&version] {
       auto versionLowerCase = std::string(version);
-      StringUtils::ToLower(versionLowerCase);
+      KODI::StringUtils::ToLower(versionLowerCase);
       return versionLowerCase;
     }())
 {
@@ -159,7 +159,7 @@ std::string CAddonVersion::asString() const
 {
   std::string out;
   if (mEpoch)
-    out = StringUtils::Format("{}:", mEpoch);
+    out = KODI::StringUtils::Format("{}:", mEpoch);
   out += mUpstream;
   if (!mRevision.empty())
     out += "-" + mRevision;

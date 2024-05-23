@@ -56,7 +56,7 @@ static const size_t NUM_FIELDS = sizeof(fields) / sizeof(translateField);
 int CTextureRule::TranslateField(const char *field) const
 {
   for (const translateField& f : fields)
-    if (StringUtils::EqualsNoCase(field, f.string)) return f.field;
+    if (KODI::StringUtils::EqualsNoCase(field, f.string)) return f.field;
   return FieldNone;
 }
 
@@ -108,7 +108,7 @@ void CTextureRule::GetAvailableFields(std::vector<std::string> &fieldList)
 
 std::string CTextureUtils::GetWrappedImageURL(const std::string &image, const std::string &type, const std::string &options)
 {
-  if (StringUtils::StartsWith(image, "image://"))
+  if (KODI::StringUtils::StartsWith(image, "image://"))
     return image; // already wrapped
 
   CURL url;
@@ -130,7 +130,7 @@ std::string CTextureUtils::GetWrappedThumbURL(const std::string &image)
 
 std::string CTextureUtils::UnwrapImageURL(const std::string &image)
 {
-  if (StringUtils::StartsWith(image, "image://"))
+  if (KODI::StringUtils::StartsWith(image, "image://"))
   {
     CURL url(image);
     if (url.GetUserName().empty() && url.GetOptions().empty())

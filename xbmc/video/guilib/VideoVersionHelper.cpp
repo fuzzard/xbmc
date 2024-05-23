@@ -165,7 +165,7 @@ std::shared_ptr<const CFileItem> CVideoChooser::ChooseVideo(CGUIDialogSelect& di
   dialog.Reset();
 
   const std::string heading{
-      StringUtils::Format(g_localizeStrings.Get(headingId), m_item->GetVideoInfoTag()->GetTitle())};
+      KODI::StringUtils::Format(g_localizeStrings.Get(headingId), m_item->GetVideoInfoTag()->GetTitle())};
   dialog.SetHeading(heading);
 
   dialog.EnableButton(m_enableTypeSwitch && !itemsToSwitchTo.IsEmpty(), buttonId);

@@ -57,7 +57,7 @@ protected:
       port = dist(mt);
     }
     webserverPort = port;
-    baseUrl = StringUtils::Format("http://" WEBSERVER_HOST ":{}", webserverPort);
+    baseUrl = KODI::StringUtils::Format("http://" WEBSERVER_HOST ":{}", webserverPort);
   }
   ~TestWebServer() override = default;
 
@@ -179,7 +179,7 @@ protected:
     ASSERT_GE(1U, httpHeader.GetValues(MHD_HTTP_HEADER_CONTENT_LENGTH).size());
 
     // check the protocol line for the expected HTTP status
-    std::string httpStatusString = StringUtils::Format(" {} ", httpStatus);
+    std::string httpStatusString = KODI::StringUtils::Format(" {} ", httpStatus);
     std::string protocolLine = httpHeader.GetProtoLine();
     ASSERT_TRUE(protocolLine.find(httpStatusString) != std::string::npos);
 
@@ -214,7 +214,7 @@ protected:
     ASSERT_GE(1U, httpHeader.GetValues(MHD_HTTP_HEADER_CONTENT_LENGTH).size());
 
     // check the protocol line for the expected HTTP status
-    std::string httpStatusString = StringUtils::Format(" {} ", MHD_HTTP_PARTIAL_CONTENT);
+    std::string httpStatusString = KODI::StringUtils::Format(" {} ", MHD_HTTP_PARTIAL_CONTENT);
     std::string protocolLine = httpHeader.GetProtoLine();
     ASSERT_TRUE(protocolLine.find(httpStatusString) != std::string::npos);
 
@@ -283,7 +283,7 @@ protected:
     multipartBoundary = "--" + multipartBoundary;
 
     ASSERT_EQ(0U, result.find(multipartBoundary));
-    std::vector<std::string> rangeParts = StringUtils::Split(result, multipartBoundary);
+    std::vector<std::string> rangeParts = KODI::StringUtils::Split(result, multipartBoundary);
     // the first part is not really a part and is therefore empty (the place before the first boundary)
     ASSERT_TRUE(rangeParts.front().empty());
     rangeParts.erase(rangeParts.begin());
@@ -295,7 +295,7 @@ protected:
     for (size_t i = 0; i < rangeParts.size(); ++i)
     {
       std::string data = rangeParts.at(i);
-      StringUtils::Trim(data, " \r\n");
+      KODI::StringUtils::Trim(data, " \r\n");
 
       // find the separator between header and data
       size_t pos = data.find("\r\n\r\n");
@@ -317,11 +317,11 @@ protected:
 
       // parse and check Content-Range
       std::string contentRangeHeader = rangeHeader.GetValue(MHD_HTTP_HEADER_CONTENT_RANGE);
-      std::vector<std::string> contentRangeHeaderParts = StringUtils::Split(contentRangeHeader, "/");
+      std::vector<std::string> contentRangeHeaderParts = KODI::StringUtils::Split(contentRangeHeader, "/");
       ASSERT_EQ(2U, contentRangeHeaderParts.size());
 
       // check the length of the range
-      EXPECT_TRUE(StringUtils::IsNaturalNumber(contentRangeHeaderParts.back()));
+      EXPECT_TRUE(KODI::StringUtils::IsNaturalNumber(contentRangeHeaderParts.back()));
       uint64_t contentRangeLength = str2uint64(contentRangeHeaderParts.back());
       EXPECT_EQ(range.GetLength(), contentRangeLength);
 
@@ -331,12 +331,12 @@ protected:
       contentRangeDefinition = contentRangeDefinition.substr(6);
 
       // check the start and end positions of the range
-      std::vector<std::string> contentRangeParts = StringUtils::Split(contentRangeDefinition, "-");
+      std::vector<std::string> contentRangeParts = KODI::StringUtils::Split(contentRangeDefinition, "-");
       ASSERT_EQ(2U, contentRangeParts.size());
-      EXPECT_TRUE(StringUtils::IsNaturalNumber(contentRangeParts.front()));
+      EXPECT_TRUE(KODI::StringUtils::IsNaturalNumber(contentRangeParts.front()));
       uint64_t contentRangeStart = str2uint64(contentRangeParts.front());
       EXPECT_EQ(range.GetFirstPosition(), contentRangeStart);
-      EXPECT_TRUE(StringUtils::IsNaturalNumber(contentRangeParts.back()));
+      EXPECT_TRUE(KODI::StringUtils::IsNaturalNumber(contentRangeParts.back()));
       uint64_t contentRangeEnd = str2uint64(contentRangeParts.back());
       EXPECT_EQ(range.GetLastPosition(), contentRangeEnd);
 
@@ -348,7 +348,7 @@ protected:
 
   std::string GenerateRangeHeaderValue(unsigned int start, unsigned int end)
   {
-    return StringUtils::Format("bytes={}-{}", start, end);
+    return KODI::StringUtils::Format("bytes={}-{}", start, end);
   }
 
   CWebServer webserver;
@@ -765,7 +765,7 @@ TEST_F(TestWebServer, CanGetRangedFileRange0_2xEnd)
 TEST_F(TestWebServer, CanGetRangedFileRange0_First)
 {
   const std::string rangedFileContent = TEST_FILES_DATA_RANGES;
-  std::vector<std::string> rangedContent = StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
+  std::vector<std::string> rangedContent = KODI::StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
   const std::string range = GenerateRangeHeaderValue(0, rangedContent.front().size() - 1);
 
   CHttpRanges ranges;
@@ -782,7 +782,7 @@ TEST_F(TestWebServer, CanGetRangedFileRange0_First)
 TEST_F(TestWebServer, CanGetRangedFileRangeFirst_Second)
 {
   const std::string rangedFileContent = TEST_FILES_DATA_RANGES;
-  std::vector<std::string> rangedContent = StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
+  std::vector<std::string> rangedContent = KODI::StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
   const std::string range = GenerateRangeHeaderValue(rangedContent.front().size() + 1, rangedContent.front().size() + 1 + rangedContent.at(2).size() - 1);
 
   CHttpRanges ranges;
@@ -799,9 +799,9 @@ TEST_F(TestWebServer, CanGetRangedFileRangeFirst_Second)
 TEST_F(TestWebServer, CanGetRangedFileRange_Last)
 {
   const std::string rangedFileContent = TEST_FILES_DATA_RANGES;
-  std::vector<std::string> rangedContent = StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
+  std::vector<std::string> rangedContent = KODI::StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
   const std::string range =
-      StringUtils::Format("bytes=-{}", static_cast<unsigned int>(rangedContent.back().size()));
+      KODI::StringUtils::Format("bytes=-{}", static_cast<unsigned int>(rangedContent.back().size()));
 
   CHttpRanges ranges;
   ASSERT_TRUE(ranges.Parse(range, rangedFileContent.size()));
@@ -817,8 +817,8 @@ TEST_F(TestWebServer, CanGetRangedFileRange_Last)
 TEST_F(TestWebServer, CanGetRangedFileRangeFirstSecond)
 {
   const std::string rangedFileContent = TEST_FILES_DATA_RANGES;
-  std::vector<std::string> rangedContent = StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
-  const std::string range = StringUtils::Format(
+  std::vector<std::string> rangedContent = KODI::StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
+  const std::string range = KODI::StringUtils::Format(
       "bytes=0-{},{}-{}", static_cast<unsigned int>(rangedContent.front().size() - 1),
       static_cast<unsigned int>(rangedContent.front().size() + 1),
       static_cast<unsigned int>(rangedContent.front().size() + 1) +
@@ -838,8 +838,8 @@ TEST_F(TestWebServer, CanGetRangedFileRangeFirstSecond)
 TEST_F(TestWebServer, CanGetRangedFileRangeFirstSecondLast)
 {
   const std::string rangedFileContent = TEST_FILES_DATA_RANGES;
-  std::vector<std::string> rangedContent = StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
-  const std::string range = StringUtils::Format(
+  std::vector<std::string> rangedContent = KODI::StringUtils::Split(TEST_FILES_DATA_RANGES, ";");
+  const std::string range = KODI::StringUtils::Format(
       "bytes=0-{},{}-{},-{}", static_cast<unsigned int>(rangedContent.front().size() - 1),
       static_cast<unsigned int>(rangedContent.front().size() + 1),
       static_cast<unsigned int>(rangedContent.front().size() + 1) +

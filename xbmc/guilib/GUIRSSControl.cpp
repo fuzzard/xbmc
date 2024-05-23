@@ -123,7 +123,7 @@ void CGUIRSSControl::Process(unsigned int currentTime, CDirtyRegionList &dirtyre
       {
         if (m_strRSSTags != "")
         {
-          std::vector<std::string> tags = StringUtils::Split(m_strRSSTags, ",");
+          std::vector<std::string> tags = KODI::StringUtils::Split(m_strRSSTags, ",");
           for (const std::string& i : tags)
             m_pReader->AddTag(i);
         }

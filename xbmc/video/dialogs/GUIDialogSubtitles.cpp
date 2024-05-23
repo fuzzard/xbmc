@@ -370,7 +370,7 @@ void CGUIDialogSubtitles::Search(const std::string &search/*=""*/)
 
   std::string preferredLanguage = settings->GetString(CSettings::SETTING_LOCALE_SUBTITLELANGUAGE);
 
-  if (StringUtils::EqualsNoCase(preferredLanguage, "original"))
+  if (KODI::StringUtils::EqualsNoCase(preferredLanguage, "original"))
   {
     AudioStreamInfo info;
     std::string strLanguage;
@@ -384,7 +384,7 @@ void CGUIDialogSubtitles::Search(const std::string &search/*=""*/)
 
     preferredLanguage = strLanguage;
   }
-  else if (StringUtils::EqualsNoCase(preferredLanguage, "default"))
+  else if (KODI::StringUtils::EqualsNoCase(preferredLanguage, "default"))
     preferredLanguage = g_langInfo.GetEnglishLanguageName();
 
   url.SetOption("preferredlanguage", preferredLanguage);
@@ -498,7 +498,7 @@ void CGUIDialogSubtitles::UpdateStatus(STATUS status)
       break;
     case SEARCH_COMPLETE:
       if (!m_subtitles->IsEmpty())
-        label = StringUtils::Format(g_localizeStrings.Get(24108), m_subtitles->Size());
+        label = KODI::StringUtils::Format(g_localizeStrings.Get(24108), m_subtitles->Size());
       else
         label = g_localizeStrings.Get(24109);
       break;
@@ -610,7 +610,7 @@ void CGUIDialogSubtitles::OnDownloadComplete(const CFileItemList *items, const s
 
     // construct subtitle path
     std::string strSubExt = URIUtils::GetExtension(strUrl);
-    std::string strSubName = StringUtils::Format("{}.{}{}", strFileName, strSubLang, strSubExt);
+    std::string strSubName = KODI::StringUtils::Format("{}.{}{}", strFileName, strSubLang, strSubExt);
 
     // Handle URL encoding:
     std::string strDownloadFile = URIUtils::ChangeBasePath(strCurrentFilePath, strSubName, strDownloadPath);
@@ -655,12 +655,12 @@ void CGUIDialogSubtitles::OnDownloadComplete(const CFileItemList *items, const s
       }
 
       // for ".sub" subtitles we check if ".idx" counterpart exists and copy that as well
-      if (StringUtils::EqualsNoCase(strSubExt, ".sub"))
+      if (KODI::StringUtils::EqualsNoCase(strSubExt, ".sub"))
       {
         strUrl = URIUtils::ReplaceExtension(strUrl, ".idx");
         if(CFile::Exists(strUrl))
         {
-          std::string strSubNameIdx = StringUtils::Format("{}.{}.idx", strFileName, strSubLang);
+          std::string strSubNameIdx = KODI::StringUtils::Format("{}.{}.idx", strFileName, strSubLang);
           // Handle URL encoding:
           strDestFile = URIUtils::ChangeBasePath(strCurrentFilePath, strSubNameIdx, strDestPath);
           CFile::Copy(strUrl, strDestFile);

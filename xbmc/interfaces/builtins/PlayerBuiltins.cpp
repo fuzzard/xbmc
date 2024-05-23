@@ -74,7 +74,7 @@ static int PlayOffset(const std::vector<std::string>& params)
   // playlist.playoffset(music|video,offset)
   std::string strPos = params[0];
   std::string paramlow(params[0]);
-  StringUtils::ToLower(paramlow);
+  KODI::StringUtils::ToLower(paramlow);
   if (params.size() > 1)
   {
     // ignore any other parameters if present
@@ -130,7 +130,7 @@ static int PlayerControl(const std::vector<std::string>& params)
   appPower->WakeUpScreenSaverAndDPMS();
 
   std::string paramlow(params[0]);
-  StringUtils::ToLower(paramlow);
+  KODI::StringUtils::ToLower(paramlow);
 
   const auto appPlayer = components.GetComponent<CApplicationPlayer>();
 
@@ -149,7 +149,7 @@ static int PlayerControl(const std::vector<std::string>& params)
   {
     g_application.StopPlaying();
   }
-  else if (StringUtils::StartsWithNoCase(params[0], "frameadvance"))
+  else if (KODI::StringUtils::StartsWithNoCase(params[0], "frameadvance"))
   {
     std::string strFrames;
     if (params[0].size() == 12)
@@ -160,7 +160,7 @@ static int PlayerControl(const std::vector<std::string>& params)
     else
 
     strFrames = params[0].substr(13);
-    StringUtils::TrimRight(strFrames, ")");
+    KODI::StringUtils::TrimRight(strFrames, ")");
     float frames = (float) atof(strFrames.c_str());
     appPlayer->FrameAdvance(frames);
   }
@@ -199,7 +199,7 @@ static int PlayerControl(const std::vector<std::string>& params)
         CPlayerUtils::AdvanceTempoStep(appPlayer, TempoStepChange::INCREASE);
     }
   }
-  else if (StringUtils::StartsWithNoCase(params[0], "tempo"))
+  else if (KODI::StringUtils::StartsWithNoCase(params[0], "tempo"))
   {
     if (params[0].size() == 5)
       CLog::Log(LOGERROR, "PlayerControl(tempo(n)) called with no argument");
@@ -211,7 +211,7 @@ static int PlayerControl(const std::vector<std::string>& params)
       if (appPlayer->SupportsTempo() && appPlayer->IsPlaying() && !appPlayer->IsPaused())
       {
         std::string strTempo = params[0].substr(6);
-        StringUtils::TrimRight(strTempo, ")");
+        KODI::StringUtils::TrimRight(strTempo, ")");
         float playTempo = strtof(strTempo.c_str(), nullptr);
 
         appPlayer->SetTempo(playTempo);
@@ -246,7 +246,7 @@ static int PlayerControl(const std::vector<std::string>& params)
     if (appPlayer->IsPlaying())
       appPlayer->Seek(true, false);
   }
-  else if (StringUtils::StartsWithNoCase(params[0], "seekpercentage"))
+  else if (KODI::StringUtils::StartsWithNoCase(params[0], "seekpercentage"))
   {
     std::string offset;
     if (params[0].size() == 14)
@@ -258,7 +258,7 @@ static int PlayerControl(const std::vector<std::string>& params)
     {
       // Don't bother checking the argument: an invalid arg will do seek(0)
       offset = params[0].substr(15);
-      StringUtils::TrimRight(offset, ")");
+      KODI::StringUtils::TrimRight(offset, ")");
       float offsetpercent = (float) atof(offset.c_str());
       if (offsetpercent < 0 || offsetpercent > 100)
         CLog::Log(LOGERROR, "PlayerControl(seekpercentage(n)) argument, {:f}, must be 0-100",
@@ -272,19 +272,19 @@ static int PlayerControl(const std::vector<std::string>& params)
     if (appPlayer->IsPlaying())
       appPlayer->OnAction(CAction(ACTION_SHOW_VIDEOMENU));
   }
-  else if (StringUtils::StartsWithNoCase(params[0], "partymode"))
+  else if (KODI::StringUtils::StartsWithNoCase(params[0], "partymode"))
   {
     std::string strXspPath;
     //empty param=music, "music"=music, "video"=video, else xsp path
     PartyModeContext context = PARTYMODECONTEXT_MUSIC;
     if (params[0].size() > 9)
     {
-      if (params[0].size() == 16 && StringUtils::EndsWithNoCase(params[0], "video)"))
+      if (params[0].size() == 16 && KODI::StringUtils::EndsWithNoCase(params[0], "video)"))
         context = PARTYMODECONTEXT_VIDEO;
-      else if (params[0].size() != 16 || !StringUtils::EndsWithNoCase(params[0], "music)"))
+      else if (params[0].size() != 16 || !KODI::StringUtils::EndsWithNoCase(params[0], "music)"))
       {
         strXspPath = params[0].substr(10);
-        StringUtils::TrimRight(strXspPath, ")");
+        KODI::StringUtils::TrimRight(strXspPath, ")");
         context = PARTYMODECONTEXT_UNKNOWN;
       }
     }
@@ -304,7 +304,7 @@ static int PlayerControl(const std::vector<std::string>& params)
       return 0;
 
     // check to see if we should notify the user
-    bool notify = (params.size() == 2 && StringUtils::EqualsNoCase(params[1], "notify"));
+    bool notify = (params.size() == 2 && KODI::StringUtils::EqualsNoCase(params[1], "notify"));
     CServiceBroker::GetPlaylistPlayer().SetShuffle(playlistId, !shuffled, notify);
 
     // save settings for now playing windows
@@ -328,7 +328,7 @@ static int PlayerControl(const std::vector<std::string>& params)
                     CServiceBroker::GetPlaylistPlayer().IsShuffled(playlistId));
     CServiceBroker::GetGUI()->GetWindowManager().SendThreadMessage(msg);
   }
-  else if (StringUtils::StartsWithNoCase(params[0], "repeat"))
+  else if (KODI::StringUtils::StartsWithNoCase(params[0], "repeat"))
   {
     // get current playlist
     PLAYLIST::Id playlistId = CServiceBroker::GetPlaylistPlayer().GetCurrentPlaylist();
@@ -336,7 +336,7 @@ static int PlayerControl(const std::vector<std::string>& params)
         CServiceBroker::GetPlaylistPlayer().GetRepeat(playlistId);
 
     std::string paramlow(params[0]);
-    StringUtils::ToLower(paramlow);
+    KODI::StringUtils::ToLower(paramlow);
 
     PLAYLIST::RepeatState repeatState;
     if (paramlow == "repeatall")
@@ -356,7 +356,7 @@ static int PlayerControl(const std::vector<std::string>& params)
       return 0;
 
     // check to see if we should notify the user
-    bool notify = (params.size() == 2 && StringUtils::EqualsNoCase(params[1], "notify"));
+    bool notify = (params.size() == 2 && KODI::StringUtils::EqualsNoCase(params[1], "notify"));
     CServiceBroker::GetPlaylistPlayer().SetRepeat(playlistId, repeatState, notify);
 
     // save settings for now playing windows
@@ -381,7 +381,7 @@ static int PlayerControl(const std::vector<std::string>& params)
                     static_cast<int>(repeatState));
     CServiceBroker::GetGUI()->GetWindowManager().SendThreadMessage(msg);
   }
-  else if (StringUtils::StartsWithNoCase(params[0], "resumelivetv"))
+  else if (KODI::StringUtils::StartsWithNoCase(params[0], "resumelivetv"))
   {
     CFileItem& fileItem(g_application.CurrentFileItem());
     std::shared_ptr<PVR::CPVRChannel> channel = fileItem.HasPVRRecordingInfoTag() ? fileItem.GetPVRRecordingInfoTag()->Channel() : std::shared_ptr<PVR::CPVRChannel>();
@@ -423,7 +423,7 @@ static int PlayDVD(const std::vector<std::string>& params)
 {
 #ifdef HAS_OPTICAL_DRIVE
   bool restart = false;
-  if (!params.empty() && StringUtils::EqualsNoCase(params[0], "restart"))
+  if (!params.empty() && KODI::StringUtils::EqualsNoCase(params[0], "restart"))
     restart = true;
   MEDIA_DETECT::CAutorun::PlayDisc(CServiceBroker::GetMediaManager().GetDiscPath(), true, restart);
 #endif
@@ -480,11 +480,11 @@ int PlayOrQueueMedia(const std::vector<std::string>& params, bool forcePlay)
   bool playNext = true;
   for (unsigned int i = 1 ; i < params.size() ; i++)
   {
-    if (StringUtils::EqualsNoCase(params[i], "isdir"))
+    if (KODI::StringUtils::EqualsNoCase(params[i], "isdir"))
       item.m_bIsFolder = true;
     else if (params[i] == "1") // set fullscreen or windowed
       CMediaSettings::GetInstance().SetMediaStartWindowed(true);
-    else if (StringUtils::EqualsNoCase(params[i], "resume"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "resume"))
     {
       // force the item to resume (if applicable)
       if (VIDEO::UTILS::GetItemResumeInformation(item).isResumable)
@@ -494,25 +494,25 @@ int PlayOrQueueMedia(const std::vector<std::string>& params, bool forcePlay)
 
       askToResume = false;
     }
-    else if (StringUtils::EqualsNoCase(params[i], "noresume"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "noresume"))
     {
       // force the item to start at the beginning
       item.SetStartOffset(0);
       askToResume = false;
     }
-    else if (StringUtils::StartsWithNoCase(params[i], "playoffset="))
+    else if (KODI::StringUtils::StartsWithNoCase(params[i], "playoffset="))
     {
       playOffset = atoi(params[i].substr(11).c_str()) - 1;
       item.SetProperty("playlist_starting_track", playOffset);
       hasPlayOffset = true;
     }
-    else if (StringUtils::StartsWithNoCase(params[i], "playlist_type_hint="))
+    else if (KODI::StringUtils::StartsWithNoCase(params[i], "playlist_type_hint="))
     {
       // Set the playlist type for the playlist file (e.g. STRM)
       int playlistTypeHint = std::stoi(params[i].substr(19));
       item.SetProperty("playlist_type_hint", playlistTypeHint);
     }
-    else if (StringUtils::EqualsNoCase(params[i], "playnext"))
+    else if (KODI::StringUtils::EqualsNoCase(params[i], "playnext"))
     {
       // If app player is currently playing, the queued media shall be played next.
       playNext = true;

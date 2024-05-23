@@ -386,7 +386,7 @@ void CGUIRangesControl::UpdateInfo(const CGUIListItem* item /* = nullptr */)
       std::vector<std::pair<float, float>> ranges;
 
       // Parse csv string into ranges...
-      const std::vector<std::string> values = StringUtils::Split(value, ',');
+      const std::vector<std::string> values = KODI::StringUtils::Split(value, ',');
 
       // we must have an even number of values
       if (values.size() % 2 == 0)

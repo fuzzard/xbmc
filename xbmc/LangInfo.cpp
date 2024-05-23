@@ -151,19 +151,19 @@ static std::string ToTimeFormat(bool use24HourClock, bool singleHour, bool merid
   if (!meridiem)
     return singleHour ? TIME_FORMAT_SINGLE_12 : TIME_FORMAT_DOUBLE_12;
 
-  return StringUtils::Format(g_localizeStrings.Get(12382), ToTimeFormat(false, singleHour, false));
+  return KODI::StringUtils::Format(g_localizeStrings.Get(12382), ToTimeFormat(false, singleHour, false));
 }
 
 static std::string ToSettingTimeFormat(const CDateTime& time, const std::string& timeFormat)
 {
-  return StringUtils::Format(g_localizeStrings.Get(20036),
+  return KODI::StringUtils::Format(g_localizeStrings.Get(20036),
                              time.GetAsLocalizedTime(timeFormat, true), timeFormat);
 }
 
 static CTemperature::Unit StringToTemperatureUnit(const std::string& temperatureUnit)
 {
   std::string unit(temperatureUnit);
-  StringUtils::ToLower(unit);
+  KODI::StringUtils::ToLower(unit);
 
   for (const TemperatureInfo& info : temperatureInfo)
   {
@@ -177,7 +177,7 @@ static CTemperature::Unit StringToTemperatureUnit(const std::string& temperature
 static CSpeed::Unit StringToSpeedUnit(const std::string& speedUnit)
 {
   std::string unit(speedUnit);
-  StringUtils::ToLower(unit);
+  KODI::StringUtils::ToLower(unit);
 
   for (const SpeedInfo& info : speedInfo)
   {
@@ -194,8 +194,8 @@ struct SortLanguage
   {
     std::string strLeft = left.label;
     std::string strRight = right.label;
-    StringUtils::ToLower(strLeft);
-    StringUtils::ToLower(strRight);
+    KODI::StringUtils::ToLower(strLeft);
+    KODI::StringUtils::ToLower(strRight);
 
     return strLeft.compare(strRight) < 0;
   }
@@ -522,7 +522,7 @@ bool CLangInfo::Load(const std::string& strLanguage)
         {
           region.m_cThousandsSep = pThousandsSep->FirstChild()->Value()[0];
           if (pThousandsSep->Attribute("groupingformat"))
-            region.m_strGrouping = StringUtils::BinaryStringToString(pThousandsSep->Attribute("groupingformat"));
+            region.m_strGrouping = KODI::StringUtils::BinaryStringToString(pThousandsSep->Attribute("groupingformat"));
           else
             region.m_strGrouping = "\3";
         }
@@ -583,10 +583,10 @@ bool CLangInfo::UseLocaleCollation()
     // Determine collation to use. When using MySQL/MariaDB or a platform that does not support
     // locale language collation then use accent folding internal equivalent of utf8_general_ci
     m_collationtype = 1;
-    if (!StringUtils::EqualsNoCase(
+    if (!KODI::StringUtils::EqualsNoCase(
             CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_databaseMusic.type,
             "mysql") &&
-        !StringUtils::EqualsNoCase(
+        !KODI::StringUtils::EqualsNoCase(
             CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_databaseVideo.type,
             "mysql") &&
         CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_useLocaleCollation)
@@ -677,7 +677,7 @@ void CLangInfo::GetAddonsLanguageCodes(std::map<std::string, std::string>& langu
     const LanguageResourcePtr langAddon =
         std::dynamic_pointer_cast<ADDON::CLanguageResource>(addon);
     std::string langCode{langAddon->GetLocale().ToShortStringLC()};
-    StringUtils::Replace(langCode, '_', '-');
+    KODI::StringUtils::Replace(langCode, '_', '-');
     languages.emplace(langCode, addon->Name());
   }
 }
@@ -707,12 +707,12 @@ std::string CLangInfo::ConvertEnglishNameToAddonLocale(const std::string& langNa
   CServiceBroker::GetAddonMgr().GetAddons(addons, ADDON::AddonType::RESOURCE_LANGUAGE);
   for (const auto& addon : addons)
   {
-    if (StringUtils::CompareNoCase(addon->Name(), langName) == 0)
+    if (KODI::StringUtils::CompareNoCase(addon->Name(), langName) == 0)
     {
       const LanguageResourcePtr langAddon =
           std::dynamic_pointer_cast<ADDON::CLanguageResource>(addon);
       std::string locale = langAddon->GetLocale().ToShortStringLC();
-      StringUtils::Replace(locale, '_', '-');
+      KODI::StringUtils::Replace(locale, '_', '-');
       return locale;
     }
   }
@@ -811,9 +811,9 @@ const std::string& CLangInfo::GetAudioLanguage() const
 void CLangInfo::SetAudioLanguage(const std::string& language)
 {
   if (language.empty()
-    || StringUtils::EqualsNoCase(language, "default")
-    || StringUtils::EqualsNoCase(language, "original")
-    || StringUtils::EqualsNoCase(language, "mediadefault")
+    || KODI::StringUtils::EqualsNoCase(language, "default")
+    || KODI::StringUtils::EqualsNoCase(language, "original")
+    || KODI::StringUtils::EqualsNoCase(language, "mediadefault")
     || !g_LangCodeExpander.ConvertToISO6392B(language, m_audioLanguage))
     m_audioLanguage.clear();
 }
@@ -830,8 +830,8 @@ const std::string& CLangInfo::GetSubtitleLanguage() const
 void CLangInfo::SetSubtitleLanguage(const std::string& language)
 {
   if (language.empty()
-    || StringUtils::EqualsNoCase(language, "default")
-    || StringUtils::EqualsNoCase(language, "original")
+    || KODI::StringUtils::EqualsNoCase(language, "default")
+    || KODI::StringUtils::EqualsNoCase(language, "original")
     || !g_LangCodeExpander.ConvertToISO6392B(language, m_subtitleLanguage))
     m_subtitleLanguage.clear();
 }
@@ -986,7 +986,7 @@ const std::string& CLangInfo::GetMeridiemSymbol(MeridiemSymbol symbol) const
 {
   // nothing to return if we use 24-hour clock
   if (m_use24HourClock)
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   return MeridiemSymbolToString(symbol);
 }
@@ -1005,7 +1005,7 @@ const std::string& CLangInfo::MeridiemSymbolToString(MeridiemSymbol symbol)
     break;
   }
 
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 // Fills the array with the region names available for this language
@@ -1095,7 +1095,7 @@ std::string CLangInfo::GetTemperatureAsString(const CTemperature& temperature) c
     return g_localizeStrings.Get(13205); // "Unknown"
 
   CTemperature::Unit temperatureUnit = GetTemperatureUnit();
-  return StringUtils::Format("{}{}", temperature.ToString(temperatureUnit),
+  return KODI::StringUtils::Format("{}{}", temperature.ToString(temperatureUnit),
                              GetTemperatureUnitString());
 }
 
@@ -1144,7 +1144,7 @@ std::string CLangInfo::GetSpeedAsString(const CSpeed& speed) const
   if (!speed.IsValid())
     return g_localizeStrings.Get(13205); // "Unknown"
 
-  return StringUtils::Format("{}{}", speed.ToString(GetSpeedUnit()), GetSpeedUnitString());
+  return KODI::StringUtils::Format("{}{}", speed.ToString(GetSpeedUnit()), GetSpeedUnitString());
 }
 
 // Returns the speed unit string for the current language
@@ -1185,16 +1185,16 @@ std::string CLangInfo::PrepareTimeFormat(const std::string& timeFormat, bool use
   if (use24HourClock)
   {
     // replace all "h" with "H"
-    StringUtils::Replace(preparedTimeFormat, 'h', 'H');
+    KODI::StringUtils::Replace(preparedTimeFormat, 'h', 'H');
 
     // remove any "xx" for meridiem
-    StringUtils::Replace(preparedTimeFormat, "x", "");
+    KODI::StringUtils::Replace(preparedTimeFormat, "x", "");
   }
   else
     // replace all "H" with "h"
-    StringUtils::Replace(preparedTimeFormat, 'H', 'h');
+    KODI::StringUtils::Replace(preparedTimeFormat, 'H', 'h');
 
-  StringUtils::Trim(preparedTimeFormat);
+  KODI::StringUtils::Trim(preparedTimeFormat);
 
   return preparedTimeFormat;
 }
@@ -1271,7 +1271,7 @@ void CLangInfo::SettingOptionsRegionsFiller(const SettingConstPtr& setting,
 {
   std::vector<std::string> regions;
   g_langInfo.GetRegionNames(regions);
-  std::sort(regions.begin(), regions.end(), sortstringbyname());
+  std::sort(regions.begin(), regions.end(), KODI::sortstringbyname());
 
   bool match = false;
   for (unsigned int i = 0; i < regions.size(); ++i)
@@ -1300,7 +1300,7 @@ void CLangInfo::SettingOptionsShortDateFormatsFiller(const SettingConstPtr& sett
 
   CDateTime now = CDateTime::GetCurrentDateTime();
 
-  list.emplace_back(StringUtils::Format(g_localizeStrings.Get(20035),
+  list.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(20035),
                                         GetDateStringWithFormat(
                                             now, g_langInfo.m_currentRegion->m_strDateFormatShort)),
                     SETTING_REGIONAL_DEFAULT);
@@ -1336,7 +1336,7 @@ void CLangInfo::SettingOptionsLongDateFormatsFiller(const SettingConstPtr& setti
 
   CDateTime now = CDateTime::GetCurrentDateTime();
 
-  list.emplace_back(StringUtils::Format(g_localizeStrings.Get(20035),
+  list.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(20035),
                                         GetDateStringWithFormat(
                                             now, g_langInfo.m_currentRegion->m_strDateFormatLong)),
                     SETTING_REGIONAL_DEFAULT);
@@ -1374,7 +1374,7 @@ void CLangInfo::SettingOptionsTimeFormatsFiller(const SettingConstPtr& setting,
   bool use24hourFormat = g_langInfo.Use24HourClock();
 
   list.emplace_back(
-      StringUtils::Format(g_localizeStrings.Get(20035),
+      KODI::StringUtils::Format(g_localizeStrings.Get(20035),
                           ToSettingTimeFormat(now, g_langInfo.m_currentRegion->m_strTimeFormat)),
       SETTING_REGIONAL_DEFAULT);
   if (timeFormatSetting == SETTING_REGIONAL_DEFAULT)
@@ -1446,7 +1446,7 @@ void CLangInfo::SettingOptions24HourClockFormatsFiller(const SettingConstPtr& se
 
   // determine the 24-hour clock format of the regional setting
   int regionalClock24HourFormatLabel = DetermineUse24HourClockFromTimeFormat(g_langInfo.m_currentRegion->m_strTimeFormat) ? 12384 : 12383;
-  list.emplace_back(StringUtils::Format(g_localizeStrings.Get(20035),
+  list.emplace_back(KODI::StringUtils::Format(g_localizeStrings.Get(20035),
                                         g_localizeStrings.Get(regionalClock24HourFormatLabel)),
                     SETTING_REGIONAL_DEFAULT);
   if (clock24HourFormatSetting == SETTING_REGIONAL_DEFAULT)
@@ -1482,7 +1482,7 @@ void CLangInfo::SettingOptionsTemperatureUnitsFiller(const SettingConstPtr& sett
   const std::string& temperatureUnitSetting = std::static_pointer_cast<const CSettingString>(setting)->GetValue();
 
   list.emplace_back(
-      StringUtils::Format(g_localizeStrings.Get(20035),
+      KODI::StringUtils::Format(g_localizeStrings.Get(20035),
                           GetTemperatureUnitString(g_langInfo.m_currentRegion->m_tempUnit)),
       SETTING_REGIONAL_DEFAULT);
   if (temperatureUnitSetting == SETTING_REGIONAL_DEFAULT)
@@ -1515,7 +1515,7 @@ void CLangInfo::SettingOptionsSpeedUnitsFiller(const SettingConstPtr& setting,
   const std::string& speedUnitSetting = std::static_pointer_cast<const CSettingString>(setting)->GetValue();
 
   list.emplace_back(
-      StringUtils::Format(g_localizeStrings.Get(20035),
+      KODI::StringUtils::Format(g_localizeStrings.Get(20035),
                           GetSpeedUnitString(g_langInfo.m_currentRegion->m_speedUnit)),
       SETTING_REGIONAL_DEFAULT);
   if (speedUnitSetting == SETTING_REGIONAL_DEFAULT)

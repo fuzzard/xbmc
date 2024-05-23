@@ -970,7 +970,7 @@ JSONRPC_STATUS CPlayerOperations::Open(const std::string &method, ITransportLaye
               bool match = false;
               for (const auto& entry : possiblePlayers)
               {
-                if (StringUtils::EqualsNoCase(entry, playername))
+                if (KODI::StringUtils::EqualsNoCase(entry, playername))
                 {
                   match = true;
                   break;

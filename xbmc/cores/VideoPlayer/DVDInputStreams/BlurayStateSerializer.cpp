@@ -58,7 +58,7 @@ bool CBlurayStateSerializer::XMLToBlurayState(BlurayState& state, const std::str
 
   tinyxml2::XMLHandle hRoot(xmlDoc.RootElement());
   if (!hRoot.ToElement() ||
-      !StringUtils::EqualsNoCase(hRoot.ToElement()->Value(), "libbluraystate"))
+      !KODI::StringUtils::EqualsNoCase(hRoot.ToElement()->Value(), "libbluraystate"))
   {
     CLog::LogF(LOGERROR, "Failed to deserialize bluray state - failed to detect root element.");
     return false;
@@ -66,7 +66,7 @@ bool CBlurayStateSerializer::XMLToBlurayState(BlurayState& state, const std::str
 
   auto version = hRoot.ToElement()->Attribute("version");
   if (!version ||
-      !StringUtils::EqualsNoCase(version, std::to_string(BLURAYSTATESERIALIZER_VERSION)))
+      !KODI::StringUtils::EqualsNoCase(version, std::to_string(BLURAYSTATESERIALIZER_VERSION)))
   {
     CLog::LogF(LOGERROR, "Failed to deserialize bluray state - incompatible serializer version.");
     return false;

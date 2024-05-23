@@ -178,7 +178,7 @@ std::unique_ptr<CDVDAudioCodec> CDVDFactoryCodec::CreateAudioCodec(
   CDVDCodecOptions options;
 
   if (allowpassthrough && ptStreamType != CAEStreamInfo::STREAM_TYPE_NULL)
-    options.m_keys.emplace_back("ptstreamtype", StringUtils::SizeToString(ptStreamType));
+    options.m_keys.emplace_back("ptstreamtype", KODI::StringUtils::SizeToString(ptStreamType));
 
   if (!allowdtshddecode)
     options.m_keys.emplace_back("allowdtshddecode", "0");

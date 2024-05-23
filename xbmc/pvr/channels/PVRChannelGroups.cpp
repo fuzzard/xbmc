@@ -697,7 +697,7 @@ int CPVRChannelGroups::CleanupCachedImages()
   }
 
   // kodi-generated thumbnail (see CPVRThumbLoader)
-  const std::string path = StringUtils::Format("pvr://channels/{}/", IsRadio() ? "radio" : "tv");
+  const std::string path = KODI::StringUtils::Format("pvr://channels/{}/", IsRadio() ? "radio" : "tv");
   iCleanedImages += CPVRCachedImages::Cleanup({{"pvr", path}}, urlsToCheck, true);
 
   return iCleanedImages;

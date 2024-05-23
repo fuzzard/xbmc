@@ -83,15 +83,15 @@ void CGUIStaticItem::UpdateProperties(int contextWindow)
   {
     const GUIINFO::CGUIInfoLabel& info = i.first;
     const std::string& name = i.second;
-    bool preferTexture = StringUtils::CompareNoCase("label", name, 5) != 0;
+    bool preferTexture = KODI::StringUtils::CompareNoCase("label", name, 5) != 0;
     const std::string& value(info.GetLabel(contextWindow, preferTexture));
-    if (StringUtils::EqualsNoCase(name, "label"))
+    if (KODI::StringUtils::EqualsNoCase(name, "label"))
       SetLabel(value);
-    else if (StringUtils::EqualsNoCase(name, "label2"))
+    else if (KODI::StringUtils::EqualsNoCase(name, "label2"))
       SetLabel2(value);
-    else if (StringUtils::EqualsNoCase(name, "thumb"))
+    else if (KODI::StringUtils::EqualsNoCase(name, "thumb"))
       SetArt("thumb", value);
-    else if (StringUtils::EqualsNoCase(name, "icon"))
+    else if (KODI::StringUtils::EqualsNoCase(name, "icon"))
       SetArt("icon", value);
     else
       SetProperty(name, value.c_str());

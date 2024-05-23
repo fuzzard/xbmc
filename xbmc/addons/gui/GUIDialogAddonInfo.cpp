@@ -295,7 +295,7 @@ int CGUIDialogAddonInfo::AskForVersion(std::vector<std::pair<CAddonVersion, std:
 
   for (const auto& versionInfo : versions)
   {
-    CFileItem item(StringUtils::Format(g_localizeStrings.Get(21339), versionInfo.first.asString()));
+    CFileItem item(KODI::StringUtils::Format(g_localizeStrings.Get(21339), versionInfo.first.asString()));
     if (m_localAddon && m_localAddon->Version() == versionInfo.first &&
         m_item->GetAddonInfo()->Origin() == versionInfo.second)
       item.Select(true);
@@ -379,7 +379,7 @@ void CGUIDialogAddonInfo::OnSelectVersion()
             // usually this happens when the package filename gets malformed on the fs
             // e.g. downloading "http://localhost/a+b.zip" ends up in "a b.zip"
             const CAddonVersion version(versionString);
-            if (StringUtils::EqualsNoCase(sha256, hash) && !version.empty())
+            if (KODI::StringUtils::EqualsNoCase(sha256, hash) && !version.empty())
               versions.emplace_back(version, LOCAL_CACHE);
           }
         }
@@ -399,7 +399,7 @@ void CGUIDialogAddonInfo::OnSelectVersion()
       if (versions[i].second == LOCAL_CACHE)
       {
         CAddonInstaller::GetInstance().InstallFromZip(
-            StringUtils::Format("special://home/addons/packages/{}-{}.zip", processAddonId,
+            KODI::StringUtils::Format("special://home/addons/packages/{}-{}.zip", processAddonId,
                                 versions[i].first.asString()));
       }
       else
@@ -463,7 +463,7 @@ void CGUIDialogAddonInfo::OnInstall()
       const std::string origin =
           !m_localAddon->Origin().empty() ? m_localAddon->Origin() : g_localizeStrings.Get(39029);
       const std::string text =
-          StringUtils::Format(g_localizeStrings.Get(39028), m_localAddon->Name(), origin,
+          KODI::StringUtils::Format(g_localizeStrings.Get(39028), m_localAddon->Name(), origin,
                               m_localAddon->Version().asString());
 
       if (CGUIDialogYesNo::ShowAndGetInput(header, text))
@@ -563,8 +563,8 @@ bool CGUIDialogAddonInfo::PromptIfDependency(int heading, int line2)
 
   if (!deps.empty())
   {
-    std::string line0 = StringUtils::Format(g_localizeStrings.Get(24046), m_localAddon->Name());
-    std::string line1 = StringUtils::Join(deps, ", ");
+    std::string line0 = KODI::StringUtils::Format(g_localizeStrings.Get(24046), m_localAddon->Name());
+    std::string line1 = KODI::StringUtils::Join(deps, ", ");
     HELPERS::ShowOKDialogLines(CVariant{heading}, CVariant{std::move(line0)},
                                CVariant{std::move(line1)}, CVariant{line2});
     return true;
@@ -685,7 +685,7 @@ bool CGUIDialogAddonInfo::ShowDependencyList(Reactivate reactivate, EntryPoint e
               infoAddon->MainType() != AddonType::SCRIPT_MODULE ||
               !CAddonRepos::IsFromOfficialRepo(infoAddon, CheckAddonPath::CHOICE_NO))
           {
-            item->SetLabel2(StringUtils::Format(
+            item->SetLabel2(KODI::StringUtils::Format(
                 g_localizeStrings.Get(messageId), it.m_depInfo.versionMin.asString(),
                 it.m_installed ? it.m_installed->Version().asString() : "",
                 it.m_available ? it.m_available->Version().asString() : "",
@@ -760,14 +760,14 @@ void CGUIDialogAddonInfo::ShowSupportList()
   for (const auto& entry : list)
   {
     // Ignore included extension about track support
-    if (StringUtils::EndsWith(entry.m_name, KODI_ADDON_AUDIODECODER_TRACK_EXT))
+    if (KODI::StringUtils::EndsWith(entry.m_name, KODI_ADDON_AUDIODECODER_TRACK_EXT))
       continue;
 
     std::string label;
     if (entry.m_type == AddonSupportType::Extension)
-      label = StringUtils::Format(g_localizeStrings.Get(21346), entry.m_name);
+      label = KODI::StringUtils::Format(g_localizeStrings.Get(21346), entry.m_name);
     else if (entry.m_type == AddonSupportType::Mimetype)
-      label = StringUtils::Format(g_localizeStrings.Get(21347), entry.m_name);
+      label = KODI::StringUtils::Format(g_localizeStrings.Get(21347), entry.m_name);
     else
       label = entry.m_name;
 

@@ -224,13 +224,13 @@ void CGUIDialogVideoBookmarks::OnRefreshList()
   {
     std::string bookmarkTime;
     if (m_bookmarks[i].type == CBookmark::EPISODE)
-      bookmarkTime = StringUtils::Format("{} {} {} {}", g_localizeStrings.Get(20373),
+      bookmarkTime = KODI::StringUtils::Format("{} {} {} {}", g_localizeStrings.Get(20373),
                                          m_bookmarks[i].seasonNumber, g_localizeStrings.Get(20359),
                                          m_bookmarks[i].episodeNumber);
     else
-      bookmarkTime = StringUtils::SecondsToTimeString((long)m_bookmarks[i].timeInSeconds, TIME_FORMAT_HH_MM_SS);
+      bookmarkTime = KODI::StringUtils::SecondsToTimeString((long)m_bookmarks[i].timeInSeconds, TIME_FORMAT_HH_MM_SS);
 
-    CFileItemPtr item(new CFileItem(StringUtils::Format(g_localizeStrings.Get(299), i + 1)));
+    CFileItemPtr item(new CFileItem(KODI::StringUtils::Format(g_localizeStrings.Get(299), i + 1)));
     item->SetLabel2(bookmarkTime);
     item->SetArt("thumb", m_bookmarks[i].thumbNailImage);
     item->SetProperty("resumepoint", m_bookmarks[i].timeInSeconds);
@@ -248,12 +248,12 @@ void CGUIDialogVideoBookmarks::OnRefreshList()
     appPlayer->GetChapterName(chapterName, i);
 
     int64_t pos = appPlayer->GetChapterPos(i);
-    std::string time = StringUtils::SecondsToTimeString((long) pos, TIME_FORMAT_HH_MM_SS);
+    std::string time = KODI::StringUtils::SecondsToTimeString((long) pos, TIME_FORMAT_HH_MM_SS);
 
     if (chapterName.empty() ||
-        StringUtils::StartsWithNoCase(chapterName, time) ||
-        StringUtils::IsNaturalNumber(chapterName))
-      chapterName = StringUtils::Format(g_localizeStrings.Get(25010), i);
+        KODI::StringUtils::StartsWithNoCase(chapterName, time) ||
+        KODI::StringUtils::IsNaturalNumber(chapterName))
+      chapterName = KODI::StringUtils::Format(g_localizeStrings.Get(25010), i);
 
     CFileItemPtr item(new CFileItem(chapterName));
     item->SetLabel2(time);
@@ -261,7 +261,7 @@ void CGUIDialogVideoBookmarks::OnRefreshList()
     if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(
             CSettings::SETTING_MYVIDEOS_EXTRACTCHAPTERTHUMBS))
     {
-      std::string chapterPath = StringUtils::Format("chapter://{}/{}", m_filePath, i);
+      std::string chapterPath = KODI::StringUtils::Format("chapter://{}/{}", m_filePath, i);
       item->SetArt("thumb", chapterPath);
     }
 
@@ -447,7 +447,7 @@ bool CGUIDialogVideoBookmarks::AddBookmark(CVideoInfoTag* tag)
 
     auto crc = Crc32::ComputeFromLowerCase(g_application.CurrentFile());
     bookmark.thumbNailImage =
-        StringUtils::Format("{:08x}_{}.jpg", crc, (int)bookmark.timeInSeconds);
+        KODI::StringUtils::Format("{:08x}_{}.jpg", crc, (int)bookmark.timeInSeconds);
     bookmark.thumbNailImage = URIUtils::AddFileToFolder(profileManager->GetBookmarksThumbFolder(), bookmark.thumbNailImage);
 
     if (!CPicture::CreateThumbnailFromSurface(pixels, width, height, width * 4,
@@ -516,7 +516,7 @@ bool CGUIDialogVideoBookmarks::AddEpisodeBookmark()
     for (unsigned int i=0; i < episodes.size(); ++i)
     {
       std::string strButton =
-          StringUtils::Format("{} {}, {} {}", g_localizeStrings.Get(20373), episodes[i].m_iSeason,
+          KODI::StringUtils::Format("{} {}, {} {}", g_localizeStrings.Get(20373), episodes[i].m_iSeason,
                               g_localizeStrings.Get(20359), episodes[i].m_iEpisode);
       choices.Add(i, strButton);
     }

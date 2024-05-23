@@ -1119,8 +1119,8 @@ bool CAddonMgr::IsCompatible(const std::shared_ptr<const IAddon>& addon) const
     {
       // Intentionally only check the xbmc.* and kodi.* magic dependencies. Everything else will
       // not be missing anyway, unless addon was installed in an unsupported way.
-      if (StringUtils::StartsWith(dependency.id, "xbmc.") ||
-          StringUtils::StartsWith(dependency.id, "kodi."))
+      if (KODI::StringUtils::StartsWith(dependency.id, "xbmc.") ||
+          KODI::StringUtils::StartsWith(dependency.id, "kodi."))
       {
         std::shared_ptr<IAddon> dep;
         const bool haveDependency =
@@ -1141,8 +1141,8 @@ bool CAddonMgr::IsCompatible(const AddonInfoPtr& addonInfo) const
     {
       // Intentionally only check the xbmc.* and kodi.* magic dependencies. Everything else will
       // not be missing anyway, unless addon was installed in an unsupported way.
-      if (StringUtils::StartsWith(dependency.id, "xbmc.") ||
-          StringUtils::StartsWith(dependency.id, "kodi."))
+      if (KODI::StringUtils::StartsWith(dependency.id, "xbmc.") ||
+          KODI::StringUtils::StartsWith(dependency.id, "kodi."))
       {
         AddonInfoPtr addonInfo = GetAddonInfo(dependency.id, AddonType::UNKNOWN);
         if (!addonInfo || !addonInfo->MeetsVersion(dependency.versionMin, dependency.version))
@@ -1172,8 +1172,8 @@ std::vector<DependencyInfo> CAddonMgr::GetDepsRecursive(const std::string& id,
   {
     auto current_dep = *toProcess.begin();
     toProcess.erase(toProcess.begin());
-    if (StringUtils::StartsWith(current_dep.id, "xbmc.") ||
-        StringUtils::StartsWith(current_dep.id, "kodi."))
+    if (KODI::StringUtils::StartsWith(current_dep.id, "xbmc.") ||
+        KODI::StringUtils::StartsWith(current_dep.id, "kodi."))
       continue;
 
     auto added_it = std::find_if(added.begin(), added.end(), [&](const DependencyInfo& d){ return d.id == current_dep.id;});

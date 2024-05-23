@@ -101,7 +101,7 @@ void CControllerInstaller::Process()
 
     // Set dialog text
     const std::string& progressTemplate = g_localizeStrings.Get(24057); // "Installing {0:s}..."
-    const std::string progressText = StringUtils::Format(progressTemplate, addon->Name());
+    const std::string progressText = KODI::StringUtils::Format(progressTemplate, addon->Name());
     pProgressDialog->SetLine(0, CVariant{progressText});
 
     // Set dialog percentage

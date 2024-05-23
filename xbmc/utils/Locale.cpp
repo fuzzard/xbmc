@@ -68,10 +68,10 @@ bool CLocale::operator==(const CLocale& other) const
     return true;
 
   return m_valid == other.m_valid &&
-         StringUtils::EqualsNoCase(m_language, other.m_language) &&
-         StringUtils::EqualsNoCase(m_territory, other.m_territory) &&
-         StringUtils::EqualsNoCase(m_codeset, other.m_codeset) &&
-         StringUtils::EqualsNoCase(m_modifier, other.m_modifier);
+         KODI::StringUtils::EqualsNoCase(m_language, other.m_language) &&
+         KODI::StringUtils::EqualsNoCase(m_territory, other.m_territory) &&
+         KODI::StringUtils::EqualsNoCase(m_codeset, other.m_codeset) &&
+         KODI::StringUtils::EqualsNoCase(m_modifier, other.m_modifier);
 }
 
 std::string CLocale::ToString() const
@@ -96,7 +96,7 @@ std::string CLocale::ToStringLC() const
     return "";
 
   std::string locale = ToString();
-  StringUtils::ToLower(locale);
+  KODI::StringUtils::ToLower(locale);
 
   return locale;
 }
@@ -120,7 +120,7 @@ std::string CLocale::ToShortStringLC() const
     return "";
 
   std::string locale = ToShortString();
-  StringUtils::ToLower(locale);
+  KODI::StringUtils::ToLower(locale);
 
   return locale;
 }
@@ -141,13 +141,13 @@ bool CLocale::Matches(const std::string& locale) const
   if (!m_valid || !other.m_valid)
     return false;
 
-  if (!StringUtils::EqualsNoCase(m_language, other.m_language))
+  if (!KODI::StringUtils::EqualsNoCase(m_language, other.m_language))
     return false;
-  if (!m_territory.empty() && !other.m_territory.empty() && !StringUtils::EqualsNoCase(m_territory, other.m_territory))
+  if (!m_territory.empty() && !other.m_territory.empty() && !KODI::StringUtils::EqualsNoCase(m_territory, other.m_territory))
     return false;
-  if (!m_codeset.empty() && !other.m_codeset.empty() && !StringUtils::EqualsNoCase(m_codeset, other.m_codeset))
+  if (!m_codeset.empty() && !other.m_codeset.empty() && !KODI::StringUtils::EqualsNoCase(m_codeset, other.m_codeset))
     return false;
-  if (!m_modifier.empty() && !other.m_modifier.empty() && !StringUtils::EqualsNoCase(m_modifier, other.m_modifier))
+  if (!m_modifier.empty() && !other.m_modifier.empty() && !KODI::StringUtils::EqualsNoCase(m_modifier, other.m_modifier))
     return false;
 
   return true;
@@ -240,13 +240,13 @@ bool CLocale::ParseLocale(const std::string &locale, std::string &language, std:
   if (pos != std::string::npos)
   {
     territory = tmp.substr(pos + 1);
-    StringUtils::ToUpper(territory);
+    KODI::StringUtils::ToUpper(territory);
     tmp.resize(pos);
   }
 
   // what remains is the language
   language = tmp;
-  StringUtils::ToLower(language);
+  KODI::StringUtils::ToLower(language);
 
   return CheckValidity(language, territory, codeset, modifier);
 }
@@ -256,8 +256,8 @@ void CLocale::Initialize()
   m_valid = CheckValidity(m_language, m_territory, m_codeset, m_modifier);
   if (m_valid)
   {
-    StringUtils::ToLower(m_language);
-    StringUtils::ToUpper(m_territory);
+    KODI::StringUtils::ToLower(m_language);
+    KODI::StringUtils::ToUpper(m_territory);
   }
 }
 
@@ -267,17 +267,17 @@ int CLocale::GetMatchRank(const std::string& locale) const
 
   // both locales must be valid and match in language
   if (!m_valid || !other.m_valid ||
-      !StringUtils::EqualsNoCase(m_language, other.m_language))
+      !KODI::StringUtils::EqualsNoCase(m_language, other.m_language))
     return -1;
 
   int rank = 0;
   // matching in territory is considered more important than matching in
   // codeset and/or modifier
-  if (!m_territory.empty() && !other.m_territory.empty() && StringUtils::EqualsNoCase(m_territory, other.m_territory))
+  if (!m_territory.empty() && !other.m_territory.empty() && KODI::StringUtils::EqualsNoCase(m_territory, other.m_territory))
     rank += 3;
-  if (!m_codeset.empty() && !other.m_codeset.empty() && StringUtils::EqualsNoCase(m_codeset, other.m_codeset))
+  if (!m_codeset.empty() && !other.m_codeset.empty() && KODI::StringUtils::EqualsNoCase(m_codeset, other.m_codeset))
     rank += 1;
-  if (!m_modifier.empty() && !other.m_modifier.empty() && StringUtils::EqualsNoCase(m_modifier, other.m_modifier))
+  if (!m_modifier.empty() && !other.m_modifier.empty() && KODI::StringUtils::EqualsNoCase(m_modifier, other.m_modifier))
     rank += 1;
 
   return rank;

@@ -50,7 +50,7 @@ static void fetchDisplayModes()
       s_res_cur_displayMode.bFullScreen = true;
       s_res_cur_displayMode.iSubtitles = s_res_cur_displayMode.iHeight;
       s_res_cur_displayMode.fPixelRatio = 1.0f;
-      s_res_cur_displayMode.strMode = StringUtils::Format(
+      s_res_cur_displayMode.strMode = KODI::StringUtils::Format(
           "{}x{} @ {:.6f}{} - Full Screen", s_res_cur_displayMode.iScreenWidth,
           s_res_cur_displayMode.iScreenHeight, s_res_cur_displayMode.fRefreshRate,
           s_res_cur_displayMode.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "");
@@ -70,7 +70,7 @@ static void fetchDisplayModes()
         res.bFullScreen = true;
         res.iSubtitles = res.iHeight;
         res.fPixelRatio = 1.0f;
-        res.strMode = StringUtils::Format("{}x{} @ {:.6f}{} - Full Screen", res.iScreenWidth,
+        res.strMode = KODI::StringUtils::Format("{}x{} @ {:.6f}{} - Full Screen", res.iScreenWidth,
                                           res.iScreenHeight, res.fRefreshRate,
                                           res.dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "");
 
@@ -169,7 +169,7 @@ bool CAndroidUtils::GetNativeResolution(RESOLUTION_INFO* res) const
   res->iHeight = m_height;
   res->iSubtitles = res->iHeight;
   res->strMode =
-      StringUtils::Format("{}x{} @ {:.6f}{} - Full Screen", res->iScreenWidth, res->iScreenHeight,
+      KODI::StringUtils::Format("{}x{} @ {:.6f}{} - Full Screen", res->iScreenWidth, res->iScreenHeight,
                           res->fRefreshRate, res->dwFlags & D3DPRESENTFLAG_INTERLACED ? "i" : "");
   CLog::Log(LOGINFO, "CAndroidUtils: Current resolution: {}x{} {}", res->iWidth, res->iHeight,
             res->strMode);

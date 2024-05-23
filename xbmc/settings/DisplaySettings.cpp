@@ -144,7 +144,7 @@ bool CDisplaySettings::Load(const TiXmlNode *settings)
     bool found = false;
     for (ResolutionInfos::const_iterator  it = m_calibrations.begin(); it != m_calibrations.end(); ++it)
     {
-      if (StringUtils::EqualsNoCase(it->strMode, cal.strMode))
+      if (KODI::StringUtils::EqualsNoCase(it->strMode, cal.strMode))
       {
         found = true;
         break;
@@ -527,7 +527,7 @@ void CDisplaySettings::ApplyCalibrations()
     // find resolutions
     for (size_t res = RES_DESKTOP; res < m_resolutions.size(); ++res)
     {
-      if (StringUtils::EqualsNoCase(itCal->strMode, m_resolutions[res].strMode))
+      if (KODI::StringUtils::EqualsNoCase(itCal->strMode, m_resolutions[res].strMode))
       {
         // overscan
         m_resolutions[res].Overscan.left = itCal->Overscan.left;
@@ -581,13 +581,13 @@ void CDisplaySettings::UpdateCalibrations()
   // Add new (unique) resolutions
   for (ResolutionInfos::const_iterator res(m_resolutions.cbegin() + RES_CUSTOM); res != m_resolutions.cend(); ++res)
     if (std::find_if(m_calibrations.cbegin(), m_calibrations.cend(),
-      [&](const RESOLUTION_INFO& info) { return StringUtils::EqualsNoCase(res->strMode, info.strMode); }) == m_calibrations.cend())
+      [&](const RESOLUTION_INFO& info) { return KODI::StringUtils::EqualsNoCase(res->strMode, info.strMode); }) == m_calibrations.cend())
         m_calibrations.push_back(*res);
 
   for (auto &cal : m_calibrations)
   {
     ResolutionInfos::const_iterator res(std::find_if(m_resolutions.cbegin() + RES_DESKTOP, m_resolutions.cend(),
-    [&](const RESOLUTION_INFO& info) { return StringUtils::EqualsNoCase(cal.strMode, info.strMode); }));
+    [&](const RESOLUTION_INFO& info) { return KODI::StringUtils::EqualsNoCase(cal.strMode, info.strMode); }));
 
     if (res != m_resolutions.cend())
     {
@@ -648,18 +648,18 @@ RESOLUTION CDisplaySettings::GetResolutionFromString(const std::string &strResol
   else if (strResolution.size() >= 20)
   {
     // format: WWWWWHHHHHRRR.RRRRRP333, where W = width, H = height, R = refresh, P = interlace, 3 = stereo mode
-    int width = std::strtol(StringUtils::Mid(strResolution, 0,5).c_str(), NULL, 10);
-    int height = std::strtol(StringUtils::Mid(strResolution, 5,5).c_str(), NULL, 10);
-    float refresh = (float)std::strtod(StringUtils::Mid(strResolution, 10,9).c_str(), NULL);
+    int width = std::strtol(KODI::StringUtils::Mid(strResolution, 0,5).c_str(), NULL, 10);
+    int height = std::strtol(KODI::StringUtils::Mid(strResolution, 5,5).c_str(), NULL, 10);
+    float refresh = (float)std::strtod(KODI::StringUtils::Mid(strResolution, 10,9).c_str(), NULL);
     unsigned flags = 0;
 
     // look for 'i' and treat everything else as progressive,
-    if(StringUtils::Mid(strResolution, 19,1) == "i")
+    if(KODI::StringUtils::Mid(strResolution, 19,1) == "i")
       flags |= D3DPRESENTFLAG_INTERLACED;
 
-    if(StringUtils::Mid(strResolution, 20,3) == "sbs")
+    if(KODI::StringUtils::Mid(strResolution, 20,3) == "sbs")
       flags |= D3DPRESENTFLAG_MODE3DSBS;
-    else if(StringUtils::Mid(strResolution, 20,3) == "tab")
+    else if(KODI::StringUtils::Mid(strResolution, 20,3) == "tab")
       flags |= D3DPRESENTFLAG_MODE3DTB;
 
     std::map<RESOLUTION, RESOLUTION_INFO> resolutionInfos;
@@ -683,7 +683,7 @@ std::string CDisplaySettings::GetStringFromResolution(RESOLUTION resolution, flo
     // also handle RES_DESKTOP resolutions with non-default refresh rates
     if (resolution != RES_DESKTOP || (refreshrate > 0.0f && refreshrate != info.fRefreshRate))
     {
-      return StringUtils::Format("{:05}{:05}{:09.5f}{}", info.iScreenWidth, info.iScreenHeight,
+      return KODI::StringUtils::Format("{:05}{:05}{:09.5f}{}", info.iScreenWidth, info.iScreenHeight,
                                  refreshrate > 0.0f ? refreshrate : info.fRefreshRate,
                                  ModeFlagsToString(info.dwFlags, true));
     }
@@ -720,7 +720,7 @@ void CDisplaySettings::SettingOptionsModesFiller(const std::shared_ptr<const CSe
       auto setting = GetStringFromResolution((RESOLUTION)index, mode.fRefreshRate);
 
       list.emplace_back(
-          StringUtils::Format("{}x{}{} {:0.2f}Hz", mode.iScreenWidth, mode.iScreenHeight,
+          KODI::StringUtils::Format("{}x{}{} {:0.2f}Hz", mode.iScreenWidth, mode.iScreenHeight,
                               ModeFlagsToString(mode.dwFlags, false), mode.fRefreshRate),
           setting);
     }
@@ -739,7 +739,7 @@ void CDisplaySettings::SettingOptionsRefreshChangeDelaysFiller(
 
   for (int i = 1; i <= MAX_REFRESH_CHANGE_DELAY; i++)
     list.emplace_back(
-        StringUtils::Format(g_localizeStrings.Get(13553), static_cast<double>(i) / 10.0), i);
+        KODI::StringUtils::Format(g_localizeStrings.Get(13553), static_cast<double>(i) / 10.0), i);
 }
 
 void CDisplaySettings::SettingOptionsRefreshRatesFiller(const SettingConstPtr& setting,
@@ -768,9 +768,9 @@ void CDisplaySettings::SettingOptionsRefreshRatesFiller(const SettingConstPtr& s
   for (std::vector<REFRESHRATE>::const_iterator refreshrate = refreshrates.begin(); refreshrate != refreshrates.end(); ++refreshrate)
   {
     std::string screenmode = GetStringFromResolution((RESOLUTION)refreshrate->ResInfo_Index, refreshrate->RefreshRate);
-    if (!match && StringUtils::EqualsNoCase(std::static_pointer_cast<const CSettingString>(setting)->GetValue(), screenmode))
+    if (!match && KODI::StringUtils::EqualsNoCase(std::static_pointer_cast<const CSettingString>(setting)->GetValue(), screenmode))
       match = true;
-    list.emplace_back(StringUtils::Format("{:.2f}", refreshrate->RefreshRate), screenmode);
+    list.emplace_back(KODI::StringUtils::Format("{:.2f}", refreshrate->RefreshRate), screenmode);
   }
 
   if (!match)
@@ -796,7 +796,7 @@ void CDisplaySettings::SettingOptionsResolutionsFiller(const SettingConstPtr& se
     for (std::vector<RESOLUTION_WHR>::const_iterator resolution = resolutions.begin(); resolution != resolutions.end(); ++resolution)
     {
       const std::string resLabel =
-          StringUtils::Format("{}x{}{}{}", resolution->m_screenWidth, resolution->m_screenHeight,
+          KODI::StringUtils::Format("{}x{}{}{}", resolution->m_screenWidth, resolution->m_screenHeight,
                               ModeFlagsToString(resolution->flags, false),
                               resolution->width > resolution->m_screenWidth &&
                                       resolution->height > resolution->m_screenHeight

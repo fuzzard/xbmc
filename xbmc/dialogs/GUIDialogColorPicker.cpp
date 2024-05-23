@@ -169,7 +169,7 @@ void CGUIDialogColorPicker::LoadColors(const std::string& filePath)
     for (auto& color : colors)
     {
       CFileItem* item = new CFileItem(color.first);
-      item->SetLabel2(StringUtils::Format("{:08X}", color.second.colorARGB));
+      item->SetLabel2(KODI::StringUtils::Format("{:08X}", color.second.colorARGB));
       m_vecList->Add(CFileItemPtr(item));
     }
   }
@@ -189,7 +189,7 @@ int CGUIDialogColorPicker::GetSelectedItem() const
     return -1;
   for (int index = 0; index < m_vecList->Size(); index++)
   {
-    if (StringUtils::CompareNoCase(m_selectedColor, m_vecList->Get(index)->GetLabel2()) == 0)
+    if (KODI::StringUtils::CompareNoCase(m_selectedColor, m_vecList->Get(index)->GetLabel2()) == 0)
     {
       return index;
     }
@@ -231,7 +231,7 @@ void CGUIDialogColorPicker::OnInitWindow()
   m_viewControl.SetCurrentView(CONTROL_ICON_LIST);
 
   SET_CONTROL_LABEL(CONTROL_NUMBER_OF_ITEMS,
-                    StringUtils::Format("{} {}", m_vecList->Size(), g_localizeStrings.Get(127)));
+                    KODI::StringUtils::Format("{} {}", m_vecList->Size(), g_localizeStrings.Get(127)));
 
   SET_CONTROL_LABEL(CONTROL_CANCEL_BUTTON, g_localizeStrings.Get(222));
 

@@ -136,7 +136,7 @@ bool IHTTPRequestHandler::GetHostnameAndPort(std::string& hostname, uint16_t &po
   if (pos != std::string::npos)
   {
     std::string strPort = hostnameAndPort.substr(pos + 1);
-    if (!StringUtils::IsNaturalNumber(strPort))
+    if (!KODI::StringUtils::IsNaturalNumber(strPort))
       return false;
 
     unsigned long portL = strtoul(strPort.c_str(), NULL, 0);

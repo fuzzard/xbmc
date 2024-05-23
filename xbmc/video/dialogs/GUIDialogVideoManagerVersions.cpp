@@ -406,7 +406,7 @@ bool CGUIDialogVideoManagerVersions::GetAllOtherMovies(const std::shared_ptr<CFi
     return false;
 
   // get video list
-  const std::string videoTitlesDir{StringUtils::Format(
+  const std::string videoTitlesDir{KODI::StringUtils::Format(
       "videodb://{}/titles", CMediaTypes::ToPlural(item->GetVideoInfoTag()->m_type))};
 
   list.Clear();
@@ -459,7 +459,7 @@ bool CGUIDialogVideoManagerVersions::ProcessVideoVersion(VideoDbContentType item
   videodb.GetFilePathById(dbId, path, itemType);
 
   if (!CGUIDialogYesNo::ShowAndGetInput(
-          CVariant{40008}, StringUtils::Format(g_localizeStrings.Get(40009),
+          CVariant{40008}, KODI::StringUtils::Format(g_localizeStrings.Get(40009),
                                                item.GetVideoInfoTag()->GetTitle(), path)))
   {
     return false;
@@ -516,7 +516,7 @@ bool CGUIDialogVideoManagerVersions::AddVideoVersionFilePicker()
 
         CGUIDialogOK::ShowAndGetInput(
             CVariant{40014},
-            StringUtils::Format(g_localizeStrings.Get(msgid), newAsset.m_assetTypeName));
+            KODI::StringUtils::Format(g_localizeStrings.Get(msgid), newAsset.m_assetTypeName));
         return false;
       }
 
@@ -525,7 +525,7 @@ bool CGUIDialogVideoManagerVersions::AddVideoVersionFilePicker()
       // The video is an extra, ask for confirmation
       if (newAsset.m_assetType == VideoAssetType::EXTRA &&
           !CGUIDialogYesNo::ShowAndGetInput(CVariant{40014},
-                                            StringUtils::Format(g_localizeStrings.Get(40035))))
+                                            KODI::StringUtils::Format(g_localizeStrings.Get(40035))))
       {
         return false;
       }
@@ -552,7 +552,7 @@ bool CGUIDialogVideoManagerVersions::AddVideoVersionFilePicker()
         }
 
         if (!CGUIDialogYesNo::ShowAndGetInput(
-                CVariant{40014}, StringUtils::Format(g_localizeStrings.Get(msgid),
+                CVariant{40014}, KODI::StringUtils::Format(g_localizeStrings.Get(msgid),
                                                      newAsset.m_assetTypeName, videoTitle)))
         {
           return false;

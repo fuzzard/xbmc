@@ -83,7 +83,7 @@ CUPnPServer::CUPnPServer(const char* friendly_name, const char* uuid /*= NULL*/,
     m_scanning(CMusicLibraryQueue::GetInstance().IsScanningLibrary() ||
                CVideoLibraryQueue::GetInstance().IsScanningLibrary()),
     m_logger(CServiceBroker::GetLogging().GetLogger(
-        StringUtils::Format("CUPnPServer[{}]", friendly_name)))
+        KODI::StringUtils::Format("CUPnPServer[{}]", friendly_name)))
 {
 }
 
@@ -197,7 +197,7 @@ void CUPnPServer::PropagateUpdates()
     if (itr->second.first)
     {
       buffer.append(
-          StringUtils::Format("{},{},", EncodeObjectId(itr->first).GetChars(), itr->second.second));
+          KODI::StringUtils::Format("{},{},", EncodeObjectId(itr->first).GetChars(), itr->second.second));
       itr->second.first = false;
     }
   }
@@ -478,11 +478,11 @@ PLT_MediaObject* CUPnPServer::Build(const std::shared_ptr<CFileItem>& item,
   {
     // remap Root virtualpath://upnproot/ to id "0"
     const NPT_String encodedRootObjectId = EncodeObjectId("virtualpath://upnproot/");
-    if (StringUtils::EqualsNoCase(object->m_ObjectID, encodedRootObjectId))
+    if (KODI::StringUtils::EqualsNoCase(object->m_ObjectID, encodedRootObjectId))
       object->m_ObjectID = EncodeObjectId("0");
 
     // remap Parent Root virtualpath://upnproot/ to id "0"
-    if (StringUtils::EqualsNoCase(object->m_ParentID, encodedRootObjectId))
+    if (KODI::StringUtils::EqualsNoCase(object->m_ParentID, encodedRootObjectId))
       object->m_ParentID = EncodeObjectId("0");
   }
 
@@ -548,8 +548,8 @@ void CUPnPServer::Announce(AnnouncementFlag flag,
           return;
         int show_id = db.GetTvShowForEpisode(item_id);
         int season_id = db.GetSeasonForEpisode(item_id);
-        UpdateContainer(StringUtils::Format("videodb://tvshows/titles/{}/", show_id));
-        UpdateContainer(StringUtils::Format("videodb://tvshows/titles/{}/{}/?tvshowid={}", show_id,
+        UpdateContainer(KODI::StringUtils::Format("videodb://tvshows/titles/{}/", show_id));
+        UpdateContainer(KODI::StringUtils::Format("videodb://tvshows/titles/{}/{}/?tvshowid={}", show_id,
                                             season_id, show_id));
         UpdateContainer("videodb://recentlyaddedepisodes/");
       }
@@ -579,7 +579,7 @@ void CUPnPServer::Announce(AnnouncementFlag flag,
         return;
       if (db.GetAlbumFromSong(item_id, album))
       {
-        UpdateContainer(StringUtils::Format("musicdb://albums/{}", album.idAlbum));
+        UpdateContainer(KODI::StringUtils::Format("musicdb://albums/{}", album.idAlbum));
         UpdateContainer("musicdb://songs/");
         UpdateContainer("musicdb://recentlyaddedalbums/");
       }
@@ -688,7 +688,7 @@ NPT_Result CUPnPServer::OnBrowseMetadata(PLT_ActionReference& action,
     // attempt to determine the parent of this item
     std::string parent;
     if (URIUtils::IsVideoDb((const char*)id) || URIUtils::IsMusicDb((const char*)id) ||
-        StringUtils::StartsWithNoCase((const char*)id, "library://video/"))
+        KODI::StringUtils::StartsWithNoCase((const char*)id, "library://video/"))
     {
       if (!URIUtils::GetParentPath((const char*)id, parent))
       {
@@ -704,15 +704,15 @@ NPT_Result CUPnPServer::OnBrowseMetadata(PLT_ActionReference& action,
       // however this is quicker to implement and subsequently purge when a
       // better solution presents itself
       std::string child_id((const char*)id);
-      if (StringUtils::StartsWithNoCase(child_id, "special://musicplaylists/"))
+      if (KODI::StringUtils::StartsWithNoCase(child_id, "special://musicplaylists/"))
         parent = "musicdb://";
-      else if (StringUtils::StartsWithNoCase(child_id, "special://videoplaylists/"))
+      else if (KODI::StringUtils::StartsWithNoCase(child_id, "special://videoplaylists/"))
         parent = "library://video/";
-      else if (StringUtils::StartsWithNoCase(child_id, "sources://video/"))
+      else if (KODI::StringUtils::StartsWithNoCase(child_id, "sources://video/"))
         parent = "library://video/";
-      else if (StringUtils::StartsWithNoCase(child_id, "special://profile/playlists/music/"))
+      else if (KODI::StringUtils::StartsWithNoCase(child_id, "special://profile/playlists/music/"))
         parent = "special://musicplaylists/";
-      else if (StringUtils::StartsWithNoCase(child_id, "special://profile/playlists/video/"))
+      else if (KODI::StringUtils::StartsWithNoCase(child_id, "special://profile/playlists/video/"))
         parent = "special://videoplaylists/";
       else
         parent = "sources://video/"; // this can only match video sources
@@ -889,14 +889,14 @@ NPT_Result CUPnPServer::BuildResponse(PLT_ActionReference& action,
   NPT_Reference<CThumbLoader> thumb_loader;
 
   if (URIUtils::IsVideoDb(items.GetPath()) ||
-      StringUtils::StartsWithNoCase(items.GetPath(), "library://video/") ||
-      StringUtils::StartsWithNoCase(items.GetPath(), "special://profile/playlists/video/"))
+      KODI::StringUtils::StartsWithNoCase(items.GetPath(), "library://video/") ||
+      KODI::StringUtils::StartsWithNoCase(items.GetPath(), "special://profile/playlists/video/"))
   {
 
     thumb_loader = NPT_Reference<CThumbLoader>(new CVideoThumbLoader());
   }
   else if (URIUtils::IsMusicDb(items.GetPath()) ||
-           StringUtils::StartsWithNoCase(items.GetPath(), "special://profile/playlists/music/"))
+           KODI::StringUtils::StartsWithNoCase(items.GetPath(), "special://profile/playlists/music/"))
   {
 
     thumb_loader = NPT_Reference<CThumbLoader>(new CMusicThumbLoader());
@@ -907,12 +907,12 @@ NPT_Result CUPnPServer::BuildResponse(PLT_ActionReference& action,
   }
 
   // this isn't pretty but needed to properly hide the addons node from clients
-  if (StringUtils::StartsWith(items.GetPath(), "library"))
+  if (KODI::StringUtils::StartsWith(items.GetPath(), "library"))
   {
     for (int i = 0; i < items.Size(); i++)
     {
-      if (StringUtils::StartsWith(items[i]->GetPath(), "addons") ||
-          StringUtils::EndsWith(items[i]->GetPath(), "/addons.xml/"))
+      if (KODI::StringUtils::StartsWith(items[i]->GetPath(), "addons") ||
+          KODI::StringUtils::EndsWith(items[i]->GetPath(), "/addons.xml/"))
         items.Remove(i);
     }
   }
@@ -1067,7 +1067,7 @@ NPT_Result CUPnPServer::OnSearchContainer(PLT_ActionReference& action,
     if (genre.GetLength() > 0)
     {
       // all tracks by genre filtered by artist and/or album
-      std::string strPath = StringUtils::Format(
+      std::string strPath = KODI::StringUtils::Format(
           "musicdb://genres/{}/{}/{}/", database.GetGenreByName((const char*)genre),
           database.GetArtistByName((const char*)artist), // will return -1 if no artist
           database.GetAlbumByName((const char*)album)); // will return -1 if no album
@@ -1078,7 +1078,7 @@ NPT_Result CUPnPServer::OnSearchContainer(PLT_ActionReference& action,
     else if (artist.GetLength() > 0)
     {
       // all tracks by artist name filtered by album if passed
-      std::string strPath = StringUtils::Format(
+      std::string strPath = KODI::StringUtils::Format(
           "musicdb://artists/{}/{}/", database.GetArtistByName((const char*)artist),
           database.GetAlbumByName((const char*)album)); // will return -1 if no album
 
@@ -1089,7 +1089,7 @@ NPT_Result CUPnPServer::OnSearchContainer(PLT_ActionReference& action,
     {
       // all tracks by album name
       std::string strPath =
-          StringUtils::Format("musicdb://albums/{}/", database.GetAlbumByName((const char*)album));
+          KODI::StringUtils::Format("musicdb://albums/{}/", database.GetAlbumByName((const char*)album));
 
       return OnBrowseDirectChildren(action, strPath.c_str(), filter, starting_index,
                                     requested_count, sort_criteria, context);
@@ -1118,7 +1118,7 @@ NPT_Result CUPnPServer::OnSearchContainer(PLT_ActionReference& action,
 
     if (genre.GetLength() > 0)
     {
-      std::string strPath = StringUtils::Format(
+      std::string strPath = KODI::StringUtils::Format(
           "musicdb://genres/{}/{}/", database.GetGenreByName((const char*)genre),
           database.GetArtistByName((const char*)artist)); // no artist should return -1
       return OnBrowseDirectChildren(action, strPath.c_str(), filter, starting_index,
@@ -1126,7 +1126,7 @@ NPT_Result CUPnPServer::OnSearchContainer(PLT_ActionReference& action,
     }
     else if (artist.GetLength() > 0)
     {
-      std::string strPath = StringUtils::Format("musicdb://artists/{}/",
+      std::string strPath = KODI::StringUtils::Format("musicdb://artists/{}/",
                                                 database.GetArtistByName((const char*)artist));
       return OnBrowseDirectChildren(action, strPath.c_str(), filter, starting_index,
                                     requested_count, sort_criteria, context);
@@ -1145,7 +1145,7 @@ NPT_Result CUPnPServer::OnSearchContainer(PLT_ActionReference& action,
       CMusicDatabase database;
       database.Open();
       std::string strPath =
-          StringUtils::Format("musicdb://genres/{}/", database.GetGenreByName((const char*)genre));
+          KODI::StringUtils::Format("musicdb://genres/{}/", database.GetGenreByName((const char*)genre));
       return OnBrowseDirectChildren(action, strPath.c_str(), filter, starting_index,
                                     requested_count, sort_criteria, context);
     }

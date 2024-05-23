@@ -321,7 +321,7 @@ bool CPVRGUIActionsPlayback::SwitchToChannel(const CFileItem& item, bool bCheckR
   {
     const std::string channelName =
         channel ? channel->ChannelName() : g_localizeStrings.Get(19029); // Channel
-    const std::string msg = StringUtils::Format(
+    const std::string msg = KODI::StringUtils::Format(
         g_localizeStrings.Get(19035),
         channelName); // CHANNELNAME could not be played. Check the log for details.
 
@@ -405,7 +405,7 @@ bool CPVRGUIActionsPlayback::SwitchToChannel(PlaybackType type) const
   CGUIDialogKaiToast::QueueNotification(
       CGUIDialogKaiToast::Error,
       g_localizeStrings.Get(19166), // PVR information
-      StringUtils::Format(
+      KODI::StringUtils::Format(
           g_localizeStrings.Get(19035),
           g_localizeStrings.Get(
               bIsRadio ? 19021

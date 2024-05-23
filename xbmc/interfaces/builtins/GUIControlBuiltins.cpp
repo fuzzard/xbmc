@@ -86,7 +86,7 @@ static int SetFocus(const std::vector<std::string>& params)
   int controlID = atol(params[0].c_str());
   int subItem = (params.size() > 1) ? atol(params[1].c_str())+1 : 0;
   int absID = 0;
-  if (params.size() > 2 && StringUtils::EqualsNoCase(params[2].c_str(), "absolute"))
+  if (params.size() > 2 && KODI::StringUtils::EqualsNoCase(params[2].c_str(), "absolute"))
     absID = 1;
   CGUIMessage msg(GUI_MSG_SETFOCUS, CServiceBroker::GetGUI()->GetWindowManager().GetActiveWindowOrDialog(), controlID, subItem, absID);
   CServiceBroker::GetGUI()->GetWindowManager().SendMessage(msg);

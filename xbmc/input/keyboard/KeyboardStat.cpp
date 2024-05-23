@@ -249,9 +249,9 @@ std::string CKeyboardStat::GetKeyName(int KeyID)
   // so users can easily find it in their universalremote
   // map xml
   if (VKeyFound || keyid > 255)
-    keyname += StringUtils::Format(" ({:#02x})", KeyID);
+    keyname += KODI::StringUtils::Format(" ({:#02x})", KeyID);
   else // obc keys are 255 -rawid
-    keyname += StringUtils::Format(" ({:#02x}, obc{})", KeyID, 255 - KeyID);
+    keyname += KODI::StringUtils::Format(" ({:#02x}, obc{})", KeyID, 255 - KeyID);
 
   return keyname;
 }

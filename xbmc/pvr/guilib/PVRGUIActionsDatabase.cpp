@@ -59,13 +59,13 @@ public:
     CFileItemList options;
 
     const std::shared_ptr<CFileItem> itemAll =
-        std::make_shared<CFileItem>(StringUtils::Format(g_localizeStrings.Get(593))); // All
+        std::make_shared<CFileItem>(KODI::StringUtils::Format(g_localizeStrings.Get(593))); // All
     itemAll->SetPath("all");
     options.Add(itemAll);
 
     // if channels are cleared, groups, EPG data and providers must also be cleared
     const std::shared_ptr<CFileItem> itemChannels =
-        std::make_shared<CFileItem>(StringUtils::Format("{}, {}, {}, {}",
+        std::make_shared<CFileItem>(KODI::StringUtils::Format("{}, {}, {}, {}",
                                                         g_localizeStrings.Get(19019), // Channels
                                                         g_localizeStrings.Get(19146), // Groups
                                                         g_localizeStrings.Get(19069), // Guide

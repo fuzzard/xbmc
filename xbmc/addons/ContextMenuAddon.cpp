@@ -43,7 +43,7 @@ CContextMenuAddon::CContextMenuAddon(const AddonInfoPtr& addonInfo)
           ? CContextMenuManager::MANAGE.m_groupId : CContextMenuManager::MAIN.m_groupId;
 
       auto label = elem->GetValue("label").asString();
-      if (StringUtils::IsNaturalNumber(label))
+      if (KODI::StringUtils::IsNaturalNumber(label))
         label = g_localizeStrings.GetAddonString(ID(), atoi(label.c_str()));
 
       CContextMenuItem menuItem = CContextMenuItem::CreateItem(
@@ -65,7 +65,7 @@ void CContextMenuAddon::ParseMenu(
 {
   auto menuId = elem->GetValue("@id").asString();
   auto menuLabel = elem->GetValue("label").asString();
-  if (StringUtils::IsNaturalNumber(menuLabel))
+  if (KODI::StringUtils::IsNaturalNumber(menuLabel))
     menuLabel = g_localizeStrings.GetAddonString(ID(), std::stoi(menuLabel));
 
   if (menuId.empty())
@@ -86,7 +86,7 @@ void CContextMenuAddon::ParseMenu(
     std::string visCondition = element.second.GetValue("visible").asString();
     std::string library = element.second.GetValue("@library").asString();
     std::string label = element.second.GetValue("label").asString();
-    if (StringUtils::IsNaturalNumber(label))
+    if (KODI::StringUtils::IsNaturalNumber(label))
       label = g_localizeStrings.GetAddonString(ID(), atoi(label.c_str()));
 
     std::vector<std::string> args;

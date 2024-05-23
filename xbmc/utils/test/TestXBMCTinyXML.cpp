@@ -51,7 +51,7 @@ TEST(TestXBMCTinyXML, ParseFromFileHandle)
     if (url && url->FirstChild())
     {
       std::string str = url->FirstChild()->ValueStr();
-      retval = (StringUtils::Trim(str) == "http://api.themoviedb.org/3/movie/12244?api_key=57983e31fb435df4df77afb854740ea9&language=en???");
+      retval = (KODI::StringUtils::Trim(str) == "http://api.themoviedb.org/3/movie/12244?api_key=57983e31fb435df4df77afb854740ea9&language=en???");
     }
   }
   EXPECT_TRUE(retval);

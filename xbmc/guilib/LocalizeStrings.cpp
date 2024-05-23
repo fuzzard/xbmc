@@ -114,7 +114,7 @@ static bool LoadStr2Mem(const std::string &pathname_in, const std::string &langu
       return false;
   }
 
-  bool useSourceLang = StringUtils::EqualsNoCase(language, LANGUAGE_DEFAULT) || StringUtils::EqualsNoCase(language, LANGUAGE_OLD_DEFAULT);
+  bool useSourceLang = KODI::StringUtils::EqualsNoCase(language, LANGUAGE_DEFAULT) || KODI::StringUtils::EqualsNoCase(language, LANGUAGE_OLD_DEFAULT);
 
   return LoadPO(URIUtils::AddFileToFolder(pathname, "strings.po"), strings, encoding, offset, useSourceLang);
 }
@@ -124,12 +124,12 @@ static bool LoadWithFallback(const std::string& path, const std::string& languag
   std::string encoding;
   if (!LoadStr2Mem(path, language, strings, encoding))
   {
-    if (StringUtils::EqualsNoCase(language, LANGUAGE_DEFAULT)) // no fallback, nothing to do
+    if (KODI::StringUtils::EqualsNoCase(language, LANGUAGE_DEFAULT)) // no fallback, nothing to do
       return false;
   }
 
   // load the fallback
-  if (!StringUtils::EqualsNoCase(language, LANGUAGE_DEFAULT))
+  if (!KODI::StringUtils::EqualsNoCase(language, LANGUAGE_DEFAULT))
     LoadStr2Mem(path, LANGUAGE_DEFAULT, strings, encoding);
 
   return true;
@@ -197,7 +197,7 @@ const std::string& CLocalizeStrings::Get(uint32_t dwCode) const
   ciStrings i = m_strings.find(dwCode);
   if (i == m_strings.end())
   {
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
   }
   return i->second.strTranslated;
 }
@@ -240,11 +240,11 @@ std::string CLocalizeStrings::GetAddonString(const std::string& addonId, uint32_
   std::shared_lock<CSharedSection> lock(m_addonStringsMutex);
   auto i = m_addonStrings.find(addonId);
   if (i == m_addonStrings.end())
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   auto j = i->second.find(code);
   if (j == i->second.end())
-    return StringUtils::Empty;
+    return KODI::StringUtils::Empty;
 
   return j->second.strTranslated;
 }

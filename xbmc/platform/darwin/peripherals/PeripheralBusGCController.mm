@@ -147,12 +147,12 @@ bool PERIPHERALS::CPeripheralBusGCController::GetDeviceId(const std::string& dev
                                                           int& deviceId)
 {
   if (deviceLocation.empty() ||
-      !StringUtils::StartsWith(deviceLocation, getDeviceLocationPrefix()) ||
+      !KODI::StringUtils::StartsWith(deviceLocation, getDeviceLocationPrefix()) ||
       deviceLocation.size() <= getDeviceLocationPrefix().size())
     return false;
 
   std::string strDeviceId = deviceLocation.substr(getDeviceLocationPrefix().size());
-  if (!StringUtils::IsNaturalNumber(strDeviceId))
+  if (!KODI::StringUtils::IsNaturalNumber(strDeviceId))
     return false;
 
   deviceId = static_cast<int>(strtol(strDeviceId.c_str(), nullptr, 10));

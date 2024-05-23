@@ -501,11 +501,11 @@ void CGUITextLayout::ParseText(const std::wstring& text,
     { // we have a new style or a new color, so format up the previous segment
       std::wstring subText = text.substr(startPos, endPos - startPos);
       if (currentStyle & FONT_STYLE_UPPERCASE)
-        StringUtils::ToUpper(subText);
+        KODI::StringUtils::ToUpper(subText);
       if (currentStyle & FONT_STYLE_LOWERCASE)
-        StringUtils::ToLower(subText);
+        KODI::StringUtils::ToLower(subText);
       if (currentStyle & FONT_STYLE_CAPITALIZE)
-        StringUtils::ToCapitalize(subText);
+        KODI::StringUtils::ToCapitalize(subText);
       AppendToUTF32(subText, ((currentStyle & FONT_STYLE_MASK) << 24) | (currentColor << 16), parsedText);
       if (newLine)
         parsedText.push_back(L'\n');
@@ -525,11 +525,11 @@ void CGUITextLayout::ParseText(const std::wstring& text,
   // now grab the remainder of the string
   std::wstring subText = text.substr(startPos);
   if (currentStyle & FONT_STYLE_UPPERCASE)
-    StringUtils::ToUpper(subText);
+    KODI::StringUtils::ToUpper(subText);
   if (currentStyle & FONT_STYLE_LOWERCASE)
-    StringUtils::ToLower(subText);
+    KODI::StringUtils::ToLower(subText);
   if (currentStyle & FONT_STYLE_CAPITALIZE)
-    StringUtils::ToCapitalize(subText);
+    KODI::StringUtils::ToCapitalize(subText);
   AppendToUTF32(subText, ((currentStyle & FONT_STYLE_MASK) << 24) | (currentColor << 16), parsedText);
 }
 

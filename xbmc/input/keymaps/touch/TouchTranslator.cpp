@@ -156,7 +156,7 @@ unsigned int CTouchTranslator::TranslateTouchCommand(const tinyxml2::XMLElement*
     return ACTION_NONE;
 
   std::string strTouchCommand = szButton;
-  StringUtils::ToLower(strTouchCommand);
+  KODI::StringUtils::ToLower(strTouchCommand);
 
   // Handle direction
   const char* attrVal = pButton->Attribute("direction");

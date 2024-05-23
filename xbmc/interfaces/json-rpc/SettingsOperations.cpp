@@ -165,7 +165,7 @@ JSONRPC_STATUS CSettingsOperations::GetSettings(const std::string &method, ITran
     bool found = !doFilter;
     for (const auto& itCategory : categories)
     {
-      if (!doFilter || StringUtils::EqualsNoCase(itCategory->GetId(), strCategory))
+      if (!doFilter || KODI::StringUtils::EqualsNoCase(itCategory->GetId(), strCategory))
       {
         SettingGroupList groups = itCategory->GetGroups(level);
         for (const auto& itGroup : groups)
@@ -334,11 +334,11 @@ JSONRPC_STATUS CSettingsOperations::ResetSettingValue(const std::string &method,
 
 SettingLevel CSettingsOperations::ParseSettingLevel(const std::string &strLevel)
 {
-  if (StringUtils::EqualsNoCase(strLevel, "basic"))
+  if (KODI::StringUtils::EqualsNoCase(strLevel, "basic"))
     return SettingLevel::Basic;
-  if (StringUtils::EqualsNoCase(strLevel, "advanced"))
+  if (KODI::StringUtils::EqualsNoCase(strLevel, "advanced"))
     return SettingLevel::Advanced;
-  if (StringUtils::EqualsNoCase(strLevel, "expert"))
+  if (KODI::StringUtils::EqualsNoCase(strLevel, "expert"))
     return SettingLevel::Expert;
 
   return SettingLevel::Standard;

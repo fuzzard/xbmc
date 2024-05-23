@@ -85,14 +85,14 @@ const char*  CCompileInfo::GetVersionCode()
 std::vector<ADDON::RepoInfo> CCompileInfo::LoadOfficialRepoInfos()
 {
   const std::vector<std::string> officialAddonRepos =
-      StringUtils::Split("@APP_ADDON_REPOS@", ',');
+      KODI::StringUtils::Split("@APP_ADDON_REPOS@", ',');
 
   std::vector<ADDON::RepoInfo> officialRepoInfos;
   ADDON::RepoInfo newRepoInfo;
 
   for (const auto& addonRepo : officialAddonRepos)
   {
-    const std::vector<std::string> tmpRepoInfo = StringUtils::Split(addonRepo, '|');
+    const std::vector<std::string> tmpRepoInfo = KODI::StringUtils::Split(addonRepo, '|');
     newRepoInfo.m_repoId = tmpRepoInfo.front();
     newRepoInfo.m_origin = tmpRepoInfo.back();
     officialRepoInfos.emplace_back(newRepoInfo);
@@ -103,17 +103,17 @@ std::vector<ADDON::RepoInfo> CCompileInfo::LoadOfficialRepoInfos()
 
 std::vector<std::string> CCompileInfo::GetAvailableWindowSystems()
 {
-  return StringUtils::Split("@CORE_PLATFORM_NAME_LC@", ' ');
+  return KODI::StringUtils::Split("@CORE_PLATFORM_NAME_LC@", ' ');
 }
 
 std::vector<std::string> CCompileInfo::GetAvailableAudioBackends()
 {
-  return StringUtils::Split("@AUDIO_BACKENDS@", ' ');
+  return KODI::StringUtils::Split("@AUDIO_BACKENDS@", ' ');
 }
 
 std::vector<std::string> CCompileInfo::GetAvailableGlInterfaces()
 {
-  return StringUtils::Split("@GL_INTERFACES@", ' ');
+  return KODI::StringUtils::Split("@GL_INTERFACES@", ' ');
 }
 
 // Return version of python built against as format MAJOR.MINOR
@@ -124,5 +124,5 @@ std::string CCompileInfo::GetPythonVersion()
 
 std::vector<std::string> CCompileInfo::GetWebserverExtraWhitelist()
 {
-  return StringUtils::Split("@KODI_WEBSERVER_EXTRA_WHITELIST@", ',');
+  return KODI::StringUtils::Split("@KODI_WEBSERVER_EXTRA_WHITELIST@", ',');
 }

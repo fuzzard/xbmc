@@ -119,7 +119,7 @@ bool CGUIIncludes::Load_Internal(const std::string &file)
   }
 
   TiXmlElement *root = doc.RootElement();
-  if (!root || !StringUtils::EqualsNoCase(root->Value(), "includes"))
+  if (!root || !KODI::StringUtils::EqualsNoCase(root->Value(), "includes"))
   {
     CLog::Log(LOGERROR, "Error loading include file {}: Root element <includes> required.", file);
     return false;
@@ -672,14 +672,14 @@ CGUIIncludes::ResolveParamsResult CGUIIncludes::ResolveParameters(const std::str
 
 std::string CGUIIncludes::ResolveConstant(const std::string &constant) const
 {
-  std::vector<std::string> values = StringUtils::Split(constant, ",");
+  std::vector<std::string> values = KODI::StringUtils::Split(constant, ",");
   for (auto& i : values)
   {
     std::map<std::string, std::string>::const_iterator it = m_constants.find(i);
     if (it != m_constants.end())
       i = it->second;
   }
-  return StringUtils::Join(values, ",");
+  return KODI::StringUtils::Join(values, ",");
 }
 
 std::string CGUIIncludes::ResolveExpressions(const std::string &expression) const

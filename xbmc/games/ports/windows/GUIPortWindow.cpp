@@ -130,7 +130,7 @@ void CGUIPortWindow::OnInitWindow()
   // Set the heading
   // "Port Setup - {game client name}"
   SET_CONTROL_LABEL(CONTROL_PORT_DIALOG_LABEL,
-                    StringUtils::Format("$LOCALIZE[35111] - {}", m_gameClient->Name()));
+                    KODI::StringUtils::Format("$LOCALIZE[35111] - {}", m_gameClient->Name()));
 
   m_portList->Initialize(m_gameClient);
 

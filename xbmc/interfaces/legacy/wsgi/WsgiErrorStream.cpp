@@ -46,7 +46,7 @@ namespace XBMCAddon
       if (seq.empty())
         return;
 
-      String msg = StringUtils::Join(seq, "");
+      String msg = KODI::StringUtils::Join(seq, "");
       write(msg);
     }
 

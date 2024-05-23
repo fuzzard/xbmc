@@ -54,11 +54,11 @@ CDVDSubtitleParser* CDVDFactorySubtitle::CreateParser(std::string& strFile)
       {
         return new CDVDSubtitleParserVplayer(std::move(pStream), strFile);
       }
-      else if (!StringUtils::CompareNoCase(line, "!: This is a Sub Station Alpha v", 32) ||
-               !StringUtils::CompareNoCase(line, "ScriptType: v4.00", 17) ||
-               !StringUtils::CompareNoCase(line, "Dialogue: Marked", 16) ||
-               !StringUtils::CompareNoCase(line, "Dialogue: ", 10) ||
-               !StringUtils::CompareNoCase(line, "[Events]", 8))
+      else if (!KODI::StringUtils::CompareNoCase(line, "!: This is a Sub Station Alpha v", 32) ||
+               !KODI::StringUtils::CompareNoCase(line, "ScriptType: v4.00", 17) ||
+               !KODI::StringUtils::CompareNoCase(line, "Dialogue: Marked", 16) ||
+               !KODI::StringUtils::CompareNoCase(line, "Dialogue: ", 10) ||
+               !KODI::StringUtils::CompareNoCase(line, "[Events]", 8))
       {
         return new CDVDSubtitleParserSSA(std::move(pStream), strFile);
       }
@@ -66,7 +66,7 @@ CDVDSubtitleParser* CDVDFactorySubtitle::CreateParser(std::string& strFile)
       {
         return new CDVDSubtitleParserSami(std::move(pStream), strFile);
       }
-      else if (!StringUtils::CompareNoCase(line, "WEBVTT", 6))
+      else if (!KODI::StringUtils::CompareNoCase(line, "WEBVTT", 6))
       {
         return new CSubtitleParserWebVTT(std::move(pStream), strFile);
       }

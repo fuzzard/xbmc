@@ -76,7 +76,7 @@ CRepository::ResolveResult CRepository::ResolvePathAndHash(const AddonPtr& addon
   // (saves one request per addon install)
   std::string location = file.GetRedirectURL();
   // content-* headers are base64, convert to base16
-  TypedDigest hash{dirIt->hashType, StringUtils::ToHexadecimal(Base64::Decode(file.GetHttpHeader().GetValue(std::string("content-") + hashTypeStr)))};
+  TypedDigest hash{dirIt->hashType, KODI::StringUtils::ToHexadecimal(Base64::Decode(file.GetHttpHeader().GetValue(std::string("content-") + hashTypeStr)))};
 
   if (hash.Empty())
   {
@@ -214,7 +214,7 @@ bool CRepository::FetchIndex(const RepositoryDirInfo& repo,
   if (repo.checksumType != CDigest::Type::INVALID)
   {
     std::string actualDigest = CDigest::Calculate(repo.checksumType, response);
-    if (!StringUtils::EqualsNoCase(digest, actualDigest))
+    if (!KODI::StringUtils::EqualsNoCase(digest, actualDigest))
     {
       CLog::Log(LOGERROR, "CRepository: {} index has wrong digest {}, expected: {}", repo.info, actualDigest, digest);
       return false;
@@ -304,7 +304,7 @@ RepositoryDirInfo CRepository::ParseDirConfiguration(const CAddonExtensions& con
   }
 
   std::string hashStr = configuration.GetValue("hashes").asString();
-  StringUtils::ToLower(hashStr);
+  KODI::StringUtils::ToLower(hashStr);
   if (hashStr == "true")
   {
     // Deprecated alias

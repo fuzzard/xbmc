@@ -1187,7 +1187,7 @@ int CDVDVideoCodecFFmpeg::FilterOpen(const std::string& filters, bool scale)
   const AVFilter* srcFilter = avfilter_get_by_name("buffer");
   const AVFilter* outFilter = avfilter_get_by_name("buffersink"); // should be last filter in the graph for now
 
-  std::string args = StringUtils::Format(
+  std::string args = KODI::StringUtils::Format(
       "video_size={}x{}:pix_fmt={}:time_base={}/{}:pixel_aspect={}/{}", m_pCodecContext->width,
       m_pCodecContext->height, m_pCodecContext->pix_fmt,
       m_pCodecContext->time_base.num ? m_pCodecContext->time_base.num : 1,

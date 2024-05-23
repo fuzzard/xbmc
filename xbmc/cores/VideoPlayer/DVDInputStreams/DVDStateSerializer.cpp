@@ -56,14 +56,14 @@ bool CDVDStateSerializer::XMLToDVDState(DVDState& state, const std::string& xmls
     return false;
 
   tinyxml2::XMLHandle hRoot(xmlDoc.RootElement());
-  if (!hRoot.ToElement() || !StringUtils::EqualsNoCase(hRoot.ToElement()->Value(), "navstate"))
+  if (!hRoot.ToElement() || !KODI::StringUtils::EqualsNoCase(hRoot.ToElement()->Value(), "navstate"))
   {
     CLog::LogF(LOGERROR, "Failed to deserialize dvd state - failed to detect root element.");
     return false;
   }
 
   auto version = hRoot.ToElement()->Attribute("version");
-  if (!version || !StringUtils::EqualsNoCase(version, std::to_string(DVDSTATESERIALIZER_VERSION)))
+  if (!version || !KODI::StringUtils::EqualsNoCase(version, std::to_string(DVDSTATESERIALIZER_VERSION)))
   {
     CLog::LogF(LOGERROR, "Failed to deserialize dvd state - incompatible serializer version.");
     return false;
@@ -108,7 +108,7 @@ bool CDVDStateSerializer::XMLToDVDState(DVDState& state, const std::string& xmls
     }
     else if (property == "sub_enabled")
     {
-      state.sub_enabled = StringUtils::EqualsNoCase(childElement->GetText(), "true");
+      state.sub_enabled = KODI::StringUtils::EqualsNoCase(childElement->GetText(), "true");
     }
     else
     {

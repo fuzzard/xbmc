@@ -440,10 +440,10 @@ void CGUIWindowFileManager::UpdateItemCounts()
     std::string items;
     if (selectedCount > 0)
       items =
-          StringUtils::Format("{}/{} {} ({})", selectedCount, totalCount,
-                              g_localizeStrings.Get(127), StringUtils::SizeToString(selectedSize));
+          KODI::StringUtils::Format("{}/{} {} ({})", selectedCount, totalCount,
+                              g_localizeStrings.Get(127), KODI::StringUtils::SizeToString(selectedSize));
     else
-      items = StringUtils::Format("{} {}", totalCount, g_localizeStrings.Get(127));
+      items = KODI::StringUtils::Format("{} {}", totalCount, g_localizeStrings.Get(127));
     SET_CONTROL_LABEL(CONTROL_NUMFILES_LEFT + i, items);
   }
 }
@@ -1139,7 +1139,7 @@ void CGUIWindowFileManager::OnPopupMenu(int list, int item, bool bContextDriven 
         {
           pItem2->m_dwSize = folderSize;
           if (folderSize == 0)
-            pItem2->SetLabel2(StringUtils::SizeToString(folderSize));
+            pItem2->SetLabel2(KODI::StringUtils::SizeToString(folderSize));
           else
             pItem2->SetFileSizeLabel();
         }
@@ -1290,7 +1290,7 @@ void CGUIWindowFileManager::SetInitialPath(const std::string &path)
   if (!strDestination.empty())
   {
     // open root
-    if (StringUtils::EqualsNoCase(strDestination, "$ROOT"))
+    if (KODI::StringUtils::EqualsNoCase(strDestination, "$ROOT"))
     {
       m_Directory[0]->SetPath("");
       CLog::Log(LOGINFO, "  Success! Opening root listing.");

@@ -61,7 +61,7 @@ bool CPlayListPLS::Load(const std::string &strFile)
   Clear();
 
   bool bShoutCast = false;
-  if( StringUtils::StartsWithNoCase(strFileName, "shout://") )
+  if( KODI::StringUtils::StartsWithNoCase(strFileName, "shout://") )
   {
     strFileName.replace(0, 8, "http://");
     m_strBasePath = "";
@@ -97,8 +97,8 @@ bool CPlayListPLS::Load(const std::string &strFile)
       return size() > 0;
     }
     strLine = szLine;
-    StringUtils::Trim(strLine);
-    if(StringUtils::EqualsNoCase(strLine, START_PLAYLIST_MARKER))
+    KODI::StringUtils::Trim(strLine);
+    if(KODI::StringUtils::EqualsNoCase(strLine, START_PLAYLIST_MARKER))
       break;
 
     // if there is something else before playlist marker, this isn't a pls file
@@ -110,21 +110,21 @@ bool CPlayListPLS::Load(const std::string &strFile)
   while (file.ReadString(szLine, sizeof(szLine) ) )
   {
     strLine = szLine;
-    StringUtils::RemoveCRLF(strLine);
+    KODI::StringUtils::RemoveCRLF(strLine);
     size_t iPosEqual = strLine.find('=');
     if (iPosEqual != std::string::npos)
     {
       std::string strLeft = strLine.substr(0, iPosEqual);
       iPosEqual++;
       std::string strValue = strLine.substr(iPosEqual);
-      StringUtils::ToLower(strLeft);
-      StringUtils::TrimLeft(strLeft);
+      KODI::StringUtils::ToLower(strLeft);
+      KODI::StringUtils::TrimLeft(strLeft);
 
       if (strLeft == "numberofentries")
       {
         m_vecItems.reserve(atoi(strValue.c_str()));
       }
-      else if (StringUtils::StartsWith(strLeft, "file"))
+      else if (KODI::StringUtils::StartsWith(strLeft, "file"))
       {
         std::vector <int>::size_type idx = atoi(strLeft.c_str() + 4);
         if (!Resize(idx))
@@ -134,7 +134,7 @@ bool CPlayListPLS::Load(const std::string &strFile)
         }
 
         // Skip self - do not load playlist recursively
-        if (StringUtils::EqualsNoCase(URIUtils::GetFileName(strValue),
+        if (KODI::StringUtils::EqualsNoCase(URIUtils::GetFileName(strValue),
                                       URIUtils::GetFileName(strFileName)))
           continue;
 
@@ -149,7 +149,7 @@ bool CPlayListPLS::Load(const std::string &strFile)
         g_charsetConverter.unknownToUTF8(strValue);
         m_vecItems[idx - 1]->SetPath(strValue);
       }
-      else if (StringUtils::StartsWith(strLeft, "title"))
+      else if (KODI::StringUtils::StartsWith(strLeft, "title"))
       {
         std::vector <int>::size_type idx = atoi(strLeft.c_str() + 5);
         if (!Resize(idx))
@@ -160,7 +160,7 @@ bool CPlayListPLS::Load(const std::string &strFile)
         g_charsetConverter.unknownToUTF8(strValue);
         m_vecItems[idx - 1]->SetLabel(strValue);
       }
-      else if (StringUtils::StartsWith(strLeft, "length"))
+      else if (KODI::StringUtils::StartsWith(strLeft, "length"))
       {
         std::vector <int>::size_type idx = atoi(strLeft.c_str() + 6);
         if (!Resize(idx))
@@ -216,10 +216,10 @@ void CPlayListPLS::Save(const std::string& strFileName) const
     return;
   }
   std::string write;
-  write += StringUtils::Format("{}\n", START_PLAYLIST_MARKER);
+  write += KODI::StringUtils::Format("{}\n", START_PLAYLIST_MARKER);
   std::string strPlayListName=m_strPlayListName;
   g_charsetConverter.utf8ToStringCharset(strPlayListName);
-  write += StringUtils::Format("PlaylistName={}\n", strPlayListName);
+  write += KODI::StringUtils::Format("PlaylistName={}\n", strPlayListName);
 
   for (int i = 0; i < (int)m_vecItems.size(); ++i)
   {
@@ -228,14 +228,14 @@ void CPlayListPLS::Save(const std::string& strFileName) const
     g_charsetConverter.utf8ToStringCharset(strFileName);
     std::string strDescription=item->GetLabel();
     g_charsetConverter.utf8ToStringCharset(strDescription);
-    write += StringUtils::Format("File{}={}\n", i + 1, strFileName);
-    write += StringUtils::Format("Title{}={}\n", i + 1, strDescription.c_str());
+    write += KODI::StringUtils::Format("File{}={}\n", i + 1, strFileName);
+    write += KODI::StringUtils::Format("Title{}={}\n", i + 1, strDescription.c_str());
     write +=
-        StringUtils::Format("Length{}={}\n", i + 1, item->GetMusicInfoTag()->GetDuration() / 1000);
+        KODI::StringUtils::Format("Length{}={}\n", i + 1, item->GetMusicInfoTag()->GetDuration() / 1000);
   }
 
-  write += StringUtils::Format("NumberOfEntries={0}\n", m_vecItems.size());
-  write += StringUtils::Format("Version=2\n");
+  write += KODI::StringUtils::Format("NumberOfEntries={0}\n", m_vecItems.size());
+  write += KODI::StringUtils::Format("Version=2\n");
   file.Write(write.c_str(), write.size());
   file.Close();
 }
@@ -315,7 +315,7 @@ bool CPlayListASX::LoadData(std::istream& stream)
     TiXmlNode *pChild = NULL;
     std::string value;
     value = pNode->Value();
-    StringUtils::ToLower(value);
+    KODI::StringUtils::ToLower(value);
     pNode->SetValue(value);
     while(pNode)
     {
@@ -325,14 +325,14 @@ bool CPlayListASX::LoadData(std::istream& stream)
         if (pChild->Type() == TiXmlNode::TINYXML_ELEMENT)
         {
           value = pChild->Value();
-          StringUtils::ToLower(value);
+          KODI::StringUtils::ToLower(value);
           pChild->SetValue(value);
 
           TiXmlAttribute* pAttr = pChild->ToElement()->FirstAttribute();
           while(pAttr)
           {
             value = pAttr->Name();
-            StringUtils::ToLower(value);
+            KODI::StringUtils::ToLower(value);
             pAttr->SetName(value);
             pAttr = pAttr->Next();
           }

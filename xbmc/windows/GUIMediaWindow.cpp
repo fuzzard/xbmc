@@ -144,7 +144,7 @@ bool CGUIMediaWindow::Load(TiXmlElement *pRootElement)
   if (element && element->FirstChild())
   { // format is <views>50,29,51,95</views>
     const std::string &allViews = element->FirstChild()->ValueStr();
-    std::vector<std::string> views = StringUtils::Split(allViews, ",");
+    std::vector<std::string> views = KODI::StringUtils::Split(allViews, ",");
     for (std::vector<std::string>::const_iterator i = views.begin(); i != views.end(); ++i)
     {
       int controlID = atol(i->c_str());
@@ -524,8 +524,8 @@ bool CGUIMediaWindow::OnMessage(CGUIMessage& message)
       std::string dir = message.GetStringParam(0);
       const std::string& ret = message.GetStringParam(1);
       const std::string& swap = message.GetStringParam(message.GetNumStringParams() - 1);
-      const bool returning = StringUtils::EqualsNoCase(ret, "return");
-      const bool replacing = StringUtils::EqualsNoCase(swap, "replace");
+      const bool returning = KODI::StringUtils::EqualsNoCase(ret, "return");
+      const bool replacing = KODI::StringUtils::EqualsNoCase(swap, "replace");
 
       if (!dir.empty())
       {
@@ -614,13 +614,13 @@ void CGUIMediaWindow::UpdateButtons()
     else
       CONTROL_ENABLE(CONTROL_BTNSORTBY);
 
-    std::string sortLabel = StringUtils::Format(
+    std::string sortLabel = KODI::StringUtils::Format(
         g_localizeStrings.Get(550), g_localizeStrings.Get(m_guiState->GetSortMethodLabel()));
     SET_CONTROL_LABEL(CONTROL_BTNSORTBY, sortLabel);
   }
 
   std::string items =
-      StringUtils::Format("{} {}", m_vecItems->GetObjectCount(), g_localizeStrings.Get(127));
+      KODI::StringUtils::Format("{} {}", m_vecItems->GetObjectCount(), g_localizeStrings.Get(127));
   SET_CONTROL_LABEL(CONTROL_LABELFILES, items);
 
   SET_CONTROL_LABEL2(CONTROL_BTN_FILTER, GetProperty("filter").asString());
@@ -1145,7 +1145,7 @@ bool CGUIMediaWindow::OnClick(int iItem, const std::string &player)
       CServiceBroker::GetGUI()->GetWindowManager().ActivateWindow(WINDOW_MUSIC_PLAYLIST_EDITOR,"newplaylist://");
       return true;
     }
-    else if (StringUtils::StartsWithNoCase(pItem->GetPath(), "newsmartplaylist://"))
+    else if (KODI::StringUtils::StartsWithNoCase(pItem->GetPath(), "newsmartplaylist://"))
     {
       m_vecItems->RemoveDiscCache(GetID());
       if (CGUIDialogSmartPlaylistEditor::NewPlaylist(pItem->GetPath().substr(19)))
@@ -1263,7 +1263,7 @@ bool CGUIMediaWindow::GoParentFolder()
   // Keep going until there's nothing left or they dont match anymore.
   while (!parentPath.empty() &&
          (URIUtils::PathEquals(parentPath, currentPath, true) ||
-          StringUtils::EndsWith(parentPath, ".xml/") || StringUtils::EndsWith(parentPath, ".xml")))
+          KODI::StringUtils::EndsWith(parentPath, ".xml/") || KODI::StringUtils::EndsWith(parentPath, ".xml")))
   {
     m_history.RemoveParentPath();
     parentPath = m_history.GetParentPath();
@@ -1394,7 +1394,7 @@ void CGUIMediaWindow::GetDirectoryHistoryString(const CFileItem* pItem, std::str
   {
     // Could be a cue item, all items of a cue share the same filename
     // so add the offsets to build the history string
-    strHistoryString = StringUtils::Format("{}{}", pItem->GetStartOffset(), pItem->GetEndOffset());
+    strHistoryString = KODI::StringUtils::Format("{}{}", pItem->GetStartOffset(), pItem->GetEndOffset());
     strHistoryString += pItem->GetPath();
   }
   else
@@ -1408,7 +1408,7 @@ void CGUIMediaWindow::GetDirectoryHistoryString(const CFileItem* pItem, std::str
     strHistoryString = RemoveParameterFromPath(strHistoryString, "filter");
 
   URIUtils::RemoveSlashAtEnd(strHistoryString);
-  StringUtils::ToLower(strHistoryString);
+  KODI::StringUtils::ToLower(strHistoryString);
 }
 
 /*!
@@ -1749,11 +1749,11 @@ bool CGUIMediaWindow::OnPopupMenu(int itemIdx)
   //Add items from plugin
   {
     int i = 0;
-    while (item->HasProperty(StringUtils::Format("contextmenulabel({})", i)))
+    while (item->HasProperty(KODI::StringUtils::Format("contextmenulabel({})", i)))
     {
       buttons.emplace_back(
           ~buttons.size(),
-          item->GetProperty(StringUtils::Format("contextmenulabel({})", i)).asString());
+          item->GetProperty(KODI::StringUtils::Format("contextmenulabel({})", i)).asString());
       ++i;
     }
   }
@@ -1789,7 +1789,7 @@ bool CGUIMediaWindow::OnPopupMenu(int itemIdx)
     m_backgroundLoad = false;
     CServiceBroker::GetAppMessenger()->SendMsg(
         TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr,
-        item->GetProperty(StringUtils::Format("contextmenuaction({})", idx - pluginMenuRange.first))
+        item->GetProperty(KODI::StringUtils::Format("contextmenuaction({})", idx - pluginMenuRange.first))
             .asString());
     m_backgroundLoad = saveVal;
     return true;
@@ -1996,14 +1996,14 @@ bool CGUIMediaWindow::GetFilteredItems(const std::string &filter, CFileItemList 
     result = GetAdvanceFilteredItems(items);
 
   std::string trimmedFilter(filter);
-  StringUtils::TrimLeft(trimmedFilter);
-  StringUtils::ToLower(trimmedFilter);
+  KODI::StringUtils::TrimLeft(trimmedFilter);
+  KODI::StringUtils::ToLower(trimmedFilter);
 
   if (trimmedFilter.empty())
     return result;
 
   CFileItemList filteredItems(items.GetPath()); // use the original path - it'll likely be relied on for other things later.
-  bool numericMatch = StringUtils::IsNaturalNumber(trimmedFilter);
+  bool numericMatch = KODI::StringUtils::IsNaturalNumber(trimmedFilter);
   for (int i = 0; i < items.Size(); i++)
   {
     CFileItemPtr item = items.Get(i);
@@ -2026,9 +2026,9 @@ bool CGUIMediaWindow::GetFilteredItems(const std::string &filter, CFileItemList 
     match = item->GetLabel(); // Filter label only for now
 
     if (numericMatch)
-      StringUtils::WordToDigits(match);
+      KODI::StringUtils::WordToDigits(match);
 
-    size_t pos = StringUtils::FindWords(match.c_str(), trimmedFilter.c_str());
+    size_t pos = KODI::StringUtils::FindWords(match.c_str(), trimmedFilter.c_str());
     if (pos != std::string::npos)
       filteredItems.Add(item);
   }
@@ -2056,7 +2056,7 @@ bool CGUIMediaWindow::GetAdvanceFilteredItems(CFileItemList &items)
   for (int j = 0; j < resultItems.Size(); j++)
   {
     std::string itemPath = CURL(resultItems[j]->GetPath()).GetWithoutOptions();
-    StringUtils::ToLower(itemPath);
+    KODI::StringUtils::ToLower(itemPath);
 
     lookup[itemPath] = resultItems[j];
   }
@@ -2077,7 +2077,7 @@ bool CGUIMediaWindow::GetAdvanceFilteredItems(CFileItemList &items)
     // by comparing their paths (but ignoring any special
     // options because they differ from filter to filter)
     std::string path = CURL(item->GetPath()).GetWithoutOptions();
-    StringUtils::ToLower(path);
+    KODI::StringUtils::ToLower(path);
 
     std::map<std::string, CFileItemPtr>::iterator itItem = lookup.find(path);
     if (itItem != lookup.end())
@@ -2150,12 +2150,12 @@ bool CGUIMediaWindow::Filter(bool advanced /* = true */)
 
 std::string CGUIMediaWindow::GetStartFolder(const std::string &dir)
 {
-  if (StringUtils::EqualsNoCase(dir, "$root") ||
-      StringUtils::EqualsNoCase(dir, "root"))
+  if (KODI::StringUtils::EqualsNoCase(dir, "$root") ||
+      KODI::StringUtils::EqualsNoCase(dir, "root"))
     return "";
 
   // Let plugins handle their own urls themselves
-  if (StringUtils::StartsWith(dir, "plugin://"))
+  if (KODI::StringUtils::StartsWith(dir, "plugin://"))
     return dir;
 
 //! @todo This ifdef block probably belongs somewhere else. Move it to a better place!
@@ -2165,7 +2165,7 @@ std::string CGUIMediaWindow::GetStartFolder(const std::string &dir)
   std::string fileName;
   URIUtils::Split(dir, path, fileName);
   URIUtils::RemoveExtension(fileName);
-  if (StringUtils::IsInteger(fileName))
+  if (KODI::StringUtils::IsInteger(fileName))
     return path;
 #endif
 

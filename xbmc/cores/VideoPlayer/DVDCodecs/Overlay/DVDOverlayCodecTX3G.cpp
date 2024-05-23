@@ -63,7 +63,7 @@ void ConvertStyleToTags(std::string& strUTF8, const StyleRecord& style, bool clo
     else
     {
       UTILS::COLOR::Color color = UTILS::COLOR::ConvertToBGR(style.textColorARGB);
-      strUTF8 += StringUtils::Format("{{\\c&H{:06x}&}}", color);
+      strUTF8 += KODI::StringUtils::Format("{{\\c&H{:06x}&}}", color);
     }
   }
   if (style.textColorAlphaCh != 255)
@@ -72,7 +72,7 @@ void ConvertStyleToTags(std::string& strUTF8, const StyleRecord& style, bool clo
     unsigned int alpha = 0;
     if (!closingTags)
       alpha = 255 - style.textColorAlphaCh;
-    strUTF8 += StringUtils::Format("{{\\1a&H{:02x}&}}", alpha);
+    strUTF8 += KODI::StringUtils::Format("{{\\1a&H{:02x}&}}", alpha);
   }
 }
 } // unnamed namespace

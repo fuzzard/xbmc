@@ -506,7 +506,7 @@ std::string COutputShader::GetDebugInfo()
         method = "Hable";
         break;
     }
-    tone = StringUtils::Format("ON ({}, {:.2f}, {:.2f}{})", method, m_toneMappingParam,
+    tone = KODI::StringUtils::Format("ON ({}, {:.2f}, {:.2f}{})", method, m_toneMappingParam,
                                m_toneMappingDebug, (m_toneMappingMethod == 1) ? "" : " nits");
   }
 
@@ -514,12 +514,12 @@ std::string COutputShader::GetDebugInfo()
     hlg = "ON (peak 1000 nits)";
 
   if (m_useLut)
-    lut = StringUtils::Format("ON (size {})", m_lutSize);
+    lut = KODI::StringUtils::Format("ON (size {})", m_lutSize);
 
   if (m_useDithering)
-    dither = StringUtils::Format("ON (depth {})", m_ditherDepth);
+    dither = KODI::StringUtils::Format("ON (depth {})", m_ditherDepth);
 
-  return StringUtils::Format("Tone mapping: {} | HLG to PQ: {} | 3D LUT: {} | Dithering: {}", tone,
+  return KODI::StringUtils::Format("Tone mapping: {} | HLG to PQ: {} | 3D LUT: {} | Dithering: {}", tone,
                              hlg, lut, dither);
 }
 

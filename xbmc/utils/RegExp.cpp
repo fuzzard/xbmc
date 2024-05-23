@@ -153,7 +153,7 @@ inline int CRegExp::readCharXCode(const std::string& regexp, size_t& pos)
   int chCode = 0;
   while (++pos < closingBracketPos)
   {
-    const int xdigitVal = StringUtils::asciixdigitvalue(regexpC[pos]);
+    const int xdigitVal = KODI::StringUtils::asciixdigitvalue(regexpC[pos]);
     if (xdigitVal >= 0)
       chCode = chCode * 16 + xdigitVal;
     else
@@ -545,7 +545,7 @@ void CRegExp::DumpOvector(int iLog /* = LOGDEBUG */)
   int size = GetSubCount(); // past the subpatterns is junk
   for (int i = 0; i <= size; i++)
   {
-    std::string t = StringUtils::Format("[{},{}]", m_iOvector[(i * 2)], m_iOvector[(i * 2) + 1]);
+    std::string t = KODI::StringUtils::Format("[{},{}]", m_iOvector[(i * 2)], m_iOvector[(i * 2) + 1]);
     if (i != size)
       t += ",";
     str += t;

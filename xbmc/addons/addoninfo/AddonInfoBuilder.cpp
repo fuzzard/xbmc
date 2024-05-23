@@ -275,7 +275,7 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
    * - std::string origin;
    */
 
-  if (!StringUtils::EqualsNoCase(element->Value(), "addon"))
+  if (!KODI::StringUtils::EqualsNoCase(element->Value(), "addon"))
   {
     CLog::Log(LOGERROR, "CAddonInfoBuilder::{}: file from '{}' doesn't contain <addon>", __FUNCTION__, addonPath);
     return false;
@@ -294,11 +294,11 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
    *        version="???"
    *        provider-name="???">
    */
-  addon->m_id = StringUtils::CreateFromCString(element->Attribute("id"));
-  addon->m_name = StringUtils::CreateFromCString(element->Attribute("name"));
-  addon->m_author = StringUtils::CreateFromCString(element->Attribute("provider-name"));
+  addon->m_id = KODI::StringUtils::CreateFromCString(element->Attribute("id"));
+  addon->m_name = KODI::StringUtils::CreateFromCString(element->Attribute("name"));
+  addon->m_author = KODI::StringUtils::CreateFromCString(element->Attribute("provider-name"));
 
-  const std::string version = StringUtils::CreateFromCString(element->Attribute("version"));
+  const std::string version = KODI::StringUtils::CreateFromCString(element->Attribute("version"));
   addon->m_version = CAddonVersion(version);
 
   if (addon->m_id.empty() || addon->m_version.empty())
@@ -327,7 +327,7 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
   const TiXmlElement* backwards = element->FirstChildElement("backwards-compatibility");
   if (backwards)
   {
-    const std::string minVersion = StringUtils::CreateFromCString(backwards->Attribute("abi"));
+    const std::string minVersion = KODI::StringUtils::CreateFromCString(backwards->Attribute("abi"));
     addon->m_minversion = CAddonVersion(minVersion);
   }
 
@@ -346,8 +346,8 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
       if (child->Attribute("addon"))
       {
         const std::string minVersion =
-            StringUtils::CreateFromCString(child->Attribute("minversion"));
-        const std::string version = StringUtils::CreateFromCString(child->Attribute("version"));
+            KODI::StringUtils::CreateFromCString(child->Attribute("minversion"));
+        const std::string version = KODI::StringUtils::CreateFromCString(child->Attribute("version"));
 
         bool optional = false;
         child->QueryBoolAttribute("optional", &optional);
@@ -368,10 +368,10 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
   else
   {
     assetBasePath = URIUtils::AddFileToFolder(repo.artdir, addon->m_id);
-    addon->m_path = URIUtils::AddFileToFolder(repo.datadir, addon->m_id, StringUtils::Format("{}-{}.zip", addon->m_id, addon->m_version.asString()));
+    addon->m_path = URIUtils::AddFileToFolder(repo.datadir, addon->m_id, KODI::StringUtils::Format("{}-{}.zip", addon->m_id, addon->m_version.asString()));
   }
 
-  addon->m_profilePath = StringUtils::Format("special://profile/addon_data/{}/", addon->m_id);
+  addon->m_profilePath = KODI::StringUtils::Format("special://profile/addon_data/{}/", addon->m_id);
 
   /*
    * Parse addon.xml:
@@ -381,7 +381,7 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
    */
   for (const TiXmlElement* child = element->FirstChildElement("extension"); child != nullptr; child = child->NextSiblingElement("extension"))
   {
-    const std::string point = StringUtils::CreateFromCString(child->Attribute("point"));
+    const std::string point = KODI::StringUtils::CreateFromCString(child->Attribute("point"));
 
     if (point == "kodi.addon.metadata" || point == "xbmc.addon.metadata")
     {
@@ -459,7 +459,7 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
       element = child->FirstChildElement("platform");
       if (element && element->GetText() != nullptr)
       {
-        auto platforms = StringUtils::Split(element->GetText(),
+        auto platforms = KODI::StringUtils::Split(element->GetText(),
                                             {" ", "\t", "\n", "\r"});
         platforms.erase(std::remove_if(platforms.begin(), platforms.end(),
                         [](const std::string& platform) { return platform.empty(); }),
@@ -533,7 +533,7 @@ bool CAddonInfoBuilder::ParseXML(const AddonInfoPtr& addon,
       /* Parse addon.xml "<size">...</size>" */
       element = child->FirstChildElement("size");
       if (element && element->GetText() != nullptr)
-        addon->m_packageSize = StringUtils::ToUint64(element->GetText(), 0);
+        addon->m_packageSize = KODI::StringUtils::ToUint64(element->GetText(), 0);
 
       /* Parse addon.xml "<news lang="..">...</news>"
        *
@@ -669,7 +669,7 @@ bool CAddonInfoBuilder::ParseXMLTypes(CAddonType& addonType,
 
 bool CAddonInfoBuilder::ParseXMLExtension(CAddonExtensions& addonExt, const TiXmlElement* element)
 {
-  addonExt.m_point = StringUtils::CreateFromCString(element->Attribute("point"));
+  addonExt.m_point = KODI::StringUtils::CreateFromCString(element->Attribute("point"));
 
   EXT_VALUE extension;
   const TiXmlAttribute* attribute = element->FirstAttribute();
@@ -678,7 +678,7 @@ bool CAddonInfoBuilder::ParseXMLExtension(CAddonExtensions& addonExt, const TiXm
     std::string name = attribute->Name();
     if (name != "point")
     {
-      const std::string value = StringUtils::CreateFromCString(attribute->Value());
+      const std::string value = KODI::StringUtils::CreateFromCString(attribute->Value());
       if (!value.empty())
       {
         name = "@" + name;
@@ -693,7 +693,7 @@ bool CAddonInfoBuilder::ParseXMLExtension(CAddonExtensions& addonExt, const TiXm
   const TiXmlElement* childElement = element->FirstChildElement();
   while (childElement)
   {
-    const std::string id = StringUtils::CreateFromCString(childElement->Value());
+    const std::string id = KODI::StringUtils::CreateFromCString(childElement->Value());
     if (!id.empty())
     {
       EXT_VALUE extension;
@@ -703,7 +703,7 @@ bool CAddonInfoBuilder::ParseXMLExtension(CAddonExtensions& addonExt, const TiXm
         std::string name = attribute->Name();
         if (name != "point")
         {
-          const std::string value = StringUtils::CreateFromCString(attribute->Value());
+          const std::string value = KODI::StringUtils::CreateFromCString(attribute->Value());
           if (!value.empty())
           {
             name = id + "@" + name;
@@ -713,7 +713,7 @@ bool CAddonInfoBuilder::ParseXMLExtension(CAddonExtensions& addonExt, const TiXm
         attribute = attribute->Next();
       }
 
-      const std::string childElementText = StringUtils::CreateFromCString(childElement->GetText());
+      const std::string childElementText = KODI::StringUtils::CreateFromCString(childElement->GetText());
 
       if (!childElementText.empty())
       {

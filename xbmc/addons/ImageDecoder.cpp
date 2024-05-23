@@ -138,13 +138,13 @@ bool CImageDecoder::LoadInfoTag(const std::string& fileName, CPictureInfoTag* ta
     if (tag->m_exifInfo.GpsInfoPresent)
     {
       tag->m_exifInfo.GpsLat =
-          StringUtils::Format("{}{:.0f}°{:.0f}'{:.2f}\"", ifcTag.latitude_ref, ifcTag.latitude[0],
+          KODI::StringUtils::Format("{}{:.0f}°{:.0f}'{:.2f}\"", ifcTag.latitude_ref, ifcTag.latitude[0],
                               ifcTag.latitude[1], ifcTag.latitude[2]);
       tag->m_exifInfo.GpsLong =
-          StringUtils::Format("{}{:.0f}°{:.0f}'{:.2f}\"", ifcTag.longitude_ref, ifcTag.longitude[0],
+          KODI::StringUtils::Format("{}{:.0f}°{:.0f}'{:.2f}\"", ifcTag.longitude_ref, ifcTag.longitude[0],
                               ifcTag.longitude[1], ifcTag.longitude[2]);
       tag->m_exifInfo.GpsAlt =
-          StringUtils::Format("{}{:.2f} m", ifcTag.altitude_ref ? '-' : '+', ifcTag.altitude);
+          KODI::StringUtils::Format("{}{:.2f} m", ifcTag.altitude_ref ? '-' : '+', ifcTag.altitude);
     }
 
     if (ifcTag.camera_manufacturer)

@@ -429,7 +429,7 @@ std::string CPVRClient::GetFullClientName() const
     std::string instanceName;
     Addon()->GetSettingString(ADDON_SETTING_INSTANCE_NAME_VALUE, instanceName, InstanceId());
     if (!instanceName.empty())
-      return StringUtils::Format("{} ({})", Name(), instanceName);
+      return KODI::StringUtils::Format("{} ({})", Name(), instanceName);
   }
   return Name();
 }
@@ -1860,7 +1860,7 @@ void CPVRClient::cb_recording_notification(void* kodiInstance,
       return;
     }
 
-    const std::string strLine1 = StringUtils::Format(g_localizeStrings.Get(bOnOff ? 19197 : 19198),
+    const std::string strLine1 = KODI::StringUtils::Format(g_localizeStrings.Get(bOnOff ? 19197 : 19198),
                                                      client->GetFullClientName());
     std::string strLine2;
     if (strName)
@@ -2014,7 +2014,7 @@ public:
       return retVal;
 
     std::string strUpperCodecName = strCodecName;
-    StringUtils::ToUpper(strUpperCodecName);
+    KODI::StringUtils::ToUpper(strUpperCodecName);
 
     std::map<std::string, PVR_CODEC>::const_iterator it = m_lookup.find(strUpperCodecName);
     if (it != m_lookup.end())
@@ -2038,7 +2038,7 @@ private:
         tmp.codec_id = codec->id;
 
         std::string strUpperCodecName = codec->name;
-        StringUtils::ToUpper(strUpperCodecName);
+        KODI::StringUtils::ToUpper(strUpperCodecName);
 
         m_lookup.insert(std::make_pair(strUpperCodecName, tmp));
       }

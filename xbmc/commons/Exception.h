@@ -60,7 +60,7 @@ namespace XbmcCommons
      */
     inline void Set(const char* fmt, va_list& argList)
     {
-      message = StringUtils::FormatV(fmt, argList);
+      message = KODI::StringUtils::FormatV(fmt, argList);
     }
 
     /**

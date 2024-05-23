@@ -175,7 +175,7 @@ bool CRetroPlayer::OpenFile(const CFileItem& file, const CPlayerOptions& options
           // overwrite the save
           bool dummy;
           if (!CGUIDialogYesNo::ShowAndGetInput(
-                  438, StringUtils::Format(g_localizeStrings.Get(35217), addon->Name()), dummy, 222,
+                  438, KODI::StringUtils::Format(g_localizeStrings.Get(35217), addon->Name()), dummy, 222,
                   35218, 0))
             bSuccess = false;
         }
@@ -687,7 +687,7 @@ void CRetroPlayer::PrintGameInfo(const CFileItem& file) const
     CLog::Log(LOGDEBUG, "RetroPlayer[PLAYER]: Title: {}", tag->GetTitle());
     CLog::Log(LOGDEBUG, "RetroPlayer[PLAYER]: Platform: {}", tag->GetPlatform());
     CLog::Log(LOGDEBUG, "RetroPlayer[PLAYER]: Genres: {}",
-              StringUtils::Join(tag->GetGenres(), ", "));
+              KODI::StringUtils::Join(tag->GetGenres(), ", "));
     CLog::Log(LOGDEBUG, "RetroPlayer[PLAYER]: Developer: {}", tag->GetDeveloper());
     if (tag->GetYear() > 0)
       CLog::Log(LOGDEBUG, "RetroPlayer[PLAYER]: Year: {}", tag->GetYear());

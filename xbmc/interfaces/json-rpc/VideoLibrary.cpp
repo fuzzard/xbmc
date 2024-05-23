@@ -212,7 +212,7 @@ JSONRPC_STATUS CVideoLibrary::GetSeasons(const std::string &method, ITransportLa
 
   int tvshowID = (int)parameterObject["tvshowid"].asInteger();
 
-  std::string strPath = StringUtils::Format("videodb://tvshows/titles/{}/", tvshowID);
+  std::string strPath = KODI::StringUtils::Format("videodb://tvshows/titles/{}/", tvshowID);
   CFileItemList items;
   if (!videodatabase.GetSeasonsNav(strPath, items, -1, -1, -1, -1, tvshowID, false))
     return InternalError;
@@ -253,7 +253,7 @@ JSONRPC_STATUS CVideoLibrary::GetEpisodes(const std::string &method, ITransportL
   int tvshowID = (int)parameterObject["tvshowid"].asInteger();
   int season   = (int)parameterObject["season"].asInteger();
 
-  std::string strPath = StringUtils::Format("videodb://tvshows/titles/{}/{}/", tvshowID, season);
+  std::string strPath = KODI::StringUtils::Format("videodb://tvshows/titles/{}/{}/", tvshowID, season);
 
   CVideoDbUrl videoUrl;
   if (!videoUrl.FromString(strPath))
@@ -315,7 +315,7 @@ JSONRPC_STATUS CVideoLibrary::GetEpisodeDetails(const std::string &method, ITran
     tvshowid = videodatabase.GetTvShowForEpisode(id);
 
   std::string basePath =
-      StringUtils::Format("videodb://tvshows/titles/{}/{}/{}", tvshowid, infos.m_iSeason, id);
+      KODI::StringUtils::Format("videodb://tvshows/titles/{}/{}/{}", tvshowid, infos.m_iSeason, id);
   pItem->SetPath(basePath);
 
   HandleFileItem("episodeid", true, "episodedetails", pItem, parameterObject, parameterObject["properties"], result, false);
@@ -441,7 +441,7 @@ JSONRPC_STATUS CVideoLibrary::GetInProgressTVShows(const std::string &method, IT
 JSONRPC_STATUS CVideoLibrary::GetGenres(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
   std::string media = parameterObject["type"].asString();
-  StringUtils::ToLower(media);
+  KODI::StringUtils::ToLower(media);
   VideoDbContentType idContent = VideoDbContentType::UNKNOWN;
 
   std::string strPath = "videodb://";
@@ -482,7 +482,7 @@ JSONRPC_STATUS CVideoLibrary::GetGenres(const std::string &method, ITransportLay
 JSONRPC_STATUS CVideoLibrary::GetTags(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
   std::string media = parameterObject["type"].asString();
-  StringUtils::ToLower(media);
+  KODI::StringUtils::ToLower(media);
   VideoDbContentType idContent = VideoDbContentType::UNKNOWN;
 
   std::string strPath = "videodb://";
@@ -578,7 +578,7 @@ JSONRPC_STATUS CVideoLibrary::GetAvailableArt(const std::string& method, ITransp
     return InternalError;
 
   std::string artType = parameterObject["arttype"].asString();
-  StringUtils::ToLower(artType);
+  KODI::StringUtils::ToLower(artType);
 
   CVideoDatabase videodatabase;
   if (!videodatabase.Open())
@@ -969,7 +969,7 @@ JSONRPC_STATUS CVideoLibrary::Scan(const std::string &method, ITransportLayer *t
 {
   std::string directory = parameterObject["directory"].asString();
   std::string cmd =
-      StringUtils::Format("updatelibrary(video, {}, {})", StringUtils::Paramify(directory),
+      KODI::StringUtils::Format("updatelibrary(video, {}, {})", KODI::StringUtils::Paramify(directory),
                           parameterObject["showdialogs"].asBoolean() ? "true" : "false");
 
   CServiceBroker::GetAppMessenger()->SendMsg(TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr, cmd);
@@ -980,8 +980,8 @@ JSONRPC_STATUS CVideoLibrary::Export(const std::string &method, ITransportLayer 
 {
   std::string cmd;
   if (parameterObject["options"].isMember("path"))
-    cmd = StringUtils::Format("exportlibrary2(video, singlefile, {})",
-                              StringUtils::Paramify(parameterObject["options"]["path"].asString()));
+    cmd = KODI::StringUtils::Format("exportlibrary2(video, singlefile, {})",
+                              KODI::StringUtils::Paramify(parameterObject["options"]["path"].asString()));
   else
   {
     cmd = "exportlibrary2(video, separate, dummy";
@@ -1006,13 +1006,13 @@ JSONRPC_STATUS CVideoLibrary::Clean(const std::string &method, ITransportLayer *
   std::string directory = parameterObject["directory"].asString();
   std::string cmd;
   if (parameterObject["content"].empty())
-    cmd = StringUtils::Format("cleanlibrary(video, {0}, {1})",
+    cmd = KODI::StringUtils::Format("cleanlibrary(video, {0}, {1})",
                               parameterObject["showdialogs"].asBoolean() ? "true" : "false",
-                              StringUtils::Paramify(directory));
+                              KODI::StringUtils::Paramify(directory));
   else
-    cmd = StringUtils::Format("cleanlibrary({0}, {1}, {2})", parameterObject["content"].asString(),
+    cmd = KODI::StringUtils::Format("cleanlibrary({0}, {1}, {2})", parameterObject["content"].asString(),
                               parameterObject["showdialogs"].asBoolean() ? "true" : "false",
-                              StringUtils::Paramify(directory));
+                              KODI::StringUtils::Paramify(directory));
 
   CServiceBroker::GetAppMessenger()->SendMsg(TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr, cmd);
   return ACK;
@@ -1244,7 +1244,7 @@ void CVideoLibrary::UpdateVideoTag(const CVariant &parameterObject, CVideoInfoTa
   }
   if (ParameterNotNull(parameterObject, "votes"))
   {
-    details.SetVotes(StringUtils::ReturnDigits(parameterObject["votes"].asString()));
+    details.SetVotes(KODI::StringUtils::ReturnDigits(parameterObject["votes"].asString()));
     updatedDetails.insert("ratings"); //Votes and ratings both need updates now, this will trigger those
   }
   if (ParameterNotNull(parameterObject, "ratings"))
@@ -1361,13 +1361,13 @@ void CVideoLibrary::UpdateVideoTag(const CVariant &parameterObject, CVideoInfoTa
   if (ParameterNotNull(parameterObject, "thumbnail"))
   {
     std::string value = parameterObject["thumbnail"].asString();
-    artwork["thumb"] = StringUtils::Trim(value);
+    artwork["thumb"] = KODI::StringUtils::Trim(value);
     updatedDetails.insert("art.altered");
   }
   if (ParameterNotNull(parameterObject, "fanart"))
   {
     std::string value = parameterObject["fanart"].asString();
-    artwork["fanart"] = StringUtils::Trim(value);
+    artwork["fanart"] = KODI::StringUtils::Trim(value);
     updatedDetails.insert("art.altered");
   }
 

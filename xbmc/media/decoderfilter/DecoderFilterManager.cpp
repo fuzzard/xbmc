@@ -132,7 +132,7 @@ bool CDecoderFilterManager::Load()
   }
 
   const auto* rootElement = xmlDoc.RootElement();
-  if (rootElement == nullptr || !StringUtils::EqualsNoCase(rootElement->Value(), TAG_ROOT))
+  if (rootElement == nullptr || !KODI::StringUtils::EqualsNoCase(rootElement->Value(), TAG_ROOT))
   {
     CLog::LogF(LOGERROR, "invalid root element ({})", rootElement ? rootElement->Value() : "");
     return false;

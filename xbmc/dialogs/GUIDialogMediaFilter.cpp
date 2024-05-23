@@ -370,7 +370,7 @@ void CGUIDialogMediaFilter::SetupView()
     localizedMediaId = 134;
 
   // set the heading
-  SET_CONTROL_LABEL(CONTROL_HEADING, StringUtils::Format(g_localizeStrings.Get(1275),
+  SET_CONTROL_LABEL(CONTROL_HEADING, KODI::StringUtils::Format(g_localizeStrings.Get(1275),
                                                          g_localizeStrings.Get(localizedMediaId)));
 
   SET_CONTROL_LABEL(CONTROL_OKAY_BUTTON, 186);
@@ -420,7 +420,7 @@ void CGUIDialogMediaFilter::InitializeSettings()
       }
     }
 
-    std::string settingId = StringUtils::Format("filter.{}.{}", filter.mediaType, filter.field);
+    std::string settingId = KODI::StringUtils::Format("filter.{}.{}", filter.mediaType, filter.field);
     if (filter.controlType == "edit")
     {
       CVariant data;
@@ -452,7 +452,7 @@ void CGUIDialogMediaFilter::InitializeSettings()
       std::vector<std::string> values;
       if (filter.rule != NULL && !filter.rule->m_parameter.empty())
       {
-        values = StringUtils::Split(filter.rule->GetParameter(), DATABASEQUERY_RULE_VALUE_SEPARATOR);
+        values = KODI::StringUtils::Split(filter.rule->GetParameter(), DATABASEQUERY_RULE_VALUE_SEPARATOR);
         if (values.size() == 1 && values.at(0).empty())
           values.erase(values.begin());
       }
@@ -616,7 +616,7 @@ void CGUIDialogMediaFilter::UpdateControls()
     else
     {
       CONTROL_ENABLE(control->GetID());
-      label = StringUtils::Format(g_localizeStrings.Get(21470), label, size);
+      label = KODI::StringUtils::Format(g_localizeStrings.Get(21470), label, size);
     }
     SET_CONTROL_LABEL(control->GetID(), label);
   }
@@ -808,7 +808,7 @@ void CGUIDialogMediaFilter::GetRange(const Filter &filter, int &min, int &interv
       else if (m_mediaType == "tvshows")
       {
         table = "tvshow_view";
-        year = StringUtils::Format(
+        year = KODI::StringUtils::Format(
             "strftime(\"%%Y\", {})",
             DatabaseUtils::GetField(FieldYear, MediaTypeTvShow, DatabaseQueryPartWhere));
       }
@@ -845,7 +845,7 @@ void CGUIDialogMediaFilter::GetRange(const Filter &filter, int &min, int &interv
 
     if (m_mediaType == "episodes")
     {
-      std::string field = StringUtils::Format("CAST(strftime(\"%%s\", c{:02}) AS INTEGER)",
+      std::string field = KODI::StringUtils::Format("CAST(strftime(\"%%s\", c{:02}) AS INTEGER)",
                                               VIDEODB_ID_EPISODE_AIRED);
 
       GetMinMax("episode_view", field, min, max);

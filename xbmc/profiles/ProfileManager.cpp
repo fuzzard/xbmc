@@ -153,7 +153,7 @@ bool CProfileManager::Load()
     if (profilesDoc.LoadFile(file))
     {
       const TiXmlElement *rootElement = profilesDoc.RootElement();
-      if (rootElement && StringUtils::EqualsNoCase(rootElement->Value(), XML_PROFILES))
+      if (rootElement && KODI::StringUtils::EqualsNoCase(rootElement->Value(), XML_PROFILES))
       {
         XMLUtils::GetUInt(rootElement, XML_LAST_LOADED, m_lastUsedProfile);
         XMLUtils::GetBoolean(rootElement, XML_LOGIN_SCREEN, m_usingLoginScreen);
@@ -484,7 +484,7 @@ bool CProfileManager::DeleteProfile(unsigned int index)
 
   const std::string& str = g_localizeStrings.Get(13201);
   dlgYesNo->SetHeading(CVariant{13200});
-  dlgYesNo->SetLine(0, CVariant{StringUtils::Format(str, profile->getName())});
+  dlgYesNo->SetLine(0, CVariant{KODI::StringUtils::Format(str, profile->getName())});
   dlgYesNo->SetLine(1, CVariant{""});
   dlgYesNo->SetLine(2, CVariant{""});
   dlgYesNo->Open();
@@ -533,7 +533,7 @@ void CProfileManager::CreateProfileFolders()
   CDirectory::Create(GetSavestatesFolder());
   for (size_t hex = 0; hex < 16; hex++)
     CDirectory::Create(
-        URIUtils::AddFileToFolder(GetThumbnailsFolder(), StringUtils::Format("{:x}", hex)));
+        URIUtils::AddFileToFolder(GetThumbnailsFolder(), KODI::StringUtils::Format("{:x}", hex)));
 
   CDirectory::Create("special://profile/addon_data");
   CDirectory::Create("special://profile/keymaps");
@@ -582,7 +582,7 @@ int CProfileManager::GetProfileIndex(const std::string &name) const
   std::unique_lock<CCriticalSection> lock(m_critical);
   for (int i = 0; i < static_cast<int>(m_profiles.size()); i++)
   {
-    if (StringUtils::EqualsNoCase(m_profiles[i].getName(), name))
+    if (KODI::StringUtils::EqualsNoCase(m_profiles[i].getName(), name))
       return i;
   }
 

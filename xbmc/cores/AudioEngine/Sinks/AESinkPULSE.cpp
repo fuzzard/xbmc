@@ -384,7 +384,7 @@ static void SinkInfoCallback(pa_context *c, const pa_sink_info *i, int eol, void
         sinkStruct->isNWDevice = true;
 
       sinkStruct->isBTDevice =
-          StringUtils::EndsWithNoCase(std::string(i->name), std::string("a2dp_sink"));
+          KODI::StringUtils::EndsWithNoCase(std::string(i->name), std::string("a2dp_sink"));
       if (sinkStruct->isBTDevice)
         CLog::Log(LOGINFO, "Found BT Device - will adjust buffers to larger values");
 
@@ -699,7 +699,7 @@ bool CDriverMonitor::Start(bool allowPipeWireCompatServer)
   {
     // Check the PulseAudio server name. If it contains PipeWire in any form
     // it is the compatibility layer provided by PipeWire
-    if (StringUtils::Contains(serverInfo.m_serverName, "pipewire", true))
+    if (KODI::StringUtils::Contains(serverInfo.m_serverName, "pipewire", true))
     {
       CLog::Log(LOGINFO, "PulseAudio: Server is PipeWire, bail and use native PipeWire interface");
       pa_threaded_mainloop_unlock(m_pMainLoop);
@@ -849,7 +849,7 @@ bool CAESinkPULSE::Initialize(AEAudioFormat &format, std::string &device)
 
   // get real sample rate of the device we want to open - to avoid resampling
   bool isDefaultDevice = false;
-  if(StringUtils::EndsWithNoCase(device, std::string("default")))
+  if(KODI::StringUtils::EndsWithNoCase(device, std::string("default")))
     isDefaultDevice = true;
 
   WaitForOperation(pa_context_get_sink_info_by_name(m_Context, isDefaultDevice ? NULL : device.c_str(), SinkInfoCallback, &sinkStruct), m_MainLoop, "Get Sink Info");

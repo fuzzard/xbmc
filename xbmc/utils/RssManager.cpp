@@ -111,7 +111,7 @@ bool CRssManager::Load()
   }
 
   auto* rootElement = rssDoc.RootElement();
-  if (!rootElement || !StringUtils::EqualsNoCase(rootElement->Value(), "rssfeeds"))
+  if (!rootElement || !KODI::StringUtils::EqualsNoCase(rootElement->Value(), "rssfeeds"))
   {
     CLog::Log(LOGERROR, "CRssManager: error loading {}, no <rssfeeds> node", rssXML);
     return false;
@@ -126,7 +126,7 @@ bool CRssManager::Load()
     {
       RssSet set;
       set.rtl = setElement->Attribute("rtl") != nullptr &&
-                StringUtils::CompareNoCase(setElement->Attribute("rtl"), "true") == 0;
+                KODI::StringUtils::CompareNoCase(setElement->Attribute("rtl"), "true") == 0;
       auto* feedElement = setElement->FirstChildElement("feed");
       while (feedElement)
       {

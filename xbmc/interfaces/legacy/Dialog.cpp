@@ -228,7 +228,7 @@ namespace XBMCAddon
       if (!shares)
       {
         CServiceBroker::GetMediaManager().GetLocalDrives(localShares);
-        if (StringUtils::CompareNoCase(s_shares, "local") != 0)
+        if (KODI::StringUtils::CompareNoCase(s_shares, "local") != 0)
           CServiceBroker::GetMediaManager().GetNetworkLocations(localShares);
       }
       else // always append local drives
@@ -263,7 +263,7 @@ namespace XBMCAddon
       if (!shares)
       {
         CServiceBroker::GetMediaManager().GetLocalDrives(localShares);
-        if (StringUtils::CompareNoCase(s_shares, "local") != 0)
+        if (KODI::StringUtils::CompareNoCase(s_shares, "local") != 0)
           CServiceBroker::GetMediaManager().GetNetworkLocations(localShares);
       }
       else // always append local drives
@@ -305,7 +305,7 @@ namespace XBMCAddon
           }
           if (CGUIDialogNumeric::ShowAndGetDate(timedate, heading))
             value =
-                StringUtils::Format("{:2}/{:2}/{:4}", timedate.day, timedate.month, timedate.year);
+                KODI::StringUtils::Format("{:2}/{:2}/{:4}", timedate.day, timedate.month, timedate.year);
           else
             return emptyString;
         }
@@ -318,7 +318,7 @@ namespace XBMCAddon
             timedate.minute = atoi(sDefault.substr(3, 2).c_str());
           }
           if (CGUIDialogNumeric::ShowAndGetTime(timedate, heading))
-            value = StringUtils::Format("{:2}:{:02}", timedate.hour, timedate.minute);
+            value = KODI::StringUtils::Format("{:2}:{:02}", timedate.hour, timedate.minute);
           else
             return emptyString;
         }
@@ -398,7 +398,7 @@ namespace XBMCAddon
               timedate.year = atoi(sDefault.substr(sDefault.size() - 4).c_str());
             }
             if (CGUIDialogNumeric::ShowAndGetDate(timedate, heading))
-              value = StringUtils::Format("{:2}/{:2}/{:4}", timedate.day, timedate.month,
+              value = KODI::StringUtils::Format("{:2}/{:2}/{:4}", timedate.day, timedate.month,
                                           timedate.year);
             else
               value = emptyString;
@@ -413,7 +413,7 @@ namespace XBMCAddon
               timedate.minute = atoi(sDefault.substr(3, 2).c_str());
             }
             if (CGUIDialogNumeric::ShowAndGetTime(timedate, heading))
-              value = StringUtils::Format("{:2}:{:02}", timedate.hour, timedate.minute);
+              value = KODI::StringUtils::Format("{:2}:{:02}", timedate.hour, timedate.minute);
             else
               value = emptyString;
           }

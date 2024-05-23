@@ -423,7 +423,7 @@ bool CAddonInstaller::InstallFromZip(const std::string &path)
   {
     if (eventLog)
       eventLog->AddWithNotification(EventPtr(
-          new CNotificationEvent(24045, StringUtils::Format(g_localizeStrings.Get(24143), path),
+          new CNotificationEvent(24045, KODI::StringUtils::Format(g_localizeStrings.Get(24143), path),
                                  "special://xbmc/media/icon256x256.png", EventLevel::Error)));
 
     CLog::Log(
@@ -441,7 +441,7 @@ bool CAddonInstaller::InstallFromZip(const std::string &path)
 
   if (eventLog)
     eventLog->AddWithNotification(EventPtr(
-        new CNotificationEvent(24045, StringUtils::Format(g_localizeStrings.Get(24143), path),
+        new CNotificationEvent(24045, KODI::StringUtils::Format(g_localizeStrings.Get(24143), path),
                                "special://xbmc/media/icon256x256.png", EventLevel::Error)));
   return false;
 }
@@ -662,7 +662,7 @@ bool CAddonInstallJob::DoWork()
 {
   m_currentType = CAddonInstallJob::TYPE_DOWNLOAD;
 
-  SetTitle(StringUtils::Format(g_localizeStrings.Get(24057), m_addon->Name()));
+  SetTitle(KODI::StringUtils::Format(g_localizeStrings.Get(24057), m_addon->Name()));
   SetProgress(0);
 
   // check whether all the dependencies are available or not
@@ -671,7 +671,7 @@ bool CAddonInstallJob::DoWork()
   if (!CAddonInstaller::GetInstance().CheckDependencies(m_addon, failedDep))
   {
     std::string details =
-        StringUtils::Format(g_localizeStrings.Get(24142), failedDep.first, failedDep.second);
+        KODI::StringUtils::Format(g_localizeStrings.Get(24142), failedDep.first, failedDep.second);
     CLog::Log(LOGERROR, "CAddonInstallJob[{}]: {}", m_addon->ID(), details);
     ReportInstallError(m_addon->ID(), m_addon->ID(), details);
     return false;
@@ -961,7 +961,7 @@ bool CAddonInstallJob::DoWork()
     CLog::Log(LOGDEBUG, "CAddonInstallJob[{}]: installed addon marked as deprecated",
               m_addon->ID());
     std::string text =
-        StringUtils::Format(g_localizeStrings.Get(24168), m_addon->LifecycleStateDescription());
+        KODI::StringUtils::Format(g_localizeStrings.Get(24168), m_addon->LifecycleStateDescription());
     if (eventLog)
       eventLog->Add(EventPtr(new CAddonManagementEvent(m_addon, text)), true, false);
   }
@@ -1192,7 +1192,7 @@ void CAddonInstallJob::ReportInstallError(const std::string& addonID, const std:
   else
   {
     activity = EventPtr(new CNotificationEvent(
-        24045, !msg.empty() ? msg : StringUtils::Format(g_localizeStrings.Get(24143), fileName),
+        24045, !msg.empty() ? msg : KODI::StringUtils::Format(g_localizeStrings.Get(24143), fileName),
         EventLevel::Error));
 
     if (IsModal())
@@ -1261,7 +1261,7 @@ bool CAddonUnInstallJob::DoWork()
     if (removedItems.size() > 0)
     {
       CLog::Log(LOGINFO, "CAddonUnInstallJob[{}]: removed orphaned dependencies ({})",
-                m_addon->ID(), StringUtils::Join(removedItems, ", "));
+                m_addon->ID(), KODI::StringUtils::Join(removedItems, ", "));
     }
   }
 

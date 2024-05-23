@@ -218,7 +218,7 @@ CNfsConnection::ContextStatus CNfsConnection::getContextForExport(const std::str
 bool CNfsConnection::splitUrlIntoExportAndPath(const CURL& url, std::string &exportPath, std::string &relativePath)
 {
   //refresh exportlist if empty or hostname change
-  if(m_exportList.empty() || !StringUtils::EqualsNoCase(url.GetHostName(), m_hostName))
+  if(m_exportList.empty() || !KODI::StringUtils::EqualsNoCase(url.GetHostName(), m_hostName))
   {
     const auto settingsComponent = CServiceBroker::GetSettingsComponent();
     if (!settingsComponent)
@@ -979,8 +979,8 @@ bool CNFSFile::OpenForWrite(const CURL& url, bool bOverWrite)
 bool CNFSFile::IsValidFile(const std::string& strFileName)
 {
   if (strFileName.find('/') == std::string::npos || /* doesn't have sharename */
-      StringUtils::EndsWith(strFileName, "/.") || /* not current folder */
-      StringUtils::EndsWith(strFileName, "/.."))  /* not parent folder */
+      KODI::StringUtils::EndsWith(strFileName, "/.") || /* not current folder */
+      KODI::StringUtils::EndsWith(strFileName, "/.."))  /* not parent folder */
     return false;
   return true;
 }

@@ -102,9 +102,9 @@ void CGUIWindowDebugInfo::Process(unsigned int currentTime, CDirtyRegionList &di
     else
       strCores = "N/A";
     std::string lcAppName = CCompileInfo::GetAppName();
-    StringUtils::ToLower(lcAppName);
+    KODI::StringUtils::ToLower(lcAppName);
 #if !defined(TARGET_POSIX)
-    info = StringUtils::Format("LOG: {}{}.log\nMEM: {}/{} KB - FPS: {:2.1f} fps\nCPU: {}{}",
+    info = KODI::StringUtils::Format("LOG: {}{}.log\nMEM: {}/{} KB - FPS: {:2.1f} fps\nCPU: {}{}",
                                CSpecialProtocol::TranslatePath("special://logpath"), lcAppName,
                                stat.availPhys / 1024, stat.totalPhys / 1024,
                                CServiceBroker::GetGUI()
@@ -116,8 +116,8 @@ void CGUIWindowDebugInfo::Process(unsigned int currentTime, CDirtyRegionList &di
 #else
     double dCPU = m_resourceCounter.GetCPUUsage();
     std::string ucAppName = lcAppName;
-    StringUtils::ToUpper(ucAppName);
-    info = StringUtils::Format("LOG: {}{}.log\n"
+    KODI::StringUtils::ToUpper(ucAppName);
+    info = KODI::StringUtils::Format("LOG: {}{}.log\n"
                                "MEM: {}/{} KB - FPS: {:2.1f} fps\n"
                                "CPU: {} (CPU-{} {:4.2f}%{})",
                                CSpecialProtocol::TranslatePath("special://logpath"), lcAppName,
@@ -155,13 +155,13 @@ void CGUIWindowDebugInfo::Process(unsigned int currentTime, CDirtyRegionList &di
       point.y *= CServiceBroker::GetWinSystem()->GetGfxContext().GetGUIScaleY();
       CServiceBroker::GetWinSystem()->GetGfxContext().SetRenderingResolution(CServiceBroker::GetWinSystem()->GetGfxContext().GetResInfo(), false);
     }
-    info += StringUtils::Format("Mouse: ({},{})  ", static_cast<int>(point.x),
+    info += KODI::StringUtils::Format("Mouse: ({},{})  ", static_cast<int>(point.x),
                                 static_cast<int>(point.y));
     if (window)
     {
       CGUIControl *control = window->GetFocusedControl();
       if (control)
-        info += StringUtils::Format(
+        info += KODI::StringUtils::Format(
             "Focused: {} ({})", control->GetID(),
             CGUIControlFactory::TranslateControlType(control->GetControlType()));
     }

@@ -69,7 +69,7 @@ std::string CDigest::TypeToString(Type type)
 CDigest::Type CDigest::TypeFromString(std::string const& type)
 {
   std::string typeLower{type};
-  StringUtils::ToLower(typeLower);
+  KODI::StringUtils::ToLower(typeLower);
   if (type == "md5")
   {
     return Type::MD5;
@@ -148,7 +148,7 @@ std::string CDigest::FinalizeRaw()
 
 std::string CDigest::Finalize()
 {
-  return StringUtils::ToHexadecimal(FinalizeRaw());
+  return KODI::StringUtils::ToHexadecimal(FinalizeRaw());
 }
 
 std::string CDigest::Calculate(Type type, std::string const& data)

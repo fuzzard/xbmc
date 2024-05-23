@@ -100,7 +100,7 @@ bool CPVRThumbLoader::FillThumb(CFileItem& item)
 
 std::string CPVRThumbLoader::CreateChannelGroupThumb(const CFileItem& channelGroupItem)
 {
-  return StringUtils::Format("{}?ts={}", // append timestamp to Thumb URL to enforce texture refresh
+  return KODI::StringUtils::Format("{}?ts={}", // append timestamp to Thumb URL to enforce texture refresh
                              CTextureUtils::GetWrappedImageURL(channelGroupItem.GetPath(), "pvr"),
                              std::time(nullptr));
 }

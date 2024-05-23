@@ -86,7 +86,7 @@ bool CPlayerController::OnAction(const CAction &action)
           if (info.name.length() == 0)
             sub = lang;
           else
-            sub = StringUtils::Format("{} - {}", lang, info.name);
+            sub = KODI::StringUtils::Format("{} - {}", lang, info.name);
         }
         else
           sub = g_localizeStrings.Get(1223);
@@ -133,7 +133,7 @@ bool CPlayerController::OnAction(const CAction &action)
           if (info.name.length() == 0)
             sub = lang;
           else
-            sub = StringUtils::Format("{} - {}", lang, info.name);
+            sub = KODI::StringUtils::Format("{} - {}", lang, info.name);
         }
         else
           sub = g_localizeStrings.Get(1223);
@@ -233,9 +233,9 @@ bool CPlayerController::OnAction(const CAction &action)
         if (info.name.empty())
           aud = lan;
         else
-          aud = StringUtils::Format("{} - {}", lan, info.name);
+          aud = KODI::StringUtils::Format("{} - {}", lan, info.name);
         std::string caption = g_localizeStrings.Get(460);
-        caption += StringUtils::Format(" ({}/{})", currentAudio + 1, audioStreamCount);
+        caption += KODI::StringUtils::Format(" ({}/{})", currentAudio + 1, audioStreamCount);
         CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, caption, aud, DisplTime, false, MsgTime);
         return true;
       }
@@ -254,7 +254,7 @@ bool CPlayerController::OnAction(const CAction &action)
         VideoStreamInfo info;
         appPlayer->GetVideoStreamInfo(currentVideo, info);
         std::string caption = g_localizeStrings.Get(38031);
-        caption += StringUtils::Format(" ({}/{})", currentVideo + 1, videoStreamCount);
+        caption += KODI::StringUtils::Format(" ({}/{})", currentVideo + 1, videoStreamCount);
         CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, caption, info.name, DisplTime, false, MsgTime);
         return true;
       }
@@ -546,13 +546,13 @@ void CPlayerController::OnSliderChange(void *data, CGUISliderControl *slider)
       m_sliderAction == ACTION_INCREASE_PAR || m_sliderAction == ACTION_DECREASE_PAR ||
       m_sliderAction == ACTION_VSHIFT_UP || m_sliderAction == ACTION_VSHIFT_DOWN)
   {
-    std::string strValue = StringUtils::Format("{:1.2f}", slider->GetFloatValue());
+    std::string strValue = KODI::StringUtils::Format("{:1.2f}", slider->GetFloatValue());
     slider->SetTextValue(strValue);
   }
   else if (m_sliderAction == ACTION_SUBTITLE_VSHIFT_UP ||
            m_sliderAction == ACTION_SUBTITLE_VSHIFT_DOWN)
   {
-    std::string strValue = StringUtils::Format("{:.0f}px", slider->GetFloatValue());
+    std::string strValue = KODI::StringUtils::Format("{:.0f}px", slider->GetFloatValue());
     slider->SetTextValue(strValue);
   }
   else if (m_sliderAction == ACTION_VOLAMP_UP ||

@@ -43,7 +43,7 @@ static int Hibernate(const std::vector<std::string>& params)
  */
 static int InhibitIdle(const std::vector<std::string>& params)
 {
-  bool inhibit = (params.size() == 1 && StringUtils::EqualsNoCase(params[0], "true"));
+  bool inhibit = (params.size() == 1 && KODI::StringUtils::EqualsNoCase(params[0], "true"));
   CServiceBroker::GetAppMessenger()->PostMsg(TMSG_INHIBITIDLESHUTDOWN, inhibit);
 
   return 0;
@@ -125,7 +125,7 @@ static int ResetScreensaver(const std::vector<std::string>& params)
  */
 static int InhibitScreenSaver(const std::vector<std::string>& params)
 {
-  bool inhibit = (params.size() == 1 && StringUtils::EqualsNoCase(params[0], "true"));
+  bool inhibit = (params.size() == 1 && KODI::StringUtils::EqualsNoCase(params[0], "true"));
   CServiceBroker::GetAppMessenger()->PostMsg(TMSG_INHIBITSCREENSAVER, inhibit);
 
   return 0;

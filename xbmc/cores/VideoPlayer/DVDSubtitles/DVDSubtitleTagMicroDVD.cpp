@@ -34,7 +34,7 @@ void CDVDSubtitleTagMicroDVD::ConvertLine(std::string& strUTF8)
         {
           std::string tagName = strUTF8.substr(pos + 1, pos2 - pos - 1);
           std::string tagValue = strUTF8.substr(pos2 + 1, pos3 - pos2 - 1);
-          StringUtils::ToLower(tagValue);
+          KODI::StringUtils::ToLower(tagValue);
           strUTF8.erase(pos, pos3 - pos + 1);
           if ((tagName == "Y") || (tagName == "y"))
           {

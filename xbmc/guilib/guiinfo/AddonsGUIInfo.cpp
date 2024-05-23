@@ -131,7 +131,7 @@ bool CAddonsGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
         uint64_t packageSize = item->GetAddonInfo()->PackageSize();
         if (packageSize > 0)
         {
-          value = StringUtils::FormatFileSize(packageSize);
+          value = KODI::StringUtils::FormatFileSize(packageSize);
           return true;
         }
         break;

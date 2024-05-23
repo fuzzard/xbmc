@@ -451,7 +451,7 @@ void CGUIWindowMusicPlayList::UpdateButtons()
 
   // Update object count label
   std::string items =
-      StringUtils::Format("{} {}", m_vecItems->GetObjectCount(), g_localizeStrings.Get(127));
+      KODI::StringUtils::Format("{} {}", m_vecItems->GetObjectCount(), g_localizeStrings.Get(127));
   SET_CONTROL_LABEL(CONTROL_LABELFILES, items);
 
   MarkPlaying();
@@ -505,7 +505,7 @@ void CGUIWindowMusicPlayList::OnItemLoaded(CFileItem* pItem)
     {
       int nDuration = pItem->GetMusicInfoTag()->GetDuration();
       if (nDuration > 0)
-        pItem->SetLabel2(StringUtils::SecondsToTimeString(nDuration));
+        pItem->SetLabel2(KODI::StringUtils::SecondsToTimeString(nDuration));
     }
     else if (pItem->GetLabel() == "") // pls labels come in preformatted
     {
@@ -515,7 +515,7 @@ void CGUIWindowMusicPlayList::OnItemLoaded(CFileItem* pItem)
       // No music info and it's not CDDA so we'll just show the filename
       std::string str;
       str = CUtil::GetTitleFromPath(pItem->GetPath());
-      str = StringUtils::Format("{:02}. {} ", pItem->m_iprogramCount, str);
+      str = KODI::StringUtils::Format("{:02}. {} ", pItem->m_iprogramCount, str);
       pItem->SetLabel(str);
     }
   }

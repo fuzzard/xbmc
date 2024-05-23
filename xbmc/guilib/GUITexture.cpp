@@ -717,7 +717,7 @@ bool CGUITexture::SetFileName(const std::string& filename)
   m_info.filename = filename;
 
   // disable large loader and cache for gifs
-  if (StringUtils::EndsWithNoCase(m_info.filename, ".gif"))
+  if (KODI::StringUtils::EndsWithNoCase(m_info.filename, ".gif"))
   {
     m_info.useLarge = false;
     SetUseCache(false);

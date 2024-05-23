@@ -48,7 +48,7 @@ bool CUDisks2Provider::Drive::IsOptical() const
 
 std::string CUDisks2Provider::Drive::ToString() const
 {
-  return StringUtils::Format("Drive {}: IsRemovable {} IsOptical {}", m_object,
+  return KODI::StringUtils::Format("Drive {}: IsRemovable {} IsOptical {}", m_object,
                              BOOL2SZ(m_isRemovable), BOOL2SZ(IsOptical()));
 }
 
@@ -63,7 +63,7 @@ bool CUDisks2Provider::Block::IsReady()
 
 std::string CUDisks2Provider::Block::ToString() const
 {
-  return StringUtils::Format("Block device {}: Device {} Label {} IsSystem: {} Drive {}", m_object,
+  return KODI::StringUtils::Format("Block device {}: Device {} Label {} IsSystem: {} Drive {}", m_object,
                              m_device, m_label.empty() ? "none" : m_label, BOOL2SZ(m_isSystem),
                              m_driveobject.empty() ? "none" : m_driveobject);
 }
@@ -74,7 +74,7 @@ CUDisks2Provider::Filesystem::Filesystem(const char *object) : m_object(object)
 
 std::string CUDisks2Provider::Filesystem::ToString() const
 {
-  return StringUtils::Format("Filesystem {}: IsMounted {} MountPoint {}", m_object,
+  return KODI::StringUtils::Format("Filesystem {}: IsMounted {} MountPoint {}", m_object,
                              BOOL2SZ(m_isMounted), m_mountPoint.empty() ? "none" : m_mountPoint);
 }
 
@@ -181,8 +181,8 @@ std::string CUDisks2Provider::Filesystem::GetDisplayName() const
 {
   if (m_block->m_label.empty())
   {
-    std::string strSize = StringUtils::SizeToString(m_block->m_size);
-    return StringUtils::Format("{} {}", strSize, g_localizeStrings.Get(155));
+    std::string strSize = KODI::StringUtils::SizeToString(m_block->m_size);
+    return KODI::StringUtils::Format("{} {}", strSize, g_localizeStrings.Get(155));
   }
   else
     return m_block->m_label;

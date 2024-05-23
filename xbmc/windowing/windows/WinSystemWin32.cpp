@@ -1063,7 +1063,7 @@ void CWinSystemWin32::UpdateResolutions()
     res.iScreenWidth = res.iWidth;
     res.iScreenHeight = res.iHeight;
     res.iSubtitles = res.iHeight;
-    res.strMode = StringUtils::Format("{}: {}x{} @ {:.2f}Hz", monitorName, res.iWidth, res.iHeight,
+    res.strMode = KODI::StringUtils::Format("{}: {}x{} @ {:.2f}Hz", monitorName, res.iWidth, res.iHeight,
                                       res.fRefreshRate);
     GetGfxContext().ResetOverscan(res);
     res.strOutput = strOutput;

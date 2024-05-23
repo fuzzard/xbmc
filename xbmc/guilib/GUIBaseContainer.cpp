@@ -678,7 +678,7 @@ void CGUIBaseContainer::OnJumpLetter(const std::string& letter, bool skip /*=fal
     std::string label = item->GetLabel();
     if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool(CSettings::SETTING_FILELISTS_IGNORETHEWHENSORTING))
       label = SortUtils::RemoveArticles(label);
-    if (0 == StringUtils::CompareNoCase(label, m_match, m_match.size()))
+    if (0 == KODI::StringUtils::CompareNoCase(label, m_match, m_match.size()))
     {
       SelectItem(i);
       return;
@@ -945,7 +945,7 @@ std::string CGUIBaseContainer::GetDescription() const
   {
     std::shared_ptr<CGUIListItem> pItem = m_items[item];
     if (pItem->m_bIsFolder)
-      strLabel = StringUtils::Format("[{}]", pItem->GetLabel());
+      strLabel = KODI::StringUtils::Format("[{}]", pItem->GetLabel());
     else
       strLabel = pItem->GetLabel();
   }
@@ -1187,7 +1187,7 @@ void CGUIBaseContainer::UpdateScrollByLetter()
     // our checks are all done in uppercase
     std::string nextLetter;
     std::wstring character = item->GetSortLabel().substr(0, 1);
-    StringUtils::ToUpper(character);
+    KODI::StringUtils::ToUpper(character);
     g_charsetConverter.wToUTF8(character, nextLetter);
     if (currentMatch != nextLetter)
     {

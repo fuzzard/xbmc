@@ -76,7 +76,7 @@ void CAppParamParser::Parse(const char* const* argv, int nArgs)
 
 void CAppParamParser::DisplayVersion()
 {
-  std::cout << StringUtils::Format(versionText, CSysInfo::GetAppName(), CSysInfo::GetVersion(),
+  std::cout << KODI::StringUtils::Format(versionText, CSysInfo::GetAppName(), CSysInfo::GetVersion(),
                                    CCompileInfo::GetCopyrightYears());
   exit(0);
 }
@@ -84,9 +84,9 @@ void CAppParamParser::DisplayVersion()
 void CAppParamParser::DisplayHelp()
 {
   std::string lcAppName = CSysInfo::GetAppName();
-  StringUtils::ToLower(lcAppName);
+  KODI::StringUtils::ToLower(lcAppName);
 
-  std::cout << StringUtils::Format(helpText, lcAppName, CSysInfo::GetAppName());
+  std::cout << KODI::StringUtils::Format(helpText, lcAppName, CSysInfo::GetAppName());
 }
 
 void CAppParamParser::ParseArg(const std::string &arg)

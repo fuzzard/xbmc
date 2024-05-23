@@ -153,7 +153,7 @@ std::string CVideoTagLoaderNFO::FindNFO(const CFileItem& item,
     {
       URIUtils::RemoveSlashAtEnd(strPath); // need no slash for the check that follows
       CFileItem item2;
-      if (StringUtils::EndsWithNoCase(strPath, "cd1"))
+      if (KODI::StringUtils::EndsWithNoCase(strPath, "cd1"))
       {
         strPath.erase(strPath.size() - 3);
         item2.SetPath(URIUtils::AddFileToFolder(strPath, URIUtils::GetFileName(item.GetPath())));

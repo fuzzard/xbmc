@@ -244,10 +244,10 @@ void CGUIDialogProfileSettings::OnSettingAction(const std::shared_ptr<const CSet
 
     std::string thumb;
     if (CGUIDialogFileBrowser::ShowAndGetImage(items, shares, g_localizeStrings.Get(1030), thumb) &&
-        !StringUtils::EqualsNoCase(thumb, "thumb://Current"))
+        !KODI::StringUtils::EqualsNoCase(thumb, "thumb://Current"))
     {
       m_needsSaving = true;
-      m_thumb = StringUtils::EqualsNoCase(thumb, "thumb://None") ? "" : thumb;
+      m_thumb = KODI::StringUtils::EqualsNoCase(thumb, "thumb://None") ? "" : thumb;
 
       UpdateProfileImage();
     }

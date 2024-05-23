@@ -15,6 +15,6 @@ namespace INFO
 InfoBool::InfoBool(const std::string& expression, int context, unsigned int& refreshCounter)
   : m_context(context), m_expression(expression), m_parentRefreshCounter(refreshCounter)
 {
-  StringUtils::ToLower(m_expression);
+  KODI::StringUtils::ToLower(m_expression);
 }
 }

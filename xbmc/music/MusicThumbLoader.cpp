@@ -205,7 +205,7 @@ bool CMusicThumbLoader::FillLibraryArt(CFileItem &item)
             for (auto& artitem : artistart)
             {
               if (iOrder > 0)
-                artitem.prefix = StringUtils::Format("artist{}", iOrder);
+                artitem.prefix = KODI::StringUtils::Format("artist{}", iOrder);
               else
                 artitem.prefix = "artist";
             }
@@ -235,7 +235,7 @@ bool CMusicThumbLoader::FillLibraryArt(CFileItem &item)
               for (auto& artitem : artistart)
               {
                 if (iOrder > 0)
-                  artitem.prefix = StringUtils::Format("albumartist{}", iOrder);
+                  artitem.prefix = KODI::StringUtils::Format("albumartist{}", iOrder);
                 else
                   artitem.prefix = "albumartist";
               }
@@ -285,7 +285,7 @@ bool CMusicThumbLoader::FillLibraryArt(CFileItem &item)
       else
       {
         if (tag.GetType() == MediaTypeAlbum)
-          StringUtils::Replace(artitem.prefix, "albumartist", "artist");
+          KODI::StringUtils::Replace(artitem.prefix, "albumartist", "artist");
         artname = artitem.prefix + "." + artitem.artType;
       }
 

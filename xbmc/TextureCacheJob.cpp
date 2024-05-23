@@ -76,7 +76,7 @@ bool IsPVROwnedImage(const std::string& additional_info)
 {
   return additional_info == "pvrchannel_radio" || additional_info == "pvrchannel_tv" ||
          additional_info == "pvrprovider" || additional_info == "pvrrecording" ||
-         StringUtils::StartsWith(additional_info, "epgtag_");
+         KODI::StringUtils::StartsWith(additional_info, "epgtag_");
 }
 
 // DecodeImageURL can also set "additional_info" to 'flipped' for mirror images selected in
@@ -95,7 +95,7 @@ bool ShouldCheckForChanges(const std::string& additional_info, const std::string
     return false;
 
   const bool isHTTP =
-      StringUtils::StartsWith(url, "http://") || StringUtils::StartsWith(url, "https://");
+      KODI::StringUtils::StartsWith(url, "http://") || KODI::StringUtils::StartsWith(url, "https://");
   return !isHTTP;
 }
 } // namespace
@@ -181,7 +181,7 @@ std::string CTextureCacheJob::DecodeImageURL(const std::string &url, unsigned in
   additional_info.clear();
   width = height = 0;
   scalingAlgorithm = CPictureScalingAlgorithm::NoAlgorithm;
-  if (StringUtils::StartsWith(url, "image://"))
+  if (KODI::StringUtils::StartsWith(url, "image://"))
   {
     // format is image://[type@]<url_encoded_path>?options
     CURL thumbURL(url);
@@ -191,9 +191,9 @@ std::string CTextureCacheJob::DecodeImageURL(const std::string &url, unsigned in
     if (thumbURL.GetUserName() == "music" || thumbURL.GetUserName() == "video" ||
         thumbURL.GetUserName() == "picturefolder")
       additional_info = thumbURL.GetUserName();
-    if (StringUtils::StartsWith(thumbURL.GetUserName(), "video_") ||
-        StringUtils::StartsWith(thumbURL.GetUserName(), "pvr") ||
-        StringUtils::StartsWith(thumbURL.GetUserName(), "epg"))
+    if (KODI::StringUtils::StartsWith(thumbURL.GetUserName(), "video_") ||
+        KODI::StringUtils::StartsWith(thumbURL.GetUserName(), "pvr") ||
+        KODI::StringUtils::StartsWith(thumbURL.GetUserName(), "epg"))
       additional_info = thumbURL.GetUserName();
 
     image = thumbURL.GetHostName();
@@ -205,9 +205,9 @@ std::string CTextureCacheJob::DecodeImageURL(const std::string &url, unsigned in
       width = height = CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_imageRes;
     else
     {
-      if (thumbURL.HasOption("width") && StringUtils::IsInteger(thumbURL.GetOption("width")))
+      if (thumbURL.HasOption("width") && KODI::StringUtils::IsInteger(thumbURL.GetOption("width")))
         width = strtol(thumbURL.GetOption("width").c_str(), NULL, 0);
-      if (thumbURL.HasOption("height") && StringUtils::IsInteger(thumbURL.GetOption("height")))
+      if (thumbURL.HasOption("height") && KODI::StringUtils::IsInteger(thumbURL.GetOption("height")))
         height = strtol(thumbURL.GetOption("height").c_str(), NULL, 0);
     }
 
@@ -215,14 +215,14 @@ std::string CTextureCacheJob::DecodeImageURL(const std::string &url, unsigned in
       scalingAlgorithm = CPictureScalingAlgorithm::FromString(thumbURL.GetOption("scaling_algorithm"));
   }
 
-  if (StringUtils::StartsWith(url, "chapter://"))
+  if (KODI::StringUtils::StartsWith(url, "chapter://"))
   {
     // workaround for chapter thumbnail paths, which don't yet conform to the image:// path.
     additional_info = "videochapter";
   }
 
   // Handle special case about audiodecoder addon music files, e.g. SACD
-  if (StringUtils::EndsWith(URIUtils::GetExtension(image), KODI_ADDON_AUDIODECODER_TRACK_EXT))
+  if (KODI::StringUtils::EndsWith(URIUtils::GetExtension(image), KODI_ADDON_AUDIODECODER_TRACK_EXT))
   {
     std::string addonImageURL = URIUtils::GetDirectory(image);
     URIUtils::RemoveSlashAtEnd(addonImageURL);
@@ -251,7 +251,7 @@ std::unique_ptr<CTexture> CTextureCacheJob::LoadImage(const std::string& image,
   CFileItem file(image, false);
   file.FillInMimeType();
   if (!(file.IsPicture() && !(file.IsZIP() || file.IsRAR() || file.IsCBR() || file.IsCBZ() ))
-      && !StringUtils::StartsWithNoCase(file.GetMimeType(), "image/") && !StringUtils::EqualsNoCase(file.GetMimeType(), "application/octet-stream")) // ignore non-pictures
+      && !KODI::StringUtils::StartsWithNoCase(file.GetMimeType(), "image/") && !KODI::StringUtils::EqualsNoCase(file.GetMimeType(), "application/octet-stream")) // ignore non-pictures
     return NULL;
 
   std::unique_ptr<CTexture> texture =
@@ -283,7 +283,7 @@ std::string CTextureCacheJob::GetImageHash(const std::string &url)
     if (!time)
       time = st.st_ctime;
     if (time || st.st_size)
-      return StringUtils::Format("d{}s{}", time, st.st_size);
+      return KODI::StringUtils::Format("d{}s{}", time, st.st_size);
 
     // the image exists but we couldn't determine the mtime/ctime and/or size
     // so set an obviously bad hash

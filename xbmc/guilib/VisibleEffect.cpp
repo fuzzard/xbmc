@@ -93,31 +93,31 @@ std::shared_ptr<Tweener> CAnimEffect::GetTweener(const TiXmlElement *pAnimationN
   const char *tween = pAnimationNode->Attribute("tween");
   if (tween)
   {
-    if (StringUtils::CompareNoCase(tween, "linear") == 0)
+    if (KODI::StringUtils::CompareNoCase(tween, "linear") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new LinearTweener());
-    else if (StringUtils::CompareNoCase(tween, "quadratic") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "quadratic") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new QuadTweener());
-    else if (StringUtils::CompareNoCase(tween, "cubic") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "cubic") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new CubicTweener());
-    else if (StringUtils::CompareNoCase(tween, "sine") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "sine") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new SineTweener());
-    else if (StringUtils::CompareNoCase(tween, "back") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "back") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new BackTweener());
-    else if (StringUtils::CompareNoCase(tween, "circle") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "circle") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new CircleTweener());
-    else if (StringUtils::CompareNoCase(tween, "bounce") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "bounce") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new BounceTweener());
-    else if (StringUtils::CompareNoCase(tween, "elastic") == 0)
+    else if (KODI::StringUtils::CompareNoCase(tween, "elastic") == 0)
       m_pTweener = std::shared_ptr<Tweener>(new ElasticTweener());
 
     const char *easing = pAnimationNode->Attribute("easing");
     if (m_pTweener && easing)
     {
-      if (StringUtils::CompareNoCase(easing, "in") == 0)
+      if (KODI::StringUtils::CompareNoCase(easing, "in") == 0)
         m_pTweener->SetEasing(EASE_IN);
-      else if (StringUtils::CompareNoCase(easing, "out") == 0)
+      else if (KODI::StringUtils::CompareNoCase(easing, "out") == 0)
         m_pTweener->SetEasing(EASE_OUT);
-      else if (StringUtils::CompareNoCase(easing, "inout") == 0)
+      else if (KODI::StringUtils::CompareNoCase(easing, "inout") == 0)
         m_pTweener->SetEasing(EASE_INOUT);
     }
   }
@@ -224,7 +224,7 @@ CSlideEffect::CSlideEffect(const TiXmlElement *node) : CAnimEffect(node, EFFECT_
   const char *startPos = node->Attribute("start");
   if (startPos)
   {
-    std::vector<std::string> commaSeparated = StringUtils::Split(startPos, ",");
+    std::vector<std::string> commaSeparated = KODI::StringUtils::Split(startPos, ",");
     if (commaSeparated.size() > 1)
       m_startY = (float)atof(commaSeparated[1].c_str());
     if (!commaSeparated.empty())
@@ -233,7 +233,7 @@ CSlideEffect::CSlideEffect(const TiXmlElement *node) : CAnimEffect(node, EFFECT_
   const char *endPos = node->Attribute("end");
   if (endPos)
   {
-    std::vector<std::string> commaSeparated = StringUtils::Split(endPos, ",");
+    std::vector<std::string> commaSeparated = KODI::StringUtils::Split(endPos, ",");
     if (commaSeparated.size() > 1)
       m_endY = (float)atof(commaSeparated[1].c_str());
     if (!commaSeparated.empty())
@@ -260,11 +260,11 @@ CRotateEffect::CRotateEffect(const TiXmlElement *node, EFFECT_TYPE effect) : CAn
   const char *centerPos = node->Attribute("center");
   if (centerPos)
   {
-    if (StringUtils::CompareNoCase(centerPos, "auto") == 0)
+    if (KODI::StringUtils::CompareNoCase(centerPos, "auto") == 0)
       m_autoCenter = true;
     else
     {
-      std::vector<std::string> commaSeparated = StringUtils::Split(centerPos, ",");
+      std::vector<std::string> commaSeparated = KODI::StringUtils::Split(centerPos, ",");
       if (commaSeparated.size() > 1)
         m_center.y = (float)atof(commaSeparated[1].c_str());
       if (!commaSeparated.empty())
@@ -304,7 +304,7 @@ CZoomEffect::CZoomEffect(const TiXmlElement *node, const CRect &rect) : CAnimEff
   const char *start = node->Attribute("start");
   if (start)
   {
-    std::vector<std::string> params = StringUtils::Split(start, ",");
+    std::vector<std::string> params = KODI::StringUtils::Split(start, ",");
     if (params.size() == 1)
     {
       m_startX = CGUIControlFactory::ParsePosition(params[0].c_str(), rect.Width());
@@ -329,7 +329,7 @@ CZoomEffect::CZoomEffect(const TiXmlElement *node, const CRect &rect) : CAnimEff
   const char *end = node->Attribute("end");
   if (end)
   {
-    std::vector<std::string> params = StringUtils::Split(end, ",");
+    std::vector<std::string> params = KODI::StringUtils::Split(end, ",");
     if (params.size() == 1)
     {
       m_endX = CGUIControlFactory::ParsePosition(params[0].c_str(), rect.Width());
@@ -354,11 +354,11 @@ CZoomEffect::CZoomEffect(const TiXmlElement *node, const CRect &rect) : CAnimEff
   const char *centerPos = node->Attribute("center");
   if (centerPos)
   {
-    if (StringUtils::CompareNoCase(centerPos, "auto") == 0)
+    if (KODI::StringUtils::CompareNoCase(centerPos, "auto") == 0)
       m_autoCenter = true;
     else
     {
-      std::vector<std::string> commaSeparated = StringUtils::Split(centerPos, ",");
+      std::vector<std::string> commaSeparated = KODI::StringUtils::Split(centerPos, ",");
       if (commaSeparated.size() > 1)
         m_center.y = CGUIControlFactory::ParsePosition(commaSeparated[1].c_str(), rect.Height());
       if (!commaSeparated.empty())
@@ -658,7 +658,7 @@ void CAnimation::Create(const TiXmlElement *node, const CRect &rect, int context
   if (condition)
     m_condition = CServiceBroker::GetGUI()->GetInfoManager().Register(condition, context);
   const char *reverse = node->Attribute("reversible");
-  if (reverse && StringUtils::CompareNoCase(reverse, "false") == 0)
+  if (reverse && KODI::StringUtils::CompareNoCase(reverse, "false") == 0)
     m_reversible = false;
 
   const TiXmlElement *effect = node->FirstChildElement("effect");
@@ -668,12 +668,12 @@ void CAnimation::Create(const TiXmlElement *node, const CRect &rect, int context
   if (effect) // new layout
     type = XMLUtils::GetAttribute(node, "type");
 
-  if (StringUtils::StartsWithNoCase(type, "visible")) m_type = ANIM_TYPE_VISIBLE;
-  else if (StringUtils::EqualsNoCase(type, "hidden")) m_type = ANIM_TYPE_HIDDEN;
-  else if (StringUtils::EqualsNoCase(type, "focus"))  m_type = ANIM_TYPE_FOCUS;
-  else if (StringUtils::EqualsNoCase(type, "unfocus"))  m_type = ANIM_TYPE_UNFOCUS;
-  else if (StringUtils::EqualsNoCase(type, "windowopen"))  m_type = ANIM_TYPE_WINDOW_OPEN;
-  else if (StringUtils::EqualsNoCase(type, "windowclose"))  m_type = ANIM_TYPE_WINDOW_CLOSE;
+  if (KODI::StringUtils::StartsWithNoCase(type, "visible")) m_type = ANIM_TYPE_VISIBLE;
+  else if (KODI::StringUtils::EqualsNoCase(type, "hidden")) m_type = ANIM_TYPE_HIDDEN;
+  else if (KODI::StringUtils::EqualsNoCase(type, "focus"))  m_type = ANIM_TYPE_FOCUS;
+  else if (KODI::StringUtils::EqualsNoCase(type, "unfocus"))  m_type = ANIM_TYPE_UNFOCUS;
+  else if (KODI::StringUtils::EqualsNoCase(type, "windowopen"))  m_type = ANIM_TYPE_WINDOW_OPEN;
+  else if (KODI::StringUtils::EqualsNoCase(type, "windowclose"))  m_type = ANIM_TYPE_WINDOW_CLOSE;
   // sanity check
   if (m_type == ANIM_TYPE_CONDITIONAL)
   {
@@ -685,10 +685,10 @@ void CAnimation::Create(const TiXmlElement *node, const CRect &rect, int context
 
     // pulsed or loop animations
     const char *pulse = node->Attribute("pulse");
-    if (pulse && StringUtils::CompareNoCase(pulse, "true") == 0)
+    if (pulse && KODI::StringUtils::CompareNoCase(pulse, "true") == 0)
       m_repeatAnim = ANIM_REPEAT_PULSE;
     const char *loop = node->Attribute("loop");
-    if (loop && StringUtils::CompareNoCase(loop, "true") == 0)
+    if (loop && KODI::StringUtils::CompareNoCase(loop, "true") == 0)
       m_repeatAnim = ANIM_REPEAT_LOOP;
   }
 
@@ -722,19 +722,19 @@ void CAnimation::Create(const TiXmlElement *node, const CRect &rect, int context
 void CAnimation::AddEffect(const std::string &type, const TiXmlElement *node, const CRect &rect)
 {
   CAnimEffect *effect = NULL;
-  if (StringUtils::EqualsNoCase(type, "fade"))
+  if (KODI::StringUtils::EqualsNoCase(type, "fade"))
     effect = new CFadeEffect(node, m_type < 0, CAnimEffect::EFFECT_TYPE_FADE);
-  else if (StringUtils::EqualsNoCase(type, "fadediffuse"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "fadediffuse"))
     effect = new CFadeEffect(node, m_type < 0, CAnimEffect::EFFECT_TYPE_FADE_DIFFUSE);
-  else if (StringUtils::EqualsNoCase(type, "slide"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "slide"))
     effect = new CSlideEffect(node);
-  else if (StringUtils::EqualsNoCase(type, "rotate"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "rotate"))
     effect = new CRotateEffect(node, CAnimEffect::EFFECT_TYPE_ROTATE_Z);
-  else if (StringUtils::EqualsNoCase(type, "rotatey"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "rotatey"))
     effect = new CRotateEffect(node, CAnimEffect::EFFECT_TYPE_ROTATE_Y);
-  else if (StringUtils::EqualsNoCase(type, "rotatex"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "rotatex"))
     effect = new CRotateEffect(node, CAnimEffect::EFFECT_TYPE_ROTATE_X);
-  else if (StringUtils::EqualsNoCase(type, "zoom"))
+  else if (KODI::StringUtils::EqualsNoCase(type, "zoom"))
     effect = new CZoomEffect(node, rect);
 
   if (effect)

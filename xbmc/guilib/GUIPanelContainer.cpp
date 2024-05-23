@@ -558,7 +558,7 @@ std::string CGUIPanelContainer::GetLabel(int info) const
   default:
     return CGUIBaseContainer::GetLabel(info);
   }
-  return StringUtils::Empty;
+  return KODI::StringUtils::Empty;
 }
 
 void CGUIPanelContainer::SelectItem(int item)

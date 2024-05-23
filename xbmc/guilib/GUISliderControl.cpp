@@ -383,7 +383,7 @@ void CGUISliderControl::SendClick()
   SEND_CLICK_MESSAGE(GetID(), GetParentID(), MathUtils::round_int(static_cast<double>(percent)));
   if (m_action && (!m_dragging || m_action->fireOnDrag))
   {
-    std::string action = StringUtils::Format(m_action->formatString, percent);
+    std::string action = KODI::StringUtils::Format(m_action->formatString, percent);
     CGUIMessage message(GUI_MSG_EXECUTE, m_controlID, m_parentID);
     message.SetStringParam(action);
     CServiceBroker::GetGUI()->GetWindowManager().SendMessage(message);
@@ -760,24 +760,24 @@ std::string CGUISliderControl::GetDescription() const
   if (m_iType == SLIDER_CONTROL_TYPE_FLOAT)
   {
     if (m_rangeSelection)
-      description = StringUtils::Format("[{:2.2f}, {:2.2f}]", m_floatValues[0], m_floatValues[1]);
+      description = KODI::StringUtils::Format("[{:2.2f}, {:2.2f}]", m_floatValues[0], m_floatValues[1]);
     else
-      description = StringUtils::Format("{:2.2f}", m_floatValues[0]);
+      description = KODI::StringUtils::Format("{:2.2f}", m_floatValues[0]);
   }
   else if (m_iType == SLIDER_CONTROL_TYPE_INT)
   {
     if (m_rangeSelection)
-      description = StringUtils::Format("[{}, {}]", m_intValues[0], m_intValues[1]);
+      description = KODI::StringUtils::Format("[{}, {}]", m_intValues[0], m_intValues[1]);
     else
       description = std::to_string(m_intValues[0]);
   }
   else
   {
     if (m_rangeSelection)
-      description = StringUtils::Format("[{}%, {}%]", MathUtils::round_int(static_cast<double>(m_percentValues[0])),
+      description = KODI::StringUtils::Format("[{}%, {}%]", MathUtils::round_int(static_cast<double>(m_percentValues[0])),
                                         MathUtils::round_int(static_cast<double>(m_percentValues[1])));
     else
-      description = StringUtils::Format("{}%", MathUtils::round_int(static_cast<double>(m_percentValues[0])));
+      description = KODI::StringUtils::Format("{}%", MathUtils::round_int(static_cast<double>(m_percentValues[0])));
   }
   return description;
 }
@@ -810,7 +810,7 @@ void CGUISliderControl::SetAction(const std::string &action)
 {
   for (const SliderAction& a : actions)
   {
-    if (StringUtils::EqualsNoCase(action, a.action))
+    if (KODI::StringUtils::EqualsNoCase(action, a.action))
     {
       m_action = &a;
       return;

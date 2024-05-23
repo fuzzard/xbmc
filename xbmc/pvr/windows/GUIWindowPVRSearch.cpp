@@ -375,7 +375,7 @@ void CGUIWindowPVRSearchBase::UpdateButtons()
     if (header.empty())
     {
       header = m_searchfilter->GetSearchTerm();
-      StringUtils::Trim(header, "\"");
+      KODI::StringUtils::Trim(header, "\"");
     }
   }
   SET_CONTROL_LABEL(CONTROL_LABEL_HEADER1, header);
@@ -500,7 +500,7 @@ void CGUIWindowPVRSearchBase::SetSearchFilter(
         if (title.empty())
           title = g_localizeStrings.Get(137); // "Search"
         else
-          StringUtils::Trim(title, "\"");
+          KODI::StringUtils::Trim(title, "\"");
 
         m_searchfilter->SetTitle(title);
       }

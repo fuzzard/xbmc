@@ -257,7 +257,7 @@ void CXBMCTestUtils::ParseArgs(int argc, char **argv)
     else if (arg == "--add-testfilefactory-readurls")
     {
       arg = argv[++i];
-      std::vector<std::string> urls = StringUtils::Split(arg, ",");
+      std::vector<std::string> urls = KODI::StringUtils::Split(arg, ",");
       for (const auto& it : urls)
         TestFileFactoryReadUrls.push_back(it);
     }
@@ -268,7 +268,7 @@ void CXBMCTestUtils::ParseArgs(int argc, char **argv)
     else if (arg == "--add-testfilefactory-writeurls")
     {
       arg = argv[++i];
-      std::vector<std::string> urls = StringUtils::Split(arg, ",");
+      std::vector<std::string> urls = KODI::StringUtils::Split(arg, ",");
       for (const auto& it : urls)
         TestFileFactoryWriteUrls.push_back(it);
     }
@@ -283,7 +283,7 @@ void CXBMCTestUtils::ParseArgs(int argc, char **argv)
     else if (arg == "--add-advancedsettings-files")
     {
       arg = argv[++i];
-      std::vector<std::string> urls = StringUtils::Split(arg, ",");
+      std::vector<std::string> urls = KODI::StringUtils::Split(arg, ",");
       for (const auto& it : urls)
         AdvancedSettingsFiles.push_back(it);
     }
@@ -294,7 +294,7 @@ void CXBMCTestUtils::ParseArgs(int argc, char **argv)
     else if (arg == "--add-guisettings-files")
     {
       arg = argv[++i];
-      std::vector<std::string> urls = StringUtils::Split(arg, ",");
+      std::vector<std::string> urls = KODI::StringUtils::Split(arg, ",");
       for (const auto& it : urls)
         GUISettingsFiles.push_back(it);
     }

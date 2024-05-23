@@ -69,13 +69,13 @@ bool CKeyboardLayout::Load(const tinyxml2::XMLElement* element)
     if (strModifiers != NULL)
     {
       std::string modifiers = strModifiers;
-      StringUtils::ToLower(modifiers);
+      KODI::StringUtils::ToLower(modifiers);
 
-      std::vector<std::string> variants = StringUtils::Split(modifiers, ",");
+      std::vector<std::string> variants = KODI::StringUtils::Split(modifiers, ",");
       for (const auto& itv : variants)
       {
         unsigned int iKeys = ModifierKeyNone;
-        std::vector<std::string> keys = StringUtils::Split(itv, "+");
+        std::vector<std::string> keys = KODI::StringUtils::Split(itv, "+");
         for (const std::string& strKey : keys)
         {
           if (strKey == "shift")
@@ -122,12 +122,12 @@ bool CKeyboardLayout::Load(const tinyxml2::XMLElement* element)
 
 std::string CKeyboardLayout::GetIdentifier() const
 {
-  return StringUtils::Format("{} {}", m_language, m_layout);
+  return KODI::StringUtils::Format("{} {}", m_language, m_layout);
 }
 
 std::string CKeyboardLayout::GetName() const
 {
-  return StringUtils::Format(g_localizeStrings.Get(311), m_language, m_layout);
+  return KODI::StringUtils::Format(g_localizeStrings.Get(311), m_language, m_layout);
 }
 
 std::string CKeyboardLayout::GetCharAt(unsigned int row,

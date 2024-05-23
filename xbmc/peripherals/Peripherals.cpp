@@ -513,7 +513,7 @@ bool CPeripherals::LoadMappings()
 
   auto* pRootElement = xmlDoc.RootElement();
   if (pRootElement == nullptr ||
-      StringUtils::CompareNoCase(pRootElement->Value(), "peripherals") != 0)
+      KODI::StringUtils::CompareNoCase(pRootElement->Value(), "peripherals") != 0)
   {
     CLog::LogF(LOGERROR, "peripherals.xml does not contain <peripherals>");
     return false;
@@ -532,10 +532,10 @@ bool CPeripherals::LoadMappings()
     {
       // The vendor_product attribute is a list of comma separated vendor:product pairs
       std::vector<std::string> vpArray =
-          StringUtils::Split(currentNode->Attribute("vendor_product"), ",");
+          KODI::StringUtils::Split(currentNode->Attribute("vendor_product"), ",");
       for (const auto& i : vpArray)
       {
-        std::vector<std::string> idArray = StringUtils::Split(i, ":");
+        std::vector<std::string> idArray = KODI::StringUtils::Split(i, ":");
         if (idArray.size() != 2)
         {
           CLog::LogF(LOGERROR, "ignoring node \"{}\" with invalid vendor_product attribute",
@@ -605,21 +605,21 @@ void CPeripherals::GetSettingsFromMappingsFile(
       float fMax = currentNode->Attribute("max") ? (float)atof(currentNode->Attribute("max")) : 0;
       setting = std::make_shared<CSettingNumber>(strKey, iLabelId, fValue, fMin, fStep, fMax);
     }
-    else if (StringUtils::EqualsNoCase(strSettingsType, "enum"))
+    else if (KODI::StringUtils::EqualsNoCase(strSettingsType, "enum"))
     {
       std::string strEnums = XMLUtils::GetAttribute(currentNode, "lvalues");
       if (!strEnums.empty())
       {
         TranslatableIntegerSettingOptions enums;
         std::vector<std::string> valuesVec;
-        StringUtils::Tokenize(strEnums, valuesVec, "|");
+        KODI::StringUtils::Tokenize(strEnums, valuesVec, "|");
         for (unsigned int i = 0; i < valuesVec.size(); i++)
           enums.emplace_back(atoi(valuesVec[i].c_str()), atoi(valuesVec[i].c_str()));
         int iValue = currentNode->Attribute("value") ? atoi(currentNode->Attribute("value")) : 0;
         setting = std::make_shared<CSettingInt>(strKey, iLabelId, iValue, enums);
       }
     }
-    else if (StringUtils::EqualsNoCase(strSettingsType, "addon"))
+    else if (KODI::StringUtils::EqualsNoCase(strSettingsType, "addon"))
     {
       std::string addonFilter = XMLUtils::GetAttribute(currentNode, "addontype");
       ADDON::AddonType addonType = ADDON::CAddonInfo::TranslateType(addonFilter);
@@ -667,7 +667,7 @@ void CPeripherals::GetSettingsFromMappingsFile(
 
 void CPeripherals::GetDirectory(const std::string& strPath, CFileItemList& items) const
 {
-  if (!StringUtils::StartsWithNoCase(strPath, "peripherals://"))
+  if (!KODI::StringUtils::StartsWithNoCase(strPath, "peripherals://"))
     return;
 
   std::string strPathCut = strPath.substr(14);
@@ -676,8 +676,8 @@ void CPeripherals::GetDirectory(const std::string& strPath, CFileItemList& items
   std::unique_lock<CCriticalSection> lock(m_critSectionBusses);
   for (const auto& bus : m_busses)
   {
-    if (StringUtils::EqualsNoCase(strBus, "all") ||
-        StringUtils::EqualsNoCase(strBus, PeripheralTypeTranslator::BusTypeToString(bus->Type())))
+    if (KODI::StringUtils::EqualsNoCase(strBus, "all") ||
+        KODI::StringUtils::EqualsNoCase(strBus, PeripheralTypeTranslator::BusTypeToString(bus->Type())))
       bus->GetDirectory(strPath, items);
   }
 }
@@ -686,7 +686,7 @@ PeripheralPtr CPeripherals::GetByPath(const std::string& strPath) const
 {
   PeripheralPtr result;
 
-  if (!StringUtils::StartsWithNoCase(strPath, "peripherals://"))
+  if (!KODI::StringUtils::StartsWithNoCase(strPath, "peripherals://"))
     return result;
 
   std::string strPathCut = strPath.substr(14);
@@ -695,7 +695,7 @@ PeripheralPtr CPeripherals::GetByPath(const std::string& strPath) const
   std::unique_lock<CCriticalSection> lock(m_critSectionBusses);
   for (const auto& bus : m_busses)
   {
-    if (StringUtils::EqualsNoCase(strBus, PeripheralTypeTranslator::BusTypeToString(bus->Type())))
+    if (KODI::StringUtils::EqualsNoCase(strBus, PeripheralTypeTranslator::BusTypeToString(bus->Type())))
     {
       result = bus->GetByPath(strPath);
       break;

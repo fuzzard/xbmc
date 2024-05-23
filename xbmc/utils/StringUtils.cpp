@@ -71,10 +71,13 @@ T NumberFromSS(std::string_view str, T fallback) noexcept
 }
 } // unnamed namespace
 
+namespace KODI
+{
+
 static constexpr const char* ADDON_GUID_RE = "^(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}$";
 
 /* empty string for use in returns by ref */
-const std::string StringUtils::Empty = "";
+const std::string KODI::StringUtils::Empty = "";
 
 //	Copyright (c) Leigh Brasington 2012.  All rights reserved.
 //  This code may be used and reproduced without written permission.
@@ -238,7 +241,7 @@ static const wchar_t unicode_uppers[] = {
 };
 
 
-std::string StringUtils::FormatV(const char *fmt, va_list args)
+std::string KODI::StringUtils::FormatV(const char *fmt, va_list args)
 {
   if (!fmt || !fmt[0])
     return "";
@@ -282,7 +285,7 @@ std::string StringUtils::FormatV(const char *fmt, va_list args)
   return ""; // unreachable
 }
 
-std::wstring StringUtils::FormatV(const wchar_t *fmt, va_list args)
+std::wstring KODI::StringUtils::FormatV(const wchar_t *fmt, va_list args)
 {
   if (!fmt || !fmt[0])
     return L"";
@@ -360,55 +363,55 @@ void transformString(const Str& input, Str& output, Fn fn)
   std::transform(input.begin(), input.end(), output.begin(), fn);
 }
 
-std::string StringUtils::ToUpper(const std::string& str)
+std::string KODI::StringUtils::ToUpper(const std::string& str)
 {
   std::string result(str.size(), '\0');
   transformString(str, result, ::toupper);
   return result;
 }
 
-std::wstring StringUtils::ToUpper(const std::wstring& str)
+std::wstring KODI::StringUtils::ToUpper(const std::wstring& str)
 {
   std::wstring result(str.size(), '\0');
   transformString(str, result, toupperUnicode);
   return result;
 }
 
-void StringUtils::ToUpper(std::string &str)
+void KODI::StringUtils::ToUpper(std::string &str)
 {
   transformString(str, str, ::toupper);
 }
 
-void StringUtils::ToUpper(std::wstring &str)
+void KODI::StringUtils::ToUpper(std::wstring &str)
 {
   transformString(str, str, toupperUnicode);
 }
 
-std::string StringUtils::ToLower(const std::string& str)
+std::string KODI::StringUtils::ToLower(const std::string& str)
 {
   std::string result(str.size(), '\0');
   transformString(str, result, ::tolower);
   return result;
 }
 
-std::wstring StringUtils::ToLower(const std::wstring& str)
+std::wstring KODI::StringUtils::ToLower(const std::wstring& str)
 {
   std::wstring result(str.size(), '\0');
   transformString(str, result, tolowerUnicode);
   return result;
 }
 
-void StringUtils::ToLower(std::string &str)
+void KODI::StringUtils::ToLower(std::string &str)
 {
   transformString(str, str, ::tolower);
 }
 
-void StringUtils::ToLower(std::wstring &str)
+void KODI::StringUtils::ToLower(std::wstring &str)
 {
   transformString(str, str, tolowerUnicode);
 }
 
-void StringUtils::ToCapitalize(std::string &str)
+void KODI::StringUtils::ToCapitalize(std::string &str)
 {
   std::wstring wstr;
   g_charsetConverter.utf8ToW(str, wstr);
@@ -416,7 +419,7 @@ void StringUtils::ToCapitalize(std::string &str)
   g_charsetConverter.wToUTF8(wstr, str);
 }
 
-void StringUtils::ToCapitalize(std::wstring &str)
+void KODI::StringUtils::ToCapitalize(std::wstring &str)
 {
   const std::locale& loc = g_langInfo.GetSystemLocale();
   bool isFirstLetter = true;
@@ -433,7 +436,7 @@ void StringUtils::ToCapitalize(std::wstring &str)
   }
 }
 
-bool StringUtils::EqualsNoCase(const std::string &str1, const std::string &str2)
+bool KODI::StringUtils::EqualsNoCase(const std::string &str1, const std::string &str2)
 {
   // before we do the char-by-char comparison, first compare sizes of both strings.
   // This led to a 33% improvement in benchmarking on average. (size() just returns a member of std::string)
@@ -442,12 +445,12 @@ bool StringUtils::EqualsNoCase(const std::string &str1, const std::string &str2)
   return EqualsNoCase(str1.c_str(), str2.c_str());
 }
 
-bool StringUtils::EqualsNoCase(const std::string &str1, const char *s2)
+bool KODI::StringUtils::EqualsNoCase(const std::string &str1, const char *s2)
 {
   return EqualsNoCase(str1.c_str(), s2);
 }
 
-bool StringUtils::EqualsNoCase(const char *s1, const char *s2)
+bool KODI::StringUtils::EqualsNoCase(const char *s1, const char *s2)
 {
   char c2; // we need only one char outside the loop
   do
@@ -460,12 +463,12 @@ bool StringUtils::EqualsNoCase(const char *s1, const char *s2)
   return true;
 }
 
-int StringUtils::CompareNoCase(const std::string& str1, const std::string& str2, size_t n /* = 0 */)
+int KODI::StringUtils::CompareNoCase(const std::string& str1, const std::string& str2, size_t n /* = 0 */)
 {
   return CompareNoCase(str1.c_str(), str2.c_str(), n);
 }
 
-int StringUtils::CompareNoCase(const char* s1, const char* s2, size_t n /* = 0 */)
+int KODI::StringUtils::CompareNoCase(const char* s1, const char* s2, size_t n /* = 0 */)
 {
   char c2; // we need only one char outside the loop
   size_t index = 0;
@@ -481,13 +484,13 @@ int StringUtils::CompareNoCase(const char* s1, const char* s2, size_t n /* = 0 *
   return 0;
 }
 
-std::string StringUtils::Left(const std::string &str, size_t count)
+std::string KODI::StringUtils::Left(const std::string &str, size_t count)
 {
   count = std::max((size_t)0, std::min(count, str.size()));
   return str.substr(0, count);
 }
 
-std::string StringUtils::Mid(const std::string &str, size_t first, size_t count /* = string::npos */)
+std::string KODI::StringUtils::Mid(const std::string &str, size_t first, size_t count /* = string::npos */)
 {
   if (first + count > str.size())
     count = str.size() - first;
@@ -500,19 +503,19 @@ std::string StringUtils::Mid(const std::string &str, size_t first, size_t count 
   return str.substr(first, count);
 }
 
-std::string StringUtils::Right(const std::string &str, size_t count)
+std::string KODI::StringUtils::Right(const std::string &str, size_t count)
 {
   count = std::max((size_t)0, std::min(count, str.size()));
   return str.substr(str.size() - count);
 }
 
-std::string& StringUtils::Trim(std::string &str)
+std::string& KODI::StringUtils::Trim(std::string &str)
 {
   TrimLeft(str);
   return TrimRight(str);
 }
 
-std::string& StringUtils::Trim(std::string &str, const char* const chars)
+std::string& KODI::StringUtils::Trim(std::string &str, const char* const chars)
 {
   TrimLeft(str, chars);
   return TrimRight(str, chars);
@@ -525,35 +528,35 @@ static int isspace_c(char c)
   return (c & 0x80) == 0 && ::isspace(c);
 }
 
-std::string& StringUtils::TrimLeft(std::string &str)
+std::string& KODI::StringUtils::TrimLeft(std::string &str)
 {
   str.erase(str.begin(),
             std::find_if(str.begin(), str.end(), [](char s) { return isspace_c(s) == 0; }));
   return str;
 }
 
-std::string& StringUtils::TrimLeft(std::string &str, const char* const chars)
+std::string& KODI::StringUtils::TrimLeft(std::string &str, const char* const chars)
 {
   size_t nidx = str.find_first_not_of(chars);
   str.erase(0, nidx);
   return str;
 }
 
-std::string& StringUtils::TrimRight(std::string &str)
+std::string& KODI::StringUtils::TrimRight(std::string &str)
 {
   str.erase(std::find_if(str.rbegin(), str.rend(), [](char s) { return isspace_c(s) == 0; }).base(),
             str.end());
   return str;
 }
 
-std::string& StringUtils::TrimRight(std::string &str, const char* const chars)
+std::string& KODI::StringUtils::TrimRight(std::string &str, const char* const chars)
 {
   size_t nidx = str.find_last_not_of(chars);
   str.erase(str.npos == nidx ? 0 : ++nidx);
   return str;
 }
 
-int StringUtils::ReturnDigits(const std::string& str)
+int KODI::StringUtils::ReturnDigits(const std::string& str)
 {
   std::stringstream ss;
   for (const auto& character : str)
@@ -564,7 +567,7 @@ int StringUtils::ReturnDigits(const std::string& str)
   return atoi(ss.str().c_str());
 }
 
-std::string& StringUtils::RemoveDuplicatedSpacesAndTabs(std::string& str)
+std::string& KODI::StringUtils::RemoveDuplicatedSpacesAndTabs(std::string& str)
 {
   std::string::iterator it = str.begin();
   bool onSpace = false;
@@ -591,7 +594,7 @@ std::string& StringUtils::RemoveDuplicatedSpacesAndTabs(std::string& str)
   return str;
 }
 
-bool StringUtils::IsSpecialCharacter(char c)
+bool KODI::StringUtils::IsSpecialCharacter(char c)
 {
   static constexpr std::string_view view(" .-_+,!'\"\t/\\*?#$%&@()[]{}");
   if (std::any_of(view.begin(), view.end(), [c](char ch) { return ch == c; }))
@@ -600,7 +603,7 @@ bool StringUtils::IsSpecialCharacter(char c)
     return false;
 }
 
-std::string StringUtils::ReplaceSpecialCharactersWithSpace(const std::string& str)
+std::string KODI::StringUtils::ReplaceSpecialCharactersWithSpace(const std::string& str)
 {
   std::string result;
   bool prevCharWasSpecial = false;
@@ -624,7 +627,7 @@ std::string StringUtils::ReplaceSpecialCharactersWithSpace(const std::string& st
   return result;
 }
 
-int StringUtils::Replace(std::string &str, char oldChar, char newChar)
+int KODI::StringUtils::Replace(std::string &str, char oldChar, char newChar)
 {
   int replacedChars = 0;
   for (std::string::iterator it = str.begin(); it != str.end(); ++it)
@@ -639,7 +642,7 @@ int StringUtils::Replace(std::string &str, char oldChar, char newChar)
   return replacedChars;
 }
 
-int StringUtils::Replace(std::string &str, const std::string &oldStr, const std::string &newStr)
+int KODI::StringUtils::Replace(std::string &str, const std::string &oldStr, const std::string &newStr)
 {
   if (oldStr.empty())
     return 0;
@@ -657,7 +660,7 @@ int StringUtils::Replace(std::string &str, const std::string &oldStr, const std:
   return replacedChars;
 }
 
-int StringUtils::Replace(std::wstring &str, const std::wstring &oldStr, const std::wstring &newStr)
+int KODI::StringUtils::Replace(std::wstring &str, const std::wstring &oldStr, const std::wstring &newStr)
 {
   if (oldStr.empty())
     return 0;
@@ -675,17 +678,17 @@ int StringUtils::Replace(std::wstring &str, const std::wstring &oldStr, const st
   return replacedChars;
 }
 
-bool StringUtils::StartsWith(const std::string &str1, const std::string &str2)
+bool KODI::StringUtils::StartsWith(const std::string &str1, const std::string &str2)
 {
   return str1.compare(0, str2.size(), str2) == 0;
 }
 
-bool StringUtils::StartsWith(const std::string &str1, const char *s2)
+bool KODI::StringUtils::StartsWith(const std::string &str1, const char *s2)
 {
   return StartsWith(str1.c_str(), s2);
 }
 
-bool StringUtils::StartsWith(const char *s1, const char *s2)
+bool KODI::StringUtils::StartsWith(const char *s1, const char *s2)
 {
   while (*s2 != '\0')
   {
@@ -697,17 +700,17 @@ bool StringUtils::StartsWith(const char *s1, const char *s2)
   return true;
 }
 
-bool StringUtils::StartsWithNoCase(const std::string &str1, const std::string &str2)
+bool KODI::StringUtils::StartsWithNoCase(const std::string &str1, const std::string &str2)
 {
   return StartsWithNoCase(str1.c_str(), str2.c_str());
 }
 
-bool StringUtils::StartsWithNoCase(const std::string &str1, const char *s2)
+bool KODI::StringUtils::StartsWithNoCase(const std::string &str1, const char *s2)
 {
   return StartsWithNoCase(str1.c_str(), s2);
 }
 
-bool StringUtils::StartsWithNoCase(const char *s1, const char *s2)
+bool KODI::StringUtils::StartsWithNoCase(const char *s1, const char *s2)
 {
   while (*s2 != '\0')
   {
@@ -719,14 +722,14 @@ bool StringUtils::StartsWithNoCase(const char *s1, const char *s2)
   return true;
 }
 
-bool StringUtils::EndsWith(const std::string &str1, const std::string &str2)
+bool KODI::StringUtils::EndsWith(const std::string &str1, const std::string &str2)
 {
   if (str1.size() < str2.size())
     return false;
   return str1.compare(str1.size() - str2.size(), str2.size(), str2) == 0;
 }
 
-bool StringUtils::EndsWith(const std::string &str1, const char *s2)
+bool KODI::StringUtils::EndsWith(const std::string &str1, const char *s2)
 {
   size_t len2 = strlen(s2);
   if (str1.size() < len2)
@@ -734,7 +737,7 @@ bool StringUtils::EndsWith(const std::string &str1, const char *s2)
   return str1.compare(str1.size() - len2, len2, s2) == 0;
 }
 
-bool StringUtils::EndsWithNoCase(const std::string &str1, const std::string &str2)
+bool KODI::StringUtils::EndsWithNoCase(const std::string &str1, const std::string &str2)
 {
   if (str1.size() < str2.size())
     return false;
@@ -750,7 +753,7 @@ bool StringUtils::EndsWithNoCase(const std::string &str1, const std::string &str
   return true;
 }
 
-bool StringUtils::EndsWithNoCase(const std::string &str1, const char *s2)
+bool KODI::StringUtils::EndsWithNoCase(const std::string &str1, const char *s2)
 {
   size_t len2 = strlen(s2);
   if (str1.size() < len2)
@@ -766,28 +769,28 @@ bool StringUtils::EndsWithNoCase(const std::string &str1, const char *s2)
   return true;
 }
 
-std::vector<std::string> StringUtils::Split(const std::string& input, const std::string& delimiter, unsigned int iMaxStrings)
+std::vector<std::string> KODI::StringUtils::Split(const std::string& input, const std::string& delimiter, unsigned int iMaxStrings)
 {
   std::vector<std::string> result;
   SplitTo(std::back_inserter(result), input, delimiter, iMaxStrings);
   return result;
 }
 
-std::vector<std::string> StringUtils::Split(const std::string& input, const char delimiter, size_t iMaxStrings)
+std::vector<std::string> KODI::StringUtils::Split(const std::string& input, const char delimiter, size_t iMaxStrings)
 {
   std::vector<std::string> result;
   SplitTo(std::back_inserter(result), input, delimiter, iMaxStrings);
   return result;
 }
 
-std::vector<std::string> StringUtils::Split(const std::string& input, const std::vector<std::string>& delimiters)
+std::vector<std::string> KODI::StringUtils::Split(const std::string& input, const std::vector<std::string>& delimiters)
 {
   std::vector<std::string> result;
   SplitTo(std::back_inserter(result), input, delimiters);
   return result;
 }
 
-std::vector<std::string> StringUtils::SplitMulti(const std::vector<std::string>& input,
+std::vector<std::string> KODI::StringUtils::SplitMulti(const std::vector<std::string>& input,
                                                  const std::vector<std::string>& delimiters,
                                                  size_t iMaxStrings /* = 0 */)
 {
@@ -806,7 +809,7 @@ std::vector<std::string> StringUtils::SplitMulti(const std::vector<std::string>&
     {
       for (size_t i = 0; i < results.size(); i++)
       {
-        std::vector<std::string> substrings = StringUtils::Split(results[i], delimiters[di]);
+        std::vector<std::string> substrings = KODI::StringUtils::Split(results[i], delimiters[di]);
         for (size_t j = 0; j < substrings.size(); j++)
           strings1.push_back(substrings[j]);
       }
@@ -825,7 +828,7 @@ std::vector<std::string> StringUtils::SplitMulti(const std::vector<std::string>&
     {
       if (iNew > 0)
       {
-        std::vector<std::string> substrings = StringUtils::Split(results[i], delimiters[di], iNew + 1);
+        std::vector<std::string> substrings = KODI::StringUtils::Split(results[i], delimiters[di], iNew + 1);
         iNew = iNew - substrings.size() + 1;
         for (size_t j = 0; j < substrings.size(); j++)
           strings1.push_back(substrings[j]);
@@ -843,7 +846,7 @@ std::vector<std::string> StringUtils::SplitMulti(const std::vector<std::string>&
 }
 
 // returns the number of occurrences of strFind in strInput.
-int StringUtils::FindNumber(const std::string& strInput, const std::string &strFind)
+int KODI::StringUtils::FindNumber(const std::string& strInput, const std::string &strFind)
 {
   size_t pos = strInput.find(strFind, 0);
   int numfound = 0;
@@ -1113,8 +1116,8 @@ static wchar_t GetCollationWeight(const wchar_t& r)
 // Compares separately the numeric and alphabetic parts of a wide string.
 // returns negative if left < right, positive if left > right
 // and 0 if they are identical.
-// See also the equivalent StringUtils::AlphaNumericCollation() for UFT8 data
-int64_t StringUtils::AlphaNumericCompare(const wchar_t* left, const wchar_t* right)
+// See also the equivalent KODI::StringUtils::AlphaNumericCollation() for UFT8 data
+int64_t KODI::StringUtils::AlphaNumericCompare(const wchar_t* left, const wchar_t* right)
 {
   const wchar_t *l = left;
   const wchar_t *r = right;
@@ -1280,7 +1283,7 @@ static uint32_t UTF8ToUnicode(const unsigned char* z, int nKey, unsigned char& b
   every pair comparison made. That approach was found to be 10 times slower than using this
   separate routine.
 */
-int StringUtils::AlphaNumericCollation(int nKey1, const void* pKey1, int nKey2, const void* pKey2)
+int KODI::StringUtils::AlphaNumericCollation(int nKey1, const void* pKey1, int nKey2, const void* pKey2)
 {
   // Get exact matches of shorter text to start of larger test fast
   int n = std::min(nKey1, nKey2);
@@ -1397,9 +1400,9 @@ int StringUtils::AlphaNumericCollation(int nKey1, const void* pKey1, int nKey2, 
   return (nKey1 - nKey2);
 }
 
-int StringUtils::DateStringToYYYYMMDD(const std::string &dateString)
+int KODI::StringUtils::DateStringToYYYYMMDD(const std::string &dateString)
 {
-  std::vector<std::string> days = StringUtils::Split(dateString, '-');
+  std::vector<std::string> days = KODI::StringUtils::Split(dateString, '-');
   if (days.size() == 1)
     return atoi(days[0].c_str());
   else if (days.size() == 2)
@@ -1410,7 +1413,7 @@ int StringUtils::DateStringToYYYYMMDD(const std::string &dateString)
     return -1;
 }
 
-std::string StringUtils::ISODateToLocalizedDate(const std::string& strIsoDate)
+std::string KODI::StringUtils::ISODateToLocalizedDate(const std::string& strIsoDate)
 {
   // Convert ISO8601 date strings YYYY, YYYY-MM, or YYYY-MM-DD to (partial) localized date strings
   CDateTime date;
@@ -1449,18 +1452,18 @@ std::string StringUtils::ISODateToLocalizedDate(const std::string& strIsoDate)
   return formattedDate;
 }
 
-long StringUtils::TimeStringToSeconds(const std::string &timeString)
+long KODI::StringUtils::TimeStringToSeconds(const std::string &timeString)
 {
   std::string strCopy(timeString);
-  StringUtils::Trim(strCopy);
-  if(StringUtils::EndsWithNoCase(strCopy, " min"))
+  KODI::StringUtils::Trim(strCopy);
+  if(KODI::StringUtils::EndsWithNoCase(strCopy, " min"))
   {
     // this is imdb format of "XXX min"
     return 60 * atoi(strCopy.c_str());
   }
   else
   {
-    std::vector<std::string> secs = StringUtils::Split(strCopy, ':');
+    std::vector<std::string> secs = KODI::StringUtils::Split(strCopy, ':');
     int timeInSecs = 0;
     for (unsigned int i = 0; i < 3 && i < secs.size(); i++)
     {
@@ -1471,7 +1474,7 @@ long StringUtils::TimeStringToSeconds(const std::string &timeString)
   }
 }
 
-std::string StringUtils::SecondsToTimeString(long lSeconds, TIME_FORMAT format)
+std::string KODI::StringUtils::SecondsToTimeString(long lSeconds, TIME_FORMAT format)
 {
   bool isNegative = lSeconds < 0;
   lSeconds = std::abs(lSeconds);
@@ -1495,13 +1498,13 @@ std::string StringUtils::SecondsToTimeString(long lSeconds, TIME_FORMAT format)
     if (format == TIME_FORMAT_GUESS)
       format = (hh >= 1) ? TIME_FORMAT_HH_MM_SS : TIME_FORMAT_MM_SS;
     if (format & TIME_FORMAT_HH)
-      strHMS += StringUtils::Format("{:02}", hh);
+      strHMS += KODI::StringUtils::Format("{:02}", hh);
     else if (format & TIME_FORMAT_H)
       strHMS += std::to_string(hh);
     if (format & TIME_FORMAT_MM)
-      strHMS += StringUtils::Format(strHMS.empty() ? "{:02}" : ":{:02}", mm);
+      strHMS += KODI::StringUtils::Format(strHMS.empty() ? "{:02}" : ":{:02}", mm);
     if (format & TIME_FORMAT_SS)
-      strHMS += StringUtils::Format(strHMS.empty() ? "{:02}" : ":{:02}", ss);
+      strHMS += KODI::StringUtils::Format(strHMS.empty() ? "{:02}" : ":{:02}", ss);
   }
 
   if (isNegative)
@@ -1510,7 +1513,7 @@ std::string StringUtils::SecondsToTimeString(long lSeconds, TIME_FORMAT format)
   return strHMS;
 }
 
-bool StringUtils::IsNaturalNumber(const std::string& str)
+bool KODI::StringUtils::IsNaturalNumber(const std::string& str)
 {
   size_t i = 0, n = 0;
   // allow whitespace,digits,whitespace
@@ -1525,7 +1528,7 @@ bool StringUtils::IsNaturalNumber(const std::string& str)
   return i == str.size() && n > 0;
 }
 
-bool StringUtils::IsInteger(const std::string& str)
+bool KODI::StringUtils::IsInteger(const std::string& str)
 {
   size_t i = 0, n = 0;
   // allow whitespace,-,digits,whitespace
@@ -1542,7 +1545,7 @@ bool StringUtils::IsInteger(const std::string& str)
   return i == str.size() && n > 0;
 }
 
-int StringUtils::asciidigitvalue(char chr)
+int KODI::StringUtils::asciidigitvalue(char chr)
 {
   if (!isasciidigit(chr))
     return -1;
@@ -1550,7 +1553,7 @@ int StringUtils::asciidigitvalue(char chr)
   return chr - '0';
 }
 
-int StringUtils::asciixdigitvalue(char chr)
+int KODI::StringUtils::asciixdigitvalue(char chr)
 {
   int v = asciidigitvalue(chr);
   if (v >= 0)
@@ -1564,12 +1567,12 @@ int StringUtils::asciixdigitvalue(char chr)
 }
 
 
-void StringUtils::RemoveCRLF(std::string& strLine)
+void KODI::StringUtils::RemoveCRLF(std::string& strLine)
 {
-  StringUtils::TrimRight(strLine, "\n\r");
+  KODI::StringUtils::TrimRight(strLine, "\n\r");
 }
 
-std::string StringUtils::SizeToString(int64_t size)
+std::string KODI::StringUtils::SizeToString(int64_t size)
 {
   std::string strLabel;
   constexpr std::array<char, 9> prefixes = {' ', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'};
@@ -1582,23 +1585,23 @@ std::string StringUtils::SizeToString(int64_t size)
   }
 
   if (!i)
-    strLabel = StringUtils::Format("{:.2f} B", s);
+    strLabel = KODI::StringUtils::Format("{:.2f} B", s);
   else if (i == prefixes.size())
   {
     if (s >= 1000.0)
-      strLabel = StringUtils::Format(">999.99 {}B", prefixes[i - 1]);
+      strLabel = KODI::StringUtils::Format(">999.99 {}B", prefixes[i - 1]);
     else
-      strLabel = StringUtils::Format("{:.2f} {}B", s, prefixes[i - 1]);
+      strLabel = KODI::StringUtils::Format("{:.2f} {}B", s, prefixes[i - 1]);
   }
   else if (s >= 100.0)
-    strLabel = StringUtils::Format("{:.1f} {}B", s, prefixes[i]);
+    strLabel = KODI::StringUtils::Format("{:.1f} {}B", s, prefixes[i]);
   else
-    strLabel = StringUtils::Format("{:.2f} {}B", s, prefixes[i]);
+    strLabel = KODI::StringUtils::Format("{:.2f} {}B", s, prefixes[i]);
 
   return strLabel;
 }
 
-std::string StringUtils::BinaryStringToString(const std::string& in)
+std::string KODI::StringUtils::BinaryStringToString(const std::string& in)
 {
   std::string out;
   out.reserve(in.size() / 2);
@@ -1621,7 +1624,7 @@ std::string StringUtils::BinaryStringToString(const std::string& in)
   return out;
 }
 
-std::string StringUtils::ToHexadecimal(const std::string& in)
+std::string KODI::StringUtils::ToHexadecimal(const std::string& in)
 {
   std::ostringstream ss;
   ss << std::hex;
@@ -1661,7 +1664,7 @@ int IsUTF8Letter(const unsigned char *str)
   return -1;
 }
 
-size_t StringUtils::FindWords(const char *str, const char *wordLowerCase)
+size_t KODI::StringUtils::FindWords(const char *str, const char *wordLowerCase)
 {
   // NOTE: This assumes word is lowercase!
   const unsigned char *s = (const unsigned char *)str;
@@ -1706,7 +1709,7 @@ size_t StringUtils::FindWords(const char *str, const char *wordLowerCase)
 }
 
 // assumes it is called from after the first open bracket is found
-int StringUtils::FindEndBracket(const std::string &str, char opener, char closer, int startPos)
+int KODI::StringUtils::FindEndBracket(const std::string &str, char opener, char closer, int startPos)
 {
   int blocks = 1;
   for (unsigned int i = startPos; i < str.size(); i++)
@@ -1724,10 +1727,10 @@ int StringUtils::FindEndBracket(const std::string &str, char opener, char closer
   return (int)std::string::npos;
 }
 
-void StringUtils::WordToDigits(std::string &word)
+void KODI::StringUtils::WordToDigits(std::string &word)
 {
   static const char word_to_letter[] = "22233344455566677778889999";
-  StringUtils::ToLower(word);
+  KODI::StringUtils::ToLower(word);
   for (unsigned int i = 0; i < word.size(); ++i)
   { // NB: This assumes ascii, which probably needs extending at some  point.
     char letter = word[i];
@@ -1742,7 +1745,7 @@ void StringUtils::WordToDigits(std::string &word)
   }
 }
 
-std::string StringUtils::CreateUUID()
+std::string KODI::StringUtils::CreateUUID()
 {
 #ifdef HAVE_NEW_CROSSGUID
 #ifdef TARGET_ANDROID
@@ -1760,19 +1763,19 @@ std::string StringUtils::CreateUUID()
 #endif
 }
 
-bool StringUtils::ValidateUUID(const std::string &uuid)
+bool KODI::StringUtils::ValidateUUID(const std::string &uuid)
 {
   CRegExp guidRE;
   guidRE.RegComp(ADDON_GUID_RE);
   return (guidRE.RegFind(uuid.c_str()) == 0);
 }
 
-double StringUtils::CompareFuzzy(const std::string &left, const std::string &right)
+double KODI::StringUtils::CompareFuzzy(const std::string &left, const std::string &right)
 {
   return (0.5 + fstrcmp(left.c_str(), right.c_str()) * (left.length() + right.length())) / 2.0;
 }
 
-int StringUtils::FindBestMatch(const std::string &str, const std::vector<std::string> &strings, double &matchscore)
+int KODI::StringUtils::FindBestMatch(const std::string &str, const std::vector<std::string> &strings, double &matchscore)
 {
   int best = -1;
   matchscore = 0;
@@ -1781,7 +1784,7 @@ int StringUtils::FindBestMatch(const std::string &str, const std::vector<std::st
   for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it, i++)
   {
     int maxlength = std::max(str.length(), it->length());
-    double score = StringUtils::CompareFuzzy(str, *it) / maxlength;
+    double score = KODI::StringUtils::CompareFuzzy(str, *it) / maxlength;
     if (score > matchscore)
     {
       matchscore = score;
@@ -1791,7 +1794,7 @@ int StringUtils::FindBestMatch(const std::string &str, const std::vector<std::st
   return best;
 }
 
-bool StringUtils::ContainsKeyword(const std::string &str, const std::vector<std::string> &keywords)
+bool KODI::StringUtils::ContainsKeyword(const std::string &str, const std::vector<std::string> &keywords)
 {
   for (std::vector<std::string>::const_iterator it = keywords.begin(); it != keywords.end(); ++it)
   {
@@ -1801,7 +1804,7 @@ bool StringUtils::ContainsKeyword(const std::string &str, const std::vector<std:
   return false;
 }
 
-size_t StringUtils::utf8_strlen(const char *s)
+size_t KODI::StringUtils::utf8_strlen(const char *s)
 {
   size_t length = 0;
   while (*s)
@@ -1812,46 +1815,46 @@ size_t StringUtils::utf8_strlen(const char *s)
   return length;
 }
 
-std::string StringUtils::Paramify(const std::string &param)
+std::string KODI::StringUtils::Paramify(const std::string &param)
 {
   std::string result = param;
   // escape backspaces
-  StringUtils::Replace(result, "\\", "\\\\");
+  KODI::StringUtils::Replace(result, "\\", "\\\\");
   // escape double quotes
-  StringUtils::Replace(result, "\"", "\\\"");
+  KODI::StringUtils::Replace(result, "\"", "\\\"");
 
   // add double quotes around the whole string
   return "\"" + result + "\"";
 }
 
-std::string StringUtils::DeParamify(const std::string& param)
+std::string KODI::StringUtils::DeParamify(const std::string& param)
 {
   std::string result = param;
 
   // remove double quotes around the whole string
-  if (StringUtils::StartsWith(result, "\"") && StringUtils::EndsWith(result, "\""))
+  if (KODI::StringUtils::StartsWith(result, "\"") && KODI::StringUtils::EndsWith(result, "\""))
   {
     result.erase(0, 1);
     result.pop_back();
 
     // unescape double quotes
-    StringUtils::Replace(result, "\\\"", "\"");
+    KODI::StringUtils::Replace(result, "\\\"", "\"");
 
     // unescape backspaces
-    StringUtils::Replace(result, "\\\\", "\\");
+    KODI::StringUtils::Replace(result, "\\\\", "\\");
   }
 
   return result;
 }
 
-std::vector<std::string> StringUtils::Tokenize(const std::string &input, const std::string &delimiters)
+std::vector<std::string> KODI::StringUtils::Tokenize(const std::string &input, const std::string &delimiters)
 {
   std::vector<std::string> tokens;
   Tokenize(input, tokens, delimiters);
   return tokens;
 }
 
-void StringUtils::Tokenize(const std::string& input, std::vector<std::string>& tokens, const std::string& delimiters)
+void KODI::StringUtils::Tokenize(const std::string& input, std::vector<std::string>& tokens, const std::string& delimiters)
 {
   tokens.clear();
   // Skip delimiters at beginning.
@@ -1867,14 +1870,14 @@ void StringUtils::Tokenize(const std::string& input, std::vector<std::string>& t
   }
 }
 
-std::vector<std::string> StringUtils::Tokenize(const std::string &input, const char delimiter)
+std::vector<std::string> KODI::StringUtils::Tokenize(const std::string &input, const char delimiter)
 {
   std::vector<std::string> tokens;
   Tokenize(input, tokens, delimiter);
   return tokens;
 }
 
-void StringUtils::Tokenize(const std::string& input, std::vector<std::string>& tokens, const char delimiter)
+void KODI::StringUtils::Tokenize(const std::string& input, std::vector<std::string>& tokens, const char delimiter)
 {
   tokens.clear();
   // Skip delimiters at beginning.
@@ -1890,22 +1893,22 @@ void StringUtils::Tokenize(const std::string& input, std::vector<std::string>& t
   }
 }
 
-uint32_t StringUtils::ToUint32(std::string_view str, uint32_t fallback /* = 0 */) noexcept
+uint32_t KODI::StringUtils::ToUint32(std::string_view str, uint32_t fallback /* = 0 */) noexcept
 {
   return NumberFromSS(str, fallback);
 }
 
-uint64_t StringUtils::ToUint64(std::string_view str, uint64_t fallback /* = 0 */) noexcept
+uint64_t KODI::StringUtils::ToUint64(std::string_view str, uint64_t fallback /* = 0 */) noexcept
 {
   return NumberFromSS(str, fallback);
 }
 
-float StringUtils::ToFloat(std::string_view str, float fallback /* = 0.0f */) noexcept
+float KODI::StringUtils::ToFloat(std::string_view str, float fallback /* = 0.0f */) noexcept
 {
   return NumberFromSS(str, fallback);
 }
 
-std::string StringUtils::FormatFileSize(uint64_t bytes)
+std::string KODI::StringUtils::FormatFileSize(uint64_t bytes)
 {
   const std::array<std::string, 6> units{{"B", "kB", "MB", "GB", "TB", "PB"}};
   if (bytes < 1000)
@@ -1922,7 +1925,7 @@ std::string StringUtils::FormatFileSize(uint64_t bytes)
   return Format("{:.{}f}{}", value, decimals, units[i]);
 }
 
-bool StringUtils::Contains(std::string_view str,
+bool KODI::StringUtils::Contains(std::string_view str,
                            std::string_view keyword,
                            bool isCaseInsensitive /* = true */)
 {
@@ -1938,12 +1941,13 @@ bool StringUtils::Contains(std::string_view str,
   return str.find(keyword) != std::string_view::npos;
 }
 
-const std::locale& StringUtils::GetOriginalLocale() noexcept
+const std::locale& KODI::StringUtils::GetOriginalLocale() noexcept
 {
   return g_langInfo.GetOriginalLocale();
 }
 
-std::string StringUtils::CreateFromCString(const char* cstr)
+std::string KODI::StringUtils::CreateFromCString(const char* cstr)
 {
   return cstr != nullptr ? std::string(cstr) : std::string();
 }
+} //namespace KODI

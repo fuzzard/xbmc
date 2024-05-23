@@ -141,7 +141,7 @@ void CPVRGUITimerInfo::UpdateNextTimer()
     strNextRecordingChannelIcon = timer->ChannelIcon();
     strNextRecordingTime = timer->StartAsLocalTime().GetAsLocalizedDateTime(false, false);
 
-    strNextTimerInfo = StringUtils::Format("{} {} {} {}", g_localizeStrings.Get(19106),
+    strNextTimerInfo = KODI::StringUtils::Format("{} {} {} {}", g_localizeStrings.Get(19106),
                                            timer->StartAsLocalTime().GetAsLocalizedDate(true),
                                            g_localizeStrings.Get(19107),
                                            timer->StartAsLocalTime().GetAsLocalizedTime("", false));

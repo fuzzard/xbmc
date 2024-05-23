@@ -63,7 +63,7 @@ bool CAddonRepos::IsFromOfficialRepo(const std::shared_ptr<IAddon>& addon,
     if (checkAddonPath == CheckAddonPath::CHOICE_YES)
     {
       return (addon->Origin() == officialRepo.m_repoId &&
-              StringUtils::StartsWithNoCase(addon->Path(), officialRepo.m_origin));
+              KODI::StringUtils::StartsWithNoCase(addon->Path(), officialRepo.m_origin));
     }
 
     return addon->Origin() == officialRepo.m_repoId;

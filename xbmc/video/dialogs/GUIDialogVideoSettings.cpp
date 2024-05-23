@@ -505,7 +505,7 @@ void CGUIDialogVideoSettings::VideoStreamsOptionFiller(
     if (!info.name.empty())
     {
       if (!strLanguage.empty())
-        strItem = StringUtils::Format("{} - {}", strLanguage, info.name);
+        strItem = KODI::StringUtils::Format("{} - {}", strLanguage, info.name);
       else
         strItem = info.name;
     }
@@ -515,17 +515,17 @@ void CGUIDialogVideoSettings::VideoStreamsOptionFiller(
     }
 
     if (info.codecName.empty())
-      strItem += StringUtils::Format(" ({}x{}", info.width, info.height);
+      strItem += KODI::StringUtils::Format(" ({}x{}", info.width, info.height);
     else
-      strItem += StringUtils::Format(" ({}, {}x{}", info.codecName, info.width, info.height);
+      strItem += KODI::StringUtils::Format(" ({}, {}x{}", info.codecName, info.width, info.height);
 
     if (info.bitrate)
-      strItem += StringUtils::Format(", {} bps)", info.bitrate);
+      strItem += KODI::StringUtils::Format(", {} bps)", info.bitrate);
     else
       strItem += ")";
 
     strItem += FormatFlags(info.flags);
-    strItem += StringUtils::Format(" ({}/{})", i + 1, videoStreamCount);
+    strItem += KODI::StringUtils::Format(" ({}/{})", i + 1, videoStreamCount);
     list.emplace_back(strItem, i);
   }
 
@@ -559,10 +559,10 @@ std::string CGUIDialogVideoSettings::FormatFlags(StreamFlags flags)
   if (flags &  StreamFlags::FLAG_VISUAL_IMPAIRED)
     localizedFlags.emplace_back(g_localizeStrings.Get(39108));
 
-  std::string formated = StringUtils::Join(localizedFlags, ", ");
+  std::string formated = KODI::StringUtils::Join(localizedFlags, ", ");
 
   if (!formated.empty())
-    formated = StringUtils::Format(" [{}]", formated);
+    formated = KODI::StringUtils::Format(" [{}]", formated);
 
   return formated;
 }

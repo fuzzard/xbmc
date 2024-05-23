@@ -114,8 +114,8 @@ void ff_avutil_log(void* ptr, int level, const char* format, va_list va)
       break;
   }
 
-  std::string message = StringUtils::FormatV(format, va);
-  std::string prefix = StringUtils::Format("ffmpeg[{}]: ", fmt::ptr(threadId));
+  std::string message = KODI::StringUtils::FormatV(format, va);
+  std::string prefix = KODI::StringUtils::Format("ffmpeg[{}]: ", fmt::ptr(threadId));
   if (avc)
   {
     if (avc->item_name)

@@ -80,7 +80,7 @@ std::string CPlayerGUIInfo::GetCurrentPlayTime(TIME_FORMAT format) const
   if (format == TIME_FORMAT_GUESS && GetTotalPlayTime() >= 3600)
     format = TIME_FORMAT_HH_MM_SS;
 
-  return StringUtils::SecondsToTimeString(std::lrint(GetPlayTime()), format);
+  return KODI::StringUtils::SecondsToTimeString(std::lrint(GetPlayTime()), format);
 }
 
 std::string CPlayerGUIInfo::GetCurrentPlayTimeRemaining(TIME_FORMAT format) const
@@ -90,7 +90,7 @@ std::string CPlayerGUIInfo::GetCurrentPlayTimeRemaining(TIME_FORMAT format) cons
 
   int iTimeRemaining = GetPlayTimeRemaining();
   if (iTimeRemaining)
-    return StringUtils::SecondsToTimeString(iTimeRemaining, format);
+    return KODI::StringUtils::SecondsToTimeString(iTimeRemaining, format);
 
   return std::string();
 }
@@ -102,7 +102,7 @@ std::string CPlayerGUIInfo::GetDuration(TIME_FORMAT format) const
   {
     if (format == TIME_FORMAT_GUESS && iTotal >= 3600)
       format = TIME_FORMAT_HH_MM_SS;
-    return StringUtils::SecondsToTimeString(iTotal, format);
+    return KODI::StringUtils::SecondsToTimeString(iTotal, format);
   }
   return std::string();
 }
@@ -112,7 +112,7 @@ std::string CPlayerGUIInfo::GetCurrentSeekTime(TIME_FORMAT format) const
   if (format == TIME_FORMAT_GUESS && GetTotalPlayTime() >= 3600)
     format = TIME_FORMAT_HH_MM_SS;
 
-  return StringUtils::SecondsToTimeString(
+  return KODI::StringUtils::SecondsToTimeString(
       g_application.GetTime() + m_appPlayer->GetSeekHandler().GetSeekSize(), format);
 }
 
@@ -125,7 +125,7 @@ std::string CPlayerGUIInfo::GetSeekTime(TIME_FORMAT format) const
   if (format == TIME_FORMAT_GUESS && iSeekTimeCode >= 3600)
     format = TIME_FORMAT_HH_MM_SS;
 
-  return StringUtils::SecondsToTimeString(iSeekTimeCode, format);
+  return KODI::StringUtils::SecondsToTimeString(iSeekTimeCode, format);
 }
 
 void CPlayerGUIInfo::SetShowInfo(bool showinfo)
@@ -167,7 +167,7 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
     case PLAYER_SEEKOFFSET:
     {
       int lastSeekOffset = CServiceBroker::GetDataCacheCore().GetSeekOffSet();
-      std::string seekOffset = StringUtils::SecondsToTimeString(
+      std::string seekOffset = KODI::StringUtils::SecondsToTimeString(
           std::abs(lastSeekOffset / 1000), static_cast<TIME_FORMAT>(info.GetData1()));
       if (lastSeekOffset < 0)
         value = "-" + seekOffset;
@@ -183,19 +183,19 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
       return true;
     case PLAYER_VOLUME:
       value =
-          StringUtils::Format("{:2.1f} dB", CAEUtil::PercentToGain(m_appVolume->GetVolumeRatio()));
+          KODI::StringUtils::Format("{:2.1f} dB", CAEUtil::PercentToGain(m_appVolume->GetVolumeRatio()));
       return true;
     case PLAYER_SUBTITLE_DELAY:
-      value = StringUtils::Format("{:2.3f} s", m_appPlayer->GetVideoSettings().m_SubtitleDelay);
+      value = KODI::StringUtils::Format("{:2.3f} s", m_appPlayer->GetVideoSettings().m_SubtitleDelay);
       return true;
     case PLAYER_AUDIO_DELAY:
-      value = StringUtils::Format("{:2.3f} s", m_appPlayer->GetVideoSettings().m_AudioDelay);
+      value = KODI::StringUtils::Format("{:2.3f} s", m_appPlayer->GetVideoSettings().m_AudioDelay);
       return true;
     case PLAYER_CHAPTER:
-      value = StringUtils::Format("{:02}", m_appPlayer->GetChapter());
+      value = KODI::StringUtils::Format("{:02}", m_appPlayer->GetChapter());
       return true;
     case PLAYER_CHAPTERCOUNT:
-      value = StringUtils::Format("{:02}", m_appPlayer->GetChapterCount());
+      value = KODI::StringUtils::Format("{:02}", m_appPlayer->GetChapterCount());
       return true;
     case PLAYER_CHAPTERNAME:
       m_appPlayer->GetChapterName(value);
@@ -216,7 +216,7 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
       float speed = m_appPlayer->GetPlaySpeed();
       if (speed == 1.0f)
         speed = m_appPlayer->GetPlayTempo();
-      value = StringUtils::Format("{:.2f}", speed);
+      value = KODI::StringUtils::Format("{:.2f}", speed);
       return true;
     }
     case PLAYER_TIME:
@@ -250,7 +250,7 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
     {
       float speed = m_appPlayer->GetPlaySpeed();
       if (speed != 1.0f)
-        value = StringUtils::Format("{} ({}x)",
+        value = KODI::StringUtils::Format("{} ({}x)",
                                     GetCurrentPlayTime(static_cast<TIME_FORMAT>(info.GetData1())),
                                     static_cast<int>(speed));
       else
@@ -263,7 +263,7 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
     case PLAYER_SEEKSTEPSIZE:
     {
       int seekSize = m_appPlayer->GetSeekHandler().GetSeekSize();
-      std::string strSeekSize = StringUtils::SecondsToTimeString(abs(seekSize), static_cast<TIME_FORMAT>(info.GetData1()));
+      std::string strSeekSize = KODI::StringUtils::SecondsToTimeString(abs(seekSize), static_cast<TIME_FORMAT>(info.GetData1()));
       if (seekSize < 0)
         value = "-" + strSeekSize;
       if (seekSize > 0)
@@ -313,16 +313,16 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
       value = CServiceBroker::GetDataCacheCore().GetVideoPixelFormat();
       return true;
     case PLAYER_PROCESS_VIDEOFPS:
-      value = StringUtils::Format("{:.3f}", CServiceBroker::GetDataCacheCore().GetVideoFps());
+      value = KODI::StringUtils::Format("{:.3f}", CServiceBroker::GetDataCacheCore().GetVideoFps());
       return true;
     case PLAYER_PROCESS_VIDEODAR:
-      value = StringUtils::Format("{:.2f}", CServiceBroker::GetDataCacheCore().GetVideoDAR());
+      value = KODI::StringUtils::Format("{:.2f}", CServiceBroker::GetDataCacheCore().GetVideoDAR());
       return true;
     case PLAYER_PROCESS_VIDEOWIDTH:
-      value = StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetVideoWidth());
+      value = KODI::StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetVideoWidth());
       return true;
     case PLAYER_PROCESS_VIDEOHEIGHT:
-      value = StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetVideoHeight());
+      value = KODI::StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetVideoHeight());
       return true;
     case PLAYER_PROCESS_VIDEOSCANTYPE:
       value = CServiceBroker::GetDataCacheCore().IsVideoInterlaced() ? "i" : "p";
@@ -334,10 +334,10 @@ bool CPlayerGUIInfo::GetLabel(std::string& value, const CFileItem *item, int con
       value = CServiceBroker::GetDataCacheCore().GetAudioChannels();
       return true;
     case PLAYER_PROCESS_AUDIOSAMPLERATE:
-      value = StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetAudioSampleRate());
+      value = KODI::StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetAudioSampleRate());
       return true;
     case PLAYER_PROCESS_AUDIOBITSPERSAMPLE:
-      value = StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetAudioBitsPerSample());
+      value = KODI::StringUtils::FormatNumber(CServiceBroker::GetDataCacheCore().GetAudioBitsPerSample());
       return true;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -655,7 +655,7 @@ std::string CPlayerGUIInfo::GetContentRanges(int iInfo) const
 
     // create csv string from ranges
     for (const auto& range : ranges)
-      values += StringUtils::Format("{:.5f},{:.5f},", range.first, range.second);
+      values += KODI::StringUtils::Format("{:.5f},{:.5f},", range.first, range.second);
 
     if (!values.empty())
       values.pop_back(); // remove trailing comma

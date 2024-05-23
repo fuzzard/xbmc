@@ -66,6 +66,9 @@ constexpr auto EnumToInt(T&& arg) noexcept
   return static_cast<int>(arg);
 }
 
+namespace KODI
+{
+
 class StringUtils
 {
 public:
@@ -224,7 +227,7 @@ public:
     }
     std::string str = input;
     for (size_t di = 1; di < delimiters.size(); di++)
-      StringUtils::Replace(str, delimiters[di], delimiters[0]);
+      KODI::StringUtils::Replace(str, delimiters[di], delimiters[0]);
     return SplitTo(dest, str, delimiters[0]);
   }
 
@@ -449,6 +452,7 @@ struct sortstringbyname
 {
   bool operator()(const std::string& strItem1, const std::string& strItem2) const
   {
-    return StringUtils::CompareNoCase(strItem1, strItem2) < 0;
+    return KODI::StringUtils::CompareNoCase(strItem1, strItem2) < 0;
   }
 };
+} //namespace kodi

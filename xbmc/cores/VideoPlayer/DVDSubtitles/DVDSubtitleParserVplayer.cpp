@@ -65,7 +65,7 @@ bool CDVDSubtitleParserVplayer::Open(CDVDStreamInfo& hints)
         ChangeSubtitleStopTime(prevSubId, currPTSStartTime);
 
       // A single line can contain multiple lines split by |
-      StringUtils::Replace(currText, "|", "\n");
+      KODI::StringUtils::Replace(currText, "|", "\n");
 
       prevSubId = AddSubtitle(currText, currPTSStartTime, currPTSStartTime + defaultDuration);
 

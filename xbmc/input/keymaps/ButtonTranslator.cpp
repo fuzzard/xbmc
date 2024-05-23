@@ -163,7 +163,7 @@ bool CButtonTranslator::LoadKeymap(const std::string& keymapPath)
       const char* szWindow = pWindow->Value();
       if (szWindow != nullptr)
       {
-        if (StringUtils::CompareNoCase(szWindow, "global") == 0)
+        if (KODI::StringUtils::CompareNoCase(szWindow, "global") == 0)
           windowID = -1;
         else
           windowID = CWindowTranslator::TranslateWindow(szWindow);

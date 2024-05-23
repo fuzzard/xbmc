@@ -1079,7 +1079,7 @@ void CDVDInputStreamNavigator::SetAudioStreamName(AudioStreamInfo &info, const a
     info.name += temp;
   }
 
-  StringUtils::TrimLeft(info.name);
+  KODI::StringUtils::TrimLeft(info.name);
 }
 
 AudioStreamInfo CDVDInputStreamNavigator::GetAudioStreamInfo(const int iId)
@@ -1523,7 +1523,7 @@ int dvd_inputstreamnavigator_cb_read(void * p_stream, void * buffer, int i_read)
 
 void dvd_logger(void* priv, dvdnav_logger_level_t level, const char* fmt, va_list va)
 {
-  const std::string message = StringUtils::FormatV(fmt, va);
+  const std::string message = KODI::StringUtils::FormatV(fmt, va);
   auto logLevel = LOGDEBUG;
   switch (level)
   {

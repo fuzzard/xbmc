@@ -302,11 +302,11 @@ bool CONTEXTMENU::ShowFor(const std::shared_ptr<CFileItem>& fileItem, const CCon
   if (!root.HasParent())
   {
     int i = 0;
-    while (fileItem->HasProperty(StringUtils::Format("contextmenulabel({})", i)))
+    while (fileItem->HasProperty(KODI::StringUtils::Format("contextmenulabel({})", i)))
     {
       buttons.emplace_back(
           ~buttons.size(),
-          fileItem->GetProperty(StringUtils::Format("contextmenulabel({})", i)).asString());
+          fileItem->GetProperty(KODI::StringUtils::Format("contextmenulabel({})", i)).asString());
       ++i;
     }
   }
@@ -327,7 +327,7 @@ bool CONTEXTMENU::ShowFor(const std::shared_ptr<CFileItem>& fileItem, const CCon
   {
     CServiceBroker::GetAppMessenger()->SendMsg(
         TMSG_EXECUTE_BUILT_IN, -1, -1, nullptr,
-        fileItem->GetProperty(StringUtils::Format("contextmenuaction({})", selected)).asString());
+        fileItem->GetProperty(KODI::StringUtils::Format("contextmenuaction({})", selected)).asString());
     return true;
   }
 

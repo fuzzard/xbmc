@@ -14,7 +14,7 @@ using namespace ADDON;
 
 bool SExtValue::asBoolean() const
 {
-  return StringUtils::EqualsNoCase(str, "true");
+  return KODI::StringUtils::EqualsNoCase(str, "true");
 }
 
 const SExtValue CAddonExtensions::GetValue(const std::string& id) const
