@@ -55,6 +55,9 @@ DEF_TO_STR_VALUE(foo) // outputs "4"
 #define DEF_TO_STR_NAME(x) #x
 #define DEF_TO_STR_VALUE(x) DEF_TO_STR_NAME(x)
 
+namespace KODI
+{
+
 template<typename T, std::enable_if_t<!std::is_enum<T>::value, int> = 0>
 constexpr auto&& EnumToInt(T&& arg) noexcept
 {
@@ -65,9 +68,6 @@ constexpr auto EnumToInt(T&& arg) noexcept
 {
   return static_cast<int>(arg);
 }
-
-namespace KODI
-{
 
 class StringUtils
 {
@@ -82,13 +82,13 @@ public:
   static std::string Format(const std::string& fmt, Args&&... args)
   {
     // coverity[fun_call_w_exception : FALSE]
-    return ::fmt::format(fmt, EnumToInt(std::forward<Args>(args))...);
+    return ::fmt::format(fmt, KODI::EnumToInt(std::forward<Args>(args))...);
   }
   template<typename... Args>
   static std::wstring Format(const std::wstring& fmt, Args&&... args)
   {
     // coverity[fun_call_w_exception : FALSE]
-    return ::fmt::format(fmt, EnumToInt(std::forward<Args>(args))...);
+    return ::fmt::format(fmt, KODI::EnumToInt(std::forward<Args>(args))...);
   }
 
   static std::string FormatV(PRINTF_FORMAT_STRING const char *fmt, va_list args);
@@ -440,19 +440,19 @@ public:
                        std::string_view keyword,
                        bool isCaseInsensitive = true);
 
+  struct sortstringbyname
+  {
+    bool operator()(const std::string& strItem1, const std::string& strItem2) const
+    {
+      return KODI::StringUtils::CompareNoCase(strItem1, strItem2) < 0;
+    }
+  };
+
 private:
   /*!
    * Wrapper for CLangInfo::GetOriginalLocale() which allows us to
    * avoid including LangInfo.h from this header.
    */
   static const std::locale& GetOriginalLocale() noexcept;
-};
-
-struct sortstringbyname
-{
-  bool operator()(const std::string& strItem1, const std::string& strItem2) const
-  {
-    return KODI::StringUtils::CompareNoCase(strItem1, strItem2) < 0;
-  }
 };
 } //namespace kodi

@@ -1271,7 +1271,7 @@ void CLangInfo::SettingOptionsRegionsFiller(const SettingConstPtr& setting,
 {
   std::vector<std::string> regions;
   g_langInfo.GetRegionNames(regions);
-  std::sort(regions.begin(), regions.end(), KODI::sortstringbyname());
+  std::sort(regions.begin(), regions.end(), KODI::StringUtils::sortstringbyname());
 
   bool match = false;
   for (unsigned int i = 0; i < regions.size(); ++i)

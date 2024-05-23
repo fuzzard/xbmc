@@ -1636,7 +1636,7 @@ void CUtil::GetSkinThemes(std::vector<std::string>& vecTheme)
         vecTheme.push_back(KODI::StringUtils::Left(strLabel, strLabel.size() - URIUtils::GetExtension(strLabel).size()));
     }
   }
-  std::sort(vecTheme.begin(), vecTheme.end(), KODI::sortstringbyname());
+  std::sort(vecTheme.begin(), vecTheme.end(), KODI::StringUtils::sortstringbyname());
 }
 
 void CUtil::InitRandomSeed()

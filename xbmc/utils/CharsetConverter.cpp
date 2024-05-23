@@ -902,7 +902,7 @@ void CCharsetConverter::SettingOptionsCharsetsFiller(const SettingConstPtr& sett
                                                      void* data)
 {
   std::vector<std::string> vecCharsets = g_charsetConverter.getCharsetLabels();
-  sort(vecCharsets.begin(), vecCharsets.end(), KODI::sortstringbyname());
+  sort(vecCharsets.begin(), vecCharsets.end(), KODI::StringUtils::sortstringbyname());
 
   list.emplace_back(g_localizeStrings.Get(13278), "DEFAULT"); // "Default"
   for (int i = 0; i < (int) vecCharsets.size(); ++i)

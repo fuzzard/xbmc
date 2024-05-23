@@ -534,7 +534,7 @@ std::vector<std::string> CLangCodeExpander::GetLanguageNames(
   }
 
   // Sort by name and remove duplicates
-  std::set<std::string, KODI::sortstringbyname> languages;
+  std::set<std::string, KODI::StringUtils::sortstringbyname> languages;
   for (const auto& lang : langMap)
   {
     languages.insert(lang.second);

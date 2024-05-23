@@ -480,7 +480,7 @@ void CSkinInfo::SettingOptionsSkinColorsFiller(const SettingConstPtr& setting,
       vecColors.push_back(pItem->GetLabel().substr(0, pItem->GetLabel().size() - 4));
     }
   }
-  sort(vecColors.begin(), vecColors.end(), KODI::sortstringbyname());
+  sort(vecColors.begin(), vecColors.end(), KODI::StringUtils::sortstringbyname());
   for (int i = 0; i < (int) vecColors.size(); ++i)
     list.emplace_back(vecColors[i], vecColors[i]);
 

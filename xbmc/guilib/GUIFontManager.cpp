@@ -694,7 +694,7 @@ std::vector<std::string> GUIFontManager::GetUserFontsFamilyNames()
   // We ensure to have unique font family names and sorted alphabetically
   // Duplicated family names can happens for example when a font have each style
   // on different files
-  std::set<std::string, KODI::sortstringbyname> familyNames;
+  std::set<std::string, KODI::StringUtils::sortstringbyname> familyNames;
   for (const FontMetadata& fontMetadata : m_userFontsCache)
   {
     for (const std::string& familyName : fontMetadata.m_familyNames)

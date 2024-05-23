@@ -566,7 +566,7 @@ TEST(TestStringUtils, sortstringbyname)
   strarray.emplace_back("B");
   strarray.emplace_back("c");
   strarray.emplace_back("a");
-  std::sort(strarray.begin(), strarray.end(), KODI::sortstringbyname());
+  std::sort(strarray.begin(), strarray.end(), KODI::StringUtils::sortstringbyname());
 
   EXPECT_STREQ("a", strarray[0].c_str());
   EXPECT_STREQ("B", strarray[1].c_str());
