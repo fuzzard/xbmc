@@ -18,3 +18,7 @@ if(ENABLE_XBMCHELPER)
 endif()
 
 core_add_library(platform_osx)
+
+if(TARGET platform_osx)
+  set_target_properties(platform_osx PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+endif()

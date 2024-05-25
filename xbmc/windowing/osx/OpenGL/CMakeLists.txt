@@ -8,4 +8,8 @@ if(TARGET OpenGL::GL)
 
   core_add_library(windowing_osx_opengl)
 
+  if(TARGET windowing_osx_opengl)
+    set_target_properties(windowing_osx_opengl PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+  endif()
+
 endif()

@@ -12,3 +12,7 @@ set(HEADERS IOSEAGLView.h
             XBMCController.h)
 
 core_add_library(platform_ios)
+
+if(TARGET platform_ios)
+  set_target_properties(platform_ios PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+endif()

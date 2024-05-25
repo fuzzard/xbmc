@@ -12,3 +12,7 @@ set(HEADERS CocoaDPMSSupport.h
             WinSystemOSX.h)
 
 core_add_library(windowing_osx)
+
+if(TARGET windowing_osx)
+  set_target_properties(windowing_osx PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+endif()

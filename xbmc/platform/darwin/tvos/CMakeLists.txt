@@ -20,3 +20,7 @@ set(HEADERS PreflightHandler.h
             XBMCController.h)
 
 core_add_library(platform_tvos)
+
+if(TARGET platform_tvos)
+  set_target_properties(platform_tvos PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+endif()

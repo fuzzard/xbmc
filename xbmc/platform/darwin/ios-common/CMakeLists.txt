@@ -19,3 +19,7 @@ set(HEADERS AnnounceReceiver.h
             PlatformDarwinEmbedded.h)
 
 core_add_library(platform_ios-common)
+
+if(TARGET platform_ios-common)
+  set_target_properties(platform_ios-common PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+endif()
