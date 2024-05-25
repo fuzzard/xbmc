@@ -422,7 +422,6 @@ if(WIN32)
 elseif(ENABLE_PCH AND COMMAND target_precompile_headers)
   # Add dummy .c and .cpp to force the creation of the PCH for both languages
   target_sources(lib${APP_NAME_LC} PRIVATE
-    ${CMAKE_SOURCE_DIR}/xbmc/platform/common/pch_dummy.c
     ${CMAKE_SOURCE_DIR}/xbmc/platform/common/pch_dummy.cpp)
 
   target_precompile_headers(lib${APP_NAME_LC} PRIVATE
@@ -466,10 +465,6 @@ elseif(ENABLE_PCH AND COMMAND target_precompile_headers)
 
     # Needed to silence a redefinition warning
     $<$<COMPILE_LANGUAGE:CXX>:"utils/log.h">
-
-    # Dummy C PCH so we don't have to special case the hand full of C
-    # libraries we are creating
-    $<$<COMPILE_LANGUAGE:C>:<stdlib.h$<ANGLE-R>>
   )
 
   foreach(dependency ${core_DEPENDS})

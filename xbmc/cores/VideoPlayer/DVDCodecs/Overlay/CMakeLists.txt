@@ -24,4 +24,9 @@ set(HEADERS DVDOverlay.h
             contrib/cc_decoder.h
             contrib/cc_decoder708.h)
 
+set_source_files_properties(contrib/cc_decoder.c PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+set_source_files_properties(contrib/cc_decoder708.c PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+set_source_files_properties(contrib/cc_decoder.h PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+set_source_files_properties(contrib/cc_decoder708.h PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+
 core_add_library(dvdoverlaycodecs)
