@@ -20,6 +20,7 @@
 #include "profiles/ProfileManager.h"
 #include "utils/FileUtils.h"
 #include "utils/StringUtils.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/URIUtils.h"
 #include "utils/XMLUtils.h"
 #include "utils/log.h"

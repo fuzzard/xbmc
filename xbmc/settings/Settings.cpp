@@ -216,7 +216,7 @@ bool CSettings::Load(const tinyxml2::XMLElement* root, bool& updated)
   if (!CSettingsBase::LoadValuesFromXml(root, updated))
     return false;
 
-  return Load(static_cast<const tinyxml2::XMLNode*>(root));
+  return Load(root);
 }
 
 bool CSettings::Load(const tinyxml2::XMLNode* settings)

@@ -17,6 +17,7 @@
 #include "network/upnp/UPnPPlayer.h"
 #endif
 #include "utils/StringUtils.h"
+#include "utils/XBMCTinyXML2.h"
 #include "utils/log.h"
 
 #include <utility>

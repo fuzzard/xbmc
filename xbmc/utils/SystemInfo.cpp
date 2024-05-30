@@ -507,11 +507,10 @@ bool CSysInfo::Save(tinyxml2::XMLNode* settings) const
   if (!settings)
     return false;
 
-  tinyxml2::XMLDocument doc;
   auto* generalNode = settings->FirstChildElement("general");
   if (!generalNode)
   {
-    auto* generalElement = doc.NewElement("general");
+    auto* generalElement = settings->GetDocument()->NewElement("general");
     auto* generalNodeNew = settings->InsertEndChild(generalElement);
     if (!generalNodeNew)
       return false;

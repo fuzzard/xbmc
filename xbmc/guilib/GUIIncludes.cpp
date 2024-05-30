@@ -150,10 +150,10 @@ void CGUIIncludes::LoadDefaults(const tinyxml2::XMLElement* node)
     const char *type = child->Attribute("type");
     if (type && child->FirstChild())
     {
-      auto elementDoc = std::make_unique<tinyxml2::XMLDocument>();
-      tinyxml2::XMLNode* clonenode = child->DeepClone(elementDoc.get());
+      tinyxml2::XMLDocument* elementDoc = nullptr;
+      auto* clonenode = child->DeepClone(elementDoc);
       elementDoc->InsertFirstChild(clonenode);
-      m_defaults.insert(std::make_pair(std::string(type), std::move(elementDoc)));
+      m_defaults.insert(std::make_pair(std::string(type), std::make_unique<tinyxml2::XMLDocument>(elementDoc)));
     }
 
     child = child->NextSiblingElement("default");
@@ -207,10 +207,10 @@ void CGUIIncludes::LoadVariables(const tinyxml2::XMLElement* node)
     const char* tagName = child->Attribute("name");
     if (tagName && child->FirstChild())
     {
-      auto elementDoc = std::make_unique<tinyxml2::XMLDocument>();
-      tinyxml2::XMLNode* clonenode = child->DeepClone(elementDoc.get());
+      tinyxml2::XMLDocument* elementDoc = nullptr;
+      auto* clonenode = child->DeepClone(elementDoc);
       elementDoc->InsertFirstChild(clonenode);
-      m_skinvariables.insert(std::make_pair(std::string(tagName), std::move(elementDoc)));
+      m_skinvariables.insert(std::make_pair(std::string(tagName), std::make_unique<tinyxml2::XMLDocument>(elementDoc)));
     }
 
     child = child->NextSiblingElement("variable");
@@ -240,10 +240,10 @@ void CGUIIncludes::LoadIncludes(const tinyxml2::XMLElement* node)
         CLog::Log(LOGWARNING, "Skin has invalid include definition: {}", tagName);
       else
       {
-        auto elementDoc = std::make_unique<tinyxml2::XMLDocument>();
-        tinyxml2::XMLNode* clonenode = includeBody->DeepClone(elementDoc.get());
+        tinyxml2::XMLDocument* elementDoc = nullptr;
+        auto* clonenode = includeBody->DeepClone(elementDoc);
         elementDoc->InsertFirstChild(clonenode);
-        auto pair = std::make_pair(std::move(elementDoc), std::move(defaultParams));
+        auto pair = std::make_pair(std::make_unique<tinyxml2::XMLDocument>(elementDoc), std::move(defaultParams));
         m_includes.insert({std::string(tagName), std::move(pair)});
       }
     }
@@ -306,8 +306,7 @@ void CGUIIncludes::FlattenSkinVariableConditions()
       const char *condition = valueNode->Attribute("condition");
       if (condition)
       {
-        auto valueAttr = const_cast<tinyxml2::XMLElement*>(valueNode);
-        valueAttr->SetAttribute("condition", ResolveExpressions(condition).c_str());
+        valueNode->SetAttribute("condition", ResolveExpressions(condition).c_str());
       }
 
       valueNode = valueNode->NextSiblingElement("value");
@@ -393,8 +392,7 @@ void CGUIIncludes::ResolveConstants(tinyxml2::XMLElement* node)
     {
       if (m_constantAttributes.count(attribute->Name()))
       {
-        auto attrib = const_cast<tinyxml2::XMLAttribute*>(attribute);
-        attrib->SetAttribute(ResolveConstant(attribute->Value()).c_str());
+        node->SetAttribute(attribute->Name(), ResolveConstant(attribute->Value()).c_str());
       }
 
       attribute = attribute->Next();
@@ -419,8 +417,7 @@ void CGUIIncludes::ResolveExpressions(tinyxml2::XMLElement* node)
     {
       if (m_expressionAttributes.count(attribute->Name()))
       {
-        auto attrib = const_cast<tinyxml2::XMLAttribute*>(attribute);
-        attrib->SetAttribute(ResolveExpressions(attribute->Value()).c_str());
+        node->SetAttribute(attribute->Name(), ResolveExpressions(attribute->Value()).c_str());
       }
 
       attribute = attribute->Next();
@@ -633,8 +630,7 @@ void CGUIIncludes::ResolveParametersForNode(tinyxml2::XMLElement* node, const Pa
     }
     else if (result != NO_PARAMS_FOUND)
     {
-      auto attrib = const_cast<tinyxml2::XMLAttribute*>(attribute);
-      attrib->SetAttribute(newValue.c_str());
+      node->SetAttribute(attribute->Name(), newValue.c_str());
     }
     attribute = attribute->Next();
   }
@@ -663,7 +659,7 @@ void CGUIIncludes::ResolveParametersForNode(tinyxml2::XMLElement* node, const Pa
         auto* next = child->NextSiblingElement();
 
         if (child->ToElement())
-          ResolveParametersForNode(static_cast<tinyxml2::XMLElement*>(child), params);
+          ResolveParametersForNode(child->ToElement(), params);
 
         child = next;
       }

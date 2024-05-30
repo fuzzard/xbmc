@@ -614,8 +614,7 @@ bool CAlbum::Save(tinyxml2::XMLNode* node, const std::string& tag, const std::st
   if (!node) return false;
 
   // we start with a <tag> tag
-  tinyxml2::XMLDocument doc;
-  tinyxml2::XMLElement* albumElement = doc.NewElement(tag.c_str());
+  tinyxml2::XMLElement* albumElement = node->GetDocument()->NewElement(tag.c_str());
   auto* album = node->InsertEndChild(albumElement);
 
   if (!album) return false;
@@ -646,7 +645,8 @@ bool CAlbum::Save(tinyxml2::XMLNode* node, const std::string& tag, const std::st
     auto* thumb = xmlDoc.FirstChildElement("thumb");
     while (thumb)
     {
-      album->InsertEndChild(thumb);
+      auto* thumbCopy = thumb->DeepClone(node->GetDocument());
+      album->InsertEndChild(thumbCopy);
       thumb = thumb->NextSiblingElement("thumb");
     }
   }
@@ -665,7 +665,7 @@ bool CAlbum::Save(tinyxml2::XMLNode* node, const std::string& tag, const std::st
   for (const auto& artistCredit : artistCredits)
   {
     // add an <albumArtistCredits> tag
-    tinyxml2::XMLElement* albumArtistCreditsElement = doc.NewElement("albumArtistCredits");
+    tinyxml2::XMLElement* albumArtistCreditsElement = node->GetDocument()->NewElement("albumArtistCredits");
     auto* albumArtistCreditsNode = album->InsertEndChild(albumArtistCreditsElement);
     XMLUtils::SetString(albumArtistCreditsNode, "artist", artistCredit.m_strArtist);
     XMLUtils::SetString(albumArtistCreditsNode, "musicBrainzArtistID",

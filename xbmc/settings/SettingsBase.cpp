@@ -265,7 +265,7 @@ void CSettingsBase::SetDefaults()
 
 bool CSettingsBase::InitializeDefinitionsFromXml(const CXBMCTinyXML2& xml)
 {
-  const tinyxml2::XMLElement* root = xml.RootElement();
+  const auto* root = xml.RootElement();
   if (!root)
     return false;
 

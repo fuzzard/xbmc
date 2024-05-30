@@ -516,7 +516,7 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
         if (pass)
         {
           passTag->DeleteChild(pass);
-          auto* elem = advancedXML.NewElement("*****");
+          auto* elem = advancedXMLCopy.NewElement("*****");
           passTag->InsertEndChild(elem);
         }
       }
@@ -532,7 +532,7 @@ void CAdvancedSettings::ParseSettingsFile(const std::string &file)
       if (pass)
       {
         passTag->DeleteChild(pass);
-        auto* elem = advancedXML.NewElement("*****");
+        auto* elem = advancedXMLCopy.NewElement("*****");
         passTag->InsertEndChild(elem);
       }
     }

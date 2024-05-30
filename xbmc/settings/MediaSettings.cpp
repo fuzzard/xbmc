@@ -29,9 +29,11 @@
 #include "video/VideoDatabase.h"
 #include "video/VideoLibraryQueue.h"
 
-#include <limits.h>
 #include <mutex>
 #include <string>
+
+#include <limits.h>
+#include <tinyxml2.h>
 
 using namespace KODI;
 using namespace KODI::MESSAGING;

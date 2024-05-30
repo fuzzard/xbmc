@@ -8,17 +8,16 @@
 
 #pragma once
 
-#include "utils/XBMCTinyXML2.h"
-
 #include <memory>
 #include <string>
 
 class IPlayer;
 class IPlayerCallback;
+class CXBMCTinyXML2;
 
 namespace tinyxml2
 {
-class XMLElementl;
+class XMLElement;
 }
 
 class CPlayerCoreConfig

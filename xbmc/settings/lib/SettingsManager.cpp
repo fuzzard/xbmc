@@ -748,15 +748,13 @@ bool CSettingsManager::Serialize(tinyxml2::XMLNode* parent) const
 
   std::shared_lock<CSharedSection> lock(m_settingsCritical);
 
-  tinyxml2::XMLDocument doc;
-
   for (const auto& setting : m_settings)
   {
     if (setting.second.setting->IsReference() ||
         setting.second.setting->GetType() == SettingType::Action)
       continue;
 
-    auto* settingElement = doc.NewElement(SETTING_XML_ELM_SETTING);
+    auto* settingElement = parent->GetDocument()->NewElement(SETTING_XML_ELM_SETTING);
     settingElement->SetAttribute(SETTING_XML_ATTR_ID, setting.second.setting->GetId().c_str());
 
     // add the default attribute
@@ -764,7 +762,7 @@ bool CSettingsManager::Serialize(tinyxml2::XMLNode* parent) const
       settingElement->SetAttribute(SETTING_XML_ELM_DEFAULT, "true");
 
     // add the value
-    auto* value = doc.NewText(setting.second.setting->ToString().c_str());
+    auto* value = parent->GetDocument()->NewText(setting.second.setting->ToString().c_str());
     settingElement->InsertEndChild(value);
 
     if (parent->InsertEndChild(settingElement) == nullptr)

@@ -12261,10 +12261,9 @@ bool CMusicDatabase::ExportSongHistory(tinyxml2::XMLNode* pNode, CGUIDialogProgr
 
     int total = m_pDS->num_rows();
     int current = 0;
-    tinyxml2::XMLDocument doc;
     while (!m_pDS->eof())
     {
-      tinyxml2::XMLElement* songElement = doc.NewElement("song");
+      tinyxml2::XMLElement* songElement = pNode->GetDocument()->NewElement("song");
       auto* song = pNode->InsertEndChild(songElement);
 
       XMLUtils::SetInt(song, "idsong", m_pDS->fv("idSong").get_asInt());

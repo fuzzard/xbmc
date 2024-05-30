@@ -128,7 +128,7 @@ bool CGUIWindow::Load(const std::string& strFileName, bool bContainsPath)
 bool CGUIWindow::LoadXML(const std::string &strPath, const std::string &strLowerPath)
 {
   // load window xml if we don't have it stored yet
-  if (!m_windowXMLRootElement)
+  if (!m_windowXMLDocument)
   {
     CXBMCTinyXML2 xmlDoc;
     std::string strPathLower = strPath;
@@ -150,31 +150,34 @@ bool CGUIWindow::LoadXML(const std::string &strPath, const std::string &strLower
     }
 
     // store XML for further processing if window's load type is LOAD_EVERY_TIME or a reload is needed
-    auto cloneDoc = std::make_unique<tinyxml2::XMLDocument>();
-    xmlDoc.DeepCopy(cloneDoc.get());
-    m_windowXMLRootElement = std::move(cloneDoc);
-    m_windowXMLRootElement;
+    tinyxml2::XMLDocument* cloneDoc;
+    xmlDoc.DeepCopy(cloneDoc);
+    m_windowXMLDocument.reset();
+    m_windowXMLDocument = std::make_unique<tinyxml2::XMLDocument>(cloneDoc);
   }
   else
     CLog::Log(LOGDEBUG, "Using already stored xml root node for {}", strPath);
 
-  return Load(Prepare(m_windowXMLRootElement).get()->RootElement());
+  // copy the root element as we will manipulate it
+  tinyxml2::XMLDocument* preparedRoot;
+  m_windowXMLDocument->DeepCopy(preparedRoot);
+
+  if(!Prepare(preparedRoot))
+    return false;
+
+  return Load(preparedRoot->RootElement());
 }
 
-std::unique_ptr<tinyxml2::XMLDocument> CGUIWindow::Prepare(
-    const std::unique_ptr<tinyxml2::XMLDocument>& rootElement)
+bool CGUIWindow::Prepare(tinyxml2::XMLDocument* rootDocument)
 {
-  if (!rootElement)
-    return nullptr;
-
-  // copy the root element as we will manipulate it
-  auto preparedRoot = std::make_unique<tinyxml2::XMLDocument>(rootElement.get());
+  if (!rootDocument)
+    return false;
 
   // Resolve any includes, constants, expressions that may be present
   // and save include's conditions to the given map
-  g_SkinInfo->ResolveIncludes(preparedRoot.get()->RootElement(), &m_xmlIncludeConditions);
+  g_SkinInfo->ResolveIncludes(rootDocument->RootElement(), &m_xmlIncludeConditions);
 
-  return preparedRoot;
+  return true;
 }
 
 bool CGUIWindow::Load(tinyxml2::XMLElement* pRootElement)
@@ -808,7 +811,7 @@ void CGUIWindow::FreeResources(bool forceUnload /*= false */)
   if (m_loadType == LOAD_EVERY_TIME || forceUnload) ClearAll();
   if (forceUnload)
   {
-    m_windowXMLRootElement.reset();
+    m_windowXMLDocument.reset();
     m_xmlIncludeConditions.clear();
   }
 }
