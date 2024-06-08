@@ -9,7 +9,9 @@ DEPS= ../../Makefile.include Makefile SAMBA-GPLV3-VERSION ../../download-files.i
 
 # vfs_snapper requires dbus, so disable.
 CONFIGURE=./configure --prefix=$(PREFIX) \
-          --cross-compile --cross-answers=cross-answers.txt \
+          --cross-compile \
+          --cross-answers=cross-answers.txt \
+--hostcc=$(CC_FOR_BUILD) \
           --without-cluster-support \
           --without-ldap \
           --without-pam \
@@ -70,29 +72,29 @@ all: .installed-$(PLATFORM)
 $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../01-fix-dependencies.patch
+#	cd $(PLATFORM); patch -p1 -i ../01-fix-dependencies.patch
 	cd $(PLATFORM); patch -p1 -i ../02-cross_compile.patch
-	cd $(PLATFORM); patch -p1 -i ../03-builtin-heimdal.patch
-	cd $(PLATFORM); patch -p1 -i ../04-built-static.patch
+#	cd $(PLATFORM); patch -p1 -i ../03-builtin-heimdal.patch
+#	cd $(PLATFORM); patch -p1 -i ../04-built-static.patch
 ifeq ($(OS),android)
-	cd $(PLATFORM); patch -p1 -i ../samba_android.patch
+#	cd $(PLATFORM); patch -p1 -i ../samba_android.patch
 endif
 ifeq ($(OS), darwin_embedded)
-	cd $(PLATFORM); patch -p1 -i ../no_fork_and_exec.patch
-	cd $(PLATFORM); patch -p1 -i ../crt_extensions.patch
+#	cd $(PLATFORM); patch -p1 -i ../no_fork_and_exec.patch
+#	cd $(PLATFORM); patch -p1 -i ../crt_extensions.patch
 endif
 ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
 	cd $(PLATFORM); patch -p1 -i ../05-apple-disable-zlib-pkgconfig.patch
 	cd $(PLATFORM); patch -p1 -i ../06-apple-fix-st_atim.patch
 endif
 ifeq ($(TARGET_PLATFORM),webos)
-	cd $(PLATFORM); patch -p1 -i ../webos-no-readline.patch
+#	cd $(PLATFORM); patch -p1 -i ../webos-no-readline.patch
 endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-#	cd $(PLATFORM); PYTHONHASHSEED=1 WAF_MAKE=1 ./buildtools/bin/waf --targets=smbclient
-	cd $(PLATFORM); make bin/smbclient
+	cd $(PLATFORM); PYTHONHASHSEED=1 WAF_MAKE=1 ./buildtools/bin/waf --targets=smbclient
+#	cd $(PLATFORM); make bin/smbclient
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	cd $(PLATFORM); WAF_MAKE=1 ./buildtools/bin/waf install --targets=smbclient

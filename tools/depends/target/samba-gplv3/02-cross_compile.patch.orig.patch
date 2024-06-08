@@ -239,3 +239,4 @@
 +
 +check_system_heimdal_binary("compile_et")
 +check_system_heimdal_binary("asn1_compile")
+
