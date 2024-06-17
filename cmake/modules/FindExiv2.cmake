@@ -5,9 +5,9 @@
 #
 # This will define the following imported targets::
 #
-#   EXIV2::EXIV2   - The EXIV2 library
+#   ${APP_NAME_LC}::Exiv2   - The EXIV2 library
 
-if(NOT TARGET EXIV2::EXIV2)
+if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
   macro(buildexiv2)
 
@@ -107,23 +107,23 @@ if(NOT TARGET EXIV2::EXIV2)
   if(EXIV2_FOUND)
     if(TARGET Exiv2::exiv2lib AND NOT TARGET exiv2)
       # Exiv2 config found. Use it
-      add_library(EXIV2::EXIV2 ALIAS Exiv2::exiv2lib)
+      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ALIAS Exiv2::exiv2lib)
     else()
-      add_library(EXIV2::EXIV2 UNKNOWN IMPORTED)
-      set_target_properties(EXIV2::EXIV2 PROPERTIES
-                                         IMPORTED_LOCATION "${EXIV2_LIBRARY}"
-                                         INTERFACE_INCLUDE_DIRECTORIES "${EXIV2_INCLUDE_DIR}")
+      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
+      set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                       IMPORTED_LOCATION "${EXIV2_LIBRARY}"
+                                                                       INTERFACE_INCLUDE_DIRECTORIES "${EXIV2_INCLUDE_DIR}")
       if(CORE_SYSTEM_NAME STREQUAL "freebsd")
-        set_property(TARGET EXIV2::EXIV2 APPEND PROPERTY
-                                                INTERFACE_LINK_LIBRARIES procstat)
+        set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
+                                                                              INTERFACE_LINK_LIBRARIES procstat)
       elseif(CORE_SYSTEM_NAME MATCHES "windows")
-        set_property(TARGET EXIV2::EXIV2 APPEND PROPERTY
-                                                INTERFACE_LINK_LIBRARIES psapi)
+        set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
+                                                                              INTERFACE_LINK_LIBRARIES psapi)
       endif()
     endif()
 
     if(TARGET exiv2)
-      add_dependencies(EXIV2::EXIV2 exiv2)
+      add_dependencies(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} exiv2)
     endif()
 
     # Add internal build target when a Multi Config Generator is used
@@ -141,7 +141,9 @@ if(NOT TARGET EXIV2::EXIV2)
       endif()
       add_dependencies(build_internal_depends exiv2)
     endif()
-
-    set_property(GLOBAL APPEND PROPERTY INTERNAL_DEPS_PROP EXIV2::EXIV2)
+  else()
+    if(Exiv2_FIND_REQUIRED)
+      message(FATAL_ERROR "Could NOT find or build Exiv2 library. You may want to try -DENABLE_INTERNAL_EXIV2=ON")
+    endif()
   endif()
 endif()
