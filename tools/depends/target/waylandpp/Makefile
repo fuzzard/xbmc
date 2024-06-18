@@ -4,9 +4,23 @@ DEPS =Makefile ../../download-files.include WAYLANDPP-VERSION 001-fix-gcc13-buil
 
 LIBDYLIB=$(PLATFORM)/build/libwayland-client++.so
 
+ifeq ($(PLATFORM),)
+	# Building stand-alone
+	ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+	PLATFORM = native
+	TARBALLS_LOCATION = $(ROOT_DIR)
+	BASE_URL := http://mirrors.kodi.tv/build-deps/sources
+	RETRIEVE_TOOL := curl
+	RETRIEVE_TOOL_FLAGS := -LsS --create-dirs --retry 10 --retry-connrefused -o
+	ARCHIVE_TOOL := tar
+	ARCHIVE_TOOL_FLAGS := --strip-components=1 -xf
+	CMAKE := cmake
+	CMAKE_OPTIONS := -DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SCANNER=ON $(CMAKE_OPTIONS)
+else
 	# Building as part of depends
 	DEPS += ../../Makefile.include
 	CMAKE_OPTIONS := -DBUILD_SCANNER=OFF -DWAYLAND_SCANNERPP=$(NATIVEPREFIX)/bin/wayland-scanner++ $(CMAKE_OPTIONS)
+endif
 
 CMAKE_OPTIONS := -DBUILD_DOCUMENTATION=OFF -DBUILD_LIBRARIES=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_EXAMPLES=OFF $(CMAKE_OPTIONS)
 BUILDDIR = $(PLATFORM)/build
