@@ -254,5 +254,3 @@ linux-system-gl-libs:
 	[ -f $(PREFIX)/lib/pkgconfig/egl.pc ] || ln -sf $(HOST_LIB_PKGCONFIG)/egl.pc $(PREFIX)/lib/pkgconfig/egl.pc
 	[ -f $(PREFIX)/lib/pkgconfig/gl.pc ] || ln -sf $(HOST_LIB_PKGCONFIG)/gl.pc $(PREFIX)/lib/pkgconfig/gl.pc
 	[ -f $(PREFIX)/lib/pkgconfig/glu.pc ] || ln -sf $(HOST_LIB_PKGCONFIG)/glu.pc $(PREFIX)/lib/pkgconfig/glu.pc
-	mkdir -p $(PREFIX)/include/EGL
-	[ -f $(PREFIX)/include/EGL/egl.h ] || ln -sf /usr/include/EGL $(PREFIX)/include/EGL
