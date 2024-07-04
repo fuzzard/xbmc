@@ -158,13 +158,6 @@ else()
   set(ENABLE_STATIC_LIBS FALSE)
 endif()
 
-# libtorrent support is conditional on Kademila
-if(ENABLE_KADEMLIA)
-  set(ENABLE_LIBTORRENT TRUE)
-else()
-  set(ENABLE_LIBTORRENT FALSE)
-endif()
-
 core_find_git_rev(APP_SCMID FULL)
 
 set(AUDIO_BACKENDS_LIST "" CACHE STRING "Available audio backends")
@@ -244,11 +237,7 @@ set(required_deps ASS>=0.15.0
                   Fstrcmp
                   HarfBuzz
                   Iconv
-                  Libdatachannel
                   LibDvd
-                  Libjuice
-                  Libsrtp
-                  Libtorrent
                   Lzo2
                   OpenSSL>=1.1.0
                   PCRE2
@@ -258,8 +247,6 @@ set(required_deps ASS>=0.15.0
                   TagLib>=1.9.0
                   TinyXML
                   TinyXML2
-                  try_signal
-                  Usrsctp
                   ZLIB
                   ${PLATFORM_REQUIRED_DEPS})
 
@@ -329,17 +316,10 @@ if(ENABLE_AIRTUNES)
 endif()
 
 if(ENABLE_KADEMLIA)
-  # Configure Boost
-  if(ENABLE_INTERNAL_BOOST)
-    find_package(InternalBoost)
-    include_directories($<TARGET_PROPERTY:${APP_NAME_LC}::InternalBoost,INTERFACE_INCLUDE_DIRECTORIES>)
-  else()
-    find_package(Boost REQUIRED)
-    include_directories(${Boost_INCLUDE_DIRS})
+  core_optional_dep(Libtorrent)
+  if(TARGET ${APP_NAME_LC}::Libtorrent)
+    core_require_dep(Boost)
   endif()
-
-  # Configure libtorrent
-  list(APPEND DEP_DEFINES "-DHAS_LIBTORRENT")
 endif()
 
 # We unset this after the bulk of our find calls are complete. Ideally we would want this enabled

@@ -32,7 +32,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
     BUILD_DEP_TARGET()
 
-    add_dependencies(libtorrent ${APP_NAME_LC}::InternalBoost
+    add_dependencies(libtorrent ${APP_NAME_LC}::Boost
                                 ${APP_NAME_LC}::Libdatachannel
                                 ${APP_NAME_LC}::try_signal)
   endmacro()
@@ -41,7 +41,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
   # TODO: Check dependencies if we have any intention to build internal
   if (ENABLE_INTERNAL_LIBTORRENT)
-    find_package(InternalBoost REQUIRED)
+    find_package(Boost REQUIRED)
     find_package(Libdatachannel REQUIRED)
     find_package(try_signal REQUIRED)
   endif()
@@ -76,17 +76,25 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     endif()
     if(LIBTORRENT_LIBRARY_DEBUG)
       set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                       IMPORTED_CONFIGURATIONS DEBUG
                                                                        IMPORTED_LOCATION_DEBUG "${LIBTORRENT_LIBRARY_DEBUG}")
+      set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
+                                                                            IMPORTED_CONFIGURATIONS DEBUG)
     endif()
     set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                      INTERFACE_LINK_LIBRARIES "${APP_NAME_LC}::Libdatachannel;${APP_NAME_LC}::try_signal"
+                                                                     INTERFACE_COMPILE_DEFINITIONS "HAS_LIBTORRENT"
                                                                      INTERFACE_INCLUDE_DIRECTORIES "${LIBTORRENT_INCLUDE_DIR}")
+
 
     if(_libtorrent_definitions)
       # We need to append in case the cmake config already has definitions
-      set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                       INTERFACE_COMPILE_DEFINITIONS "${_libtorrent_definitions}")
+      set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
+                                                                     INTERFACE_COMPILE_DEFINITIONS "${_libtorrent_definitions}")
+    endif()
+
+    if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+      set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
+                                                                     INTERFACE_LINK_LIBRARIES "-framework SystemConfiguration")
     endif()
 
     if(TARGET libtorrent)

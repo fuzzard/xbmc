@@ -5,19 +5,14 @@ include ../../download-files.include
 DEPS := \
   ../../download-files.include \
   ../../Makefile.include \
-  0001-Add-libraries-to-excludes-list.patch \
   BOOST-VERSION \
-  Makefile \
+  Makefile
 
 # The comma-separated list of boost libraries to build
-#
-# Dependency graph:
-#
-#   libtorrent:
-#     * json
-#     * system
-#
-BOOST_LIBRARIES=json,system
+# This list is for libtorrent - required by cmakebuild
+# asio,beast,crc,config,context,core,json,logic,multi_index,optional,system,multiprecision,pool
+# b2 only requires actual linkable lib names
+BOOST_LIBRARIES=context,json,system
 
 # Boost build options
 BOOST_OPTIONS := \
@@ -25,7 +20,7 @@ BOOST_OPTIONS := \
   cflags="$(CFLAGS)" \
   cxxflags="$(CXXFLAGS)" \
   linkflags="$(LDFLAGS)" \
-  cxxstd=17 \
+  cxxstd=17
 
 ifeq ($(DEBUG_BUILD),yes)
   BOOST_OPTIONS += variant=debug
@@ -45,14 +40,12 @@ else ifeq ($(CPU),x86_64)
 endif
 
 # TODO: FreeBSD (verify), iOS, tvOS
-ifeq ($(OS),linux)
-  BOOST_OPTIONS += target-os=linux
-else ifeq ($(OS),android)
-  BOOST_OPTIONS += target-os=android
-else ifeq ($(OS),osx)
+ifeq ($(OS),osx)
   BOOST_OPTIONS += target-os=darwin
-else ifeq ($(OS),freebsd)
-  BOOST_OPTIONS += target-os=freebsd
+else ifeq ($(OS),darwin_embedded)
+  BOOST_OPTIONS += target-os=darwin
+else
+  BOOST_OPTIONS += target-os=$(OS)
 endif
 
 # The generated library

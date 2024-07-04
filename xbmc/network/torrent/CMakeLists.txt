@@ -5,7 +5,7 @@ set(HEADERS ILibtorrent.h
             TorrentUtils.h
 )
 
-if (ENABLE_LIBTORRENT)
+if(TARGET ${APP_NAME_LC}::Libtorrent)
   list(APPEND SOURCES Libtorrent.cpp
                       LibtorrentAlerts.cpp
                       LibtorrentCache.cpp

@@ -173,7 +173,7 @@ if(ENABLE_UPNP)
                       UPnPFile.h)
 endif()
 
-if(ENABLE_LIBTORRENT)
+if(TARGET ${APP_NAME_LC}::Libtorrent)
   list(APPEND SOURCES MagnetDirectory.cpp
                       MagnetFile.cpp
   )
