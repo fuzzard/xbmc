@@ -4,3 +4,5 @@ ARCHIVE=$(LIBNAME)-$(VERSION).tar.xz
 SHA512=055277695ea242fcb0bf26ca6c4867a385cd578cd73ed4c5c4a020233248044c1ecaebcbaeaac47d3ffe07a41300ea5fc86396d7e812137cf75ed3e1b54ca5b2
 BYPRODUCT=libcurl.a
 BYPRODUCT_WIN=libcurl.lib
+
+BASE_URL=https://github.com/curl/curl/releases/download/curl-8_10_0
