@@ -3,3 +3,5 @@ VERSION=2.6.3
 SOURCE=$(LIBNAME)-$(VERSION)
 ARCHIVE=$(SOURCE).tar.xz
 SHA512=e02c4ad88f9d539258aa1c1db71ded7770a8f12c77b5535e5b34f040ae5b1361ef23132f16d96bdb7c096a83acd637a7c907916bdfcc6d5cfb9e35d04020ca0b
+
+BASE_URL=https://github.com/libexpat/libexpat/releases/download/R_2_6_3
