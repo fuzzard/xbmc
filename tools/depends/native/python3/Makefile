@@ -5,8 +5,7 @@ DEPS = ../../Makefile.include Makefile PYTHON3-VERSION ../../download-files.incl
 CONFIGURE=./configure --prefix=$(NATIVEPREFIX) \
                       --disable-shared \
                       --disable-framework \
-                      --without-pymalloc \
-                      --with-system-ffi
+                      --without-pymalloc
 
 NATIVE_SITEPACKAGES=$(NATIVEPREFIX)/lib/python$(PYTHON_VERSION)/site-packages
 
