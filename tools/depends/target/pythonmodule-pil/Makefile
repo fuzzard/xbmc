@@ -53,7 +53,7 @@ export HARFBUZZ_ROOT=$(PREFIX)
 export FRIBIDI_ROOT=$(PREFIX)
 export ZLIB_ROOT
 
-BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-webp --disable-webpmux --disable-xcb --disable-lcms --disable-platform-guessing
+BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-xcb --disable-lcms --disable-platform-guessing
 
 export CC CFLAGS
 export PYTHONXINCLUDE=$(PREFIX)/include/python$(PYTHON_VERSION)
