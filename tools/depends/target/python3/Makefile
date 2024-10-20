@@ -36,6 +36,10 @@ ifeq ($(OS), linux)
   endif
 endif
 
+ifeq ($(use-py-gil), no)
+  DISABLE_GIL= --disable-gil
+endif
+
 # Disabled c extension modules for all platforms
 PY_MODULES = py_cv_module_grp=n/a \
              py_cv_module_syslog=n/a \
@@ -79,6 +83,7 @@ CONFIGURE=./configure --prefix=$(PREFIX) \
                       --with-system-expat=yes \
                       --disable-test-modules \
                       MODULE_BUILDTYPE=static \
+                      $(DISABLE_GIL) \
                       $(PY_MODULES) \
                       $(EXTRA_CONFIGURE)
 

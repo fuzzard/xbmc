@@ -124,6 +124,12 @@ AC_ARG_WITH([ffmpeg-options],
   [ffmpeg_options=$withval],
   [ffmpeg_options=default])
 
+AC_ARG_WITH([py-gil],
+  [AS_HELP_STRING([--with-py-gil],
+    [enable experimental support for python freethreading (without GIL). default is yes (with GIL)])],
+  [use-py-gil=no],
+  [use-py-gil=yes])
+
 if test "$use_ccache" = "yes"; then
   AC_CHECK_PROG(HAVE_CCACHE,ccache,"yes","no",)
   if test "x$HAVE_CCACHE" = "xno" ; then
@@ -722,6 +728,7 @@ AC_SUBST(host_sysroot)
 AC_SUBST(host_cxxflags)
 AC_SUBST(app_rendersystem)
 AC_SUBST(ffmpeg_options)
+AC_SUBST(use-py-gil)
 
 [
 if test "x$CCACHE" = "x"
