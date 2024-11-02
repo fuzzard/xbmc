@@ -1,0 +1,7 @@
+LIBNAME=libbdplus
+VERSION=0.2.0
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+SHA512=1799ca3678a1879399c76712b7d966a8c94edbdfee31e6e83dee1b5bd0fe9b39faea567e3ec079a0ade4bf5db129eda99186860853529a3aad9cb983fbf6dbbe
+BYPRODUCT=libbdplus.so
+
+BASE_URL=https://code.videolan.org/videolan/libbdplus/-/archive/$(VERSION)
