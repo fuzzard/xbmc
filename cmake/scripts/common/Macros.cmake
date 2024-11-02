@@ -185,6 +185,7 @@ endfunction()
 #   file        full path to file to mirror
 # Optional Arguments:
 #   NO_INSTALL: exclude file from installation target (only mirror)
+#   SKIP_BLACKLIST: skip blacklist extension checking
 #   DIRECTORY:  directory where the file should be mirrored to
 #               (default: preserve tree structure relative to CMAKE_SOURCE_DIR)
 #   KEEP_DIR_STRUCTURE: preserve tree structure even when DIRECTORY is set
@@ -192,15 +193,18 @@ endfunction()
 #   Files is mirrored to the build tree and added to ${install_data}
 #   (if NO_INSTALL is not given).
 function(copy_file_to_buildtree file)
-  # Exclude autotools build artifacts and other blacklisted files in source tree.
-  if(file MATCHES "(Makefile|\\.in|\\.xbt|\\.so|\\.dylib|\\.gitignore)$")
-    if(VERBOSE)
-      message(STATUS "copy_file_to_buildtree - ignoring file: ${file}")
+  cmake_parse_arguments(arg "NO_INSTALL;SKIP_BLACKLIST" "DIRECTORY;KEEP_DIR_STRUCTURE" "" ${ARGN})
+
+  if(NOT arg_SKIP_BLACKLIST)
+    # Exclude autotools build artifacts and other blacklisted files in source tree.
+    if(file MATCHES "(Makefile|\\.in|\\.xbt|\\.so|\\.dylib|\\.gitignore)$")
+      if(VERBOSE)
+        message(STATUS "copy_file_to_buildtree - ignoring file: ${file}")
+      endif()
+      return()
     endif()
-    return()
   endif()
 
-  cmake_parse_arguments(arg "NO_INSTALL" "DIRECTORY;KEEP_DIR_STRUCTURE" "" ${ARGN})
   if(arg_DIRECTORY)
     set(outdir ${arg_DIRECTORY})
     if(arg_KEEP_DIR_STRUCTURE)
