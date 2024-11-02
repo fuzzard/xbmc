@@ -67,7 +67,7 @@ endif
 ifeq ($(OS),osx)
   FONTCONFIG=
   EXCLUDED_DEPENDS = libusb
-  DEPENDS += smctemp
+  DEPENDS += libaacs libbdplus smctemp
 endif
 
 ifeq ($(OS),android)
