@@ -457,6 +457,36 @@ function(core_optional_dep)
   set(final_message ${final_message} PARENT_SCOPE)
 endfunction()
 
+# add optional dependencies of main application that are only packaged and not linked
+# Libs can be loaded by some other lib
+# Arguments:
+#   dep_list One or many dependency specifications (see split_dependency_specification)
+#            for syntax). The dependency name is used uppercased as variable prefix.
+function(package_optional_dep)
+  foreach(depspec ${ARGN})
+    set(_required False)
+    split_dependency_specification(${depspec} dep version)
+    setup_enable_switch()
+    if(${enable_switch} STREQUAL AUTO)
+      find_package_with_ver(${dep} ${version})
+    elseif(${${enable_switch}})
+      find_package_with_ver(${dep} ${version} REQUIRED)
+      set(_required True)
+    endif()
+
+    if(TARGET ${APP_NAME_LC}::${dep} OR (${depup}_FOUND AND ${depspec} IN_LIST optional_buildtools))
+      set(final_message ${final_message} "${depup} enabled: Yes")
+    elseif(_required)
+      message(FATAL_ERROR "${depup} enabled but not found")
+    else()
+      set(final_message ${final_message} "${depup} enabled: No")
+      list(REMOVE_ITEM ${optional_packaged_deps} ${depspec})
+      set(optional_packaged_deps ${optional_packaged_deps} PARENT_SCOPE)
+    endif()
+  endforeach()
+  set(final_message ${final_message} PARENT_SCOPE)
+endfunction()
+
 function(core_file_read_filtered result filepattern)
   # Reads STRINGS from text files
   #  with comments filtered out

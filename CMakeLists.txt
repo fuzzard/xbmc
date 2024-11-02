@@ -277,6 +277,13 @@ endforeach()
 core_optional_dep(${optional_deps})
 core_require_dep(${required_deps})
 
+if(TARGET {APP_NAME_LC}::Bluray)
+  set(optional_packaged_deps LibAACS
+                             LibBDPlus)
+
+  package_optional_dep(${optional_packaged_deps})
+endif()
+
 if(ENABLE_MARIADBCLIENT AND NOT ENABLE_MARIADBCLIENT STREQUAL AUTO AND ENABLE_MYSQLCLIENT AND NOT ENABLE_MYSQLCLIENT STREQUAL AUTO)
   MESSAGE(FATAL_ERROR "You can not use MySql and MariaDB at the same time. Disable one by adding -DENABLE_MYSQLCLIENT=OFF or -DENABLE_MARIADBCLIENT=OFF.")
 elseif(ENABLE_MYSQLCLIENT AND NOT ENABLE_MYSQLCLIENT STREQUAL AUTO)
@@ -483,6 +490,10 @@ add_custom_target(gen_system_addons
                                              -DBUNDLEDIR=${_bundle_dir}
                                              -P ${CMAKE_SOURCE_DIR}/cmake/scripts/common/GenerateSystemAddons.cmake
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+foreach(opt_package_dep ${optional_packaged_deps})
+  copy_file_to_buildtree(${opt_package_dep} SKIP_BLACKLIST)
+endforeach()
 
 if(_multiconfig_generator)
   # Generator expressions in add_custom_command(OUTPUT) are only available in cmake 3.20+
