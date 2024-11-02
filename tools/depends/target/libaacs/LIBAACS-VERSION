@@ -1,0 +1,7 @@
+LIBNAME=libaacs
+VERSION=0.11.1
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+SHA512=cc7b2530cfdd59a8173b92ae5955395be5f8eb090743334c1b17b62175afa1fa2479320e5c3d2ef52481f7468bbe281c1e4be93f19415eb47541f819f716df3e
+BYPRODUCT=libaacs.so
+
+BASE_URL=https://code.videolan.org/videolan/libaacs/-/archive/$(VERSION)
