@@ -162,7 +162,9 @@ freetype2: bzip2 harfbuzz $(ZLIB)
 gettext: $(ICONV)
 gnutls: nettle $(ZLIB)
 harfbuzz: freetype2-noharfbuzz $(ICONV)
+libaacs: libgcrypt libgpg-error
 libass: $(FONTCONFIG) fribidi harfbuzz freetype2 $(ICONV)
+libbdplus: libgcrypt libgpg-error
 libbluray: fontconfig freetype2 $(ICONV) udfread libxml2
 libcdio-gplv3: $(ICONV)
 libcdio: $(ICONV)
