@@ -121,6 +121,31 @@ endfunction()
 # Arguments:
 #   name name of the header part to add
 function(core_add_devkit_header name)
+
+  # Filesets are only available in cmake 3.23.0+
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.23.0")
+    if(NOT TARGET kodi-addon-dev-kit)
+      add_library(kodi-addon-dev-kit INTERFACE)
+    endif()
+
+    string(REPLACE " " ";" source_list "${HEADERS}")
+    foreach(source_file ${source_list})
+      string(GENEX_STRIP ${source_file} genex_source)
+      if(NOT "${source_file}" STREQUAL "${genex_source}")
+        # regex is explicitly targeting format $<$<STREQUAL:${{CORE_SYSTEM_NAME}},{}>:{}>
+        # that is used in code_generator.py tool implemented by https://github.com/xbmc/xbmc/pull/20352
+        string(REGEX REPLACE "\\$<\\$<.*:(.*)>" "\\1" source_file ${source_file})
+      endif()
+      list(APPEND source_file_list "${CMAKE_CURRENT_SOURCE_DIR}/${source_file}")
+    endforeach()
+
+    target_sources(kodi-addon-dev-kit INTERFACE
+                                      FILE_SET kodi_addon_dev_kit_set
+                                      TYPE HEADERS
+                                      BASE_DIRS "${CMAKE_SOURCE_DIR}/xbmc/addons/kodi-dev-kit/include"
+                                      FILES ${source_file_list})
+  endif()
+
   if(NOT ENABLE_STATIC_LIBS)
     core_add_library(addons_kodi-dev-kit_include_${name})
   endif()

@@ -657,6 +657,16 @@ configure_file(${CMAKE_SOURCE_DIR}/cmake/scripts/common/AddonHelpers.cmake
 configure_file(${CMAKE_SOURCE_DIR}/cmake/scripts/common/AddOptions.cmake
                ${CORE_BUILD_DIR}/lib/${APP_NAME_LC}/AddOptions.cmake COPYONLY)
 
+# Filesets are only available in cmake 3.23.0+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.23.0")
+  # Install target for addon dev kit headers
+  # generate project as normal then execute the following
+  # cmake --install <builddir> --component addon-dev-kit --prefix <installlocation>
+  install(TARGETS kodi-addon-dev-kit
+          FILE_SET kodi_addon_dev_kit_set COMPONENT addon-dev-kit
+  )
+endif()
+
 # Status
 message(STATUS "#---- CONFIGURATION ----#")
 foreach(msg ${final_message})
