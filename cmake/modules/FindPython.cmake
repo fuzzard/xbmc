@@ -361,7 +361,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
   
       if(PYTHON3_LIBRARY_RELEASE)
         if(CORE_SYSTEM_NAME MATCHES windows)
-          string(REGEX MATCH "^.*/lib/(.*)\.lib" Python3_DLL ${Python3_LIBRARIES})
+          string(REGEX MATCH "^.*/lib/(.*)\.lib" Python3_DLL ${PYTHON3_LIBRARY_RELEASE})
           set(Python3_DLL "${DEPENDS_PATH}/bin/${CMAKE_MATCH_1}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
           set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
@@ -376,8 +376,8 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
       endif()
       if(PYTHON3_LIBRARY_DEBUG)
         if(CORE_SYSTEM_NAME MATCHES windows)
-          string(REGEX MATCH "^.*/lib/(.*)\.lib" Python3_DLL ${Python3_LIBRARIES})
-          set(Python3_DLL "${DEPENDS_PATH}/bin/${CMAKE_MATCH_1}d${CMAKE_SHARED_LIBRARY_SUFFIX}")
+          string(REGEX MATCH "^.*/lib/(.*)\.lib" Python3_DLL ${PYTHON3_LIBRARY_DEBUG})
+          set(Python3_DLL "${DEPENDS_PATH}/bin/${CMAKE_MATCH_1}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
           set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                            IMPORTED_LOCATION_DEBUG "${Python3_DLL}"
