@@ -1,13 +1,3 @@
---- a/PC/_msi.c
-+++ b/PC/_msi.c
-@@ -7,6 +7,7 @@
- #include <fci.h>
- #include <fcntl.h>
- #include <windows.h>
-+#include <wtypes.h>
- #include <msi.h>
- #include <msiquery.h>
- #include <msidefs.h>
 --- a/PC/msvcrtmodule.c
 +++ b/PC/msvcrtmodule.c
 @@ -226,7 +226,11 @@
@@ -198,29 +188,6 @@
  
  /* We only set these values when building Python - we don't want to force
     these values on extensions, as that will affect the prototypes and
-@@ -300,7 +306,7 @@
- #define HAVE_DECLSPEC_DLL
- 
- /* For an MSVC DLL, we can nominate the .lib files used by extensions */
--#ifdef MS_COREDLL
-+#if 0
- #       if !defined(Py_BUILD_CORE) && !defined(Py_BUILD_CORE_BUILTIN)
-                 /* not building the core - must be an ext */
- #               if defined(_MSC_VER)
-@@ -353,13 +359,8 @@
- #       define SIZEOF_TIME_T 4
- #       endif
- #       define ALIGNOF_MAX_ALIGN_T 8
--#endif
--
--#ifdef _DEBUG
--#       define Py_DEBUG
- #endif
- 
--
- #ifdef MS_WIN32
- 
- #define SIZEOF_SHORT 2
 --- /dev/null
 +++ b/PC/uwp_compat.cpp
 @@ -0,0 +1,25 @@

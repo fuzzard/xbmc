@@ -5,7 +5,7 @@
 +
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,1142 @@
+@@ -0,0 +1,1153 @@
 +cmake_minimum_required(VERSION 3.15)
 +
 +project(python VERSION 3.12.5 LANGUAGES C CXX)
@@ -598,7 +598,7 @@
 +  EXEC_PREFIX=NULL
 +  PLATLIBDIR="DLLs"
 +  VERSION=NULL
-+  PYDEBUGEXT=""
++  PYDEBUGEXT="_d"
 +  WIN32
 +  $<$<CONFIG:Debug>:DEBUG>
 +  $<$<CONFIG:RelWithDebInfo>:NDEBUG>
@@ -632,6 +632,7 @@
 +  OUTPUT_NAME ${PY_SHARED_LIB_NAME}
 +  COMPILE_PDB_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
 +  COMPILE_PDB_NAME ${PY_SHARED_LIB_NAME}
++  DEBUG_POSTFIX "_d"
 +)
 +
 +target_link_libraries(pythoncore
@@ -706,6 +707,7 @@
 +  OUTPUT_NAME ${LIB_NAME}
 +  COMPILE_PDB_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
 +  COMPILE_PDB_NAME ${LIB_NAME}
++  DEBUG_POSTFIX "_d"
 +)
 +
 +target_link_libraries(python3dll
@@ -808,6 +810,7 @@
 +      SUFFIX ".pyd"
 +      COMPILE_PDB_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
 +      COMPILE_PDB_NAME ${PY_MODULE_NAME}
++      DEBUG_POSTFIX "_d"
 +    )
 +
 +    target_link_libraries(${PY_MODULE_NAME}
@@ -1052,6 +1055,14 @@
 +      ${CMAKE_CURRENT_SOURCE_DIR}/Modules/unicodedata_db.h
 +      ${CMAKE_CURRENT_SOURCE_DIR}/Modules/unicodename_db.h
 +      ${CMAKE_CURRENT_SOURCE_DIR}/Modules/unicodedata.c
++  )
++
++  ## _uuid
++  add_py_module(NAME uuid
++    SOURCES
++      ${CMAKE_CURRENT_SOURCE_DIR}/Modules/_uuidmodule.c
++    LIBRARIES
++      rpcrt4.lib
 +  )
 +endif()
 +

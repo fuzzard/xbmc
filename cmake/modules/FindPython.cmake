@@ -66,6 +66,8 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
       list(APPEND Py_LINK_LIBRARIES zlib::zlibstatic)
 
+      set(PYTHON3_DEBUG_POSTFIX _d)
+
       set(CMAKE_ARGS -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
                      -DDEPENDS_PATH=${DEPENDS_PATH}
                      -DNATIVEPREFIX=${NATIVEPREFIX}
@@ -353,7 +355,12 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     if(TARGET Python3::Python AND NOT TARGET python3)
       add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ALIAS Python3::Python)
     else()
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
+      if(CORE_SYSTEM_NAME MATCHES windows)
+        # Must set as Shared for use of IMPLIB to apply for dll usage on windows
+        add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} SHARED IMPORTED)
+      else()
+        add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
+      endif()
       set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                        INTERFACE_INCLUDE_DIRECTORIES "${Python3_INCLUDE_DIRS}"
                                                                        INTERFACE_LINK_OPTIONS "${Python3_LINK_OPTIONS}"

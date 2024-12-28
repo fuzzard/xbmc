@@ -43,15 +43,6 @@
  #else /* !MS_WINDOWS */
 --- a/Python/dynload_win.c
 +++ b/Python/dynload_win.c
-@@ -15,7 +17,7 @@
- #include <windows.h>
- 
- #ifdef _DEBUG
--#define PYD_DEBUG_SUFFIX "_d"
-+#define PYD_DEBUG_SUFFIX ""
- #else
- #define PYD_DEBUG_SUFFIX ""
- #endif
 @@ -183,13 +185,31 @@
      }
      python3_checked = 1;
