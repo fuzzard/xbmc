@@ -37,7 +37,6 @@ DEPENDS = \
   libxslt \
   mariadb \
   nettle \
-  nghttp2 \
   openssl \
   python3 \
   pythonmodule-pil \
