@@ -1,0 +1,11 @@
+--- a/Tools/cmake/FindPCRE2.cmake
++++ b/Tools/cmake/FindPCRE2.cmake
+@@ -7,7 +7,7 @@
+ # PCRE2_LIBRARIES - The PCRE library file
+ # PCRE2_INCLUDE_DIRS - The folder with the PCRE headers
+ 
+-find_library(PCRE2_LIBRARY NAMES pcre2 pcre2-8)
++find_library(PCRE2_LIBRARY NAMES pcre2-8-static pcre2 pcre2-8)
+ find_path(PCRE2_INCLUDE_DIR pcre2.h)
+ 
+ set (PCRE2_LIBRARIES ${PCRE2_LIBRARY})

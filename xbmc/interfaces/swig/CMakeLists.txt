@@ -23,24 +23,30 @@ function(generate_file file)
   # Args used for swig execution
   set(SWIG_ARGS -w401 -c++ -o ${file}.xml -xml -I${CMAKE_SOURCE_DIR}/xbmc ${CMAKE_CURRENT_SOURCE_DIR}/../swig/${file})
 
-  # This generates a file that has the dependencies the preprocessed swig template finds
-  # execute_process needs explicit use of explicit swig executable location. it is not TARGET aware
   # retrieve location property from TARGET
   get_target_property(_swig_exe SWIG::SWIG IMPORTED_LOCATION)
-  execute_process(COMMAND ${_swig_exe} -MM -MF build/swig/${file}.dep ${SWIG_ARGS})
-  file(READ ${CMAKE_BINARY_DIR}/build/swig/${file}.dep swig_deps)
 
-  # Match all lines except the first one until " \"
-  string(REGEX MATCHALL "\n  [^ ]+" temp ${swig_deps})
-  set(swig_deps)
-  foreach(t ${temp})
-    string(STRIP "${t}" t)
-    set(swig_deps ${swig_deps} "${t}")
-  endforeach()
+  # ToDo: move to custom command script to be executed at build time in the event
+  #       SWIG::SWIG doesnt exist at configure time
+  if(EXISTS ${_swig_exe})
+    # This generates a file that has the dependencies the preprocessed swig template finds
+    # execute_process needs explicit use of explicit swig executable location. it is not TARGET aware
 
-  # We set this to allow cmake to detect if changes in the headers/template files are made
-  # and to force a cmake reconfigure to detect new dependencies that may have been added.
-  set_property(DIRECTORY ${CMAKE_SOURCE_DIR} APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${swig_deps})
+    execute_process(COMMAND ${_swig_exe} -MM -MF build/swig/${file}.dep ${SWIG_ARGS})
+    file(READ ${CMAKE_BINARY_DIR}/build/swig/${file}.dep swig_deps)
+
+    # Match all lines except the first one until " \"
+    string(REGEX MATCHALL "\n  [^ ]+" temp ${swig_deps})
+    set(swig_deps)
+    foreach(t ${temp})
+      string(STRIP "${t}" t)
+      set(swig_deps ${swig_deps} "${t}")
+    endforeach()
+
+    # We set this to allow cmake to detect if changes in the headers/template files are made
+    # and to force a cmake reconfigure to detect new dependencies that may have been added.
+    set_property(DIRECTORY ${CMAKE_SOURCE_DIR} APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${swig_deps})
+  endif()
 
   add_custom_command(OUTPUT ${CPP_FILE}
                      COMMAND SWIG::SWIG

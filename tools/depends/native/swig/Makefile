@@ -2,7 +2,8 @@ include ../../Makefile.include SWIG-VERSION ../../download-files.include
 PREFIX=$(NATIVEPREFIX)
 PLATFORM=$(NATIVEPLATFORM)
 
-DEPS = ../../Makefile.include Makefile SWIG-VERSION ../../download-files.include
+DEPS = ../../Makefile.include Makefile SWIG-VERSION ../../download-files.include \
+                    01-all-cmake-pcre-static-lib.patch
 
 LIBDYLIB=$(PLATFORM)/build/swig
 
@@ -12,6 +13,7 @@ all: .installed-$(PLATFORM)
 $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)/build
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	cd $(PLATFORM); patch -p1 -i ../01-all-cmake-pcre-static-lib.patch
 	cd $(PLATFORM)/build; $(CMAKE_FOR_BUILD) $(CMAKE_OPTIONS) ..
 
 $(LIBDYLIB): $(PLATFORM)
