@@ -1,5 +1,14 @@
 --- a/src/libcec/cmake/CheckPlatformSupport.cmake
 +++ b/src/libcec/cmake/CheckPlatformSupport.cmake
+@@ -23,7 +23,7 @@
+ #       RPI_LIB_DIR               PATH to Raspberry Pi libs
+ #       HAVE_TEGRA_API            ON if Tegra is supported
+ #
+-
++message(WARNING "CheckPlatformSupport RUNNING")
+ set(PLATFORM_LIBREQUIRES "")
+ 
+ include(CheckFunctionExists)
 @@ -46,6 +46,7 @@
  
    if("${MSVC_C_ARCHITECTURE_ID}" STREQUAL "X86")
