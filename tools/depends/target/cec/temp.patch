@@ -9,14 +9,14 @@
  set(PLATFORM_LIBREQUIRES "")
  
  include(CheckFunctionExists)
-@@ -46,6 +46,7 @@
- 
-   if("${MSVC_C_ARCHITECTURE_ID}" STREQUAL "X86")
-     set(LIB_INFO "${LIB_INFO} (x86)")
-+message(WARNING "WIN32: SETTING _USE_32BIT_TIME_T")
-     add_definitions(-D_USE_32BIT_TIME_T)
-     # force python2 for eventghost
-     set(PYTHON_USE_VERSION 2)
+@@ -52,6 +52,7 @@
+   elseif("${MSVC_C_ARCHITECTURE_ID}" STREQUAL "x64")
+     check_symbol_exists(_X64_ Windows.h WIN64)
+     check_symbol_exists(_AMD64_ Windows.h AMD64)
++message(WARNING "x64: WIN64: ${WIN64}\nAMD64: ${AMD64}")
+     if (DEFINED WIN64 OR DEFINED AMD64)
+       set(LIB_INFO "${LIB_INFO} (x64)")
+     endif()
 --- a/src/libcec/CMakeLists.txt
 +++ b/src/libcec/CMakeLists.txt
 @@ -164,6 +164,7 @@
