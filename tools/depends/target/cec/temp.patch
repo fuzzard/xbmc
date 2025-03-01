@@ -1,26 +1,11 @@
---- a/src/libcec/cmake/CheckPlatformSupport.cmake
-+++ b/src/libcec/cmake/CheckPlatformSupport.cmake
-@@ -23,7 +23,7 @@
- #       RPI_LIB_DIR               PATH to Raspberry Pi libs
- #       HAVE_TEGRA_API            ON if Tegra is supported
- #
--
-+message(WARNING "CheckPlatformSupport RUNNING")
- set(PLATFORM_LIBREQUIRES "")
- 
- include(CheckFunctionExists)
-@@ -52,6 +52,7 @@
-   elseif("${MSVC_C_ARCHITECTURE_ID}" STREQUAL "x64")
-     check_symbol_exists(_X64_ Windows.h WIN64)
-     check_symbol_exists(_AMD64_ Windows.h AMD64)
-+message(WARNING "x64: WIN64: ${WIN64}\nAMD64: ${AMD64}")
-     if (DEFINED WIN64 OR DEFINED AMD64)
-       set(LIB_INFO "${LIB_INFO} (x64)")
-     endif()
 --- a/src/libcec/CMakeLists.txt
 +++ b/src/libcec/CMakeLists.txt
-@@ -164,6 +164,7 @@
-   if ((${WIN64}) OR (${_M_ARM64}))
+@@ -161,9 +161,10 @@
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcec.rc.in ${CMAKE_CURRENT_SOURCE_DIR}/libcec.rc)
+   add_definitions(-DDLL_EXPORT)
+   add_definitions(-DTARGET_WINDOWS -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_WINSOCKAPI_)
+-  if ((${WIN64}) OR (${_M_ARM64}))
++  if ((${WIN64} OR ${AMD64}) OR (${_M_ARM64}))
      string(REPLACE "/arch:SSE2" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
    else()
 +message(WARNING "WIN32: SETTING _USE_32BIT_TIME_T\nWIN64: ${WIN64}\n_M_ARM64: ${_M_ARM64}")
