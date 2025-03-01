@@ -1,5 +1,5 @@
---- a/src/libcec/CMakeLists.txt
-+++ b/src/libcec/CMakeLists.txt
+--- a/src/libcec/cmake/CheckPlatformSupport.cmake
++++ b/src/libcec/cmake/CheckPlatformSupport.cmake
 @@ -50,9 +50,8 @@
      # force python2 for eventghost
      set(PYTHON_USE_VERSION 2)
