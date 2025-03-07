@@ -1,5 +1,8 @@
 LIBNAME=libpng
 VERSION=1.6.47
-ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+#ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+ARCHIVE=v$(VERSION).tar.gz
 SHA512=95c47647a9a69dc075811494140bad7ed463c38b885c2d086bbf06b5baaf36d371766d32603e4de04d29576b8377c53086497d37e3d1b71db909e2cfcebe4607
 BYPRODUCT=libpng.a
+
+BASE_URL=https://github.com/pnggroup/libpng/archive/refs/tags
