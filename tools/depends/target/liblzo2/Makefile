@@ -5,7 +5,10 @@ DEPS = ../../Makefile.include Makefile LIBLZO2-VERSION ../../download-files.incl
 CMAKE_OPTIONS=-DCMAKE_BUILD_TYPE=Release \
               -DENABLE_STATIC=ON \
               -DENABLE_SHARED=OFF \
-              -DCMAKE_INSTALL_PREFIX=$(PREFIX)
+              -DCMAKE_INSTALL_PREFIX=$(PREFIX) \
+
+# lzo hasnt been updated since 2017. Force this for cmake 4.0
+CMAKE_OPTIONS+= -DCMAKE_POLICY_VERSION_MINIMUM=3.10
 
 LIBDYLIB=$(PLATFORM)/build/$(BYPRODUCT)
 
