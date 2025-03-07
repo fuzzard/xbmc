@@ -2,3 +2,5 @@ LIBNAME=libjpeg-turbo
 VERSION=3.1.0
 ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
 SHA512=63231854529f59a95814cf2414fe384360a4ed96c572764fabc535c3770c559d26943e129c905a63d5949088fa79138b1ffdb175b817f2f4d36329a3cbb23ea7
+
+BASE_URL=https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.0
