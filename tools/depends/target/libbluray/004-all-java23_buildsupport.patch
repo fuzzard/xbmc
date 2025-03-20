@@ -1,0 +1,35 @@
+--- a/src/libbluray/bdj/java-j2se/java/awt/peer/BDFramePeer.java
++++ b/src/libbluray/bdj/java-j2se/java/awt/peer/BDFramePeer.java
+@@ -215,6 +215,11 @@
+         rootWindow = null;
+     }
+ 
++    public GraphicsConfiguration getAppropriateGraphicsConfiguration(GraphicsConfiguration gc)
++    {
++        return gc;
++    }
++
+     private BDRootWindow rootWindow;
+     private Insets insets = new Insets(0, 0, 0, 0);
+ 
+--- a/src/libbluray/bdj/java-j2se/org/videolan/PortingHelper.java
++++ b/src/libbluray/bdj/java-j2se/org/videolan/PortingHelper.java
+@@ -26,7 +26,6 @@
+     }
+ 
+     public static void stopThreadGroup(ThreadGroup t) {
+-        t.stop();
+     }
+ 
+     public static String dumpStack(Thread t) {
+--- a/configure.ac
++++ b/configure.ac
+@@ -297,7 +297,7 @@
+         javac_version=`"$JAVAC" -version 2>&1 | head -n 1`
+         [with_java9=`echo "$javac_version" | grep -E -q '^javac\ (9|1[0-1])' && echo yes`]
+         [with_java12=`echo "$javac_version" | grep -E -q '^javac\ (1[2-9])' && echo yes`]
+-        [with_java20=`echo "$javac_version" | grep -E -q '^javac\ (2[0-1])' && echo yes`]
++        [with_java20=`echo "$javac_version" | grep -E -q '^javac\ (2[0-3])' && echo yes`]
+     ])
+ 
+     AS_IF([test "x$with_java9" = "xyes" -a "$BDJ_TYPE" != "j2me"], [java_code_version=1.6], [java_code_version=1.4])
