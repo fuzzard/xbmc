@@ -9,44 +9,143 @@
 
 if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
-  find_package(PkgConfig QUIET)
+  macro(buildLibAACS)
+    set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/01-all-remove_versioning.patch"
+                "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/02-all-AACS_HOME-env.patch")
 
-  # We only rely on pkgconfig for non windows platforms
-  if(PKG_CONFIG_FOUND AND NOT (WIN32 OR WINDOWS_STORE))
-    pkg_check_modules(AACS libaacs QUIET)
+    if(CORE_SYSTEM_NAME MATCHES windows)
+      list(APPEND patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/03-win-cmake.patch"
+                          "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/04-win-UWP.patch"
+                          "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/05-win-fix_gcrypt_build.patch")
+    endif()
 
-    # First item is the full path of the library file found
-    # pkg_check_modules does not populate a variable of the found library explicitly
-    list(GET AACS_LINK_LIBRARIES 0 AACS_LIBRARY)
+    generate_patchcommand("${patches}")
+
+    if(CORE_SYSTEM_NAME MATCHES windows)
+      find_package(libgpg-error CONFIG REQUIRED)
+      find_package(libgcrypt CONFIG REQUIRED)
+      find_package(iconv CONFIG REQUIRED)
+
+      set(CMAKE_ARGS -DNATIVEPREFIX=${NATIVEPREFIX})
+
+      # Override build type detection and always build as release
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_TYPE Release)
+    else()
+
+      if(CMAKE_HOST_SYSTEM_NAME MATCHES "(Free|Net|Open)BSD")
+        find_program(MAKE_EXECUTABLE gmake)
+      endif()
+      find_program(MAKE_EXECUTABLE make REQUIRED)
+      find_program(AUTORECONF autoreconf REQUIRED)
+
+      pkg_check_modules(PC_LIBGCRYPT REQUIRED QUIET libgcrypt)
+      pkg_check_modules(PC_GPGERROR REQUIRED QUIET gpg-error)
+
+      set(CONFIGURE_COMMAND ./bootstrap
+                    COMMAND ./configure
+                            --prefix=${DEPENDS_PATH}
+                            --disable-static
+                            --exec-prefix=${DEPENDS_PATH})
+
+      set(BUILD_COMMAND ${MAKE_EXECUTABLE})
+      set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
+      set(BUILD_IN_SOURCE 1)
+
+      if(CORE_SYSTEM_NAME STREQUAL "osx")
+        set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BYPRODUCT_EXTENSION "dylib")
+      endif()
+    endif()
+
+    BUILD_DEP_TARGET()
+
+    set(LIBAACS_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
+  endmacro()
+
+  set(${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC libaacs)
+
+  SETUP_BUILD_VARS()
+
+  if(CORE_SYSTEM_NAME MATCHES windows)
+
+    # Kodi libaacs-0.9.0-* prebuilt libs have a broken cmake config file
+    # We need to detect this, otherwise the call to find_package will run and error out
+    if(EXISTS ${DEPENDS_PATH}/lib/cmake/libaacs/libaacs-config.cmake)
+      file(READ ${DEPENDS_PATH}/lib/cmake/libaacs/libaacs-config.cmake aacs_config_output)
+      string(FIND ${aacs_config_output} "libbdplus.cmake" BROKEN_CONFIG)
+    else()
+      set(BROKEN_CONFIG -1)
+    endif()
+
+    # Only do a package check if the broken config is not found
+    if(NOT (${BROKEN_CONFIG} GREATER "-1"))
+      find_package(libaacs CONFIG
+                        HINTS ${DEPENDS_PATH}/lib/cmake
+                        ${${CORE_PLATFORM_NAME_LC}_SEARCH_CONFIG})
+      set(LIBAACS_VERSION ${libaacs_VERSION})
+    endif()
   else()
-    # todo: for windows use find_package CONFIG call potentially
+    find_package(PkgConfig QUIET)
 
-    find_path(AACS_INCLUDEDIR NAMES libaacs/aacs.h
-                              HINTS ${DEPENDS_PATH}/include
-                              ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
-
-    find_library(AACS_LIBRARY NAMES aacs libaacs
-                              HINTS ${DEPENDS_PATH}/lib
-                              ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
+    if(PKG_CONFIG_FOUND)
+      pkg_check_modules(LIBAACS libaacs IMPORTED_TARGET GLOBAL QUIET)
+    endif()
   endif()
 
-  if(NOT AACS_VERSION AND EXISTS ${AACS_INCLUDEDIR}/libaacs/aacs-version.h)
-    file(STRINGS ${AACS_INCLUDEDIR}/libaacs/aacs-version.h _aacs_version_str
-         REGEX "#define[ \t]AACS_VERSION_STRING[ \t][\"]?[0-9.]+[\"]?")
-    string(REGEX REPLACE "^.*AACS_VERSION_STRING[ \t][\"]?([0-9.]+).*$" "\\1" AACS_VERSION ${_aacs_version_str})
-    unset(_aacs_version_str)
+  # Check for existing libaacs. If version >= LIBAACS-VERSION file version, dont build
+  if(LIBAACS_VERSION VERSION_LESS ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
+    buildLibAACS()
+  else()
+    # Our custom cmake target (windows only)
+    if(TARGET libaacs::libaacs)
+      # Currently we only build and support Release build type for libaacs
+      get_target_property(LIBAACS_LIBRARY libaacs::libaacs IMPORTED_LOCATION_RELEASE)
+      get_target_property(LIBAACS_INCLUDE_DIR libaacs::libaacs INTERFACE_INCLUDE_DIRECTORIES)
+    elseif(TARGET PkgConfig::LIBAACS)
+      get_target_property(LIBAACS_LIBRARY PkgConfig::LIBAACS INTERFACE_LINK_LIBRARIES)
+      get_target_property(LIBAACS_INCLUDE_DIR PkgConfig::LIBAACS INTERFACE_INCLUDE_DIRECTORIES)
+    endif()
   endif()
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(LibAACS
-                                    REQUIRED_VARS AACS_LIBRARY AACS_INCLUDEDIR AACS_VERSION
-                                    VERSION_VAR AACS_VERSION)
+                                    REQUIRED_VARS LIBAACS_LIBRARY LIBAACS_INCLUDE_DIR
+                                    VERSION_VAR LIBAACS_VERSION)
 
   if(LIBAACS_FOUND)
-    add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
-    set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                     IMPORTED_LOCATION "${AACS_LIBRARY}"
-                                                                     INTERFACE_INCLUDE_DIRECTORIES "${AACS_INCLUDEDIR}")
+    # pkgconfig populate target that is sufficient version
+    if(TARGET PkgConfig::LIBAACS AND NOT TARGET libaacs)
+      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ALIAS PkgConfig::LIBAACS)
+    # windows cmake config populated target
+    elseif(TARGET libaacs::libaacs AND NOT TARGET libaacs)
+      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ALIAS libaacs::libaacs)
+    # otherwise we are building
+    else()
+      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} INTERFACE IMPORTED)
+      set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                       INTERFACE_INCLUDE_DIRECTORIES "${LIBAACS_INCLUDE_DIR}"
+                                                                       INTERFACE_LINK_LIBRARIES "${LIBAACS_LIBRARY}")
 
+      add_dependencies(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} libaacs)
+    endif()
+
+    # Add internal build target when a Multi Config Generator is used
+    # We cant add a dependency based off a generator expression for targeted build types,
+    # https://gitlab.kitware.com/cmake/cmake/-/issues/19467
+    # therefore if the find heuristics only find the library, we add the internal build
+    # target to the project to allow user to manually trigger for any build type they need
+    # in case only a specific build type is actually available (eg Release found, Debug Required)
+    # This is mainly targeted for windows who required different runtime libs for different
+    # types, and they arent compatible
+    if(_multiconfig_generator)
+      if(NOT TARGET libaacs)
+        buildLibAACS()
+        set_target_properties(libaacs PROPERTIES EXCLUDE_FROM_ALL TRUE)
+      endif()
+      add_dependencies(build_internal_depends libaacs)
+    endif()
+  else()
+    if(LibAACS_FIND_REQUIRED)
+      message(FATAL_ERROR "libaacs libraries were not found.")
+    endif()
   endif()
 endif()
