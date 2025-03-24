@@ -17,6 +17,8 @@ if(NOT TARGET LibDvdRead::LibDvdRead)
 
   set(${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC libdvdread)
 
+  SETUP_BUILD_VARS()
+
   # We require this due to the odd nature of github URL's compared to our other tarball
   # mirror system. If User sets LIBDVDREAD_URL or libdvdread_URL, allow get_filename_component in SETUP_BUILD_VARS
   if(LIBDVDREAD_URL OR libdvdread_URL)
@@ -27,8 +29,6 @@ if(NOT TARGET LibDvdRead::LibDvdRead)
     endif()
     set(LIBDVDREAD_URL_PROVIDED TRUE)
   endif()
-
-  SETUP_BUILD_VARS()
 
   if(NOT LIBDVDREAD_URL_PROVIDED)
     # override LIBDVDREAD_URL due to tar naming when retrieved from github release
