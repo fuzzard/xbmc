@@ -3,6 +3,8 @@ set(PLATFORM_OPTIONAL_DEPS_EXCLUDE CEC)
 set(APP_RENDER_SYSTEM gles)
 list(APPEND PLATFORM_OPTIONAL_DEPS LibDovi)
 
+list(APPEND PLATFORM_OPTIONAL_PACKAGES LibAACS)
+
 # Store SDK compile version
 set(TARGET_SDK 35)
 # Minimum supported SDK version
