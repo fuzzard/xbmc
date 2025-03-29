@@ -453,6 +453,38 @@ function(core_optional_dep)
   set(final_message ${final_message} PARENT_SCOPE)
 endfunction()
 
+# add optional dependencies to add to main application packaging
+# Arguments:
+#   dep_list One or many dependency specifications (see split_dependency_specification)
+#            for syntax). The dependency name is used uppercased as variable prefix.
+# On return:
+#   package_libs List of TARGETS for optional packaging
+#
+function(core_optional_package_lib)
+  foreach(depspec ${ARGN})
+    set(_required False)
+    split_dependency_specification(${depspec} dep version)
+    setup_enable_switch()
+    if(${enable_switch} STREQUAL AUTO)
+      find_package_with_ver(${dep} ${version})
+    elseif(${${enable_switch}})
+      find_package_with_ver(${dep} ${version} REQUIRED)
+      set(_required True)
+    endif()
+
+    if(TARGET ${APP_NAME_LC}::${dep})
+      set(final_message ${final_message} "${depup} enabled: Yes")
+      list(APPEND package_libs ${APP_NAME_LC}::${dep})
+      set(package_libs ${package_libs} PARENT_SCOPE)
+    elseif(_required)
+      message(FATAL_ERROR "${depup} enabled but not found")
+    else()
+      set(final_message ${final_message} "${depup} enabled: No")
+    endif()
+  endforeach()
+  set(final_message ${final_message} PARENT_SCOPE)
+endfunction()
+
 function(core_file_read_filtered result filepattern)
   # Reads STRINGS from text files
   #  with comments filtered out
