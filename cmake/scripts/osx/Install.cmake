@@ -21,6 +21,29 @@ if(CMAKE_GENERATOR MATCHES "Xcode")
   unset(_addons)
 endif()
 
+foreach(_pkg_lib IN LISTS package_libs)
+  # Need to check if the target is an alias, or a direct target
+  get_target_property(ALIASTARGET ${_pkg_lib} ALIASED_TARGET)
+  if(ALIASTARGET)
+    set(_pkg_target_name ${ALIASTARGET})
+  else()
+    set(_pkg_target_name ${_pkg_lib})
+  endif()
+
+  # Is the target an INTERFACE target, or an actual imported lib target
+  get_target_property(_${dep}_interface_lib ${_pkg_target_name} INTERFACE_LINK_LIBRARIES)
+  if(_${dep}_interface_lib)
+    # An interface target does not have a CONFIGURATION option, it will only be the
+    # single version file. We just always append to package_libs
+    set(package_lib_expression "$<TARGET_GENEX_EVAL:${_pkg_target_name},$<TARGET_PROPERTY:${_pkg_target_name},INTERFACE_LINK_LIBRARIES>>")
+  else()
+    # Currently we only support DEBUG or RELEASE
+    set(package_lib_expression "$<TARGET_GENEX_EVAL:${_pkg_target_name},$<IF:$<CONFIG:Debug>,$<TARGET_PROPERTY:${_pkg_target_name},IMPORTED_LOCATION_DEBUG>,$<TARGET_PROPERTY:${_pkg_target_name},IMPORTED_LOCATION_RELEASE>>>")
+  endif()
+
+  list(APPEND ADDITIONAL_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${package_lib_expression} $<TARGET_GENEX_EVAL:${_pkg_target_name},$<TARGET_BUNDLE_CONTENT_DIR:${APP_NAME_LC}>/Libraries>)
+endforeach()
+
 add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/DllPaths_generated.h
                                      ${CMAKE_BINARY_DIR}/xbmc/DllPaths_generated.h
@@ -37,7 +60,8 @@ add_custom_command(TARGET ${APP_NAME_LC} POST_BUILD
             "FULL_PRODUCT_NAME=${APP_NAME}.app"
             "SRCROOT=${CMAKE_BINARY_DIR}"
             "PYTHON_VERSION=${PYTHON_VERSION}"
-            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-osx.command)
+            ${CMAKE_SOURCE_DIR}/tools/darwin/Support/copyframeworks-osx.command
+    ${ADDITIONAL_COMMANDS})
 
 configure_file(${CMAKE_SOURCE_DIR}/tools/darwin/packaging/osx/mkdmg-osx.sh.in
                ${CMAKE_BINARY_DIR}/tools/darwin/packaging/osx/mkdmg-osx.sh @ONLY)
