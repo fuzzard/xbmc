@@ -1,0 +1,12 @@
+--- a/src/file/dl_posix.c
++++ b/src/file/dl_posix.c
+@@ -81,6 +81,9 @@
+                                          "@executable_path/../Resources/", "@rpath/", "/usr/local/lib/", NULL};
+     version = NULL;
+ #else
++#ifdef __ANDROID__
++    version = NULL;
++#endif
+     static const char ext[] = ".so";
+     static const char *search_paths[] = {"", NULL};
+ #endif

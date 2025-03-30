@@ -3,6 +3,7 @@ DEPS = ../../Makefile.include LIBBLURAY-VERSION Makefile ../../download-files.in
                                   001-darwinembed_DiskArbitration-revert.patch \
                                   002-darwin-dlopen_searchpath.patch \
                                   003-all-java21-buildsupport.patch \
+                                  004-android-remove_soname_version.patch \
                                   tvos.patch
 
 # configuration settings
@@ -43,6 +44,9 @@ ifeq ($(TARGET_PLATFORM),appletvos)
 	cd $(PLATFORM); patch -p1 -i ../tvos.patch
 endif
 	cd $(PLATFORM); patch -p1 -i ../003-all-java21-buildsupport.patch
+ifeq ($(OS),android)
+	cd $(PLATFORM); patch -p1 -i ../004-android-remove_soname_version.patch
+endif
 	cd $(PLATFORM); ./bootstrap
 	cd $(PLATFORM); $(CONFIGURE)
 
