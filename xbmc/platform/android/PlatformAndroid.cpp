@@ -35,6 +35,10 @@ bool CPlatformAndroid::InitStageOne()
     return false;
   setenv("SSL_CERT_FILE", CSpecialProtocol::TranslatePath("special://xbmc/system/certs/cacert.pem").c_str(), 1);
   setenv("AACS_HOME", CSpecialProtocol::TranslatePath("special://home").c_str(), 1);
+  setenv("BD_DEBUG_MASK", "65535", 1);
+  setenv("BD_DEBUG_FILE", CSpecialProtocol::TranslatePath("special://logpath/bd.log").c_str(), 1);
+  setenv("AACS_DEBUG_MASK", "65535", 1);
+  setenv("AACS_DEBUG_FILE", CSpecialProtocol::TranslatePath("special://logpath/aacs.log").c_str(), 1);
 
   setenv("OS", "Linux", true); // for python scripts that check the OS
 
