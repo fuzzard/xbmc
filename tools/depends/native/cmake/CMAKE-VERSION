@@ -2,3 +2,5 @@ APPNAME=cmake
 VERSION=4.0.0
 ARCHIVE=$(APPNAME)-$(VERSION).tar.gz
 SHA512=6892f68a48f428b7d7321e646b75d72f751a20b44e74696d445c90dc0dc8be7894f546d70e3749ff44a1bbea0371e9f4d509a9c116c17c231db65affe60945df
+
+BASE_URL=https://github.com/Kitware/CMake/releases/download/v4.0.0
