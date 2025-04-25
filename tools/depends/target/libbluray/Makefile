@@ -3,7 +3,13 @@ DEPS = ../../Makefile.include LIBBLURAY-VERSION Makefile ../../download-files.in
                                   001-darwinembed_DiskArbitration-revert.patch \
                                   002-darwin-dlopen_searchpath.patch \
                                   003-all-java21-buildsupport.patch \
-                                  004-all-build_without_bdj.patch
+                                  004-all-build_without_bdj.patch \
+                                  005-all-symbolvisibility.patch \
+                                  006-win-cmake.patch \
+                                  007-win-uwp.patch \
+                                  008-win-build_fixes.patch \
+                                  009-java-9_bdframepeer.patch \
+                                  009-java-1.8_bdframepeer.patch
 
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) \
@@ -23,6 +29,10 @@ ifeq ($(OS), osx)
     # Log disable to be able to view on CI
     $(warning libbluray does not support building with Java > 21. Disabling bdjava-jar)
     CONFIGURE+= --disable-bdjava-jar
+  else
+    ifeq ($(shell test $(JAVA_MAJOR_VER) -gt 8; echo $$?),0)
+      JAVA9:=1
+    endif
   endif
 else
   CONFIGURE+= --disable-bdjava-jar
@@ -41,6 +51,15 @@ endif
 	cd $(PLATFORM); patch -p1 -i ../002-darwin-dlopen_searchpath.patch
 	cd $(PLATFORM); patch -p1 -i ../003-all-java21-buildsupport.patch
 	cd $(PLATFORM); patch -p1 -i ../004-all-build_without_bdj.patch
+	cd $(PLATFORM); patch -p1 -i ../005-all-symbolvisibility.patch
+	cd $(PLATFORM); patch -p1 -i ../006-win-cmake.patch
+	cd $(PLATFORM); patch -p1 -i ../007-win-uwp.patch
+	cd $(PLATFORM); patch -p1 -i ../008-win-build_fixes.patch
+ifeq ($(JAVA9),1)
+	cd $(PLATFORM); patch -p1 -i ../009-java-9_bdframepeer.patch
+else
+	cd $(PLATFORM); patch -p1 -i ../009-java-1.8_bdframepeer.patch
+endif
 	cd $(PLATFORM); ./bootstrap
 	cd $(PLATFORM); $(CONFIGURE)
 

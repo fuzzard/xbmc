@@ -56,20 +56,78 @@ diff --git a/configure.ac b/configure.ac
 index c7016344..4c0b5d49 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -266,11 +266,12 @@ AS_IF([test "x${JDK_HOME}" != "x"], [
+@@ -247,36 +263,34 @@
+ AM_CONDITIONAL([USING_EXAMPLES], [ test $use_examples = "yes" ])
  
-     temp_CPPFLAGS="$CPPFLAGS"
-     CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
+ dnl use bdjava
+-case $host_cpu in
+-     x86_64) java_arch=amd64 ;;
+-     i?86)   java_arch=i386 ;;
+-     arm*)   java_arch=arm ;;
+-     *)      java_arch=$host_cpu ;;
+-esac
+-case $host_os in
+-     linux*)   java_os=linux ;;
+-     win*)     java_os=win32 ;;
+-     mingw*)   java_os=win32 ;;
+-     freebsd*) java_os=freebsd ;;
+-     solaris*) java_os=solaris ;;
+-     darwin*)  java_os=darwin ;;
+-     netbsd*)  java_os=netbsd ;;
+-     openbsd*) java_os=openbsd ;;
+-     *)        java_os=$host_os ;;
+-esac
+-
+-AS_IF([test "x${JDK_HOME}" != "x"], [
+-    BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
+-
+-    temp_CPPFLAGS="$CPPFLAGS"
+-    CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
 -    AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR(could not find jni.h)])
-     CPPFLAGS="$temp_CPPFLAGS"
- ], [
-     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
- ])
-+AC_CHECK_HEADERS([jni.h], [have_jni=yes], [have_jni=no])
-+AM_CONDITIONAL([HAVE_JNI], [ test x"$have_jni" = x"yes" ])
- 
+-    CPPFLAGS="$temp_CPPFLAGS"
+-], [
+-    BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
+-])
+-
  AS_IF([test "x$use_bdjava_jar" = "xyes"], [
++    case $host_cpu in
++         x86_64) java_arch=amd64 ;;
++         i?86)   java_arch=i386 ;;
++         arm*)   java_arch=arm ;;
++         *)      java_arch=$host_cpu ;;
++    esac
++    case $host_os in
++         linux*)   java_os=linux ;;
++         win*)     java_os=win32 ;;
++         mingw*)   java_os=win32 ;;
++         freebsd*) java_os=freebsd ;;
++         solaris*) java_os=solaris ;;
++         darwin*)  java_os=darwin ;;
++         netbsd*)  java_os=netbsd ;;
++         openbsd*) java_os=openbsd ;;
++         *)        java_os=$host_os ;;
++    esac
++    
++    AS_IF([test "x${JDK_HOME}" != "x"], [
++        BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
++    ], [
++        BDJAVA_CFLAGS='-I'"${ac_pwd}"'/jni -I'"${ac_pwd}"'/jni/'"${java_os}"
++    ])
++    temp_CFLAGS="$CFLAGS"
++    CFLAGS="$BDJAVA_CFLAGS $CFLAGS"
++    AC_CHECK_HEADERS([jni.h], [have_jni=yes], [have_jni=no])
++    CFLAGS="$temp_CFLAGS"
  
+     dnl check for ant
+     AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
+@@ -308,6 +322,7 @@
+ AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
+ AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
+ AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
++AM_CONDITIONAL([HAVE_JNI], [ test x"$have_jni" = x"yes" ])
+ AM_CONDITIONAL([USING_JAVAC_9], [ test x"$with_java9" = x"yes" ])
+ AM_CONDITIONAL([USING_JAVAC_12], [ test x"$with_java12" = x"yes" ])
+ AM_CONDITIONAL([USING_JAVAC_20], [ test x"$with_java20" = x"yes" ])
 @@ -362,6 +363,7 @@ dnl ---------------------------------------------
  
  echo "  Summary:"

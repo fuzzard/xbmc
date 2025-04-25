@@ -1,0 +1,786 @@
+From 437cb24c0031c9019183461afe0395660921d94a Mon Sep 17 00:00:00 2001
+From: robxnano <robxnanocode@outlook.com>
+Date: Thu, 27 Mar 2025 22:27:06 +0000
+Subject: [PATCH] Use symbol visibility attributes
+
+Replaces version scripts and export-symbols with a cross-platform
+solution for symbol visibility, using dllexport on Windows
+and visibility("default") with -fvisibility=hidden added to the
+compiler flags on GCC or clang.
+---
+ Makefile.am                      |   2 +-
+ configure.ac                     |   5 ++
+ src/file/filesystem.h            |  10 ++-
+ src/libbluray/bluray.h           | 133 ++++++++++++++++---------------
+ src/libbluray/decoders/overlay.h |  10 ++-
+ src/libbluray/register.h         |  12 +--
+ src/util/attributes.h            |  17 ++--
+ src/util/log_control.h           |  12 ++-
+ 8 files changed, 114 insertions(+), 87 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 24b60f78..ddd61b31 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -215,7 +215,7 @@ endif
+ endif
+ endif
+ 
+-libbluray_la_LDFLAGS= -no-undefined -version-info $(LT_VERSION_INFO) -export-symbols-regex "^bd_"
++libbluray_la_LDFLAGS= -no-undefined -version-info $(LT_VERSION_INFO)
+ libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS) $(LIBUDFREAD_LIBS) $(EXTRA_LIBS)
+ 
+ noinst_HEADERS = \
+diff --git a/configure.ac b/configure.ac
+index 1be277e0..bbb08bb0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -218,6 +218,11 @@ AS_IF([test "x$with_freetype" != "xno"], [
+   ])
+ ])
+ 
++dnl symbol visibility
++CC_CHECK_CFLAGS_APPEND([-fvisibility=hidden])
++CPPFLAGS="${CPPFLAGS} -DBLURAY_API_EXPORT"
++
++dnl compiler warnings
+ CC_CHECK_CFLAGS_APPEND([-Wall -Wdisabled-optimization -Wpointer-arith ]dnl
+ [-Wredundant-decls -Wcast-qual -Wwrite-strings -Wtype-limits -Wundef ]dnl
+ [-Wmissing-prototypes -Wshadow])
+diff --git a/src/file/filesystem.h b/src/file/filesystem.h
+index 6c124396..aa96a205 100644
+--- a/src/file/filesystem.h
++++ b/src/file/filesystem.h
+@@ -35,6 +35,12 @@ extern "C" {
+ 
+ #include <stdint.h>
+ 
++#ifdef BLURAY_API_EXPORT
++#include "util/attributes.h"
++#elif !defined(BD_PUBLIC)
++#define BD_PUBLIC
++#endif
++
+ /**
+  * File access
+  */
+@@ -172,7 +178,7 @@ typedef BD_DIR_H* (*BD_DIR_OPEN) (const char* dirname);
+  * @param p function pointer
+  * @return previous function pointer registered
+  */
+-BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p);
++BD_PUBLIC BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p);
+ 
+ /**
+  *  Register function pointer that will be used to open a directory
+@@ -182,7 +188,7 @@ BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p);
+  * @param p function pointer
+  * @return previous function pointer registered
+  */
+-BD_DIR_OPEN bd_register_dir(BD_DIR_OPEN p);
++BD_PUBLIC BD_DIR_OPEN bd_register_dir(BD_DIR_OPEN p);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/src/libbluray/bluray.h b/src/libbluray/bluray.h
+index 41cd4f6a..f3a3c43a 100644
+--- a/src/libbluray/bluray.h
++++ b/src/libbluray/bluray.h
+@@ -33,6 +33,12 @@ extern "C" {
+ 
+ #include <stdint.h>
+ 
++#ifdef BLURAY_API_EXPORT
++#include "util/attributes.h"
++#elif !defined(BD_PUBLIC)
++#define BD_PUBLIC
++#endif
++
+ #define TITLES_ALL              0    /**< all titles. */
+ #define TITLES_FILTER_DUP_TITLE 0x01 /**< remove duplicate titles. */
+ #define TITLES_FILTER_DUP_CLIP  0x02 /**< remove titles that have duplicate
+@@ -322,7 +328,7 @@ typedef struct bd_sound_effect {
+  * @param minor where to store minor version
+  * @param micro where to store micro version
+  */
+-void bd_get_version(int *major, int *minor, int *micro);
++BD_PUBLIC void bd_get_version(int *major, int *minor, int *micro);
+ 
+ /*
+  * Disc functions
+@@ -341,7 +347,7 @@ struct meta_dl;
+  * @param keyfile_path  path to KEYDB.cfg (may be NULL)
+  * @return allocated BLURAY object, NULL if error
+  */
+-BLURAY *bd_open(const char *device_path, const char *keyfile_path);
++BD_PUBLIC BLURAY *bd_open(const char *device_path, const char *keyfile_path);
+ 
+ /**
+  *  Initialize BLURAY object
+@@ -350,7 +356,7 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path);
+  *
+  * @return allocated BLURAY object, NULL if error
+  */
+-BLURAY *bd_init(void);
++BD_PUBLIC BLURAY *bd_init(void);
+ 
+ /**
+  *  Open BluRay disc
+@@ -360,7 +366,7 @@ BLURAY *bd_init(void);
+  * @param keyfile_path  path to KEYDB.cfg (may be NULL)
+  * @return 1 on success, 0 if error
+  */
+-int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path);
++BD_PUBLIC int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path);
+ 
+ /**
+  *  Open BluRay disc
+@@ -370,7 +376,7 @@ int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path);
+  * @param read_blocks  function used to read disc blocks
+  * @return 1 on success, 0 if error
+  */
+-int bd_open_stream(BLURAY *bd,
++BD_PUBLIC int bd_open_stream(BLURAY *bd,
+                    void *read_blocks_handle,
+                    int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks));
+ 
+@@ -383,7 +389,7 @@ int bd_open_stream(BLURAY *bd,
+  * @param open_file  function used to open a file
+  * @return 1 on success, 0 if error
+  */
+-int bd_open_files(BLURAY *bd,
++BD_PUBLIC int bd_open_files(BLURAY *bd,
+                   void *handle,
+                   struct bd_dir_s *(*open_dir)(void *handle, const char *rel_path),
+                   struct bd_file_s *(*open_file)(void *handle, const char *rel_path));
+@@ -393,7 +399,7 @@ int bd_open_files(BLURAY *bd,
+  *
+  * @param bd  BLURAY object
+  */
+-void bd_close(BLURAY *bd);
++BD_PUBLIC void bd_close(BLURAY *bd);
+ 
+ /**
+  *
+@@ -402,7 +408,7 @@ void bd_close(BLURAY *bd);
+  * @param bd  BLURAY object
+  * @return pointer to BLURAY_DISC_INFO object, NULL on error
+  */
+-const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd);
++BD_PUBLIC const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd);
+ 
+ /**
+  *
+@@ -417,7 +423,7 @@ const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd);
+  * @param bd  BLURAY object
+  * @return META_DL (disclib) object, NULL on error
+  */
+-const struct meta_dl *bd_get_meta(BLURAY *bd);
++BD_PUBLIC const struct meta_dl *bd_get_meta(BLURAY *bd);
+ 
+ /**
+  *
+@@ -432,7 +438,7 @@ const struct meta_dl *bd_get_meta(BLURAY *bd);
+  * @param size  where to store file size
+  * @return 1 on success, 0 on error
+  */
+-int bd_get_meta_file(BLURAY *bd, const char *file_name, void **data, int64_t *size);
++BD_PUBLIC int bd_get_meta_file(BLURAY *bd, const char *file_name, void **data, int64_t *size);
+ 
+ 
+ /*
+@@ -452,7 +458,7 @@ int bd_get_meta_file(BLURAY *bd, const char *file_name, void **data, int64_t *si
+  * @param min_title_length  filter out titles shorter than min_title_length seconds
+  * @return number of titles found
+  */
+-uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length);
++BD_PUBLIC uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length);
+ 
+ /**
+  *
+@@ -462,7 +468,7 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length);
+  * @param bd  BLURAY object
+  * @return title index of main title, -1 on error
+  */
+-int bd_get_main_title(BLURAY *bd);
++BD_PUBLIC int bd_get_main_title(BLURAY *bd);
+ 
+ /**
+  *
+@@ -473,7 +479,7 @@ int bd_get_main_title(BLURAY *bd);
+  * @param angle angle number (chapter offsets and clip size depend on selected angle)
+  * @return allocated BLURAY_TITLE_INFO object, NULL on error
+  */
+-BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx, unsigned angle);
++BD_PUBLIC BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx, unsigned angle);
+ 
+ /**
+  *
+@@ -481,7 +487,7 @@ BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx, unsigned an
+  *
+  * @param title_info  BLURAY_TITLE_INFO object
+  */
+-void bd_free_title_info(BLURAY_TITLE_INFO *title_info);
++BD_PUBLIC void bd_free_title_info(BLURAY_TITLE_INFO *title_info);
+ 
+ /**
+  *
+@@ -491,7 +497,7 @@ void bd_free_title_info(BLURAY_TITLE_INFO *title_info);
+  * @param title title to select
+  * @return 1 on success, 0 if error
+  */
+-int bd_select_title(BLURAY *bd, uint32_t title);
++BD_PUBLIC int bd_select_title(BLURAY *bd, uint32_t title);
+ 
+ /**
+  *
+@@ -501,7 +507,7 @@ int bd_select_title(BLURAY *bd, uint32_t title);
+  * @param playlist playlist to select
+  * @return 1 on success, 0 if error
+  */
+-int bd_select_playlist(BLURAY *bd, uint32_t playlist);
++BD_PUBLIC int bd_select_playlist(BLURAY *bd, uint32_t playlist);
+ 
+ /**
+  *
+@@ -510,7 +516,7 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist);
+  * @param bd  BLURAY object
+  * @return current title index
+  */
+-uint32_t bd_get_current_title(BLURAY *bd);
++BD_PUBLIC uint32_t bd_get_current_title(BLURAY *bd);
+ 
+ /**
+  *
+@@ -521,7 +527,7 @@ uint32_t bd_get_current_title(BLURAY *bd);
+  * @param len size of data to be read
+  * @return size of data read, -1 if error, 0 if EOF
+  */
+-int bd_read(BLURAY *bd, unsigned char *buf, int len);
++BD_PUBLIC int bd_read(BLURAY *bd, unsigned char *buf, int len);
+ 
+ 
+ /*
+@@ -535,7 +541,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len);
+  * @param pos position to seek to
+  * @return current seek position
+  */
+-int64_t bd_seek(BLURAY *bd, uint64_t pos);
++BD_PUBLIC int64_t bd_seek(BLURAY *bd, uint64_t pos);
+ 
+ /**
+  *
+@@ -545,7 +551,7 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos);
+  * @param tick  tick count
+  * @return current seek position
+  */
+-int64_t bd_seek_time(BLURAY *bd, uint64_t tick);
++BD_PUBLIC int64_t bd_seek_time(BLURAY *bd, uint64_t tick);
+ 
+ /**
+  *
+@@ -555,7 +561,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick);
+  * @param chapter chapter to seek to
+  * @return current seek position
+  */
+-int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter);
++BD_PUBLIC int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter);
+ 
+ /**
+  *
+@@ -565,7 +571,7 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter);
+  * @param mark playmark to seek to
+  * @return current seek position
+  */
+-int64_t bd_seek_mark(BLURAY *bd, unsigned mark);
++BD_PUBLIC int64_t bd_seek_mark(BLURAY *bd, unsigned mark);
+ 
+ /**
+  *
+@@ -575,7 +581,7 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark);
+  * @param clip_ref playitem to seek to
+  * @return current seek position
+  */
+-int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref);
++BD_PUBLIC int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref);
+ 
+ /**
+  *
+@@ -585,7 +591,7 @@ int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref);
+  * @param angle angle to play
+  * @return 1 on success, 0 if error
+  */
+-int bd_select_angle(BLURAY *bd, unsigned angle);
++BD_PUBLIC int bd_select_angle(BLURAY *bd, unsigned angle);
+ 
+ /**
+  *
+@@ -594,7 +600,7 @@ int bd_select_angle(BLURAY *bd, unsigned angle);
+  * @param bd  BLURAY object
+  * @param angle angle to change to
+  */
+-void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
++BD_PUBLIC void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
+ 
+ /**
+  *
+@@ -618,7 +624,7 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
+  * @param stream_id  stream number (1..N)
+  * @param enable_flag  set to 0 to disable streams of this type
+  */
+-void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
++BD_PUBLIC void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
+ 
+ #define BLURAY_AUDIO_STREAM      0   /**< Select audio stream     */
+ #define BLURAY_PG_TEXTST_STREAM  1   /**< Select subtitle stream  */
+@@ -636,7 +642,7 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
+  * @param chapter chapter to find position of
+  * @return seek position of chapter start
+  */
+-int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter);
++BD_PUBLIC int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter);
+ 
+ /**
+  *
+@@ -645,7 +651,7 @@ int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter);
+  * @param bd  BLURAY object
+  * @return current chapter
+  */
+-uint32_t bd_get_current_chapter(BLURAY *bd);
++BD_PUBLIC uint32_t bd_get_current_chapter(BLURAY *bd);
+ 
+ /**
+  *
+@@ -656,7 +662,7 @@ uint32_t bd_get_current_chapter(BLURAY *bd);
+  * @return file size in bytes of currently selected title, 0 if no title
+  * selected
+  */
+-uint64_t bd_get_title_size(BLURAY *bd);
++BD_PUBLIC uint64_t bd_get_title_size(BLURAY *bd);
+ 
+ /**
+  *
+@@ -665,7 +671,7 @@ uint64_t bd_get_title_size(BLURAY *bd);
+  * @param bd  BLURAY object
+  * @return current angle
+  */
+-unsigned bd_get_current_angle(BLURAY *bd);
++BD_PUBLIC unsigned bd_get_current_angle(BLURAY *bd);
+ 
+ /**
+  *
+@@ -674,7 +680,7 @@ unsigned bd_get_current_angle(BLURAY *bd);
+  * @param bd  BLURAY object
+  * @return current seek position
+  */
+-uint64_t bd_tell(BLURAY *bd);
++BD_PUBLIC uint64_t bd_tell(BLURAY *bd);
+ 
+ /**
+  *
+@@ -683,7 +689,7 @@ uint64_t bd_tell(BLURAY *bd);
+  * @param bd  BLURAY object
+  * @return current time
+  */
+-uint64_t bd_tell_time(BLURAY *bd);
++BD_PUBLIC uint64_t bd_tell_time(BLURAY *bd);
+ 
+ 
+ /*
+@@ -730,7 +736,7 @@ typedef enum {
+  * @return 1 on success, 0 on error (invalid setting)
+  */
+ 
+-int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
++BD_PUBLIC int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
+ 
+ /**
+  *
+@@ -741,7 +747,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
+  * @param value New value for player setting
+  * @return 1 on success, 0 on error (invalid setting)
+  */
+-int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *value);
++BD_PUBLIC int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *value);
+ 
+ 
+ /*
+@@ -883,7 +889,7 @@ typedef struct {
+  * @param event next BD_EVENT from event queue, NULL to initialize event queue
+  * @return 1 on success, 0 if no events
+  */
+-int  bd_get_event(BLURAY *bd, BD_EVENT *event);
++BD_PUBLIC int  bd_get_event(BLURAY *bd, BD_EVENT *event);
+ 
+ /**
+  *
+@@ -892,7 +898,7 @@ int  bd_get_event(BLURAY *bd, BD_EVENT *event);
+  * @param event event type (\ref bd_event_e)
+  * @return 1 on success, 0 if no events
+  */
+-const char *bd_event_name(uint32_t /* bd_event_e */ event);
++BD_PUBLIC const char *bd_event_name(uint32_t /* bd_event_e */ event);
+ 
+ /*
+  * On-screen display
+@@ -937,7 +943,7 @@ typedef void (*bd_argb_overlay_proc_f)(void *handle, const struct bd_argb_overla
+  * @param func handler function pointer
+  * @return 1 on success, 0 if error
+  */
+-void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
++BD_PUBLIC void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
+ 
+ /**
+  *
+@@ -954,7 +960,7 @@ void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
+  * @param buf  optional application-allocated frame buffer
+  * @return 1 on success, 0 if error
+  */
+-void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_proc_f func, struct bd_argb_buffer_s *buf);
++BD_PUBLIC void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_proc_f func, struct bd_argb_buffer_s *buf);
+ 
+ 
+ /*
+@@ -970,7 +976,7 @@ void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_pro
+  * @param bd  BLURAY object
+  * @return 1 on success, 0 if error
+  */
+-int  bd_play(BLURAY *bd);
++BD_PUBLIC int  bd_play(BLURAY *bd);
+ 
+ /**
+  *
+@@ -984,7 +990,7 @@ int  bd_play(BLURAY *bd);
+  * @param title title number from disc index
+  * @return 1 on success, 0 if error
+  */
+-int  bd_play_title(BLURAY *bd, unsigned title);
++BD_PUBLIC int  bd_play_title(BLURAY *bd, unsigned title);
+ 
+ /**
+  *
+@@ -996,7 +1002,7 @@ int  bd_play_title(BLURAY *bd, unsigned title);
+  * @param pts current playback position (1/90000s) or -1
+  * @return 1 on success, 0 if error
+  */
+-int  bd_menu_call(BLURAY *bd, int64_t pts);
++BD_PUBLIC int  bd_menu_call(BLURAY *bd, int64_t pts);
+ 
+ /**
+  *
+@@ -1010,7 +1016,7 @@ int  bd_menu_call(BLURAY *bd, int64_t pts);
+  * @param event next BD_EVENT from event queue (BD_EVENT_NONE if no events)
+  * @return size of data read, -1 if error, 0 if event needs to be handled first, 0 if end of title was reached
+  */
+-int  bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event);
++BD_PUBLIC int  bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event);
+ 
+ /**
+  *
+@@ -1019,7 +1025,7 @@ int  bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event);
+  * @param bd  BLURAY object
+  * @return 0 on error
+  */
+-int bd_read_skip_still(BLURAY *bd);
++BD_PUBLIC int bd_read_skip_still(BLURAY *bd);
+ 
+ /**
+  *
+@@ -1030,7 +1036,7 @@ int bd_read_skip_still(BLURAY *bd);
+  * @param angle angle number (chapter offsets and clip size depend on selected angle)
+  * @return allocated BLURAY_TITLE_INFO object, NULL on error
+  */
+-BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist, unsigned angle);
++BD_PUBLIC BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist, unsigned angle);
+ 
+ /**
+  *
+@@ -1041,7 +1047,7 @@ BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist, unsigned
+  * @param effect     sound effect data
+  * @return <0 when no effects, 0 when id out of range, 1 on success
+  */
+-int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, struct bd_sound_effect *effect);
++BD_PUBLIC int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, struct bd_sound_effect *effect);
+ 
+ 
+ /*
+@@ -1055,7 +1061,7 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, struct bd_sound_effect *e
+  * @param bd  BLURAY object
+  * @param pts current playback position (1/90000s) or -1
+  */
+-void bd_set_scr(BLURAY *bd, int64_t pts);
++BD_PUBLIC void bd_set_scr(BLURAY *bd, int64_t pts);
+ 
+ /**
+  *
+@@ -1070,7 +1076,7 @@ void bd_set_scr(BLURAY *bd, int64_t pts);
+  * @param rate current playback rate * 90000 (0 = paused, 90000 = normal)
+  * @return <0 on error, 0 on success
+  */
+-int bd_set_rate(BLURAY *bd, uint32_t rate);
++BD_PUBLIC int bd_set_rate(BLURAY *bd, uint32_t rate);
+ 
+ #define BLURAY_RATE_PAUSED  0      /**< Set playback rate to PAUSED  */
+ #define BLURAY_RATE_NORMAL  90000  /**< Set playback rate to NORMAL  */
+@@ -1090,7 +1096,7 @@ int bd_set_rate(BLURAY *bd, uint32_t rate);
+  * @param key input key (@see keys.h)
+  * @return <0 on error, 0 on success, >0 if selection/activation changed
+  */
+-int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);
++BD_PUBLIC int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);
+ 
+ /**
+  *
+@@ -1104,7 +1110,7 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);
+  * @param y mouse pointer y-position
+  * @return <0 on error, 0 when mouse is outside of buttons, 1 when mouse is inside button
+  */
+-int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y);
++BD_PUBLIC int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y);
+ 
+ 
+ /*
+@@ -1128,10 +1134,10 @@ struct mobj_objects;
+  * @param clip_ref  requested playitem number
+  * @return pointer to allocated CLPI_CL object on success, NULL on error
+  */
+-struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref);
++BD_PUBLIC struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref);
+ 
+ /** Testing/debugging: Parse clip information (CLPI) file */
+-struct clpi_cl *bd_read_clpi(const char *clpi_file);
++BD_PUBLIC struct clpi_cl *bd_read_clpi(const char *clpi_file);
+ 
+ /**
+  *
+@@ -1139,30 +1145,30 @@ struct clpi_cl *bd_read_clpi(const char *clpi_file);
+  *
+  * @param cl  CLPI_CL objects
+  */
+-void bd_free_clpi(struct clpi_cl *cl);
++BD_PUBLIC void bd_free_clpi(struct clpi_cl *cl);
+ 
+ 
+ /** Testing/debugging: Parse playlist (MPLS) file */
+-struct mpls_pl *bd_read_mpls(const char *mpls_file);
++BD_PUBLIC struct mpls_pl *bd_read_mpls(const char *mpls_file);
+ /** Testing/debugging: Free parsed playlist */
+-void bd_free_mpls(struct mpls_pl *);
++BD_PUBLIC void bd_free_mpls(struct mpls_pl *);
+ 
+ /** Testing/debugging: Parse movie objects (MOBJ) file */
+-struct mobj_objects *bd_read_mobj(const char *mobj_file);
++BD_PUBLIC struct mobj_objects *bd_read_mobj(const char *mobj_file);
+ /** Testing/debugging: Free parsed movie objects */
+-void bd_free_mobj(struct mobj_objects *);
++BD_PUBLIC void bd_free_mobj(struct mobj_objects *);
+ 
+ /** Testing/debugging: Parse BD-J object file (BDJO) */
+-struct bdjo_data *bd_read_bdjo(const char *bdjo_file);
++BD_PUBLIC struct bdjo_data *bd_read_bdjo(const char *bdjo_file);
+ /** Testing/debugging: Free parsed BDJO object */
+-void bd_free_bdjo(struct bdjo_data *);
++BD_PUBLIC void bd_free_bdjo(struct bdjo_data *);
+ 
+ /* BD-J testing */
+ 
+ /** Testing/debugging: start BD-J from the specified BD-J object (should be a 5 character string) */
+-int  bd_start_bdj(BLURAY *bd, const char* start_object);
++BD_PUBLIC int  bd_start_bdj(BLURAY *bd, const char* start_object);
+ /** Testing/debugging: shutdown BD-J and clean up resources */
+-void bd_stop_bdj(BLURAY *bd);
++BD_PUBLIC void bd_stop_bdj(BLURAY *bd);
+ 
+ /**
+  *
+@@ -1177,7 +1183,7 @@ void bd_stop_bdj(BLURAY *bd);
+  * @param size  where to store file size
+  * @return 1 on success, 0 on error
+  */
+-int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size);
++BD_PUBLIC int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size);
+ 
+ /**
+  *
+@@ -1189,7 +1195,7 @@ int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size);
+  * @param dir  target directory (relative to disc root)
+  * @return BD_DIR_H *, NULL if failed
+  */
+-struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir);
++BD_PUBLIC struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir);
+ 
+ /**
+  *
+@@ -1208,8 +1214,7 @@ struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir);
+  * @param path  path to the file (relative to disc root)
+  * @return BD_FILE_H *, NULL if failed
+  */
+-struct bd_file_s *bd_open_file_dec(BLURAY *bd, const char *path);
+-
++BD_PUBLIC struct bd_file_s *bd_open_file_dec(BLURAY *bd, const char *path);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/src/libbluray/decoders/overlay.h b/src/libbluray/decoders/overlay.h
+index 2d278b1b..394bf80e 100644
+--- a/src/libbluray/decoders/overlay.h
++++ b/src/libbluray/decoders/overlay.h
+@@ -31,6 +31,12 @@ extern "C" {
+ 
+ #include <stdint.h>
+ 
++#ifdef BLURAY_API_EXPORT
++#include "util/attributes.h"
++#elif !defined(BD_PUBLIC)
++#define BD_PUBLIC
++#endif
++
+ /** Version number of the interface described in this file. */
+ #define BD_OVERLAY_INTERFACE_VERSION 2
+ 
+@@ -114,8 +120,8 @@ typedef struct bd_overlay_s {
+   it needs to use bd_refcnt_inc() and bd_refcnt_dec().
+ */
+ 
+-const void *bd_refcnt_inc(const void *); /**< Hold reference-counted object. Return object or NULL on invalid object. */
+-void bd_refcnt_dec(const void *);        /**< Release reference-counted object */
++BD_PUBLIC const void *bd_refcnt_inc(const void *); /**< Hold reference-counted object. Return object or NULL on invalid object. */
++BD_PUBLIC void bd_refcnt_dec(const void *);        /**< Release reference-counted object */
+ 
+ #if 0
+ BD_OVERLAY *bd_overlay_copy(const BD_OVERLAY *src)
+diff --git a/src/libbluray/register.h b/src/libbluray/register.h
+index bf950955..69b4fe04 100644
+--- a/src/libbluray/register.h
++++ b/src/libbluray/register.h
+@@ -108,7 +108,7 @@ BD_PRIVATE void bd_registers_free(BD_REGISTERS *);
+  * @param reg  register number
+  * @return value stored in register, -1 on error (invalid register number)
+  */
+-uint32_t bd_gpr_read(BD_REGISTERS *, unsigned int reg);
++BD_PUBLIC uint32_t bd_gpr_read(BD_REGISTERS *, unsigned int reg);
+ 
+ /**
+  *
+@@ -119,7 +119,7 @@ uint32_t bd_gpr_read(BD_REGISTERS *, unsigned int reg);
+  * @param val  new value for register
+  * @return 0 on success, -1 on error (invalid register number)
+  */
+-int bd_gpr_write(BD_REGISTERS *, unsigned int reg, uint32_t val);
++BD_PUBLIC int bd_gpr_write(BD_REGISTERS *, unsigned int reg, uint32_t val);
+ 
+ 
+ /*
+@@ -134,7 +134,7 @@ int bd_gpr_write(BD_REGISTERS *, unsigned int reg, uint32_t val);
+  * @param reg  register number
+  * @return value stored in register, -1 on error (invalid register number)
+  */
+-uint32_t bd_psr_read(BD_REGISTERS *, unsigned int reg);
++BD_PUBLIC uint32_t bd_psr_read(BD_REGISTERS *, unsigned int reg);
+ 
+ /**
+  *
+@@ -147,7 +147,7 @@ uint32_t bd_psr_read(BD_REGISTERS *, unsigned int reg);
+  * @param val  new value for register
+  * @return 0 on success, -1 on error (invalid register number)
+  */
+-int bd_psr_write(BD_REGISTERS *, unsigned int reg, uint32_t val);
++BD_PUBLIC int bd_psr_write(BD_REGISTERS *, unsigned int reg, uint32_t val);
+ 
+ /**
+  *
+@@ -255,7 +255,7 @@ typedef struct {
+  * @param callback  callback function pointer
+  * @param handle  application-specific handle that is provided to callback function as first parameter
+  */
+-void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle);
++BD_PUBLIC void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle);
+ 
+ /**
+  *
+@@ -265,7 +265,7 @@ void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVEN
+  * @param callback  callback function to unregister
+  * @param handle  application-specific handle that was used when callback was registered
+  */
+-void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle);
++BD_PUBLIC void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle);
+ 
+ BD_PRIVATE int psr_init_3D(BD_REGISTERS *, int initial_mode, int force);
+ 
+diff --git a/src/util/attributes.h b/src/util/attributes.h
+index 1cc611c7..684e0584 100644
+--- a/src/util/attributes.h
++++ b/src/util/attributes.h
+@@ -34,19 +34,18 @@
+ #    define BD_ATTR_PACKED
+ #endif
+ 
++#ifdef BLURAY_API_EXPORT
+ #if defined(_WIN32)
+-#    if defined(__GNUC__)
+-#        define BD_PUBLIC  __attribute__((dllexport))
+-#        define BD_PRIVATE
+-#    else
+-#        define BD_PUBLIC  __declspec(dllexport)
+-#        define BD_PRIVATE
+-#    endif
++#    define BD_PUBLIC  __declspec(dllexport)
+ #elif defined(__GNUC__) && __GNUC__ >= 4
+ #    define BD_PUBLIC  __attribute__((visibility("default")))
+-#    define BD_PRIVATE __attribute__((visibility("hidden")))
+-#else
++#endif
++#endif
++
++#ifndef BD_PUBLIC
+ #    define BD_PUBLIC
++#endif
++#ifndef BD_PRIVATE
+ #    define BD_PRIVATE
+ #endif
+ 
+diff --git a/src/util/log_control.h b/src/util/log_control.h
+index 19e5ee0c..eb5240e2 100644
+--- a/src/util/log_control.h
++++ b/src/util/log_control.h
+@@ -39,6 +39,12 @@ extern "C" {
+ 
+ #include <stdint.h>
+ 
++#ifdef BLURAY_API_EXPORT
++#include "util/attributes.h"
++#elif !defined(BD_PUBLIC)
++#define BD_PUBLIC
++#endif
++
+ /**
+  * Flags for log filtering.
+  */
+@@ -78,21 +84,21 @@ typedef void (*BD_LOG_FUNC)(const char *msg);
+  * @param handler function that will receive all enabled log and trace messages
+  *
+  */
+-void bd_set_debug_handler(BD_LOG_FUNC handler);
++BD_PUBLIC void bd_set_debug_handler(BD_LOG_FUNC handler);
+ 
+ /**
+  * Set (global) debug mask
+  *
+  * @param mask combination of flags from debug_mask_enum
+  */
+-void bd_set_debug_mask(uint32_t mask);
++BD_PUBLIC void bd_set_debug_mask(uint32_t mask);
+ 
+ /**
+  * Get current (global) debug mask
+  *
+  * @return combination of flags from debug_mask_enum
+  */
+-uint32_t bd_get_debug_mask(void);
++BD_PUBLIC uint32_t bd_get_debug_mask(void);
+ 
+ #ifdef __cplusplus
+ }
+-- 
+GitLab
+

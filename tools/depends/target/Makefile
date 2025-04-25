@@ -20,7 +20,6 @@ DEPENDS = \
   gnutls \
   gtest \
   harfbuzz \
-  libbluray \
   libffi \
   libgcrypt \
   libgpg-error \

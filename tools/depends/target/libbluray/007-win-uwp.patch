@@ -1,0 +1,230 @@
+From 6be8d7758d4ea113196e947100f37e629347c402 Mon Sep 17 00:00:00 2001
+From: Steve Lhomme <robux4@ycbcr.xyz>
+Date: Tue, 6 Jun 2023 10:50:22 +0200
+Subject: [PATCH 1/5] Disable font access in Universal Windows Platform builds
+
+EnumFontFamiliesExW/GetDC calls are not allowed to access the fonts and there
+doesn't seem to be an equivalent call.
+---
+ src/libbluray/bdj/native/java_awt_BDFontMetrics.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/libbluray/bdj/native/java_awt_BDFontMetrics.c b/src/libbluray/bdj/native/java_awt_BDFontMetrics.c
+index f0cd090a..be03fdb8 100644
+--- a/src/libbluray/bdj/native/java_awt_BDFontMetrics.c
++++ b/src/libbluray/bdj/native/java_awt_BDFontMetrics.c
+@@ -39,8 +39,11 @@
+ #endif
+ 
+ #if defined(_WIN32) && defined (HAVE_FT2)
++#include <winapifamily.h>
++#if WINAPI_FAMILY_PARTITION (WINAPI_PARTITION_DESKTOP) // EnumFontFamiliesExW/GetDC is not allowed in UWP
+ #define NEED_WIN32_FONTS
+ #endif
++#endif
+ 
+ #ifdef NEED_WIN32_FONTS
+ #include "file/dirs.h"  // win32_get_font_dir
+-- 
+GitLab
+
+
+From 342874c1f11c0ae6d7f3b3295fd3854569bba0fb Mon Sep 17 00:00:00 2001
+From: Steve Lhomme <robux4@ycbcr.xyz>
+Date: Tue, 6 Jun 2023 10:53:43 +0200
+Subject: [PATCH 2/5] Disable SHGetFolderPathW calls in Universal Windows
+ Platform builds
+
+The call is forbidden. It's possible to use the Windows.Storage.ApplicationData
+which is a bit tricky to call in C.
+
+https://learn.microsoft.com/en-us/uwp/api/windows.storage.applicationdata
+---
+ src/file/dirs_win32.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/file/dirs_win32.c b/src/file/dirs_win32.c
+index e165feac..f8457d6c 100644
+--- a/src/file/dirs_win32.c
++++ b/src/file/dirs_win32.c
+@@ -36,6 +36,9 @@
+ 
+ char *win32_get_font_dir(const char *font_file)
+ {
++#if !WINAPI_FAMILY_PARTITION (WINAPI_PARTITION_DESKTOP)
++    return NULL;
++#else /* WINAPI_PARTITION_DESKTOP */
+     wchar_t wdir[MAX_PATH];
+     if (S_OK != SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, wdir)) {
+         int lenght = GetWindowsDirectoryW(wdir, MAX_PATH);
+@@ -58,6 +61,7 @@ char *win32_get_font_dir(const char *font_file)
+         strcpy(path + len, font_file);
+     }
+     return path;
++#endif /* WINAPI_PARTITION_DESKTOP */
+ }
+ 
+ char *file_get_config_home(void)
+@@ -67,6 +71,7 @@ char *file_get_config_home(void)
+ 
+ char *file_get_data_home(void)
+ {
++#if WINAPI_FAMILY_PARTITION (WINAPI_PARTITION_DESKTOP)
+     wchar_t wdir[MAX_PATH];
+ 
+     /* Get the "Application Data" folder for the user */
+@@ -79,7 +84,7 @@ char *file_get_data_home(void)
+         }
+         return appdir;
+     }
+-
++#endif /* WINAPI_PARTITION_DESKTOP */
+     BD_DEBUG(DBG_FILE, "Can't find user configuration directory !\n");
+     return NULL;
+ }
+@@ -100,6 +105,7 @@ const char *file_get_config_system(const char *dir)
+         if (appdir)
+             return appdir;
+ 
++#if WINAPI_FAMILY_PARTITION (WINAPI_PARTITION_DESKTOP)
+         /* Get the "Application Data" folder for all users */
+         if (S_OK == SHGetFolderPathW(NULL, CSIDL_COMMON_APPDATA | CSIDL_FLAG_CREATE,
+                     NULL, SHGFP_TYPE_CURRENT, wdir)) {
+@@ -109,7 +115,9 @@ const char *file_get_config_system(const char *dir)
+                 WideCharToMultiByte (CP_UTF8, 0, wdir, -1, appdir, len, NULL, NULL);
+             }
+             return appdir;
+-        } else {
++        } else
++#endif
++        {
+             BD_DEBUG(DBG_FILE, "Can't find common configuration directory !\n");
+             return NULL;
+         }
+-- 
+GitLab
+
+
+From 8ff31fe9aaa6a28ae84797de88028f600cff2e56 Mon Sep 17 00:00:00 2001
+From: Steve Lhomme <robux4@ycbcr.xyz>
+Date: Tue, 6 Jun 2023 11:03:47 +0200
+Subject: [PATCH 3/5] configure: don't force the _WIN32_WINNT if it's high
+ enough
+
+Downgrading the value hides some API that can be useful in UWP builds.
+---
+ configure.ac | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index c7016344..25deb7ba 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -38,7 +38,6 @@ case "${host_os}" in
+         ;;
+       *mingw*)
+         SYS=mingw32
+-        AC_DEFINE([_WIN32_WINNT], 0x0502, [Define to '0x0502' for Windows XP SP2 APIs.])
+         AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0501' for IE 5.01.])
+         CPPFLAGS="${CPPFLAGS} -D__USE_MINGW_ANSI_STDIO=1"
+         ;;
+@@ -69,6 +68,23 @@ case "${host_os}" in
+     ;;
+ esac
+ 
++dnl Only force the _WIN32_WINNT if it's not set or lower than Windows XP SP2
++AS_IF([test "$SYS" = mingw32],[
++    AC_PREPROC_IFELSE([AC_LANG_PROGRAM(
++        [[#ifdef _WIN32_WINNT
++        # error _WIN32_WINNT already defined
++        #else
++        # include <sdkddkver.h>
++        # if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0502
++        #  error _WIN32_WINNT toolchain default high enough
++        # endif
++        #endif
++        ]],[[;]])
++    ],[
++        AC_DEFINE([_WIN32_WINNT], [0x0502], [Define to '0x0502' for Windows XP SP2 APIs.])
++    ])
++])
++
+ dnl Falsely enables for NetBSD
+ dnl warning: warning: reference to obsolete getfsstat(); use getvfsstat()
+ AS_IF([test "${SYS}" != "netbsd"], [
+-- 
+GitLab
+
+
+From c433f2b2da101a2414a209d6d0961b31e254dbfe Mon Sep 17 00:00:00 2001
+From: Steve Lhomme <robux4@ycbcr.xyz>
+Date: Tue, 6 Jun 2023 11:32:24 +0200
+Subject: [PATCH 4/5] Use LoadLibraryExW instead of LoadLibraryW
+
+They are both available since Windows XP. But the only the LoadLibraryExW call
+is available in Universal Windows Platform builds.
+
+In this call we need LOAD_LIBRARY_SEARCH_USER_DIRS to make sure the value set
+with SetDllDirectory() is used. It is included in
+LOAD_LIBRARY_SEARCH_DEFAULT_DIRS [1] which will also need in case the DLL needs
+to load some other DLLs in other locations.
+
+[1] https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw
+---
+ src/libbluray/bdj/bdj.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/libbluray/bdj/bdj.c b/src/libbluray/bdj/bdj.c
+index 359bc8f1..1fb05628 100644
+--- a/src/libbluray/bdj/bdj.c
++++ b/src/libbluray/bdj/bdj.c
+@@ -94,10 +94,10 @@ static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
+             pRemoveDllDirectory(cookie);
+         }
+     } else {
+-        result = LoadLibraryW(lib_path);
++        result = LoadLibraryExW(lib_path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+         if (!result) {
+             SetDllDirectoryW(dll_search_path);
+-            result = LoadLibraryW(lib_path);
++            result = LoadLibraryExW(lib_path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+             SetDllDirectoryW(L"");
+         }
+     }
+-- 
+GitLab
+
+
+From 5ea4854641feff2c35c9955b6e1c1a2f027fc824 Mon Sep 17 00:00:00 2001
+From: Steve Lhomme <robux4@ycbcr.xyz>
+Date: Tue, 6 Jun 2023 11:26:53 +0200
+Subject: [PATCH 5/5] Link directly with Add/RemoveDllDirectory on platforms
+ where it's supported
+
+The call is not allowed in UWP but it's available since Win8. So if it's the
+minimum platform we can link to it directly.
+---
+ src/libbluray/bdj/bdj.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/libbluray/bdj/bdj.c b/src/libbluray/bdj/bdj.c
+index 1fb05628..7a358b7f 100644
+--- a/src/libbluray/bdj/bdj.c
++++ b/src/libbluray/bdj/bdj.c
+@@ -78,8 +78,13 @@ static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
+     typedef BOOL(WINAPI *RemoveDllDirectoryF)(PVOID);
+     AddDllDirectoryF pAddDllDirectory;
+     RemoveDllDirectoryF pRemoveDllDirectory;
++#if _WIN32_WINNT >= _WIN32_WINNT_WIN8 && (WINAPI_FAMILY_PARTITION (WINAPI_PARTITION_DESKTOP) || NTDDI_VERSION >= 0x0A000008) // NTDDI_WIN10_VB
++    pAddDllDirectory = AddDllDirectory;
++    pRemoveDllDirectory = RemoveDllDirectory;
++#else
+     pAddDllDirectory = (AddDllDirectoryF)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "AddDllDirectory");
+     pRemoveDllDirectory = (RemoveDllDirectoryF)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "RemoveDllDirectory");
++#endif
+ 
+     if (pAddDllDirectory && pRemoveDllDirectory) {
+ 
+-- 
+GitLab
+

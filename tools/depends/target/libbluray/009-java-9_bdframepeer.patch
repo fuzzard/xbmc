@@ -1,0 +1,15 @@
+--- a/src/libbluray/bdj/java-j2se/java/awt/peer/BDFramePeer.java
++++ b/src/libbluray/bdj/java-j2se/java/awt/peer/BDFramePeer.java
+@@ -181,10 +181,10 @@
+         return requestFocusHelper(c, a, b, l);
+     }
+ 
+-    /* Java < 9 */
++    /* Java < 9
+     public boolean requestFocus(Component c, boolean a, boolean b, long l, sun.awt.CausedFocusEvent.Cause d) {
+         return requestFocusHelper(c, a, b, l);
+-    }
++    }*/
+ 
+     private boolean requestFocusHelper(Component c, boolean a, boolean b, long l) {
+         if (c == null) {
