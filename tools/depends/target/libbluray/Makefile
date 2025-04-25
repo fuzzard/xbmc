@@ -3,7 +3,7 @@ DEPS = ../../Makefile.include LIBBLURAY-VERSION Makefile ../../download-files.in
                                   001-darwinembed_DiskArbitration-revert.patch \
                                   002-darwin-dlopen_searchpath.patch \
                                   003-all-java21-buildsupport.patch \
-                                  tvos.patch
+                                  004-all-build_without_bdj.patch
 
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) \
@@ -39,10 +39,8 @@ ifeq ($(OS),darwin_embedded)
 	cd $(PLATFORM); patch -p1 -i ../001-darwinembed_DiskArbitration-revert.patch
 endif
 	cd $(PLATFORM); patch -p1 -i ../002-darwin-dlopen_searchpath.patch
-ifeq ($(TARGET_PLATFORM),appletvos)
-	cd $(PLATFORM); patch -p1 -i ../tvos.patch
-endif
 	cd $(PLATFORM); patch -p1 -i ../003-all-java21-buildsupport.patch
+	cd $(PLATFORM); patch -p1 -i ../004-all-build_without_bdj.patch
 	cd $(PLATFORM); ./bootstrap
 	cd $(PLATFORM); $(CONFIGURE)
 

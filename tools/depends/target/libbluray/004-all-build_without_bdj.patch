@@ -1,0 +1,210 @@
+From 146a0eab0d5fc761af6fe9cf84a0ce986f17a8bb Mon Sep 17 00:00:00 2001
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Date: Sun, 1 Dec 2024 14:45:31 +0100
+Subject: [PATCH] Support build without bdj
+
+For systems which do not have java support
+---
+ Makefile.am            | 10 ++++++++--
+ configure.ac           |  5 ++++-
+ src/libbluray/bluray.c | 24 ++++++++++++++++++++++++
+ 3 files changed, 36 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 24b60f78..43d971d4 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -145,6 +145,7 @@ libbluray_la_SOURCES = \
+ 	src/util/time.c
+ 
+ # bd-j
++if HAVE_JNI
+ libbluray_la_SOURCES += \
+ 	src/libbluray/bdj/bdj.h \
+ 	src/libbluray/bdj/bdj.c \
+@@ -165,6 +166,7 @@ libbluray_la_SOURCES += \
+ 	src/libbluray/bdj/native/register_native.c \
+ 	src/libbluray/bdj/native/util.h \
+ 	src/libbluray/bdj/native/util.c
++endif
+ 
+ # libudfread
+ libbluray_la_SOURCES += \
+@@ -292,8 +294,6 @@ pkgconfig_DATA = src/libbluray.pc
+ if USING_EXAMPLES
+ 
+ noinst_PROGRAMS = \
+-	bdj_test \
+-	bdjo_dump \
+ 	clpi_dump \
+ 	hdmv_test \
+ 	index_dump \
+@@ -302,6 +302,12 @@ noinst_PROGRAMS = \
+ 	mpls_dump \
+ 	sound_dump
+ 
++if HAVE_JNI
++noinst_PROGRAMS += \
++	bdj_test \
++	bdjo_dump
++endif
++
+ bin_PROGRAMS = \
+ 	bd_list_titles \
+ 	bd_splice \
+diff --git a/configure.ac b/configure.ac
+index c7016344..4c0b5d49 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -266,11 +266,12 @@ AS_IF([test "x${JDK_HOME}" != "x"], [
+ 
+     temp_CPPFLAGS="$CPPFLAGS"
+     CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
+-    AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR(could not find jni.h)])
+     CPPFLAGS="$temp_CPPFLAGS"
+ ], [
+     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
+ ])
++AC_CHECK_HEADERS([jni.h], [have_jni=yes], [have_jni=no])
++AM_CONDITIONAL([HAVE_JNI], [ test x"$have_jni" = x"yes" ])
+ 
+ AS_IF([test "x$use_bdjava_jar" = "xyes"], [
+ 
+@@ -362,6 +363,7 @@ dnl ---------------------------------------------
+ 
+ echo "  Summary:"
+ echo "  --------"
++if test "x$have_jni" = "xyes"; then
+ echo "  BD-J type:                     $BDJ_TYPE"
+ echo "  build JAR:                     $use_bdjava_jar"
+ if test "x$use_bdjava_jar" = "xyes"; then
+@@ -373,6 +375,7 @@ fi
+ if test x"$BDJ_BOOTCLASSPATH" != x""; then
+ echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
+ fi
++fi
+ echo "  Font support (freetype2):      $with_freetype"
+ if [[ $with_freetype = "yes" ]]; then
+ if test "${SYS}" != "mingw32"; then
+diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
+index b3b55f75..42cfc0c9 100644
+--- a/src/libbluray/bluray.c
++++ b/src/libbluray/bluray.c
+@@ -958,6 +958,7 @@ static void _check_bdj(BLURAY *bd)
+     if (!bd->disc_info.bdj_handled) {
+         if (!bd->disc || bd->disc_info.bdj_detected) {
+ 
++#ifdef HAVE_JNI_H
+             /* Check if jvm + jar can be loaded ? */
+             switch (bdj_jvm_available(&bd->bdj_config)) {
+                 case BDJ_CHECK_OK:
+@@ -968,6 +969,7 @@ static void _check_bdj(BLURAY *bd)
+                     /* fall thru */
+                 default:;
+             }
++#endif
+         }
+     }
+ }
+@@ -1179,6 +1181,7 @@ const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
+     return &bd->disc_info;
+ }
+ 
++#ifdef HAVE_JNI_H
+ /*
+  * bdj callbacks
+  */
+@@ -1409,6 +1412,7 @@ void bd_bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
+         bd->argb_buffer->dirty[BD_OVERLAY_IG].y1 = 0;
+     }
+ }
++#endif
+ 
+ /*
+  * BD-J
+@@ -1416,6 +1420,7 @@ void bd_bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
+ 
+ static int _start_bdj(BLURAY *bd, unsigned title)
+ {
++#ifdef HAVE_JNI_H
+     if (bd->bdjava == NULL) {
+         const char *root = disc_root(bd->disc);
+         bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdj_config);
+@@ -1425,31 +1430,40 @@ static int _start_bdj(BLURAY *bd, unsigned title)
+     }
+ 
+     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
++#else
++    return 0;
++#endif
+ }
+ 
+ static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
+ {
++#ifdef HAVE_JNI_H
+     if (bd->bdjava != NULL) {
+         return bdj_process_event(bd->bdjava, ev, param);
+     }
++#endif
+     return -1;
+ }
+ 
+ static void _stop_bdj(BLURAY *bd)
+ {
++#ifdef HAVE_JNI_H
+     if (bd->bdjava != NULL) {
+         bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
+         _queue_event(bd, BD_EVENT_STILL, 0);
+         _queue_event(bd, BD_EVENT_KEY_INTEREST_TABLE, 0);
+     }
++#endif
+ }
+ 
+ static void _close_bdj(BLURAY *bd)
+ {
++#ifdef HAVE_JNI_H
+     if (bd->bdjava != NULL) {
+         bdj_close(bd->bdjava);
+         bd->bdjava = NULL;
+     }
++#endif
+ }
+ 
+ /*
+@@ -1600,7 +1614,9 @@ void bd_close(BLURAY *bd)
+ 
+     event_queue_destroy(&bd->event_queue);
+     array_free((void**)&bd->titles);
++#ifdef HAVE_JNI_H
+     bdj_config_cleanup(&bd->bdj_config);
++#endif
+ 
+     disc_close(&bd->disc);
+ 
+@@ -2525,7 +2541,9 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
+ 
+     bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
+ 
++#ifdef HAVE_JNI_H
+     bd_bdj_seek(bd, playitem, playmark, time);
++#endif
+ 
+     return 1;
+ }
+@@ -4022,10 +4040,16 @@ void bd_free_mobj(struct mobj_objects *obj)
+ 
+ struct bdjo_data *bd_read_bdjo(const char *bdjo_file)
+ {
++#ifdef HAVE_JNI_H
+     return bdjo_parse(bdjo_file);
++#else
++    return NULL;
++#endif
+ }
+ 
+ void bd_free_bdjo(struct bdjo_data *obj)
+ {
++#ifdef HAVE_JNI_H
+     bdjo_free(&obj);
++#endif
+ }
