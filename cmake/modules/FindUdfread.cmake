@@ -53,6 +53,12 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
       add_library(LIBRARY::${CMAKE_FIND_PACKAGE_NAME} ALIAS libudfread::libudfread)
       set_target_properties(libudfread::libudfread PROPERTIES
                                                    INTERFACE_COMPILE_DEFINITIONS HAS_UDFREAD)
+
+      # Current workaround as prebuilt libudfread package for windows only has relwithdebinfo
+      # and debug configs. cmake defaults the unfound config type to debug, causing mismatches
+      # between runtime when doing a release config of a library using libudfread
+      set_target_properties(libudfread::libudfread PROPERTIES
+                                                   MAP_IMPORTED_CONFIG_RELEASE relwithdebinfo)
     # pkgconfig populated target that is sufficient version
     elseif(TARGET PkgConfig::libudfread)
       add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ALIAS PkgConfig::libudfread)
