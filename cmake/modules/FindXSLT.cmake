@@ -14,12 +14,12 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
     find_package(LibXml2 REQUIRED ${SEARCH_QUIET})
 
-    set(XSLT_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
+    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
 
     if(WIN32 OR WINDOWS_STORE)
       # xslt only uses debug postfix for windows
       set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_DEBUG_POSTFIX d)
-      set(SHAREDLIB ON)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB TRUE)
 
       set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/01-win-change_libxml.patch")
 
@@ -29,25 +29,21 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
         # Required for UWP
         set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_C_FLAGS /D_CRT_SECURE_NO_WARNINGS)
       endif()
-
-    else()
-      set(SHAREDLIB OFF)
     endif()
 
-    set(CMAKE_ARGS -DBUILD_SHARED_LIBS=${SHAREDLIB}
-                   -DLIBXSLT_WITH_PROGRAMS=OFF
+    set(CMAKE_ARGS -DLIBXSLT_WITH_PROGRAMS=OFF
                    -DLIBXSLT_WITH_PYTHON=OFF
-                   -DLIBXSLT_WITH_TESTS=OFF
-                   ${EXTRA_ARGS})
+                   -DLIBXSLT_WITH_TESTS=OFF)
+
+    if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB)
+      list(APPEND CMAKE_ARGS -DBUILD_SHARED_LIBS=ON)
+    else()
+      list(APPEND CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF)
+    endif()
 
     BUILD_DEP_TARGET()
 
-    set(XSLT_INCLUDE_DIR ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR})
-    set(XSLT_LIBRARY_RELEASE ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE})
-    if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_DEBUG)
-      set(XSLT_LIBRARY_DEBUG ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_DEBUG})
-    endif()
-
+    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES LibXml2::LibXml2)
     add_dependencies(${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC} LibXml2::LibXml2)
   endmacro()
 
@@ -105,35 +101,35 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
           string(TOUPPER ${_xslt_config} _xslt_config_UPPER)
           if((NOT ${_xslt_config_UPPER} STREQUAL "RELEASE") AND
              (NOT ${_xslt_config_UPPER} STREQUAL "DEBUG"))
-            get_target_property(XSLT_LIBRARY_RELEASE LibXslt::LibXslt IMPORTED_LOCATION_${_xslt_config_UPPER})
+            get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE LibXslt::LibXslt IMPORTED_LOCATION_${_xslt_config_UPPER})
           else()
-            get_target_property(XSLT_LIBRARY_${_xslt_config_UPPER} LibXslt::LibXslt IMPORTED_LOCATION_${_xslt_config_UPPER})
+            get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_${_xslt_config_UPPER} LibXslt::LibXslt IMPORTED_LOCATION_${_xslt_config_UPPER})
           endif()
         endforeach()
       else()
-        get_target_property(XSLT_LIBRARY_RELEASE LibXslt::LibXslt IMPORTED_LOCATION)
+        get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE LibXslt::LibXslt IMPORTED_LOCATION)
       endif()
 
-      get_target_property(XSLT_INCLUDE_DIR LibXslt::LibXslt INTERFACE_INCLUDE_DIRECTORIES)
-      set(XSLT_VERSION ${libxslt_VERSION})
+      get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR LibXslt::LibXslt INTERFACE_INCLUDE_DIRECTORIES)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${libxslt_VERSION})
     elseif(TARGET PkgConfig::libxslt)
       # First item is the full path of the library file found
       # pkg_check_modules does not populate a variable of the found library explicitly
-      list(GET libxslt_LINK_LIBRARIES 0 XSLT_LIBRARY_RELEASE)
+      list(GET libxslt_LINK_LIBRARIES 0 ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE)
 
-      get_target_property(XSLT_INCLUDE_DIR PkgConfig::libxslt INTERFACE_INCLUDE_DIRECTORIES)
-      set(XSLT_VERSION ${libxslt_VERSION})
+      get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR PkgConfig::libxslt INTERFACE_INCLUDE_DIRECTORIES)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${libxslt_VERSION})
     endif()
   endif()
 
   include(SelectLibraryConfigurations)
-  select_library_configurations(XSLT)
-  unset(XSLT_LIBRARIES)
+  select_library_configurations(${${CMAKE_FIND_PACKAGE_NAME}_MODULE})
+  unset(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARIES)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(XSLT
-                                    REQUIRED_VARS XSLT_LIBRARY XSLT_INCLUDE_DIR
-                                    VERSION_VAR XSLT_VERSION)
+                                    REQUIRED_VARS ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR
+                                    VERSION_VAR ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION)
 
   if(XSLT_FOUND)
     if(TARGET LibXslt::LibXslt AND NOT TARGET libxslt)
@@ -146,24 +142,38 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
       set_property(TARGET PkgConfig::libxslt APPEND PROPERTY
                                                     INTERFACE_COMPILE_DEFINITIONS HAVE_LIBXSLT)
     else()
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
-      set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                       INTERFACE_INCLUDE_DIRECTORIES "${XSLT_INCLUDE_DIR}"
-                                                                       INTERFACE_COMPILE_DEFINITIONS HAVE_LIBXSLT)
+      if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB)
+        add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} SHARED IMPORTED)
+      else()
+        add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} STATIC IMPORTED)
+      endif()
 
-      if(XSLT_LIBRARY_RELEASE)
+      set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                       INTERFACE_COMPILE_DEFINITIONS HAVE_LIBXSLT
+                                                                       INTERFACE_INCLUDE_DIRECTORIES "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR}"
+                                                                       INTERFACE_LINK_LIBRARIES "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES}")
+
+      if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE)
         set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
                                                                          IMPORTED_CONFIGURATIONS RELEASE
-                                                                         IMPORTED_LOCATION_RELEASE "${XSLT_LIBRARY_RELEASE}")
-      endif()
-      if(XSLT_LIBRARY_DEBUG)
-        set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                         IMPORTED_LOCATION_DEBUG "${XSLT_LIBRARY_DEBUG}")
-        set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
-                                                                              IMPORTED_CONFIGURATIONS DEBUG)
+                                                                         IMPORTED_LOCATION_RELEASE "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE}")
+        if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB AND (WIN32 OR WINDOWS_STORE))
+          set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                           IMPORTED_IMPLIB_RELEASE "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_IMPLIB_RELEASE}")
+        endif()
       endif()
 
-      target_link_libraries(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} INTERFACE LibXml2::LibXml2)
+      if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_DEBUG)
+        set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                         IMPORTED_LOCATION_DEBUG "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_DEBUG}")
+        set_property(TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} APPEND PROPERTY
+                                                                              IMPORTED_CONFIGURATIONS DEBUG)
+
+        if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB AND (WIN32 OR WINDOWS_STORE))
+          set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                           IMPORTED_IMPLIB_DEBUG "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_IMPLIB_DEBUG}")
+        endif()
+      endif()
     endif()
 
     if(TARGET libxslt)
