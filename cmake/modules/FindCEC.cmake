@@ -14,7 +14,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
     find_package(P8Platform REQUIRED ${SEARCH_QUIET})
 
-    set(CEC_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
+    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
 
     set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/001-all-cmakelists.patch"
                 "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/002-all-libceccmakelists.patch"
@@ -42,7 +42,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     if(CORE_SYSTEM_NAME STREQUAL "osx")
       find_program(INSTALL_NAME_TOOL NAMES install_name_tool)
       add_custom_command(TARGET ${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC} POST_BUILD
-                         COMMAND ${INSTALL_NAME_TOOL} -id ${CEC_LIBRARY} ${CEC_LIBRARY})
+                         COMMAND ${INSTALL_NAME_TOOL} -id ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY} ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY})
     endif()
 
     add_dependencies(${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC} LIBRARY::P8Platform)
@@ -86,41 +86,45 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
   else()
     if(TARGET libcec::cec)
       get_target_property(_CEC_CONFIGURATIONS libcec::cec IMPORTED_CONFIGURATIONS)
-      foreach(_cec_config IN LISTS _CEC_CONFIGURATIONS)
-        # Some non standard config (eg None on Debian)
-        # Just set to RELEASE var so select_library_configurations can continue to work its magic
-        string(TOUPPER ${_cec_config} _cec_config_UPPER)
-        if((NOT ${_cec_config_UPPER} STREQUAL "RELEASE") AND
-           (NOT ${_cec_config_UPPER} STREQUAL "DEBUG"))
-          get_target_property(CEC_LIBRARY_RELEASE libcec::cec IMPORTED_LOCATION_${_cec_config_UPPER})
-        else()
-          get_target_property(CEC_LIBRARY_${_cec_config_UPPER} libcec::cec IMPORTED_LOCATION_${_cec_config_UPPER})
-        endif()
-      endforeach()
+      if(_CEC_CONFIGURATIONS)
+        foreach(_cec_config IN LISTS _CEC_CONFIGURATIONS)
+          # Some non standard config (eg None on Debian)
+          # Just set to RELEASE var so select_library_configurations can continue to work its magic
+          string(TOUPPER ${_cec_config} _cec_config_UPPER)
+          if((NOT ${_cec_config_UPPER} STREQUAL "RELEASE") AND
+             (NOT ${_cec_config_UPPER} STREQUAL "DEBUG"))
+            get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE libcec::cec IMPORTED_LOCATION_${_cec_config_UPPER})
+          else()
+            get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_${_cec_config_UPPER} libcec::cec IMPORTED_LOCATION_${_cec_config_UPPER})
+          endif()
+        endforeach()
+      else()
+        get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE libcec::cec IMPORTED_LOCATION)
+      endif()
 
       # CEC cmake config doesnt include INTERFACE_INCLUDE_DIRECTORIES
-      find_path(CEC_INCLUDE_DIR NAMES libcec/cec.h libCEC/CEC.h
-                                HINTS ${DEPENDS_PATH}/include
-                                ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
-      set(CEC_VERSION ${libcec_VERSION})
+      find_path(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR NAMES libcec/cec.h libCEC/CEC.h
+                                                                 HINTS ${DEPENDS_PATH}/include
+                                                                 ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${libcec_VERSION})
     elseif(TARGET PkgConfig::libcec)
       # First item is the full path of the library file found
       # pkg_check_modules does not populate a variable of the found library explicitly
-      list(GET libcec_LINK_LIBRARIES 0 CEC_LIBRARY_RELEASE)
+      list(GET libcec_LINK_LIBRARIES 0 ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE)
 
-      get_target_property(CEC_INCLUDE_DIR PkgConfig::libcec INTERFACE_INCLUDE_DIRECTORIES)
-      set(CEC_VERSION ${libcec_VERSION})
+      get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR PkgConfig::libcec INTERFACE_INCLUDE_DIRECTORIES)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${libcec_VERSION})
     endif()
   endif()
 
   include(SelectLibraryConfigurations)
-  select_library_configurations(CEC)
-  unset(CEC_LIBRARIES)
+  select_library_configurations(${${CMAKE_FIND_PACKAGE_NAME}_MODULE})
+  unset(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARIES)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(CEC
-                                    REQUIRED_VARS CEC_LIBRARY CEC_INCLUDE_DIR
-                                    VERSION_VAR CEC_VERSION)
+                                    REQUIRED_VARS ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR
+                                    VERSION_VAR ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION)
 
   if(CEC_FOUND)
     if(TARGET libcec::cec AND NOT TARGET cec)
@@ -133,11 +137,22 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
       set_property(TARGET PkgConfig::libcec APPEND PROPERTY
                                                    INTERFACE_COMPILE_DEFINITIONS HAVE_LIBCEC)
     else()
-      add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
+      if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB)
+        add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} SHARED IMPORTED)
+      else()
+        add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} STATIC IMPORTED)
+      endif()
+
       set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                       IMPORTED_LOCATION "${CEC_LIBRARY}"
-                                                                       INTERFACE_INCLUDE_DIRECTORIES "${CEC_INCLUDE_DIR}"
-                                                                       INTERFACE_COMPILE_DEFINITIONS HAVE_LIBCEC)
+                                                                       INTERFACE_COMPILE_DEFINITIONS HAVE_LIBCEC
+                                                                       INTERFACE_INCLUDE_DIRECTORIES "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR}"
+                                                                       IMPORTED_LOCATION "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY}")
+      if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_SHARED_LIB)
+        if(WIN32 OR WINDOWS_STORE)
+          set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
+                                                                           IMPORTED_IMPLIB "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_IMPLIB}")
+        endif()
+      endif()
     endif()
 
     if(TARGET cec)
