@@ -42,22 +42,21 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
   # A corner case, but if a linux/freebsd user WANTS to build internal flatbuffers, build anyway
   if((flatbuffers_VERSION VERSION_LESS ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER} AND ENABLE_INTERNAL_FLATBUFFERS) OR
      ((CORE_SYSTEM_NAME STREQUAL linux OR CORE_SYSTEM_NAME STREQUAL freebsd) AND ENABLE_INTERNAL_FLATBUFFERS))
+    message(STATUS "Building ${CMAKE_FIND_PACKAGE_NAME} (Version: ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})")
     cmake_language(EVAL CODE "
       buildmacro${CMAKE_FIND_PACKAGE_NAME}()
     ")
   else()
     find_path(FLATBUFFERS_INCLUDE_DIR NAMES flatbuffers/flatbuffers.h
                                       HINTS ${DEPENDS_PATH}/include
-                                      ${${CORE_PLATFORM_LC}_SEARCH_CONFIG}
-                                      NO_CACHE)
+                                      ${${CORE_PLATFORM_LC}_SEARCH_CONFIG})
+
+    if(FLATBUFFERS_INCLUDE_DIR)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
+    endif()
   endif()
 
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(FlatBuffers
-                                    REQUIRED_VARS FLATBUFFERS_INCLUDE_DIR
-                                    VERSION_VAR FLATBUFFERS_VER)
-
-  if(FlatBuffers_FOUND)
+  if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
 
     add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} INTERFACE IMPORTED)
     set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES

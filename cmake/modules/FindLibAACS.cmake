@@ -35,6 +35,10 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     endif()
   endif()
 
+  if(SEARCH_QUIET STREQUAL "QUIET")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY TRUE)
+  endif()
+
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(LibAACS
                                     REQUIRED_VARS LIBAACS_LIBRARY LIBAACS_INCLUDE_DIR

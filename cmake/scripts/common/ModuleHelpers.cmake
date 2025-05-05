@@ -172,7 +172,7 @@ macro(SETUP_BUILD_VARS)
     set(PROJECTSOURCE ${CMAKE_SOURCE_DIR})
   endif()
 
-  if(NOT ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_DISABLE_VERSION)
+  if(NOT ${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_DISABLE_VERSION)
     # populate variables of data from VERSION file for MODULE
     get_versionfile_data()
   endif()
@@ -508,6 +508,8 @@ macro(BUILD_DEP_TARGET)
 
   set_target_properties(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} PROPERTIES FOLDER "External Projects")
 
+  set(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND TRUE)
+
   CLEAR_BUILD_VARS()
 endmacro()
 
@@ -688,17 +690,55 @@ macro(ADD_MULTICONFIG_BUILDMACRO)
 endmacro()
 
 macro(SEARCH_EXISTING_PACKAGES)
+  if((NOT SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+    message(CHECK_START "Finding ${CMAKE_FIND_PACKAGE_NAME}")
+  endif()
+  list(APPEND CMAKE_MESSAGE_INDENT "  ")
+
+  if(NOT (SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+    message(CHECK_START "Searching cmake config ${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}")
+  endif()
   find_package(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME} ${CONFIG_${CMAKE_FIND_PACKAGE_NAME}_FIND_SPEC} CONFIG ${SEARCH_QUIET}
                                                          HINTS ${DEPENDS_PATH}/share/cmake
                                                                ${DEPENDS_PATH}/lib/cmake
                                                          ${${CORE_PLATFORM_NAME_LC}_SEARCH_CONFIG})
 
   # fallback to pkgconfig to cover all bases
-  if(NOT ${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
+  if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
+    if(NOT (SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+      message(CHECK_PASS "found (Version: ${${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_VERSION}")
+    endif()
+  else()
+    if(NOT (SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+      message(CHECK_FAIL "not found")
+    endif()
     find_package(PkgConfig ${SEARCH_QUIET})
 
     if(PKG_CONFIG_FOUND AND NOT (WIN32 OR WINDOWSSTORE))
+#      if(NOT (SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+#        message(CHECK_START "Searching pkgconfig ${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME_PC}")
+#      endif()
+
       pkg_check_modules(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME} ${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME_PC}${PC_${CMAKE_FIND_PACKAGE_NAME}_FIND_SPEC} ${SEARCH_QUIET} IMPORTED_TARGET)
+
+#      if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
+#        if(NOT (SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+#          message(CHECK_PASS "found (Version: ${${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_VERSION}")
+#        endif()
+#      else()
+#        if(NOT (SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+#          message(CHECK_FAIL "not found")
+#        endif()
+#      endif()
+    endif()
+  endif()
+
+  list(POP_BACK CMAKE_MESSAGE_INDENT)
+  if((NOT SEARCH_QUIET STREQUAL "QUIET") OR VERBOSE)
+    if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
+      message(CHECK_PASS "found (Version: ${${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_VERSION})")
+    else()
+      message(CHECK_FAIL "not found")
     endif()
   endif()
 endmacro()

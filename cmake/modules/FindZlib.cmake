@@ -31,6 +31,8 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     set(ZLIB_USE_STATIC_LIBS ON)
   endif()
 
+  set(ZLIB_FIND_QUIETLY TRUE)
+
   find_package(ZLIB ${SEARCH_QUIET} ${REQ})
   unset(ZLIB_USE_STATIC_LIBS)
 

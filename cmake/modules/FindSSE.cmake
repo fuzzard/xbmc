@@ -102,6 +102,10 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
    endif()
 endif()
 
+if(SEARCH_QUIET STREQUAL "QUIET")
+  set(${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY TRUE)
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SSE
                                   REQUIRED_VARS _SSE_TRUE _SSE_OK

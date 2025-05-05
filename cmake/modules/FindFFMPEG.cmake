@@ -203,7 +203,7 @@ else()
   if(NOT WIN32)
     find_package(PkgConfig REQUIRED ${SEARCH_QUIET})
 
-    pkg_check_modules(PC_FFMPEG ${FFMPEG_PKGS})
+    pkg_check_modules(PC_FFMPEG ${FFMPEG_PKGS} ${SEARCH_QUIET})
   endif()
 
   if((PC_FFMPEG_FOUND
@@ -241,6 +241,10 @@ else()
       ffmpeg_find_lib(${_libname})
     endforeach()
 
+    if(SEARCH_QUIET STREQUAL "QUIET")
+      set(${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY TRUE)
+    endif()
+
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(FFMPEG
                                       VERSION_VAR FFMPEG_VERSION
@@ -266,7 +270,7 @@ else()
         # pkg_check_modules is run with a list, the only *_LDFLAGS set is a concatenated 
         # list of all checked modules. Ideally we want each target to only have the LDFLAGS
         # required for that specific module
-        pkg_check_modules(PC_FFMPEG_${libname} ${libname}${_${name}_ver} ${SEARCH_QUIET})
+        pkg_check_modules(PC_FFMPEG_${libname} ${libname}${_${name}_ver} QUIET)
 
         # pkg-config LDFLAGS always seem to have -l<name> listed. We dont need that, as
         # the target gets a direct path to the physical lib

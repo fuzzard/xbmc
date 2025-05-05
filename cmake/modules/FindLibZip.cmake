@@ -20,6 +20,8 @@ find_package(libzip ${CONFIG_${CMAKE_FIND_PACKAGE_NAME}_FIND_SPEC} CONFIG ${SEAR
                     ${${CORE_PLATFORM_NAME_LC}_SEARCH_CONFIG})
 
 if(libzip_VERSION VERSION_LESS ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
+  message(STATUS "Building ${CMAKE_FIND_PACKAGE_NAME} (Version: ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER}")
+
   # Check for dependencies
   find_package(GnuTLS REQUIRED ${SEARCH_QUIET})
   find_package(Zlib REQUIRED ${SEARCH_QUIET})
@@ -41,39 +43,10 @@ if(libzip_VERSION VERSION_LESS ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
   add_dependencies(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} LIBRARY::Zlib)
 
   set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES LIBRARY::Zlib)
-else()
-  # we only do this because we use find_package_handle_standard_args for config time output
-  # and it isnt capable of handling TARGETS, so we have to extract the info
-  get_target_property(_ZIP_CONFIGURATIONS libzip::zip IMPORTED_CONFIGURATIONS)
-  if(_ZIP_CONFIGURATIONS)
-    foreach(_zip_config IN LISTS _ZIP_CONFIGURATIONS)
-      # Just set to RELEASE var so select_library_configurations can continue to work its magic
-      string(TOUPPER ${_zip_config} _zip_config_UPPER)
-      if((NOT ${_zip_config_UPPER} STREQUAL "RELEASE") AND
-         (NOT ${_zip_config_UPPER} STREQUAL "DEBUG"))
-        get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE libzip::zip IMPORTED_LOCATION_${_zip_config_UPPER})
-      else()
-        get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_${_zip_config_UPPER} libzip::zip IMPORTED_LOCATION_${_zip_config_UPPER})
-      endif()
-    endforeach()
-  else()
-    get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY_RELEASE libzip::zip IMPORTED_LOCATION)
-  endif()
 
-  get_target_property(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR libzip::zip INTERFACE_INCLUDE_DIRECTORIES)
-  set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION ${libzip_VERSION})
 endif()
 
-include(SelectLibraryConfigurations)
-select_library_configurations(${${CMAKE_FIND_PACKAGE_NAME}_MODULE})
-unset(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARIES)
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(LibZip
-                                  REQUIRED_VARS ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LIBRARY ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_INCLUDE_DIR
-                                  VERSION_VAR ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VERSION)
-
-if(LibZip_FOUND)
+if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
   # cmake target and not building internal
   if(TARGET libzip::zip AND NOT TARGET ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME})
 

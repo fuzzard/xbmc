@@ -8,28 +8,23 @@
 # ${APP_NAME_LC}::CAP - The LibCap library
 
 if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
-  find_package(PkgConfig ${SEARCH_QUIET})
-  if(PKG_CONFIG_FOUND)
-    pkg_check_modules(PC_CAP libcap ${SEARCH_QUIET})
-  endif()
 
-  find_path(CAP_INCLUDE_DIR NAMES sys/capability.h
-                            HINTS ${PC_CAP_INCLUDEDIR})
-  find_library(CAP_LIBRARY NAMES cap libcap
-                           HINTS ${PC_CAP_LIBDIR})
+  include(cmake/scripts/common/ModuleHelpers.cmake)
 
-  set(CAP_VERSION ${PC_CAP_VERSION})
+  set(${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC libcap)
+  set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_DISABLE_VERSION TRUE)
 
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(CAP
-                                    REQUIRED_VARS CAP_LIBRARY CAP_INCLUDE_DIR
-                                    VERSION_VAR CAP_VERSION)
+  SETUP_BUILD_VARS()
 
-  if(CAP_FOUND)
-    add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} UNKNOWN IMPORTED)
-    set_target_properties(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} PROPERTIES
-                                                                     IMPORTED_LOCATION "${CAP_LIBRARY}"
-                                                                     INTERFACE_INCLUDE_DIRECTORIES "${CAP_INCLUDE_DIR}"
-                                                                     INTERFACE_COMPILE_DEFINITIONS HAVE_LIBCAP)
+  SETUP_FIND_SPECS()
+
+  SEARCH_EXISTING_PACKAGES()
+
+  if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
+    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_COMPILE_DEFINITIONS HAVE_LIBCAP)
+
+    add_library(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ALIAS PkgConfig::${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME})
+
+    ADD_TARGET_COMPILE_DEFINITION()
   endif()
 endif()

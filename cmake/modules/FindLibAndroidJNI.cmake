@@ -21,6 +21,10 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
   BUILD_DEP_TARGET()
 
+  if(SEARCH_QUIET STREQUAL "QUIET")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY TRUE)
+  endif()
+
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(LibAndroidJNI
                                     REQUIRED_VARS LIBANDROIDJNI_LIBRARY LIBANDROIDJNI_INCLUDE_DIR
