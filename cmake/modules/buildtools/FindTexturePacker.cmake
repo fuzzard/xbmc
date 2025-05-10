@@ -22,6 +22,7 @@ if(NOT TARGET TexturePacker::TexturePacker::Executable)
     set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
                                           IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
     message(STATUS "External TexturePacker for KODI_DEPENDSBUILD will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
+    set(TEXTUREPACKER_FOUND TRUE CACHE BOOL "TexturePacker executable found")
   elseif(WIN32)
     get_filename_component(_tppath "${NATIVEPREFIX}/tools/TexturePacker" ABSOLUTE)
     find_program(TEXTUREPACKER_EXECUTABLE NAMES "${APP_NAME_LC}-TexturePacker.exe" TexturePacker.exe
@@ -31,6 +32,7 @@ if(NOT TARGET TexturePacker::TexturePacker::Executable)
     set_target_properties(TexturePacker::TexturePacker::Executable PROPERTIES
                                           IMPORTED_LOCATION "${TEXTUREPACKER_EXECUTABLE}")
     message(STATUS "External TexturePacker for WIN32 will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
+    set(TEXTUREPACKER_FOUND TRUE CACHE BOOL "TexturePacker executable found")
   else()
     if(WITH_TEXTUREPACKER)
       get_filename_component(_tppath ${WITH_TEXTUREPACKER} ABSOLUTE)
@@ -115,11 +117,14 @@ if(NOT TARGET TexturePacker::TexturePacker::Executable)
     if(INTERNAL_TEXTUREPACKER_EXECUTABLE)
       add_executable(TexturePacker::TexturePacker::Executable ALIAS TexturePacker)
       message(STATUS "Internal TexturePacker will be executed during build")
+      set(TEXTUREPACKER_FOUND TRUE CACHE BOOL "TexturePacker executable found")
     else()
       message(STATUS "External TexturePacker will be executed during build: ${TEXTUREPACKER_EXECUTABLE}")
 
       include(FindPackageHandleStandardArgs)
       find_package_handle_standard_args(TexturePacker DEFAULT_MSG TEXTUREPACKER_EXECUTABLE)
+
+      set(TEXTUREPACKER_FOUND TRUE CACHE BOOL "TexturePacker executable found")
     endif()
 
     mark_as_advanced(INTERNAL_TEXTUREPACKER_EXECUTABLE INTERNAL_TEXTUREPACKER_INSTALLABLE TEXTUREPACKER)

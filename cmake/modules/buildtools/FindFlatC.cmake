@@ -77,6 +77,8 @@ if(NOT TARGET flatbuffers::flatc)
                                            IMPORTED_LOCATION "${FLATBUFFERS_FLATC_EXECUTABLE}"
                                            FOLDER "External Projects")
 
+  set(FLATC_FOUND TRUE CACHE BOOL "FlatC Compiler")
+
   if(TARGET ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME})
     add_dependencies(flatbuffers::flatc ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME})
   endif()

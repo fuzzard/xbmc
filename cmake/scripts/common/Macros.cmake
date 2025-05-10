@@ -398,7 +398,18 @@ function(core_require_dep)
       endif()
     endif()
 
+    if(TARGET ${APP_NAME_LC}::${dep} OR ${depup}_FOUND)
+      if(${depup}_VERSION)
+        set(found_ver_string "(Version: ${${depup}_VERSION})")
+      endif()
+      set(final_message ${final_message} "${depup} found: Required ${found_ver_string}")
+      unset(found_ver_string)
+    else()
+      message(FATAL_ERROR "${depup} required but not found")
+    endif()
+
   endforeach()
+  set(final_message ${final_message} PARENT_SCOPE)
 endfunction()
 
 # helper macro for optional deps
