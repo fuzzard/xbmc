@@ -2,3 +2,5 @@ LIBNAME=harfbuzz
 VERSION=11.2.1
 ARCHIVE=$(LIBNAME)-$(VERSION).tar.xz
 SHA512=56d4819f63d6040bff008e64a0d5b597c1cfa105047f7970b1dae2894aeed27a92d0c0780fee0beda53685767d86cb864256d6388cb4439e7d51a7ee717a0bd7
+
+BASE_URL=https://github.com/harfbuzz/harfbuzz/releases/download/11.2.1
