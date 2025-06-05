@@ -437,10 +437,12 @@ case $host in
       ios)
         target_platform=iphoneos
         platform_os="darwin_embedded"
+        python_framework="lib/Frameworks/Python.framework/Versions/current"
       ;;
       macos)
         target_platform=macosx
         platform_os="osx"
+        python_framework="lib/Frameworks/Python.framework/Versions/current"
       ;;
       *)
         AC_MSG_ERROR(error in configure no platform provided --with-platform)
@@ -737,6 +739,7 @@ AC_SUBST(build_os)
 AC_SUBST(has_zlib)
 AC_SUBST(link_iconv)
 AC_SUBST(need_libiconv)
+AC_SUBST(python_framework)
 AC_SUBST(use_gplv3)
 AC_SUBST(use_ccache)
 AC_SUBST(host_includes)
