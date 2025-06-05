@@ -56,7 +56,7 @@ export ZLIB_ROOT
 BUILD_OPTS=--plat-name $(OS)-$(CPU) --disable-jpeg2000 --disable-webp --disable-imagequant --disable-tiff --disable-xcb --disable-lcms --disable-platform-guessing
 
 export CC CFLAGS
-export PYTHONXINCLUDE=$(PREFIX)/include/python$(PYTHON_VERSION)
+export PYTHONXINCLUDE=$(PREFIX)/$(PYTHON_FRAMEWORK)/include/python$(PYTHON_VERSION)
 export LDSHARED LDFLAGS PYTHONPATH
 export SETUPTOOLS_EXT_SUFFIX=.so
 
