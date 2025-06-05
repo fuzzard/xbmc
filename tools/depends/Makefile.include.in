@@ -102,6 +102,8 @@ CMAKE_FOR_BUILD=@prefix@/@tool_dir@/bin/cmake -DCMAKE_TOOLCHAIN_FILE=$(NATIVEPRE
 NATIVE_CFLAGS=@host_includes@ -I@prefix@/@tool_dir@/include
 NATIVE_LDFLAGS=@host_includes@ -L@prefix@/@tool_dir@/lib
 NATIVE_CPPFLAGS=@host_includes@ -I@prefix@/@tool_dir@/include
+# libgpg-error requires CPPFLAGS_FOR_BUILD
+export CPPFLAGS_FOR_BUILD=@host_includes@ -I@prefix@/@tool_dir@/include
 NATIVE_CXXFLAGS=@host_includes@ -I@prefix@/@tool_dir@/include
 
 VERSION.TXT := $(CMAKE_SOURCE_DIR)/version.txt
