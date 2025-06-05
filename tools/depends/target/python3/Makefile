@@ -1,6 +1,6 @@
 include ../../Makefile.include PYTHON3-VERSION ../../download-files.include
 DEPS = ../../Makefile.include Makefile PYTHON3-VERSION ../../download-files.include \
-                                 apple.patch \
+                                 tvos-apple.patch \
                                  10-android-modules.patch \
                                  11-android-ctypes.patch
 
@@ -20,6 +20,32 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   endif
   # required for _localemodule
   EXTRA_CONFIGURE+= ac_cv_lib_intl_textdomain=yes
+
+  # TVOS isnt supported natively by cpython as of 3.14.
+  ifneq ($(TARGET_PLATFORM), appletvos)
+    ifeq ($(findstring aarch64, $(HOST)), aarch64)
+      # ac_cv_host needs to be overwritten, as we use a different triplet in the
+      # config.site file we generate for arm64 macos
+      EXTRA_CONFIGURE+= --build=arm64-apple-darwin
+    else
+      EXTRA_CONFIGURE+= --build=x86_64-apple-darwin
+    endif
+
+    ifeq ($(OS), darwin_embedded)
+      # ac_cv_host needs to be overwritten, as we use a different triplet in the
+      # config.site file we generate
+      EXTRA_CONFIGURE+= --host=arm64-apple-ios \
+                        ac_cv_host=arm64-apple-ios
+    else
+      EXTRA_CONFIGURE+= ac_cv_host=arm64-apple-darwin
+    endif
+
+    EXTRA_CONFIGURE+= --enable-framework=$(PREFIX)/lib/Frameworks \
+                      --without-static-libpython
+  else
+    EXTRA_CONFIGURE+= --disable-framework \
+                      --disable-shared
+  endif
 endif
 
 ifeq ($(OS), linux)
@@ -28,6 +54,7 @@ ifeq ($(OS), linux)
     # Force intl check to succeed
     EXTRA_CONFIGURE+=ac_cv_lib_intl_textdomain=yes
   endif
+  EXTRA_CONFIGURE+= --disable-shared
 endif
 
 # Disabled c extension modules for all platforms
@@ -64,15 +91,12 @@ endif
 
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) \
-                      --disable-shared \
                       --without-ensurepip \
-                      --disable-framework \
                       --without-pymalloc \
                       --enable-ipv6 \
                       --with-build-python=$(NATIVEPREFIX)/bin/python3 \
                       --with-system-expat=yes \
                       --disable-test-modules \
-                      MODULE_BUILDTYPE=static \
                       $(PY_MODULES) \
                       $(EXTRA_CONFIGURE)
 
@@ -87,8 +111,9 @@ all: .installed-$(PLATFORM)
 $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../apple.patch
-
+ifeq ($(TARGET_PLATFORM), appletvos)
+	cd $(PLATFORM); patch -p1 -i ../tvos-apple.patch
+endif
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../10-android-modules.patch
 	cd $(PLATFORM); patch -p1 -i ../11-android-ctypes.patch
@@ -97,13 +122,13 @@ endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) libpython$(PYTHON_VERSION).a
+	$(MAKE) -C $(PLATFORM)
 	touch $@
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 # We specifically use -j1 as some threading issues can occur with install directory creation
 	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) install -j1
-	find $(PREFIX)/lib/python$(PYTHON_VERSION) -type f -name "*.pyc" -delete
+	find $(PREFIX)/$(PYTHON_FRAMEWORK)/lib/python$(PYTHON_VERSION) -type f -name "*.pyc" -delete
 	touch $(LIBDYLIB)
 	touch $@
 
