@@ -1,5 +1,8 @@
 if test "@cross_compiling@" = "yes"; then
-cross_compiling=yes
+# We dont use cross_compiling for macos due to python
+if test "@platform_os@" != "osx"; then
+  cross_compiling=yes
+fi
 host=@use_host@
 host_alias=@use_host@
 fi
@@ -63,6 +66,14 @@ if test "${PACKAGE_NAME}" = "wayland"; then
   export CPPFLAGS=`echo ${CPPFLAGS} | sed 's/-DNDEBUG=1//g'`
 fi
 
+# nettle - macos requires cross_compiling for alternate arch to HOST
+if test "${PACKAGE_NAME}" = "nettle"; then
+  if test "@platform_os@" != "osx"; then
+    if test "@cross_compiling@" = "yes"; then
+      cross_compiling=yes
+    fi
+  fi
+fi
 
 if test "@platform_os@" = "android"; then
   ac_cv_func_srand=yes
