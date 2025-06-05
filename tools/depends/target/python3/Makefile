@@ -20,10 +20,25 @@ ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   endif
   # required for _localemodule
   EXTRA_CONFIGURE+= ac_cv_lib_intl_textdomain=yes
-endif
 
-ifeq ($(OS),android)
-  LIBS=-liconv
+  # TVOS isnt supported natively by cpython as of 3.14.
+  ifneq ($(TARGET_PLATFORM), appletvos)
+    ifeq ($(findstring aarch64, $(HOST)), aarch64)
+      EXTRA_CONFIGURE+= --build=arm64-apple-darwin
+    else
+      EXTRA_CONFIGURE+= --build=x86_64-apple-darwin
+    endif
+
+    ifeq ($(OS), darwin_embedded)
+      EXTRA_CONFIGURE+= --host=arm64-apple-ios
+    endif
+
+    EXTRA_CONFIGURE+= --enable-framework=$(PREFIX)/lib/Frameworks \
+                      --without-static-libpython
+  else
+    EXTRA_CONFIGURE+= --disable-framework \
+                      --disable-shared
+  endif
 endif
 
 ifeq ($(OS), linux)
@@ -31,9 +46,8 @@ ifeq ($(OS), linux)
   ifeq ($(TARGET_PLATFORM),webos)
     # Force intl check to succeed
     EXTRA_CONFIGURE+=ac_cv_lib_intl_textdomain=yes
-    # Export iconv as LIBS for link ordering (After -lintl from configure search)
-    LIBS=-liconv
   endif
+  EXTRA_CONFIGURE+= --disable-shared
 endif
 
 # Disabled c extension modules for all platforms
@@ -70,20 +84,17 @@ endif
 
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) \
-                      --disable-shared \
                       --without-ensurepip \
-                      --disable-framework \
                       --without-pymalloc \
                       --enable-ipv6 \
                       --with-build-python=$(NATIVEPREFIX)/bin/python3 \
                       --with-system-expat=yes \
                       --disable-test-modules \
-                      MODULE_BUILDTYPE=static \
                       $(PY_MODULES) \
                       $(EXTRA_CONFIGURE)
 
 export LDFLAGS
-export LIBS
+export LIBS=$(LINK_ICONV)
 
 LIBDYLIB=$(PLATFORM)/libpython$(PYTHON_VERSION).a
 
@@ -102,13 +113,21 @@ endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
-	$(MAKE) -C $(PLATFORM) libpython$(PYTHON_VERSION).a
+	$(MAKE) -C $(PLATFORM)
 	touch $@
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 # We specifically use -j1 as some threading issues can occur with install directory creation
 	$(MAKE) -C $(PLATFORM) $(HOSTPLATFORM) install -j1
+ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
+ifneq ($(TARGET_PLATFORM), appletvos)
+	find $(PREFIX)/lib/Frameworks/Python.framework -type f -name "*.pyc" -delete
+else
 	find $(PREFIX)/lib/python$(PYTHON_VERSION) -type f -name "*.pyc" -delete
+endif
+else
+	find $(PREFIX)/lib/python$(PYTHON_VERSION) -type f -name "*.pyc" -delete
+endif
 	touch $(LIBDYLIB)
 	touch $@
 
