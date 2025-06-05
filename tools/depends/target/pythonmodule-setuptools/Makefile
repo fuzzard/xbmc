@@ -1,6 +1,12 @@
 include ../../Makefile.include PYTHONMODULE-SETUPTOOLS-VERSION ../../download-files.include
 DEPS= ../../Makefile.include Makefile PYTHONMODULE-SETUPTOOLS-VERSION ../../download-files.include
 
+install_path=$(PREFIX)
+
+ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
+  install_path=$(PREFIX)/lib/Frameworks/Python.framework/versions/current
+endif
+
 LIBDYLIB=$(PLATFORM)/dist/$(LIBNAME)-$(VERSION)-py$(PYTHON_VERSION).egg
 
 all: .installed-$(PLATFORM)
@@ -10,7 +16,7 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
 
 .installed-$(PLATFORM): $(PLATFORM)
-	cd $(PLATFORM); PYTHONPATH="$(PYTHON_SITE_PKG)" $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(PREFIX)
+	cd $(PLATFORM); PYTHONPATH="$(PYTHON_SITE_PKG)" $(NATIVEPREFIX)/bin/python3 setup.py install --prefix=$(install_path)
 	find $(PYTHON_SITE_PKG)/*setuptools* -type f -name "*.exe" -exec rm -f {} \;
 	touch $@
 
