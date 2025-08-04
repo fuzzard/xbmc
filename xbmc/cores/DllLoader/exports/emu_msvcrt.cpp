@@ -1892,8 +1892,8 @@ extern "C"
             {
               strncpy(*free_position, var, size);
               (*free_position)[size - 1] = '\0';
-              strncat(*free_position, "=", size - strlen(*free_position));
-              strncat(*free_position, value, size - strlen(*free_position));
+              strcat(*free_position, "=");
+              strcat(*free_position, value);
               added = true;
             }
           }
