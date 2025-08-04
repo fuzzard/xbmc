@@ -999,7 +999,11 @@ extern "C"
         strncpy(entry->d_name, "..\0", 3);
       else
       {
+        // ignore stringop-truncation as we explicitly set null terminator immediately after
+#pragma "GCC diagnostic push"
+#pragma "GCC diagnostic ignored "-Wstringop-truncation"
         strncpy(entry->d_name, dirData->items[dirData->curr_index - 2]->GetLabel().c_str(), sizeof(entry->d_name));
+#pragma "GCC diagnostic pop"
         entry->d_name[sizeof(entry->d_name)-1] = '\0'; // null-terminate any truncated paths
       }
       dirData->last_entry = entry;
