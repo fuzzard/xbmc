@@ -854,3 +854,64 @@ function(core_target_add_dependencies core_target)
     endif()
   endforeach()
 endfunction()
+
+if(KODI_DEPENDSBUILD)
+
+  # common autoconf build tools
+  find_program(AUTOCONF autoconf HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(ACLOCAL aclocal HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(AUTOHEADER autoheader HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(AUTOMAKE automake HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(AUTOM4TE autom4te HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(AUTOPOINT autopoint HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(AUTORECONF autoreconf HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(LIBTOOL libtool HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+  find_program(LIBTOOLIZE libtoolize HINTS "${NATIVEPREFIX}/bin" REQUIRED)
+
+  # Env variables for non cmake target environments
+  set(PROJECT_TARGETENV "AS=${CMAKE_AS}"
+                        "AR=${CMAKE_AR}"
+                        "CC=${CMAKE_C_COMPILER}"
+                        "CXX=${CMAKE_CXX_COMPILER}"
+                        "NM=${CMAKE_NM}"
+                        "LD=${CMAKE_LINKER}"
+                        "STRIP=${CMAKE_STRIP}"
+                        "RANLIB=${CMAKE_RANLIB}"
+                        "OBJDUMP=${CMAKE_OBJDUMP}"
+                        "CFLAGS=${CMAKE_C_FLAGS}"
+                        "CPPFLAGS=${CMAKE_CPP_FLAGS}"
+                        "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS}"
+                        "PKG_CONFIG_LIBDIR=$ENV{PKG_CONFIG_LIBDIR}"
+                        "AUTOM4TE=${AUTOM4TE}"
+                        "AUTOMAKE=${AUTOMAKE}"
+                        "AUTOCONF=${AUTOCONF}"
+                        "AUTORECONF=${AUTORECONF}"
+                        "ACLOCAL=${ACLOCAL}"
+                        "ACLOCAL_PATH=$ENV{ACLOCAL_PATH}"
+                        "AUTOPOINT=${AUTOPOINT}"
+                        "AUTOHEADER=${AUTOHEADER}"
+                        "LIBTOOL=${LIBTOOL}"
+                        "LIBTOOLIZE=${LIBTOOLIZE}"
+                        "CONFIG_SITE=${CONFIG_SITE}"
+                        )
+  
+  # Env variables for non cmake host environments
+  set(PROJECT_BUILDENV CC_FOR_BUILD=${CC_FOR_BUILD}
+                       CXX_FOR_BUILD=${CXX_FOR_BUILD}
+                       LD_FOR_BUILD=${LD_FOR_BUILD}
+                       CC_BINARY_FOR_BUILD=${CC_FOR_BUILD}
+                       CXX_BINARY_FOR_BUILD=${CXX_FOR_BUILD}
+                       AR_FOR_BUILD=${AR_FOR_BUILD}
+                       RANLIB_FOR_BUILD=${RANLIB_FOR_BUILD}
+                       AS_FOR_BUILD=${AS_FOR_BUILD}
+                       NM_FOR_BUILD=${NM_FOR_BUILD}
+                       STRIP_FOR_BUILD=${STRIP_FOR_BUILD}
+                       READELF_FOR_BUILD=${READELF_FOR_BUILD}
+                       OBJDUMP_FOR_BUILD=${OBJDUMP_FOR_BUILD}
+                       CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD}
+                       LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD}
+                       )
+  
+  # variable to easily set host/target env for non cmake internal dep builds
+  set(DEP_BUILDENV ${CMAKE_COMMAND} -E env ${PROJECT_TARGETENV} ${PROJECT_BUILDENV})
+endif()

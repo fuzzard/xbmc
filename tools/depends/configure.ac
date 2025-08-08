@@ -322,7 +322,7 @@ case $host in
     deps_dir="$use_host-$use_ndk_api-$build_type"
     platform_cflags="-DANDROID -fexceptions -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fPIC -DPIC"
     optimize_flags="-Os"
-    platform_ldflags="-Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libatomic.a -L$prefix/$deps_dir/lib/android-$use_ndk_api"
+    platform_ldflags="-Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libatomic.a"
 
     case $host in
       arm*-*linux-android*)
@@ -364,7 +364,6 @@ case $host in
       esac
 
     platform_cxxflags="$platform_cflags -frtti"
-    platform_includes="-isystem $prefix/$deps_dir/include/android-$use_ndk_api"
     platform_os="android"
     meson_system="android"
     #android builds are always cross
@@ -655,24 +654,27 @@ fi
 tmp_cflags=$(echo $CFLAGS $platform_cflags | sed 's/-O@<:@123@:>@//g;s/-g //g;s/ \{2,\}//g')
 tmp_cxxflags=$(echo $CXXFLAGS $platform_cxxflags | sed 's/-O@<:@123@:>@//g;s/-g //g;s/ \{2,\}//g')
 
-release_cflags="-DNDEBUG=1"
+release_flags="-DNDEBUG=1"
 
 # newer xcode version accept -Og flag, but debugging doesn't work with it
 if test "$platform_os" = "osx" || test "$platform_os" = "darwin_embedded"; then
-  debug_cflags="-g -D_DEBUG"
+  debug_flags="-g -D_DEBUG"
 else
   CFLAGS="$tmp_cflags -Og -g -D_DEBUG"
   AC_COMPILE_IFELSE(
     [AC_LANG_SOURCE([int foo;])],
-    [debug_cflags="-Og -g -D_DEBUG"],
-    [debug_cflags="-g -D_DEBUG"])
+    [debug_flags="-Og -g -D_DEBUG"],
+    [debug_flags="-g -D_DEBUG"])
 fi
 
+base_cflags="$tmp_cflags $target_cflags"
+base_cxxflags="$tmp_cxxflags $target_cxxflags"
+
 # add user supplied flags to the end, so they override our defaults
-platform_cflags_release="$tmp_cflags $release_cflags $optimize_flags $target_cflags"
-platform_cxxflags_release="$tmp_cxxflags $release_cflags $optimize_flags $target_cxxflags"
-platform_cflags_debug="$tmp_cflags $debug_cflags $target_cflags"
-platform_cxxflags_debug="$tmp_cxxflags $debug_cflags $target_cxxflags"
+platform_cflags_release="$tmp_cflags $release_flags $optimize_flags $target_cflags"
+platform_cxxflags_release="$tmp_cxxflags $release_flags $optimize_flags $target_cxxflags"
+platform_cflags_debug="$tmp_cflags $debug_flags $target_cflags"
+platform_cxxflags_debug="$tmp_cxxflags $debug_flags $target_cxxflags"
 platform_ldflags="${platform_ldflags} $target_ldflags"
 
 if test "$use_debug" = "yes"; then
@@ -750,6 +752,12 @@ AC_SUBST(host_sysroot)
 AC_SUBST(host_cxxflags)
 AC_SUBST(app_rendersystem)
 AC_SUBST(ffmpeg_options)
+
+AC_SUBST(base_cflags)
+AC_SUBST(base_cxxflags)
+AC_SUBST(debug_flags)
+AC_SUBST(release_flags)
+AC_SUBST(optimize_flags)
 
 [
 if test "x$CCACHE" = "x"

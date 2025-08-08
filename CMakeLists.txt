@@ -5,6 +5,31 @@ endif()
 
 project(kodi LANGUAGES CXX C ASM)
 
+if(KODI_DEPENDSBUILD)
+  # This rubbish is required as Cmake has this fantastic idea that it knows best when
+  # we want to use CMAKE_<LANG>_FLAGS_<CONFIG>_INIT variables. cmake silently adds
+  # compiler flags that can not be avoided, and changes based on the compiler used
+  # https://discourse.cmake.org/t/override-the-default-o3-dndebug-release-flags/11085
+  # Without going the route of a custom config type, we do the following for depends
+  # platforms that use toolchain files to set what we desire for DEBUG and RELEASE config
+  # types only
+  if(NOT ${BASE_FLAGS_RELEASE} STREQUAL ${CMAKE_C_FLAGS_RELEASE})
+    set(CMAKE_C_FLAGS_RELEASE "${BASE_FLAGS_RELEASE}" CACHE STRING "" FORCE)
+  endif()
+  
+  if(NOT ${BASE_FLAGS_DEBUG} STREQUAL ${CMAKE_C_FLAGS_DEBUG})
+    set(CMAKE_C_FLAGS_DEBUG "${BASE_FLAGS_DEBUG}" CACHE STRING "" FORCE)
+  endif()
+  
+  if(NOT ${BASE_FLAGS_RELEASE} STREQUAL ${CMAKE_CXX_FLAGS_RELEASE})
+    set(CMAKE_CXX_FLAGS_RELEASE "${BASE_FLAGS_RELEASE}" CACHE STRING "" FORCE)
+  endif()
+  
+  if(NOT ${BASE_FLAGS_DEBUG} STREQUAL ${CMAKE_CXX_FLAGS_DEBUG})
+    set(CMAKE_CXX_FLAGS_DEBUG "${BASE_FLAGS_DEBUG}" CACHE STRING "" FORCE)
+  endif()
+endif()
+
 if(POLICY CMP0069)
   set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
   cmake_policy(SET CMP0069 NEW)
