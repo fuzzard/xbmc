@@ -59,6 +59,7 @@ To build Kodi:
 * **[Java Runtime Environment (JRE)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)**
 * **[Meson](https://github.com/mesonbuild/meson/releases/)** MSI installer of a release
 * **[Nullsoft scriptable install system (NSIS)](http://nsis.sourceforge.net/Download)** version 3.04 or greater (Only needed if you want to generate an installer file)
+* **[Rust](https://rustup.rs/)** Install the correct version for your computer type (ie 64bit, 32bit, arm)
 * **[Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)** (Community Edition is fine)
 
 To run Kodi you need a relatively recent CPU with integrated GPU or discrete GPU with up-to-date graphics device-drivers installed from the manufacturer's website.
@@ -86,6 +87,14 @@ Add installation directory to your `PATH` **[environment variable](https://learn
 
 ### NSIS install notes
 Default options are fine.
+
+### Rust install notes
+Default options are fine. Restart any open command prompts after installation for the PATH changes to take effect.
+If you wish to compile for a different arch than your computer (ie build arm on 64bit, or 32bit on a 64bit), you will need to install the correct rust toolchains in addition to the default.
+* 32bit - `rustup target add i686-pc-windows-msvc`
+* 64bit - `rustup target add x86_64-pc-windows-msvc`
+* arm - `rustup target add aarch64-pc-windows-msvc`
+To uninstall rust execute the following in a command prompt - `rustup self uninstall`
 
 ### Visual Studio 2022 install notes
 Start the Visual Studio installer and click **Workloads** select
