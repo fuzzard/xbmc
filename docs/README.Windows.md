@@ -57,6 +57,7 @@ To build Kodi:
 * **[CMake](https://cmake.org/download/)** version 3.28 or greater
 * **[Git for Windows](https://gitforwindows.org/)**
 * **[Java Runtime Environment (JRE)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)**
+* **[Meson](https://github.com/mesonbuild/meson/releases/)** MSI installer of a release
 * **[Nullsoft scriptable install system (NSIS)](http://nsis.sourceforge.net/Download)** version 3.04 or greater (Only needed if you want to generate an installer file)
 * **[Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)** (Community Edition is fine)
 
@@ -77,6 +78,11 @@ All install screens should remain at their default values with the exception of 
 ### JRE install notes
 Default options are fine.
 After install finishes, add java's executable file path to your `PATH` **[environment variable](http://www.java.com/en/download/help/path.xml)**. Should be similar to `C:\Program Files\Java\jre1.8.0_311\bin`.
+
+### Meson install notes
+Default options will install Meson and Ninja.
+Add installation directory to your `PATH` **[environment variable](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574\(v=office.14\))**. Default directory is `C:\Program Files\Meson`
+* Watch out for Microsoft Defender/AV products **[incorrectly flagging](https://github.com/mesonbuild/meson/issues/14965)** Meson.exe
 
 ### NSIS install notes
 Default options are fine.
