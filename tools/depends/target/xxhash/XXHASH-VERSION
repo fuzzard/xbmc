@@ -1,0 +1,6 @@
+LIBNAME=xxHash
+VERSION=0.8.3
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.gz
+SHA512=8b5c8b9aad4e869f28310b12cc314037feda81d92f26c23eaecdb35dc65042ca2e65f2e9606033e62a31bcc737a9a950500ffcbdb8677d6ab20e820ea14f2b79
+
+FULL_URL=https://github.com/Cyan4973/xxHash/archive/refs/tags/v0.8.3.tar.gz
