@@ -174,6 +174,9 @@ libevdev: libudev
 libgcrypt: libgpg-error
 libinput: mtdev libevdev
 libmicrohttpd: gnutls libgcrypt libgpg-error
+# libplacebo: lcms2 libdovi pythonmodule-glad2 pythonmodule-jinja2 xxhash
+# pythonmodule-glad2: python3 pythonmodule-jinja2
+# pythonmodule-jinja2: python3
 libplist: $(ZLIB)
 libpng: $(ZLIB)
 libva: libdrm $(LIBVA_DEPS)
