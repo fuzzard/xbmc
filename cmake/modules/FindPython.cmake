@@ -26,101 +26,121 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
   macro(buildmacroPython)
 
-    find_package(BZip2 REQUIRED ${SEARCH_QUIET})
-    find_package(EXPAT REQUIRED ${SEARCH_QUIET})
+    if(WIN32 OR WINDOWS_STORE)
 
-    find_library(FFI_LIBRARY ffi REQUIRED)
-    find_library(GMP_LIBRARY gmp REQUIRED)
+      # Windows is built as a dll, only require linking to zlib
+      find_package(zlib CONFIG REQUIRED)
 
-    find_package(Iconv REQUIRED ${SEARCH_QUIET})
-    find_package(Intl REQUIRED ${SEARCH_QUIET})
-    find_package(LibLZMA REQUIRED ${SEARCH_QUIET})
-    find_package(LibXml2 REQUIRED ${SEARCH_QUIET})
-    find_package(OpenSSL REQUIRED ${SEARCH_QUIET})
-    find_package(Sqlite3 REQUIRED ${SEARCH_QUIET})
+      # These packages are all required by cpython modules, therefore do checks now.
+      find_package(bzip2 CONFIG REQUIRED)
+      find_package(expat CONFIG REQUIRED)
+      find_package(libffi CONFIG REQUIRED)
+      find_package(openssl CONFIG REQUIRED)
+      find_package(sqlite3 CONFIG REQUIRED)
+      find_package(xz CONFIG REQUIRED)
 
-    # ToDo existing build reqs not handled
-    #python3:  gettext
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES zlib::zlibstatic)
 
-    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES BZip2::BZip2
-                                                            EXPAT::EXPAT
-                                                            ${FFI_LIBRARY}
-                                                            ${GMP_LIBRARY}
-                                                            LIBRARY::Iconv
-                                                            Intl::Intl
-                                                            LibLZMA::LibLZMA
-                                                            LibXml2::LibXml2
-                                                            LIBRARY::OpenSSL
-                                                            LIBRARY::Sqlite3)
+    else()
+
+      find_package(BZip2 REQUIRED ${SEARCH_QUIET})
+      find_package(EXPAT REQUIRED ${SEARCH_QUIET})
+  
+      find_library(FFI_LIBRARY ffi REQUIRED)
+      find_library(GMP_LIBRARY gmp REQUIRED)
+  
+      find_package(Iconv REQUIRED ${SEARCH_QUIET})
+      find_package(Intl REQUIRED ${SEARCH_QUIET})
+      find_package(LibLZMA REQUIRED ${SEARCH_QUIET})
+      find_package(LibXml2 REQUIRED ${SEARCH_QUIET})
+      find_package(OpenSSL REQUIRED ${SEARCH_QUIET})
+      find_package(Sqlite3 REQUIRED ${SEARCH_QUIET})
+  
+      # ToDo existing build reqs not handled
+      #python3:  gettext
+
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES BZip2::BZip2
+                                                              EXPAT::EXPAT
+                                                              ${FFI_LIBRARY}
+                                                              ${GMP_LIBRARY}
+                                                              LIBRARY::Iconv
+                                                              Intl::Intl
+                                                              LibLZMA::LibLZMA
+                                                              LibXml2::LibXml2
+                                                              LIBRARY::OpenSSL
+                                                              LIBRARY::Sqlite3)
+    endif()
 
 
     string(REGEX MATCH "^([0-9]?)\.([0-9]+)\." Python3_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
     set(Python3_VERSION_MAJOR ${CMAKE_MATCH_1} CACHE INTERNAL "" FORCE)
     set(Python3_VERSION_MINOR ${CMAKE_MATCH_2} CACHE INTERNAL "" FORCE)
 
-    if(CORE_SYSTEM_NAME STREQUAL linux)
-      set(EXTRA_CONFIGURE ac_cv_pthread=yes)
-      if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
-        list(APPEND EXTRA_CONFIGURE ac_cv_lib_intl_textdomain=yes)
+    if(NOT (WIN32 OR WINDOWS_STORE))
+      if(CORE_SYSTEM_NAME STREQUAL linux)
+        set(EXTRA_CONFIGURE ac_cv_pthread=yes)
+        if("webos" IN_LIST CORE_PLATFORM_NAME_LC)
+          list(APPEND EXTRA_CONFIGURE ac_cv_lib_intl_textdomain=yes)
+        endif()
+      elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+        set(EXTRA_CONFIGURE ac_cv_lib_intl_textdomain=yes)
+  
+        set(PYSDKROOT SDKROOT=${SDKROOT})
+  
+        if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+          list(APPEND EXTRA_CONFIGURE ac_cv_func_execv=no
+                                      ac_cv_func_fexecv=no
+                                      ac_cv_func_forkpty=no
+                                      ac_cv_func_getentropy=no
+                                      ac_cv_func_getgroups=no
+                                      ac_cv_func_posix_spawn=no
+                                      ac_cv_func_posix_spawnp=no
+                                      ac_cv_func_sendfile=no
+                                      ac_cv_func_setpriority=no
+                                      ac_cv_func_system=no
+                                      ac_cv_func_wait3=no
+                                      ac_cv_func_wait4=no
+                                      ac_cv_func_waitpid=no
+                                      ac_cv_header_sched_h=no
+                                      ac_cv_header_sched_h=no
+                                      ac_cv_lib_util_forkpty=no)
+        endif()
       endif()
-    elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-      set(EXTRA_CONFIGURE ac_cv_lib_intl_textdomain=yes)
-
-      set(PYSDKROOT SDKROOT=${SDKROOT})
-
+  
+      if(NOT Iconv_IS_BUILT_IN)
+        set(LIBS "LIBS=-liconv")
+      endif()
+  
+      # Disabled c extension modules for all platforms
+      set(PY_MODULES py_cv_module_grp=n/a
+                     py_cv_module_syslog=n/a
+                     py_cv_module__dbm=n/a
+                     py_cv_module__gdbm=n/a
+                     py_cv_module__uuid=n/a
+                     py_cv_module_readline=n/a
+                     py_cv_module__curses=n/a
+                     py_cv_module__curses_panel=n/a
+                     py_cv_module_xx=n/a
+                     py_cv_module_xxlimited=n/a
+                     py_cv_module_xxlimited_35=n/a
+                     py_cv_module_xxsubtype=n/a
+                     py_cv_module__xxsubinterpreters=n/a
+                     py_cv_module__tkinter=n/a
+                     py_cv_module__curses=n/a
+                     py_cv_module__codecs_jp=n/a
+                     py_cv_module__codecs_kr=n/a
+                     py_cv_module__codecs_tw=n/a)
+  
+      # These modules use "internal" libs for building. The required static archives
+      # are not installed outside of the cpython build tree, and cause failure in kodi linking
+      # If we wish to support them in the future, we should create "system libs" for them
+      list(APPEND PY_MODULES py_cv_module__decimal=n/a
+                             py_cv_module__sha2=n/a)
+  
       if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
-        list(APPEND EXTRA_CONFIGURE ac_cv_func_execv=no
-                                    ac_cv_func_fexecv=no
-                                    ac_cv_func_forkpty=no
-                                    ac_cv_func_getentropy=no
-                                    ac_cv_func_getgroups=no
-                                    ac_cv_func_posix_spawn=no
-                                    ac_cv_func_posix_spawnp=no
-                                    ac_cv_func_sendfile=no
-                                    ac_cv_func_setpriority=no
-                                    ac_cv_func_system=no
-                                    ac_cv_func_wait3=no
-                                    ac_cv_func_wait4=no
-                                    ac_cv_func_waitpid=no
-                                    ac_cv_header_sched_h=no
-                                    ac_cv_header_sched_h=no
-                                    ac_cv_lib_util_forkpty=no)
+        list(APPEND PY_MODULES py_cv_module__posixsubprocess=n/a
+                               py_cv_module__scproxy=n/a)
       endif()
-    endif()
-
-    if(NOT Iconv_IS_BUILT_IN)
-      set(LIBS "LIBS=-liconv")
-    endif()
-
-    # Disabled c extension modules for all platforms
-    set(PY_MODULES py_cv_module_grp=n/a
-                   py_cv_module_syslog=n/a
-                   py_cv_module__dbm=n/a
-                   py_cv_module__gdbm=n/a
-                   py_cv_module__uuid=n/a
-                   py_cv_module_readline=n/a
-                   py_cv_module__curses=n/a
-                   py_cv_module__curses_panel=n/a
-                   py_cv_module_xx=n/a
-                   py_cv_module_xxlimited=n/a
-                   py_cv_module_xxlimited_35=n/a
-                   py_cv_module_xxsubtype=n/a
-                   py_cv_module__xxsubinterpreters=n/a
-                   py_cv_module__tkinter=n/a
-                   py_cv_module__curses=n/a
-                   py_cv_module__codecs_jp=n/a
-                   py_cv_module__codecs_kr=n/a
-                   py_cv_module__codecs_tw=n/a)
-
-    # These modules use "internal" libs for building. The required static archives
-    # are not installed outside of the cpython build tree, and cause failure in kodi linking
-    # If we wish to support them in the future, we should create "system libs" for them
-    list(APPEND PY_MODULES py_cv_module__decimal=n/a
-                           py_cv_module__sha2=n/a)
-
-    if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
-      list(APPEND PY_MODULES py_cv_module__posixsubprocess=n/a
-                             py_cv_module__scproxy=n/a)
     endif()
 
     if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
@@ -140,46 +160,58 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
       unset(patches)
     endif()
 
-    if(NOT CORE_SYSTEM_NAME STREQUAL android)
-      list(APPEND PYTHON_DEP_LIBRARIES pthread dl util)
-      if(CORE_SYSTEM_NAME STREQUAL linux)
-        # python archive built via depends requires librt for _posixshmem library
-        list(APPEND PYTHON_DEP_LIBRARIES rt)
-      else(CORE_SYSTEM_NAME STREQUAL osx)
-        list(APPEND PYTHON_DEP_LIBRARIES "-framework SystemConfiguration" "-framework CoreFoundation")
+
+    if(WIN32 OR WINDOWS_STORE)
+      set(CMAKE_ARGS -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
+                     -DDEPENDS_PATH=${DEPENDS_PATH}
+                     -DNATIVEPREFIX=${NATIVEPREFIX}
+                     -DENABLE_MODULES=ON
+                     -DCMAKE_INSTALL_PREFIX=${DEPENDS_PATH}
+                     -DCMAKE_BUILD_TYPE=RelWithDebInfo
+                     -DARCH=${ARCH}
+                     ${ADDITIONAL_ARGS})
+    else()
+      if(NOT CORE_SYSTEM_NAME STREQUAL android)
+        list(APPEND PYTHON_DEP_LIBRARIES pthread dl util)
+        if(CORE_SYSTEM_NAME STREQUAL linux)
+          # python archive built via depends requires librt for _posixshmem library
+          list(APPEND PYTHON_DEP_LIBRARIES rt)
+        else(CORE_SYSTEM_NAME STREQUAL osx)
+          list(APPEND PYTHON_DEP_LIBRARIES "-framework SystemConfiguration" "-framework CoreFoundation")
+        endif()
       endif()
+  
+      find_program(AUTORECONF autoreconf REQUIRED)
+      find_program(MAKE_EXECUTABLE make REQUIRED)
+      find_package(PythonInterpreter REQUIRED ${SEARCH_QUIET})
+  
+      # Python uses ax_c_float_words_bigendian.m4 to find autoconf-archive
+      # Make sure we can find it as a requirement as well
+      find_file(AUTOCONF-ARCHIVE "ax_c_float_words_bigendian.m4" PATHS "${NATIVEPREFIX}/share/aclocal" NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+      string(REGEX REPLACE "/ax_c_float_words_bigendian.m4" "" AUTOCONF-ARCHIVE ${AUTOCONF-ARCHIVE})
+      set(ACLOCAL_PATH_VAR "ACLOCAL_PATH=${AUTOCONF-ARCHIVE}")
+  
+      set(CONFIGURE_COMMAND ${PYSDKROOT} ${LIBS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
+                    COMMAND ${PYSDKROOT} ${LIBS} ./configure
+                              --prefix=${DEPENDS_PATH}
+                              --disable-shared
+                              --without-ensurepip
+                              --disable-framework
+                              --without-pymalloc
+                              --enable-ipv6
+                              --with-build-python=${PYTHON_EXECUTABLE}
+                              --with-system-expat=yes
+                              --disable-test-modules
+                              MODULE_BUILDTYPE=static
+                              ${PY_MODULES}
+                              ${EXTRA_CONFIGURE})
+  
+      set(BUILD_COMMAND ${PYSDKROOT} ${LIBS} ${MAKE_EXECUTABLE} libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
+  
+      set(INSTALL_COMMAND ${PYSDKROOT} ${LIBS} ${MAKE_EXECUTABLE} install -j1)
+  
+      set(BUILD_IN_SOURCE 1)
     endif()
-
-    find_program(AUTORECONF autoreconf REQUIRED)
-    find_program(MAKE_EXECUTABLE make REQUIRED)
-    find_package(PythonInterpreter REQUIRED ${SEARCH_QUIET})
-
-    # Python uses ax_c_float_words_bigendian.m4 to find autoconf-archive
-    # Make sure we can find it as a requirement as well
-    find_file(AUTOCONF-ARCHIVE "ax_c_float_words_bigendian.m4" PATHS "${NATIVEPREFIX}/share/aclocal" NO_CMAKE_FIND_ROOT_PATH REQUIRED)
-    string(REGEX REPLACE "/ax_c_float_words_bigendian.m4" "" AUTOCONF-ARCHIVE ${AUTOCONF-ARCHIVE})
-    set(ACLOCAL_PATH_VAR "ACLOCAL_PATH=${AUTOCONF-ARCHIVE}")
-
-    set(CONFIGURE_COMMAND ${PYSDKROOT} ${LIBS} ${ACLOCAL_PATH_VAR} ${AUTORECONF} -vif
-                  COMMAND ${PYSDKROOT} ${LIBS} ./configure
-                            --prefix=${DEPENDS_PATH}
-                            --disable-shared
-                            --without-ensurepip
-                            --disable-framework
-                            --without-pymalloc
-                            --enable-ipv6
-                            --with-build-python=${PYTHON_EXECUTABLE}
-                            --with-system-expat=yes
-                            --disable-test-modules
-                            MODULE_BUILDTYPE=static
-                            ${PY_MODULES}
-                            ${EXTRA_CONFIGURE})
-
-    set(BUILD_COMMAND ${PYSDKROOT} ${LIBS} ${MAKE_EXECUTABLE} libpython${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}.a)
-
-    set(INSTALL_COMMAND ${PYSDKROOT} ${LIBS} ${MAKE_EXECUTABLE} install -j1)
-
-    set(BUILD_IN_SOURCE 1)
 
     BUILD_DEP_TARGET()
 
@@ -197,14 +229,18 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     endif()
 
     # Add dependencies to build target
-    add_dependencies(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} BZip2::BZip2
-                                                                        EXPAT::EXPAT
-                                                                        LIBRARY::Iconv
-                                                                        Intl::Intl
-                                                                        LibLZMA::LibLZMA
-                                                                        LibXml2::LibXml2
-                                                                        LIBRARY::OpenSSL
-                                                                        LIBRARY::Sqlite3)
+    if(WIN32 OR WINDOWS_STORE)
+      add_dependencies(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} LIBRARY::ZLIB)
+    else()
+      add_dependencies(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} BZip2::BZip2
+                                                                          EXPAT::EXPAT
+                                                                          LIBRARY::Iconv
+                                                                          Intl::Intl
+                                                                          LibLZMA::LibLZMA
+                                                                          LibXml2::LibXml2
+                                                                          LIBRARY::OpenSSL
+                                                                          LIBRARY::Sqlite3)
+    endif()
 
     set(Python3_FOUND TRUE)
   endmacro()
@@ -298,8 +334,8 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     if(KODI_DEPENDSBUILD)
       find_package(PythonmodulePIL REQUIRED ${SEARCH_QUIET})
       find_package(PythonmodulePycryptodome REQUIRED ${SEARCH_QUIET})
-
-      ADD_MULTICONFIG_BUILDMACRO()
     endif()
+
+    ADD_MULTICONFIG_BUILDMACRO()
   endif()
 endif()
