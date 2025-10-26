@@ -1,0 +1,231 @@
+--- a/Include/internal/pycore_fileutils_windows.h
++++ b/Include/internal/pycore_fileutils_windows.h
+@@ -55,7 +55,11 @@ static inline BOOL _Py_GetFileInformationByName(
+     static int GetFileInformationByName_init = -1;
+ 
+     if (GetFileInformationByName_init < 0) {
++#ifdef MS_WINDOWS_APP
++        HMODULE hMod = LoadPackagedLibrary(L"api-ms-win-core-file-l2-1-4", 0);
++#else
+         HMODULE hMod = LoadLibraryW(L"api-ms-win-core-file-l2-1-4");
++#endif
+         GetFileInformationByName_init = 0;
+         if (hMod) {
+             GetFileInformationByName = (PGetFileInformationByName)GetProcAddress(
+@@ -95,4 +99,43 @@ static inline BOOL _Py_GetFileInformationByName_ErrorIsTrustworthy(int error)
+ 
+ #endif
+ 
++static inline HANDLE _Py_win_create_file(
++    _In_ LPCWSTR lpFileName,
++    _In_ DWORD dwDesiredAccess,
++    _In_ DWORD dwShareMode,
++    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
++    _In_ DWORD dwCreationDisposition,
++    _In_ DWORD dwFlagsAndAttributes,
++    _In_opt_ HANDLE hTemplateFile
++)
++{
++#ifdef MS_WINDOWS_APP
++    if (dwShareMode == 0)
++        dwShareMode = FILE_SHARE_READ;
++
++    const DWORD flagsMask = 0xFFFF0000;
++
++    CREATEFILE2_EXTENDED_PARAMETERS ext;
++    ZeroMemory(&ext, sizeof(CREATEFILE2_EXTENDED_PARAMETERS));
++    ext.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
++    ext.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
++    ext.dwFileFlags = dwFlagsAndAttributes & flagsMask;
++
++    // if path is absolute convert to base path
++    if (wcschr(lpFileName, L':')) {
++        wchar_t* base_path = wcsstr(lpFileName, L"system");
++        if (base_path) {
++            return CreateFile2(base_path, dwDesiredAccess, dwShareMode, dwCreationDisposition, &ext);
++        }
++    }
++
++    return CreateFile2(lpFileName, dwDesiredAccess, dwShareMode, dwCreationDisposition, &ext);
++#else
++    return CreateFileW(lpFileName, dwDesiredAccess,
++        dwShareMode, lpSecurityAttributes,
++        dwCreationDisposition, dwFlagsAndAttributes,
++        hTemplateFile);
++#endif
++}
++
+ #endif
+--- a/Objects/mimalloc/prim/windows/prim.c
++++ b/Objects/mimalloc/prim/windows/prim.c
+@@ -13,6 +13,8 @@ terms of the MIT license. A copy of the license can be found in the file
+ #include "mimalloc/prim.h"
+ #include <stdio.h>   // fputs, stderr
+ 
++#include <psapi.h>
++#include <bcrypt.h>
+ 
+ //---------------------------------------------
+ // Dynamically bind Windows API points for portability
+@@ -121,7 +123,11 @@ void _mi_prim_mem_init( mi_os_mem_config_t* config )
+   if (si.dwAllocationGranularity > 0) { config->alloc_granularity = si.dwAllocationGranularity; }
+   // get the VirtualAlloc2 function
+   HINSTANCE  hDll;
++#ifdef MS_WINDOWS_APP
++  hDll = LoadPackagedLibrary(L"kernelbase", 0);
++#else
+   hDll = LoadLibrary(TEXT("kernelbase.dll"));
++#endif
+   if (hDll != NULL) {
+     // use VirtualAlloc2FromApp if possible as it is available to Windows store apps
+     pVirtualAlloc2 = (PVirtualAlloc2)(void (*)(void))GetProcAddress(hDll, "VirtualAlloc2FromApp");
+@@ -129,13 +135,21 @@ void _mi_prim_mem_init( mi_os_mem_config_t* config )
+     FreeLibrary(hDll);
+   }
+   // NtAllocateVirtualMemoryEx is used for huge page allocation
++#ifdef MS_WINDOWS_APP
++  hDll = LoadPackagedLibrary(L"ntdll", 0);
++#else
+   hDll = LoadLibrary(TEXT("ntdll.dll"));
++#endif
+   if (hDll != NULL) {
+     pNtAllocateVirtualMemoryEx = (PNtAllocateVirtualMemoryEx)(void (*)(void))GetProcAddress(hDll, "NtAllocateVirtualMemoryEx");
+     FreeLibrary(hDll);
+   }
+   // Try to use Win7+ numa API
++#ifdef MS_WINDOWS_APP
++  hDll = LoadPackagedLibrary(L"kernel32", 0);
++#else
+   hDll = LoadLibrary(TEXT("kernel32.dll"));
++#endif
+   if (hDll != NULL) {
+     pGetCurrentProcessorNumberEx = (PGetCurrentProcessorNumberEx)(void (*)(void))GetProcAddress(hDll, "GetCurrentProcessorNumberEx");
+     pGetNumaProcessorNodeEx = (PGetNumaProcessorNodeEx)(void (*)(void))GetProcAddress(hDll, "GetNumaProcessorNodeEx");
+@@ -377,6 +391,9 @@ size_t _mi_prim_numa_node(void) {
+ }
+ 
+ size_t _mi_prim_numa_node_count(void) {
++#ifdef MS_WINDOWS_APP
++  return ((size_t)1);
++#else
+   ULONG numa_max = 0;
+   GetNumaHighestNodeNumber(&numa_max);
+   // find the highest node number that has actual processors assigned to it. Issue #282
+@@ -399,6 +416,7 @@ size_t _mi_prim_numa_node_count(void) {
+     numa_max--;
+   }
+   return ((size_t)numa_max + 1);
++#endif
+ }
+ 
+ 
+@@ -439,9 +457,6 @@ static mi_msecs_t filetime_msecs(const FILETIME* ftime) {
+   return msecs;
+ }
+ 
+-typedef BOOL (WINAPI *PGetProcessMemoryInfo)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
+-static PGetProcessMemoryInfo pGetProcessMemoryInfo = NULL;
+-
+ void _mi_prim_process_info(mi_process_info_t* pinfo)
+ {
+   FILETIME ct;
+@@ -452,20 +467,11 @@ void _mi_prim_process_info(mi_process_info_t* pinfo)
+   pinfo->utime = filetime_msecs(&ut);
+   pinfo->stime = filetime_msecs(&st);
+ 
+-  // load psapi on demand
+-  if (pGetProcessMemoryInfo == NULL) {
+-    HINSTANCE hDll = LoadLibrary(TEXT("psapi.dll"));
+-    if (hDll != NULL) {
+-      pGetProcessMemoryInfo = (PGetProcessMemoryInfo)(void (*)(void))GetProcAddress(hDll, "GetProcessMemoryInfo");
+-    }
+-  }
+-
+   // get process info
+   PROCESS_MEMORY_COUNTERS info;
+   memset(&info, 0, sizeof(info));
+-  if (pGetProcessMemoryInfo != NULL) {
+-    pGetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
+-  }
++  GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
++
+   pinfo->current_rss    = (size_t)info.WorkingSetSize;
+   pinfo->peak_rss       = (size_t)info.PeakWorkingSetSize;
+   pinfo->current_commit = (size_t)info.PagefileUsage;
+@@ -549,18 +555,8 @@ bool _mi_prim_random_buf(void* buf, size_t buf_len) {
+ #define BCRYPT_USE_SYSTEM_PREFERRED_RNG 0x00000002
+ #endif
+ 
+-typedef LONG (NTAPI *PBCryptGenRandom)(HANDLE, PUCHAR, ULONG, ULONG);
+-static  PBCryptGenRandom pBCryptGenRandom = NULL;
+-
+ bool _mi_prim_random_buf(void* buf, size_t buf_len) {
+-  if (pBCryptGenRandom == NULL) {
+-    HINSTANCE hDll = LoadLibrary(TEXT("bcrypt.dll"));
+-    if (hDll != NULL) {
+-      pBCryptGenRandom = (PBCryptGenRandom)(void (*)(void))GetProcAddress(hDll, "BCryptGenRandom");
+-    }
+-    if (pBCryptGenRandom == NULL) return false;
+-  }
+-  return (pBCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)buf_len, BCRYPT_USE_SYSTEM_PREFERRED_RNG) >= 0);
++  return (BCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)buf_len, BCRYPT_USE_SYSTEM_PREFERRED_RNG) >= 0);
+ }
+ 
+ #endif  // MI_USE_RTLGENRANDOM
+--- a/PC/config.c
++++ b/PC/config.c
+@@ -126,7 +126,7 @@ struct _inittab _PyImport_Inittab[] = {
+     {"itertools", PyInit_itertools},
+     {"_collections", PyInit__collections},
+     {"_symtable", PyInit__symtable},
+-#if defined(MS_WINDOWS_DESKTOP) || defined(MS_WINDOWS_GAMES)
++#if defined(MS_WINDOWS_DESKTOP) || defined(MS_WINDOWS_GAMES) || defined(MS_WINDOWS_APP)
+     {"mmap", PyInit_mmap},
+ #endif
+     {"_csv", PyInit__csv},
+--- a/PC/pyconfig.h.in
++++ b/PC/pyconfig.h.in
+@@ -88,6 +88,14 @@ WIN32 is still required for the locale module.
+ #define MS_WINDOWS_GAMES
+ #endif
+ 
++#if defined(MS_WINDOWS_DESKTOP)
++#undef MS_WINDOWS_APP
++#undef MS_WINDOWS_GAMES
++#elif defined(MS_WINDOWS_APP)
++#undef MS_WINDOWS_DESKTOP
++#undef MS_WINDOWS_GAMES
++#endif
++
+ /* Define to 1 if you support windows console io */
+ #if defined(MS_WINDOWS_DESKTOP) || defined(MS_WINDOWS_APP) || defined(MS_WINDOWS_SYSTEM)
+ #define HAVE_WINDOWS_CONSOLE_IO 1
+@@ -308,7 +316,7 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
+ #define HAVE_DECLSPEC_DLL
+ 
+ /* For an MSVC DLL, we can nominate the .lib files used by extensions */
+-#ifdef MS_COREDLL
++#if 0
+ #       if !defined(Py_BUILD_CORE) && !defined(Py_BUILD_CORE_BUILTIN)
+                 /* not building the core - must be an ext */
+ #               if defined(_MSC_VER)
+@@ -372,7 +380,7 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
+ #       define ALIGNOF_MAX_ALIGN_T 8
+ #endif
+ 
+-#ifdef _DEBUG
++#if 0
+ #       define Py_DEBUG
+ #endif
+ 
+--- a/PC/python_nt.rc
++++ b/PC/python_nt.rc
+@@ -10,7 +10,7 @@
+ 
+ // Include the manifest file that indicates we support all
+ // current versions of Windows.
+-2 RT_MANIFEST "python.manifest"
++// 2 RT_MANIFEST "python.manifest"
+ 
+ /////////////////////////////////////////////////////////////////////////////
+ //

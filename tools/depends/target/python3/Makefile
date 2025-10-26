@@ -2,7 +2,12 @@ include ../../Makefile.include PYTHON3-VERSION ../../download-files.include
 DEPS = ../../Makefile.include Makefile PYTHON3-VERSION ../../download-files.include \
                                  apple.patch \
                                  10-android-modules.patch \
-                                 11-android-ctypes.patch
+                                 11-android-ctypes.patch \
+                                 15-win-cmake.patch \
+                                 16-win-Lib_patches.patch \
+                                 17-win-Modules_patches.patch \
+                                 18-win-Python_patches.patch \
+                                 19-win-misc_patches.patch
 
 ifeq ($(findstring apple-darwin, $(HOST)), apple-darwin)
   ifeq ($(OS), darwin_embedded)
@@ -92,6 +97,13 @@ $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 ifeq ($(OS),android)
 	cd $(PLATFORM); patch -p1 -i ../10-android-modules.patch
 	cd $(PLATFORM); patch -p1 -i ../11-android-ctypes.patch
+endif
+ifeq ($(OS),windows)
+	cd $(PLATFORM); patch -p1 -i ../15-win-cmake.patch
+	cd $(PLATFORM); patch -p1 -i ../16-win-Lib_patches.patch
+	cd $(PLATFORM); patch -p1 -i ../17-win-Modules_patches.patch
+	cd $(PLATFORM); patch -p1 -i ../18-win-Python_patches.patch
+	cd $(PLATFORM); patch -p1 -i ../19-win-misc_patches.patch
 endif
 	cd $(PLATFORM); $(AUTORECONF)
 	cd $(PLATFORM); $(CONFIGURE)
