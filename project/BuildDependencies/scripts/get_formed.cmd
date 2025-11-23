@@ -112,6 +112,18 @@ PUSHD "%TMP_PATH%" || EXIT /B 10
   exit /B 6
 )
 
+REM START PACKAGE SPECIFIC COMMANDS
+
+if NOT exist %~n1\ (
+  REM relocate swig binary to bin folder
+  FOR /F %%I IN ('dir /B /A:D swigwin*') do (
+    mkdir "%~n1\bin"
+    move "%%I\swig.exe" /B /Y "%~n1\bin" >NUL 2>NUL
+  )
+)
+
+REM END PACKAGE SPECIFIC COMMANDS
+
 dir /A:-D "%~n1\*.*" >NUL 2>NUL && (
 CALL :setSubStageName Pre-Cleaning %1...
 REM Remove any non-dir files in extracted ".\packagename\"
