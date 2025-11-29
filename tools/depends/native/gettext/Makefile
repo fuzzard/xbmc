@@ -2,7 +2,7 @@ include ../../Makefile.include GETTEXT-VERSION ../../download-files.include
 PREFIX=$(NATIVEPREFIX)
 PLATFORM=$(NATIVEPLATFORM)
 DEPS = ../../Makefile.include Makefile GETTEXT-VERSION ../../download-files.include \
-                      02-disable-test-doc.patch
+                      01-disable-test-doc.patch
 
 # configuration settings
 CONFIGURE=./configure --prefix=$(PREFIX) \
@@ -32,7 +32,7 @@ all: .installed-$(PLATFORM)
 $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
-	cd $(PLATFORM); patch -p1 -i ../02-disable-test-doc.patch
+	cd $(PLATFORM); patch -p1 -i ../01-disable-test-doc.patch
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)

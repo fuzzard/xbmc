@@ -87,6 +87,7 @@ automake: autoconf
 bison: gettext
 cargo-c: pkg-config openssl rustup
 dpkg: automake gettext libtool pkg-config tar
+gettext: $(LIBICONV)
 heimdal: libtool
 JsonSchemaBuilder: cmake
 libjpeg-turbo: cmake nasm
