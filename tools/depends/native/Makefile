@@ -15,6 +15,7 @@ NATIVE= \
   gettext \
   giflib \
   heimdal \
+  libiconv \
   libjpeg-turbo \
   liblzo2 \
   libpng \
@@ -32,6 +33,8 @@ NATIVE= \
   swig \
   TexturePacker \
   zlib
+
+LIBICONV = libiconv
 
 ifneq ($(NATIVE_OS),osx)
   NATIVE += libffi
@@ -52,12 +55,18 @@ ifeq ($(OS),linux)
 
   ifeq ($(TARGET_PLATFORM),webos)
     NATIVE += rustup cargo-c
+
+    # glibc in toolchain provides iconv
+    EXCLUDED_NATIVE += libiconv
+    LIBICONV=
   endif
 endif
 
 ifeq ($(OS),android)
   NATIVE += rustup cargo-c
 endif
+
+NATIVE := $(filter-out $(EXCLUDED_NATIVE),$(NATIVE))
 
 .PHONY: $(NATIVE) native download $(DOWNLOAD_TARGETS)
 
