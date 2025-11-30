@@ -27,8 +27,8 @@ NATIVE= \
   openssl \
   pcre2 \
   perlmodule-parseyapp \
+  pkgconf \
   pythonmodule-setuptools \
-  pkg-config \
   python3 \
   swig \
   TexturePacker \
@@ -85,8 +85,8 @@ autoconf-archive: autoconf
 autoconf: m4
 automake: autoconf
 bison: gettext
-cargo-c: pkg-config openssl rustup
-dpkg: automake gettext libtool pkg-config tar
+cargo-c: pkgconf openssl rustup
+dpkg: automake gettext libtool pkgconf tar
 gettext: $(LIBICONV)
 heimdal: libtool
 JsonSchemaBuilder: cmake
@@ -100,12 +100,12 @@ openssl: zlib
 pcre2: cmake
 pkgconf: meson ninja
 pugixml: cmake
-python3: $(EXPAT) $(LIBFFI) pkg-config zlib openssl autoconf-archive
+python3: $(EXPAT) $(LIBFFI) zlib openssl
 pythonmodule-setuptools: python3
 swig: bison cmake pcre2
 tar: xz automake
 TexturePacker: cmake libpng liblzo2 giflib libjpeg-turbo
-wayland-scanner: expat ninja pkg-config
+wayland-scanner: expat ninja pkgconf
 waylandpp-scanner: cmake pugixml
 
 # python installs are not thread safe when using easy_install method.
