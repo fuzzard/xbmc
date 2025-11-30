@@ -31,6 +31,7 @@ $(LIBDYLIB): $(PLATFORM)
 
 .installed-$(PLATFORM): $(LIBDYLIB)
 	cd $(PLATFORM)/build; $(NATIVEPREFIX)/bin/ninja -v install
+	ln -sf $(NATIVEPREFIX)/bin/pkgconf $(NATIVEPREFIX)/bin/pkg-config
 	touch $@
 
 clean:
