@@ -1,5 +1,6 @@
 include ../../Makefile.include LIBMICROHTTPD-VERSION ../../download-files.include
-DEPS = ../../Makefile.include Makefile LIBMICROHTTPD-VERSION ../../download-files.include
+DEPS = ../../Makefile.include Makefile LIBMICROHTTPD-VERSION ../../download-files.include \
+                                        01-static-gnutls.patch
 
 # configuration settings
 CONFIGURE=cp -f $(CONFIG_SUB) $(CONFIG_GUESS) .; \
@@ -30,6 +31,8 @@ all: .installed-$(PLATFORM)
 $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+	cd $(PLATFORM); patch -p1 -i ../01-static-gnutls.patch
+	cd $(PLATFORM); $(AUTOCONF) -vif
 
 $(LIBDYLIB): $(PLATFORM)
 	cd $(PLATFORM); $(CONFIGURE)
