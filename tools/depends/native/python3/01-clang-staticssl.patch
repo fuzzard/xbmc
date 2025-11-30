@@ -1,0 +1,22 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -7353,7 +7353,7 @@
+     AS_CASE([$arg],
+       [-l*], [
+         libname=$(echo $arg | cut -c3-)
+-        new_OPENSSL_LIBS="$new_OPENSSL_LIBS -l:lib${libname}.a -Wl,--exclude-libs,lib${libname}.a"
++        new_OPENSSL_LIBS="$new_OPENSSL_LIBS -Xlinker -hidden-l${libname}"
+       ],
+       [new_OPENSSL_LIBS="$new_OPENSSL_LIBS $arg"]
+     )
+--- a/configure
++++ b/configure
+@@ -28516,7 +28516,7 @@
+   -l*) :
+ 
+         libname=$(echo $arg | cut -c3-)
+-        new_OPENSSL_LIBS="$new_OPENSSL_LIBS -l:lib${libname}.a -Wl,--exclude-libs,lib${libname}.a"
++        new_OPENSSL_LIBS="$new_OPENSSL_LIBS -Xlinker -hidden-l${libname}"
+        ;; #(
+   *) :
+     new_OPENSSL_LIBS="$new_OPENSSL_LIBS $arg"
