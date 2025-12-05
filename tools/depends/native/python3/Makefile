@@ -1,11 +1,19 @@
 include ../../Makefile.include PYTHON3-VERSION ../../download-files.include
 PLATFORM=$(NATIVEPLATFORM)
-DEPS = ../../Makefile.include Makefile PYTHON3-VERSION ../../download-files.include
+DEPS = ../../Makefile.include Makefile PYTHON3-VERSION ../../download-files.include \
+                      01-clang-staticssl.patch
 
 CONFIGURE=./configure --prefix=$(NATIVEPREFIX) \
                       --disable-shared \
                       --disable-framework \
-                      --without-pymalloc
+                      --without-pymalloc \
+                      --with-openssl=$(NATIVEPREFIX) \
+                      PY_UNSUPPORTED_OPENSSL_BUILD=static
+
+# Clang dpesnt support --exclude-libs. Apply patch to use -hidden-l for static openssl
+ifneq (,$(findstring clang,$(CC_FOR_BUILD)))
+  PATCH_CLANG=yes
+endif
 
 ifeq ($(OS),linux)
   CONFIGURE += --with-system-expat
@@ -17,11 +25,18 @@ ifeq ($(NATIVE_OS), osx)
 	LIBDYLIB=$(PLATFORM)/python.exe
 endif
 
+# export ZLIB_LIBS to resolve openssl static lib linking issues without the assistance of
+# pkg-config supplying the info
+export ZLIB_LIBS=-lz
+
 all: .installed-$(PLATFORM)
 
 $(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+ifeq ($(PATCH_CLANG),yes)
+	cd $(PLATFORM); patch -p1 -i ../01-clang-staticssl.patch
+endif
 	cd $(PLATFORM); $(CONFIGURE)
 
 $(LIBDYLIB): $(PLATFORM)
