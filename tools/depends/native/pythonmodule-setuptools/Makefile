@@ -21,4 +21,8 @@ clean:
 
 distclean::
 	rm -rf .installed-$(PLATFORM)
-	cd $(NATIVEPREFIX)/lib/python${NATIVE_PYTHON_VERSION}/site-packages; rm -rf *distutils* pkg_resources setuptools*
+	if [ -d /Users/Shared/xbmc-depends/arm-darwin25.1.0-native/lib/python3.13/site-packages ]; \
+	then \
+		cd /Users/Shared/xbmc-depends/arm-darwin25.1.0-native/lib/python3.13/site-packages && \
+		rm -rf *distutils* pkg_resources setuptools*; \
+	fi;
