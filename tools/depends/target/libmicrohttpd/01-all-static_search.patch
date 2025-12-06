@@ -1,0 +1,11 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -2720,7 +2720,7 @@
+       export PKG_CONFIG_PATH
+      ]
+     )
+-    PKG_CHECK_MODULES(GNUTLS, [[gnutls]],
++    PKG_CHECK_MODULES_STATIC(GNUTLS, [[gnutls]],
+       [
+        have_gnutls_pkgcfg='yes'
+        SAVE_CPPFLAGS="$CPPFLAGS"
