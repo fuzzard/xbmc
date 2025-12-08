@@ -8,7 +8,7 @@ ifeq ($(DEBUG_BUILD), yes)
 endif
 
 # configuration settings
-CONFIGURE = $(NATIVEPREFIX)/bin/python3 $(NATIVEPREFIX)/bin/meson \
+CONFIGURE = $(NATIVEPREFIX)/bin/python3 $(NATIVEPREFIX)/bin/meson setup \
 	--buildtype=$(MESON_BUILD_TYPE) \
 	--prefix=$(PREFIX) \
 	--cross-file $(PREFIX)/share/cross-file.meson \
