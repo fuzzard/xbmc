@@ -34,6 +34,13 @@ if(POLICY CMP0144)
   cmake_policy(SET CMP0144 NEW)
 endif()
 
+# https://cmake.org/cmake/help/latest/policy/CMP0156.html
+# De-duplicate libraries on link lines based on linker capabilities
+if(POLICY CMP0156)
+  set(CMAKE_POLICY_DEFAULT_CMP0156 NEW)
+  cmake_policy(SET CMP0156 NEW)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules/buildtools)
 if(DEPENDS_DIR)
