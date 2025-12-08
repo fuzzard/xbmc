@@ -1,5 +1,6 @@
 include ../../Makefile.include FRIBIDI-VERSION ../../download-files.include
-DEPS = ../../Makefile.include Makefile FRIBIDI-VERSION ../../download-files.include
+DEPS = ../../Makefile.include Makefile FRIBIDI-VERSION ../../download-files.include \
+                      01-win-remove_lib_version.patch
 
 MESON_BUILD_TYPE=release
 
@@ -30,6 +31,9 @@ all: .installed-$(PLATFORM)
 .configured-$(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM)/*; mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+ifeq ($(TARGET_PLATFORM),windows)
+	cd $(PLATFORM); patch -p1 -i ../01-win-remove_lib_version.patch
+endif
 	cd $(PLATFORM); $(CONFIGURE) . build
 	touch $@
 

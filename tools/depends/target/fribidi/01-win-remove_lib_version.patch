@@ -1,0 +1,11 @@
+--- a/lib/meson.build
++++ b/lib/meson.build
+@@ -78,7 +78,7 @@
+   c_args: ['-DHAVE_CONFIG_H'] + fribidi_build_cargs + fribidi_static_cargs,
+   gnu_symbol_visibility: 'hidden',
+   version: libversion,
+-  soversion: soversion,
++#  soversion: soversion,
+   install: true)
+ 
+ libfribidi_dep = declare_dependency(link_with: libfribidi,
