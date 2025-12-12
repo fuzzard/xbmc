@@ -10,69 +10,78 @@
 if(NOT TARGET LibDvdCSS::LibDvdCSS)
   include(cmake/scripts/common/ModuleHelpers.cmake)
 
+  macro(buildmacroLibDvdCSS)
+
+    find_package(Meson REQUIRED)
+    find_package(Ninja REQUIRED)
+
+    set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/01-all-libcread.patch")
+
+    if(WIN32 OR WINDOWS_STORE)
+      if(WINDOWS_STORE)
+        list(APPEND patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/03-win-uwp.patch")
+
+        set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_CXX_FLAGS "/DWINAPI_FAMILY=WINAPI_FAMILY_APP")
+        set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_EXE_LINKER_FLAGS "/APPCONTAINER windowsapp.lib /defaultlib:vccorlib.lib /defaultlib:msvcrt.lib")
+      endif()
+
+      create_module_dev_env()
+    elseif(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
+      list(APPEND patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/02-darwinembed-iosbuild.patch")
+    endif()
+
+    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_libType static)
+
+    generate_patchcommand("${patches}")
+    unset(patches)
+
+    # generate meson cross file for build target
+    generate_mesoncrossfile()
+
+    if(EXISTS ${DEPENDS_PATH}/share/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}-cross-file.meson)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_CROSS_FILE --cross-file=${DEPENDS_PATH}/share/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}-cross-file.meson)
+    elseif(EXISTS ${DEPENDS_PATH}/share/cross-file.meson)
+      set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_CROSS_FILE --cross-file=${DEPENDS_PATH}/share/cross-file.meson)
+    endif()
+
+    set(CONFIGURE_COMMAND ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_dev_env}
+                          ${CMAKE_COMMAND} -E env --modify NINJA=set:${NINJA_EXECUTABLE}
+                          ${MESON_EXECUTABLE} setup ./build
+                          --buildtype=release
+                          --default-library=${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_libType}
+                          --prefix=${DEPENDS_PATH}
+                          --libdir=lib
+                          -Denable_docs=false
+                          -Denable_examples=false
+                          ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_CROSS_FILE})
+
+    set(BUILD_COMMAND ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_dev_env}
+                      ${NINJA_EXECUTABLE} -C ./build)
+    set(INSTALL_COMMAND ${NINJA_EXECUTABLE} -C ./build install)
+    set(BUILD_IN_SOURCE 1)
+
+    BUILD_DEP_TARGET()
+
+  endmacro()
+
   set(${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC libdvdcss)
 
   SETUP_BUILD_VARS()
 
-  # Legacy support for lowercase user provided URL override
-  if(libdvdcss_URL)
-    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_URL ${libdvdcss_URL})
+  SETUP_FIND_SPECS()
+
+  SEARCH_EXISTING_PACKAGES()
+
+  if(("${${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_VERSION}" VERSION_LESS ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER} AND ENABLE_DVDCSS) OR
+     ((CORE_SYSTEM_NAME STREQUAL linux OR CORE_SYSTEM_NAME STREQUAL freebsd) AND ENABLE_DVDCSS))
+
+    # For now, just always build. This is the same outcome as previous.
+    message(STATUS "Building ${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}: \(version \"${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER}\"\)")
+
+    cmake_language(EVAL CODE "
+      buildmacro${CMAKE_FIND_PACKAGE_NAME}()
+    ")
   endif()
-
-  set(LIBDVDCSS_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
-
-  set(HOST_ARCH ${ARCH})
-  if(CORE_SYSTEM_NAME STREQUAL android)
-    if(ARCH STREQUAL arm)
-      set(HOST_ARCH arm-linux-androideabi)
-    elseif(ARCH STREQUAL i486-linux)
-      set(HOST_ARCH i686-linux-android)
-    elseif()
-      set(HOST_ARCH ${ARCH}-linux-android)
-    endif()
-  elseif(CORE_SYSTEM_NAME STREQUAL windowsstore)
-    set(LIBDVD_ADDITIONAL_ARGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "-DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}")
-    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_CXX_FLAGS "/Zc:twoPhase-")
-  endif()
-
-  if(APPLE)
-    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES "-framework CoreFoundation")
-    if(NOT CORE_SYSTEM_NAME STREQUAL darwin_embedded)
-      list(APPEND ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES "-framework IOKit")
-    endif()
-    string(REPLACE ";" " " LIBDVDCSS_FLAGS "${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES}")
-  endif()
-
-  if(CORE_SYSTEM_NAME MATCHES windows)
-    set(CMAKE_ARGS -DDUMMY_DEFINE=ON
-                   -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-                   ${LIBDVD_ADDITIONAL_ARGS})
-  else()
-    find_program(AUTORECONF autoreconf REQUIRED)
-    if (CMAKE_HOST_SYSTEM_NAME MATCHES "(Free|Net|Open)BSD")
-      find_program(MAKE_EXECUTABLE gmake)
-    endif()
-    find_program(MAKE_EXECUTABLE make REQUIRED)
-
-    set(CONFIGURE_COMMAND ${AUTORECONF} -vif
-                  COMMAND ac_cv_path_GIT= ./configure
-                          --target=${HOST_ARCH}
-                          --host=${HOST_ARCH}
-                          --disable-doc
-                          --enable-static
-                          --disable-shared
-                          --with-pic
-                          --prefix=${DEPENDS_PATH}
-                          --libdir=${DEPENDS_PATH}/lib
-                          "CC=${CMAKE_C_COMPILER}"
-                          "CFLAGS=${CMAKE_C_FLAGS}"
-                          "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} ${LIBDVDCSS_FLAGS}")
-    set(BUILD_COMMAND ${MAKE_EXECUTABLE})
-    set(INSTALL_COMMAND ${MAKE_EXECUTABLE} install)
-    set(BUILD_IN_SOURCE 1)
-  endif()
-
-  BUILD_DEP_TARGET()
 
   if(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_FOUND)
     SETUP_BUILD_TARGET()
@@ -83,7 +92,7 @@ if(NOT TARGET LibDvdCSS::LibDvdCSS)
     add_dependencies(${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME} ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME})
   else()
     if(LibDvdCSS_FIND_REQUIRED)
-      message(FATAL_ERROR "Libdvdcss not found. Possibly remove ENABLE_DVDCSS.")
+      message(FATAL_ERROR "Libdvdcss not found. Possibly remove -DENABLE_DVDCSS=ON.")
     endif()
   endif()
 endif()
