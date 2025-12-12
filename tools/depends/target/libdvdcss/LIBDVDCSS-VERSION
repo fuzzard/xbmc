@@ -4,3 +4,5 @@ ARCHIVE=$(LIBNAME)-$(VERSION).tar.bz2
 SHA512=439fbd9dae60b9a114d3429a19703478c734e8525ac6852da6f05f72d9ca44ca0ac5e874ab6a10017e7f31869fcd29f01d1bc156c4f0331b4e4abd98ec2f95cd
 BYPRODUCT=libdvdcss.a
 BYPRODUCT_WIN=libdvdcss.a
+
+FULL_URL=https://code.videolan.org/videolan/libdvdcss/-/archive/1.5.0/libdvdcss-1.5.0.tar.bz2
