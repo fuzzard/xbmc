@@ -9,7 +9,8 @@
 
 if(NOT TARGET LibDvdRead::LibDvdRead)
 
-  if(ENABLE_DVDCSS)
+  # Todo: UWP dvdcss not functional
+  if(ENABLE_DVDCSS AND NOT WINDOWS_STORE)
     find_package(LibDvdCSS MODULE REQUIRED ${SEARCH_QUIET})
   endif()
 
