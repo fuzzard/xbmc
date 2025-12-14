@@ -11,7 +11,6 @@ DEPENDS = \
   fontconfig \
   freetype2 \
   freetype2-noharfbuzz \
-  fribidi \
   fstrcmp \
   gettext \
   gmp \
