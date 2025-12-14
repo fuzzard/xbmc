@@ -943,6 +943,228 @@ function(create_mesonbuiltin)
   set(meson_builtin_string ${output_string} PARENT_SCOPE)
 endfunction()
 
+# Functions to generate meson cross files for a platform
+
+macro(generate_mesonnativefile)
+
+  if(DEFINED ${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC)
+    set(cross-name ${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}-native-file.meson)
+  else()
+    set(cross-name native-file.meson)
+  endif()
+
+  create_native_constants()
+  if(native_meson_constant_string)
+    file(WRITE "${NATIVEPREFIX}/share/${cross-name}" "${native_meson_constant_string}\n")
+    set(_meson_ENV_WRAPPER TRUE)
+  else()
+    # Used to force overwrite cross file if constants section not written
+    file(WRITE "${NATIVEPREFIX}/share/${cross-name}" "")
+  endif()
+
+  create_native_mesonbinaries()
+  file(APPEND "${NATIVEPREFIX}/share/${cross-name}" "${native_meson_binaries_string}\n")
+
+  create_native_mesonproperties()
+  file(APPEND "${NATIVEPREFIX}/share/${cross-name}" "${native_meson_properties_string}\n")
+
+  create_native_mesonbuiltin()
+  file(APPEND "${NATIVEPREFIX}/share/${cross-name}" "${native_meson_builtin_string}\n")
+
+endmacro()
+
+# Creates the [binaries] block of a meson cross file
+# sets meson_binaries_string to PARENT_SCOPE
+# Format for binaries is <meson_app_name> <target_app_variable> <fallback_app_variable>
+# Additional module specific binaries can be supplied by setting
+# ${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_BINARIES with suitable triples
+function(create_native_mesonbinaries)
+
+  set(binariespairs "c" "CC_FOR_BUILD" "CMAKE_C_COMPILER"
+                    "c_ld" "LD_FOR_BUILD" "CMAKE_C_COMPILER_LINKER"
+                    "cpp" "CXX_FOR_BUILD" "CMAKE_CXX_COMPILER"
+                    "cpp_ld" "LD_FOR_BUILD" "CMAKE_CXX_COMPILER_LINKER"
+                    "ar" "AR_FOR_BUILD" "CMAKE_AR"
+                    "cmake" "CMAKE_COMMAND" "CMAKE_COMMAND")
+
+  if(${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_NATIVE_BINARIES)
+    list(APPEND binariespairs ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}_NATIVE_BINARIES})
+  endif()
+
+  if(NOT ("${STRIP_FOR_BUILD}" STREQUAL "" OR "${CMAKE_STRIP}" STREQUAL ""))
+    list(APPEND binariespairs "strip" "STRIP_FOR_BUILD" "CMAKE_STRIP")
+  endif()
+
+  if(PKG_CONFIG_EXECUTABLE)
+    list(APPEND binariespairs "pkg-config" "PKG_CONFIG_EXECUTABLE" "PKG_CONFIG_EXECUTABLE")
+  endif()
+
+  # Get/set loop limit (Size - 1) from size of binariespairs list
+  list(LENGTH binariespairs options_length)
+  math(EXPR options_length "${options_length} - 1")
+
+  foreach(option_arg RANGE 0 ${options_length} 3)
+    math(EXPR cmake_arg "${option_arg} + 1")
+    math(EXPR fallback_arg "${option_arg} + 2")
+    # meson option name
+    list(GET binariespairs ${option_arg} meson_label_name)
+    # cmake source variable name
+    list(GET binariespairs ${cmake_arg} cmake_binary_name)
+    # cmake source variable name
+    list(GET binariespairs ${fallback_arg} cmake_fallback_name)
+
+    if("${${cmake_binary_name}}" STREQUAL "")
+      set(input "['${${cmake_fallback_name}}']")
+    else()
+      string(REGEX REPLACE "[ ]+" "', '" tmp_string "${${cmake_binary_name}}")
+      string(PREPEND tmp_string "['")
+      string(APPEND tmp_string "']")
+      set(input "${tmp_string}")
+    endif()
+
+    # if wrapper true, add envwrapper constant to input
+    if(_meson_ENV_WRAPPER)
+      set(input "envwrapper + ${input}")
+    endif()
+
+    string(STRIP "${input}" input)
+
+    string(PREPEND input "${meson_label_name} = ")
+    string(APPEND output_string "${input}\n")
+  endforeach()
+
+  # Easiest to just prepend header at the end of the full string creation
+  string(PREPEND output_string "[binaries]\n")
+  set(native_meson_binaries_string ${output_string} PARENT_SCOPE)
+endfunction()
+
+# Creates the [properties] block of a meson cross file
+# sets meson_properties_string to PARENT_SCOPE
+function(create_native_mesonproperties)
+
+  string(APPEND output_string "pkg_config_libdir = '${NATIVEPREFIX}/lib/pkgconfig'\n")
+
+  # Easiest to just prepend header at the end of the full string creation
+  string(PREPEND output_string "[properties]\n")
+  set(native_meson_properties_string ${output_string} PARENT_SCOPE)
+endfunction()
+
+function(create_envwrapper)
+  if(WIN32 OR WINDOWS_STORE)
+    find_package(VsDevCmd REQUIRED)
+
+    # write basic env wrapper bat that takes 2 arguments
+    # arg1: vs architecture
+    # arg2: platform type (store or anything else)
+    file(WRITE "${NATIVEPREFIX}/share/envwrapper.bat" "@echo off
+set vcarch=%~1
+set vcstore=Desktop
+set testvcstore=%~2
+
+if \"%testvcstore%\" == \"store\" set vcstore=UWP
+
+call \"${VSDEVCMD_BAT}\" -arch=%vcarch% -app_platform=%vcstore% -no_logo
+
+setlocal enabledelayedexpansion
+
+:: Combine the rest into a single variable
+set \"CMD_ARGS=\"
+set \"count=0\"
+
+for %%A in (%*) do (
+  set /a count+=1
+  if !count! GTR 2 (
+    if NOT %%A == \"\" (
+      set \"CMD_ARGS=!CMD_ARGS! %%A\"
+    )
+  )
+)
+
+:: Trim leading space
+if defined CMD_ARGS set \"CMD_ARGS=%CMD_ARGS:~1%\"
+
+:: HACK
+set meson_test=
+if \"%4\" == \"/?\" set meson_test=/?
+
+%CMD_ARGS% %meson_test%
+")
+  endif()
+endfunction()
+
+# Creates a wrapper for MSVC native crosscompile usage
+# Required to set env for host/target builds when using MSVC and meson
+function(create_native_constants)
+
+  if(WIN32 OR WINDOWS_STORE)
+
+    create_envwrapper()
+
+    string(TOLOWER "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}" _lower_hostarch)
+
+    if("${_lower_hostarch}" STREQUAL "x64")
+      set(_lower_hostarch amd64)
+    endif()
+
+    if(WINDOWS_STORE)
+      set(UWP_env_var ", 'store'")
+    else()
+      set(UWP_env_var ", 'false'")
+    endif()
+    set(envwrapper_bat "${NATIVEPREFIX}/share/envwrapper.bat")
+
+    string(APPEND output_string "envwrapper = ['${envwrapper_bat}', '${_lower_hostarch}'${UWP_env_var}]\n")
+
+    # Easiest to just prepend header at the end of the full string creation
+    string(PREPEND output_string "[constants]\n")
+    set(native_meson_constant_string ${output_string} PARENT_SCOPE)
+    set(_meson_ENV_WRAPPER TRUE PARENT_SCOPE)
+  else()
+    set(_meson_ENV_WRAPPER FALSE PARENT_SCOPE)
+  endif()
+endfunction()
+
+# Creates the [Built-in Options] block of a meson cross file
+# sets meson_builtin_string to PARENT_SCOPE
+function(create_native_mesonbuiltin)
+
+  # Pair is of the format: <meson field> <flags_FOR_BUILD>
+  set(builtinpairs "c_args" "CFLAGS_FOR_BUILD"
+                   "c_link_args" "LDFLAGS_FOR_BUILD"
+                   "cpp_args" "CFLAGS_FOR_BUILD"
+                   "cpp_link_args" "LDFLAGS_FOR_BUILD")
+
+  # Get/set loop limit (Size - 1) from size of builtinpairs list
+  list(LENGTH builtinpairs options_length)
+  math(EXPR options_length "${options_length} - 1")
+
+  foreach(option_arg RANGE 0 ${options_length} 2)
+    math(EXPR cmake_flag_arg "${option_arg} + 1")
+    # meson option name
+    list(GET builtinpairs ${option_arg} meson_label_name)
+    # cmake source variable name
+    list(GET builtinpairs ${cmake_flag_arg} cmake_flag_name)
+
+    set(input "${${cmake_flag_name}} ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_${cmake_flag_name}}")
+    string(STRIP "${input}" input)
+
+    # builtinpairs cmake source variables are specifically single strings, and not lists
+    string(REGEX REPLACE "[ ]+" "', '" tmp_string "${input}")
+    string(PREPEND tmp_string "${meson_label_name} = ['")
+    string(APPEND tmp_string "']")
+    string(APPEND output_string "${tmp_string}\n")
+  endforeach()
+
+  string(APPEND output_string "prefix = '${NATIVEPREFIX}'\n")
+  string(APPEND output_string "libdir = 'lib'\n")
+  string(APPEND output_string "bindir = 'bin'\n")
+  string(APPEND output_string "includedir = 'include'\n")
+
+  # Easiest to just prepend header at the end of the full string creation
+  string(PREPEND output_string "[built-in options]\n")
+  set(native_meson_builtin_string ${output_string} PARENT_SCOPE)
+endfunction()
+
 # Creates a variable and sets in parent scope - ${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_dev_env
 # Variable is purposely set with an ending COMMAND to allow the variable to be placed
 # in an externalproject_add build or configure step.
