@@ -72,6 +72,8 @@ if(NOT TARGET PkgConfig::PkgConfig)
     set(${${CMAKE_FIND_PACKAGE_NAME}_SEARCH_NAME}_VERSION ${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_VER})
   endif()
 
+  include(FindPackageHandleStandardArgs)
+
   # Provide standardized success/failure messages
   find_package_handle_standard_args(PkgConfig
                                     REQUIRED_VARS search_pkgconf_executable
