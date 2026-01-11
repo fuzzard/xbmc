@@ -170,7 +170,7 @@ extern "C" void __stdcall init_emu_environ()
   dll_putenv(("PYTHONHOME=" + apkPath).c_str());
   dll_putenv("PYTHONOPTIMIZE=");
   dll_putenv("PYTHONNOUSERSITE=1");
-  dll_putenv("PYTHONPATH=" + libPath.c_str());
+  dll_putenv(("PYTHONPATH=" + libPath.c_str()));
 #else
   dll_putenv("PYTHONOPTIMIZE=1");
 #endif
