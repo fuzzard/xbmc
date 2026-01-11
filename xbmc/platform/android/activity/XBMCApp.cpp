@@ -1533,7 +1533,7 @@ void CXBMCApp::SetupEnv()
     pythonPath = xbmcHome + "/assets/python" + CCompileInfo::GetPythonVersion();
 
   setenv("PYTHONHOME", pythonPath.c_str(), 1);
-  setenv("PYTHONPATH", "", 1);
+  setenv("PYTHONPATH", getApplicationInfo().nativeLibraryDir.c_str(), 1);
   setenv("PYTHONOPTIMIZE", "", 1);
   setenv("PYTHONNOUSERSITE", "1", 1);
 }

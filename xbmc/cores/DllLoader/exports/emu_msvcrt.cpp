@@ -165,11 +165,12 @@ extern "C" void __stdcall init_emu_environ()
 
 #if defined(TARGET_ANDROID)
   std::string apkPath = getenv("KODI_ANDROID_APK");
+  std::string libPath = getenv("KODI_ANDROID_LIBS");
   apkPath += "/assets/python" + CCompileInfo::GetPythonVersion();
   dll_putenv(("PYTHONHOME=" + apkPath).c_str());
   dll_putenv("PYTHONOPTIMIZE=");
   dll_putenv("PYTHONNOUSERSITE=1");
-  dll_putenv("PYTHONPATH=");
+  dll_putenv("PYTHONPATH=" + libPath.c_str());
 #else
   dll_putenv("PYTHONOPTIMIZE=1");
 #endif
