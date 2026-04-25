@@ -290,6 +290,9 @@ case $host in
     if test ! -f "$use_toolchain/cmake/Modules/Platform/Emscripten.cmake"; then
       AC_MSG_ERROR([Could not find Platform/Emscripten.cmake under EMSCRIPTEN_ROOT: $use_toolchain])
     fi
+
+    platform_additional_path=`"$em_config_bin" LLVM_ROOT 2>/dev/null`
+    use_linker=lld
   ;;
   *darwin*)
     # Again we set CC to find toolchain path for use in AC_PATH_TOOL macros further down
@@ -302,6 +305,9 @@ esac
 
 if test -n $use_toolchain; then
   PATH_FOR_HOST=$use_toolchain:$use_toolchain/usr/bin:$use_toolchain/bin:$PATH
+  if test ! -z "$platform_additional_path"; then
+    PATH_FOR_HOST=$platform_additional_path:$PATH_FOR_HOST
+  fi
 else
   PATH_FOR_HOST=$PATH
 fi
