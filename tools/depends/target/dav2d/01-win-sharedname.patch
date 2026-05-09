@@ -1,0 +1,10 @@
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -371,6 +371,7 @@
+     version : dav2d_soname_version,
+     soversion : dav2d_soversion,
+     install : true,
++    name_prefix : 'lib',
+ )
+ 
+ dav2d_dep = declare_dependency(link_with: libdav2d,

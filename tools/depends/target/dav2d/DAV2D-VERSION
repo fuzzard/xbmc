@@ -1,0 +1,8 @@
+LIBNAME=dav2d
+VERSION=0.0.1
+ARCHIVE=$(LIBNAME)-$(VERSION).tar.bz2
+SHA512=695b00adb61b310db29a6a3f933af5ff740738ba45905b5d4fdba63e4d88ccf888037d01434098addd1acc72bff6e7eaa07daf943f28e42667d116986fd5a204
+BYPRODUCT=libdav1d.a
+BYPRODUCT_WIN=libdav1d.lib
+
+FULL_URL=https://code.videolan.org/videolan/dav2d/-/archive/0.0.1/dav2d-0.0.1.tar.bz2
