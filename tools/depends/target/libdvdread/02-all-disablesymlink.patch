@@ -1,0 +1,24 @@
+--- a/meson.build
++++ b/meson.build
+@@ -82,6 +82,8 @@
+     cdata.set('HAVE_STRERROR_S', 1)
+ endif
+ 
++cdata.set('_XBMC', 1)
++
+ cdata.set10('HAVE_STATIC_ASSERT', cc.compiles('_Static_assert(1, "The impossible happened.");', name : '_Static_assert'))
+ 
+ # External dependencies and libraries
+--- a/src/dvd_reader.c
++++ b/src/dvd_reader.c
+@@ -581,8 +581,9 @@ static dvd_reader_t *DVDOpenCommon( void *priv,
+     if( !(path_copy = strdup( path ) ) )
+       goto DVDOpen_error;
+ 
+-#ifndef _WIN32 /* win32 doesn't have realpath */
++#if !defined(WIN32) && !defined(_XBMC) /* don't have fchdir, and getcwd( NULL, ... ) is strange */
+               /* Also WIN32 does not have symlinks, so we don't need this bit of code. */
++              /* XBMC also doesn't need symlink resolution */
+ 
+     /* Resolve any symlinks and get the absolute dir name. */
+     {
