@@ -1,0 +1,136 @@
+--- a/msvc/include/dvdnav_internal.h
++++ b/msvc/include/dvdnav_internal.h
+@@ -32,6 +32,7 @@
+ #include <limits.h>
+ #include <string.h>
+ #include <pthread.h>
++#include <stdint.h>
+ 
+ #undef WORDS_BIGENDIAN
+ 
+--- a/msvc/include/sys/time.h
++++ b/msvc/include/sys/time.h
+@@ -25,4 +25,9 @@
+  *                             timer functions.
+  */
+ 
++#pragma once
+ #include <time.h>
++
++#ifdef _MSC_VER
++#include <WinSock2.h>
++#endif
+--- a/msvc/include/timer.h
++++ b/msvc/include/timer.h
+@@ -1,5 +1,5 @@
+ #include <time.h>
+-#include <winsock.h>
++#include <winsock2.h>
+ #include "pthread.h"
+ 
+ #ifndef _ITIMER_
+--- a/src/dvdnav.c
++++ b/src/dvdnav.c
+@@ -34,6 +34,7 @@
+ #include <unistd.h>
+ #include <limits.h>
+ #include <string.h>
++#include <stdint.h>
+ #include <sys/time.h>
+ #include "dvdnav/dvdnav.h"
+ #include <dvdread/dvd_reader.h>
+--- a/src/dvdnav/dvdnav.h
++++ b/src/dvdnav/dvdnav.h
+@@ -48,6 +48,7 @@ extern "C" {
+ #include <dvdnav/dvdnav_events.h>
+ 
+ #include <stdarg.h>
++#include <stdint.h>
+ 
+ /*********************************************************************
+  * dvdnav data types                                                 *
+--- a/src/dvdnav_internal.h
++++ b/src/dvdnav_internal.h
+@@ -43,7 +43,7 @@ static inline int _private_gettimeofday( struct timeval *tv, void *tz )
+ {
+   struct timeb t;
+   ftime( &t );
+-  tv->tv_sec = t.time;
++  tv->tv_sec = (long)t.time;
+   tv->tv_usec = t.millitm * 1000;
+   return 0;
+ }
+@@ -232,13 +232,8 @@ DVDNAV_API int64_t dvdnav_convert_time(const dvd_time_t *time);
+ #define printerrf(format, args...) \
+     do { if (this) snprintf(this->err_str, MAX_ERR_LEN, format, ## args); } while (0)
+ #else
+-#ifdef _MSC_VER
+-#define printerrf(str) \
+-    do { if (this) snprintf(this->err_str, MAX_ERR_LEN, str); } while (0)
+-#else
+ #define printerrf(...) \
+     do { if (this) snprintf(this->err_str, MAX_ERR_LEN, __VA_ARGS__); } while (0)
+-#endif /* _MSC_VER */
+ #endif
+ #define printerr(str) \
+     do { if (this) strncpy(this->err_str, str, MAX_ERR_LEN - 1); } while (0)
+--- a/src/highlight.c
++++ b/src/highlight.c
+@@ -29,6 +29,7 @@
+ #include <limits.h>
+ #include <string.h>
+ #include <sys/time.h>
++#include <stdint.h>
+ #include <dvdread/nav_types.h>
+ #include "dvdnav/dvdnav.h"
+ #include "vm/decoder.h"
+--- a/src/vm/decoder.c
++++ b/src/vm/decoder.c
+@@ -27,6 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <inttypes.h>
++#include <stdint.h>
+ #include <limits.h>
+ #include <string.h>  /* For memset */
+ #include <sys/time.h>
+--- a/src/vm/getset.c
++++ b/src/vm/getset.c
+@@ -29,6 +29,7 @@
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <inttypes.h>
++#include <stdint.h>
+ 
+ #include <dvdread/nav_types.h>
+ #include <dvdread/ifo_read.h>
+--- a/src/vm/play.c
++++ b/src/vm/play.c
+@@ -28,6 +28,7 @@
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <stdio.h>
++#include <stdint.h>
+ 
+ #include <dvdread/nav_types.h>
+ #include <dvdread/ifo_read.h>
+--- a/src/vm/vm.c
++++ b/src/vm/vm.c
+@@ -37,6 +37,7 @@
+ #include <sys/time.h>
+ #include <fcntl.h>
+ #include <ctype.h>
++#include <stdint.h>
+ 
+ #include <dvdread/nav_types.h>
+ #include <dvdread/ifo_read.h>
+--- a/src/vm/vmget.c
++++ b/src/vm/vmget.c
+@@ -30,6 +30,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <stdint.h>
+ 
+ #include <dvdread/nav_types.h>
+ #include <dvdread/ifo_read.h>
