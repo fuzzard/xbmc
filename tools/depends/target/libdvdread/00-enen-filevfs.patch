@@ -1,0 +1,1591 @@
+diff --git a/meson.build b/meson.build
+index 9c4eafd..b903db0 100644
+--- a/meson.build
++++ b/meson.build
+@@ -49,6 +49,7 @@ endif
+ 
+ check_headers = [
+     'sys/param.h',
++    'dirent.h',
+     'limits.h',
+ ]
+ 
+diff --git a/src/dvd_input.c b/src/dvd_input.c
+index 0486f45..7f13d25 100644
+--- a/src/dvd_input.c
++++ b/src/dvd_input.c
+@@ -53,7 +53,8 @@
+ 
+ /* The function pointers that is the exported interface of this file. */
+ dvd_input_t (*dvdinput_open)  (void *, dvd_logger_cb *,
+-                               const char *,dvd_reader_stream_cb *);
++                               const char *, dvd_reader_stream_cb *,
++                               dvd_reader_filesystem_h *);
+ int         (*dvdinput_close) (dvd_input_t);
+ int         (*dvdinput_seek)  (dvd_input_t, int);
+ int         (*dvdinput_title) (dvd_input_t, int);
+@@ -139,10 +140,10 @@ struct dvd_input_s {
+   dvd_logger_cb *logcb;
+   off_t ipos;
+ 
+-  /* dummy file input */
+-  int fd;
+   /* stream input */
+   dvd_reader_stream_cb *stream_cb;
++  /* file input */
++  dvd_file_h* file;
+ };
+ 
+ static dvd_input_t dvd_input_New(void *priv, dvd_logger_cb *logcb)
+@@ -156,8 +157,8 @@ static dvd_input_t dvd_input_New(void *priv, dvd_logger_cb *logcb)
+ 
+       /* Initialize all inputs to safe defaults */
+       dev->dvdcss = NULL;
+-      dev->fd = -1;
+       dev->stream_cb = NULL;
++      dev->file = NULL;
+   }
+   return dev;
+ }
+@@ -167,7 +168,8 @@ static dvd_input_t dvd_input_New(void *priv, dvd_logger_cb *logcb)
+  */
+ static dvd_input_t css_open(void *priv, dvd_logger_cb *logcb,
+                             const char *target,
+-                            dvd_reader_stream_cb *stream_cb)
++                            dvd_reader_stream_cb *stream_cb,
++                            dvd_reader_filesystem_h *fs UNUSED)
+ {
+   dvd_input_t dev;
+ 
+@@ -283,7 +285,8 @@ static int cpxm_init(dvd_input_t dev, uint8_t* p_mkb )
+  */
+ static dvd_input_t file_open(void *priv, dvd_logger_cb *logcb,
+                              const char *target,
+-                             dvd_reader_stream_cb *stream_cb)
++                             dvd_reader_stream_cb *stream_cb,
++                             dvd_reader_filesystem_h *fs)
+ {
+   dvd_input_t dev;
+ 
+@@ -311,14 +314,8 @@ static dvd_input_t file_open(void *priv, dvd_logger_cb *logcb,
+     free(dev);
+     return NULL;
+   }
+-#if defined(_WIN32)
+-  dev->fd = open_win32(target, O_RDONLY | O_BINARY);
+-#elif defined(__OS2__)
+-  dev->fd = open(target, O_RDONLY | O_BINARY);
+-#else
+-  dev->fd = open(target, O_RDONLY);
+-#endif
+-  if(dev->fd < 0) {
++  dev->file = fs->file_open(fs, target);
++  if(!dev->file) {
+     char buf[256];
+ #if defined(HAVE_STRERROR_R) && defined(HAVE_DECL_STRERROR_R)
+   #ifdef STRERROR_R_CHAR_P
+@@ -351,7 +348,7 @@ static dvd_input_t file_open(void *priv, dvd_logger_cb *logcb,
+  */
+ static int file_seek(dvd_input_t dev, int blocks)
+ {
+-  off_t pos = -1;
++  int64_t pos = -1;
+ 
+   if(dev->ipos == blocks)
+   {
+@@ -370,7 +367,7 @@ static int file_seek(dvd_input_t dev, int blocks)
+     /* Returns position as the number of bytes from beginning of file
+      * or -1 on error
+      */
+-    pos = lseek(dev->fd, (off_t)blocks * (off_t)DVD_VIDEO_LB_LEN, SEEK_SET);
++    pos = dev->file->seek(dev->file, (int64_t)blocks * (int64_t)DVD_VIDEO_LB_LEN, SEEK_SET);
+ 
+     if (pos >= 0) {
+       dev->ipos = pos / DVD_VIDEO_LB_LEN;
+@@ -414,7 +411,7 @@ static int file_read(dvd_input_t dev, void *buffer, int blocks,
+       ret = dev->stream_cb->pf_read(dev->priv, ((char*)buffer) + bytes, len);
+     } else {
+       /* Returns the number of bytes read or -1 on error */
+-      ret = read(dev->fd, ((char*)buffer) + bytes, len);
++      ret = dev->file->read(dev->file, ((char*)buffer) + bytes, len);
+     }
+ 
+     if(ret < 0) {
+@@ -453,8 +450,8 @@ static int file_close(dvd_input_t dev)
+ 
+   /* close file if it was open */
+ 
+-  if (dev->fd >= 0) {
+-    ret = close(dev->fd);
++  if (dev->file) {
++    ret = dev->file->close(dev->file);
+   }
+ 
+   free(dev);
+@@ -623,12 +620,23 @@ int dvdinput_setup(void *priv, dvd_logger_cb *logcb, dvd_type_t dvda_flag)
+     DVDReadLog(priv, logcb, DVD_LOGGER_LEVEL_WARN,
+                "Encrypted DVD support unavailable.");
+ 
++    dvdinput_setup_builtin(priv, logcb);
++    return 0;
++  }
++}
++
++/**
++ * Setup read functions with the builtin libdvdread implementation (minimal DVD access without css).
++ */
++void dvdinput_setup_builtin(void *priv, dvd_logger_cb *logcb)
++{
++    DVDReadLog(priv, logcb, DVD_LOGGER_LEVEL_INFO,
++               "Setting up builtin libdvdread implementation");
++
+     /* libdvdcss replacement functions */
+     dvdinput_open  = file_open;
+     dvdinput_close = file_close;
+     dvdinput_seek  = file_seek;
+     dvdinput_title = file_title;
+     dvdinput_read  = file_read;
+-    return 0;
+   }
+-}
+diff --git a/src/dvd_input.h b/src/dvd_input.h
+index 3b334b0..b3191e0 100644
+--- a/src/dvd_input.h
++++ b/src/dvd_input.h
+@@ -32,33 +32,14 @@
+ 
+ typedef struct dvd_input_s *dvd_input_t;
+ 
+-#if defined( __MINGW32__ )
+-#   undef  lseek
+-#   define lseek  _lseeki64
+-#   undef  off_t
+-#   define off_t off64_t
+-#   undef  stat
+-#   define stat  _stati64
+-#   undef  fstat
+-#   define fstat _fstati64
+-#   undef  wstat
+-#   define wstat _wstati64
+-#endif
+-
+-#ifdef __ANDROID__
+-# undef  lseek
+-# define lseek lseek64
+-# undef  off_t
+-# define off_t off64_t
+-#endif
+-
+ /**
+  * Function pointers that will be filled in by the input implementation.
+  * These functions provide the main API.
+  */
+ extern dvd_input_t (*dvdinput_open)  (void *, dvd_logger_cb *,
+                                       const char *,
+-                                      dvd_reader_stream_cb *);
++                                      dvd_reader_stream_cb *,
++                                      dvd_reader_filesystem_h *);
+ extern int         (*dvdinput_close) (dvd_input_t);
+ extern int         (*dvdinput_seek)  (dvd_input_t, int);
+ extern int         (*dvdinput_title) (dvd_input_t, int);
+@@ -67,8 +48,16 @@ extern int         (*dvdinput_read)  (dvd_input_t, void *, int, int);
+ extern int         (*dvdinput_init)  (dvd_input_t, uint8_t* mkb);
+ /**
+  * Setup function accessed by dvd_reader.c.  Returns 1 if there is CSS support.
++ * Otherwise it fallsback to the internal dvdread implementation (without css support)
++ * which is basically the same as calling dvdinput_setup_builtin.
+  */
+ /* dvda flag enabled cpxm */
+ int dvdinput_setup(void *, dvd_logger_cb *, dvd_type_t dvda_flag);
+ 
++/**
++ * Setup function accessed by dvd_reader.c using the builtin libdvdread implementation
++ * (without css support)
++ */
++void dvdinput_setup_builtin(void *, dvd_logger_cb *);
++
+ #endif /* LIBDVDREAD_DVD_INPUT_H */
+diff --git a/src/dvd_reader.c b/src/dvd_reader.c
+index 8f791d5..a8ba8dd 100644
+--- a/src/dvd_reader.c
++++ b/src/dvd_reader.c
+@@ -21,17 +21,13 @@
+  */
+ 
+ #include "config.h"
+-#include <sys/types.h>      /* off_t */
+-#include <sys/stat.h>       /* stat */
+ #include <sys/time.h>       /* For the timing of dvdcss_title crack. */
+-#include <fcntl.h>          /* open */
+ #include <stdlib.h>         /* free */
+ #include <stdio.h>          /* fprintf */
+ #include <errno.h>          /* errno, EIN* */
+ #include <string.h>         /* memcpy, strlen */
+ #include <unistd.h>         /* pclose */
+ #include <limits.h>         /* PATH_MAX */
+-#include <dirent.h>         /* opendir, readdir */
+ #include <ctype.h>          /* isalpha */
+ 
+ #if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__bsdi__) || defined(__APPLE__)
+@@ -57,20 +53,8 @@
+ #include "dvdread_internal.h"
+ #include "md5.h"
+ #include "dvdread/ifo_read.h"
++#include "file/filesystem.h"
+ 
+-#if defined(_WIN32)
+-# include <windows.h>
+-# include "msvc/contrib/win32_cs.h"
+-#endif
+-
+-#if defined(_MSC_VER)
+-// sys/stat.h values
+-#define S_ISREG(m)  (((m) & _S_IFMT) == _S_IFREG)
+-#define S_ISBLK(m) 0
+-#define S_ISCHR(m) 0
+-
+-#define PATH_MAX _MAX_PATH
+-#endif
+ 
+ /* misc win32 helpers */
+ 
+@@ -90,107 +74,6 @@ static inline int _private_gettimeofday( struct timeval *tv, void *tz )
+ # endif
+ #endif /* _WIN32 */
+ 
+-/* Compat wrapper for stat() */
+-
+-#if defined(_WIN32)
+-/* can't re-define stat (used in both function name and struct name) */
+-typedef struct _stat64 dvdstat_t;
+-static inline int dvdstat(const char *path, dvdstat_t *st)
+-{
+-  wchar_t *wpath, *it;
+-  int ret;
+-
+-  wpath = _utf8_to_wchar(path);
+-  if (!wpath) {
+-    return -1;
+-  }
+-
+-  /* need to strip possible trailing \\ */
+-  for (it = wpath; *it; it++)
+-    if ((*it == '\\' || *it == '/') && *(it+1) == 0)
+-      *it = 0;
+-
+-  ret = _wstat64(wpath, st);
+-  free(wpath);
+-  return ret;
+-}
+-#else
+-typedef struct stat dvdstat_t;
+-static inline int dvdstat(const char *file, dvdstat_t *st) {
+-  return stat(file, st);
+-}
+-#endif
+-
+-#if defined(_WIN32)
+-/* UTF-8 aware version of opendir()/readdir() */
+-
+-#include <io.h>
+-
+-typedef struct {
+-  intptr_t handle;
+-  struct _wfinddata_t went;
+-  struct dirent ent;
+-} win32_dir_t;
+-
+-win32_dir_t *win32_opendir(const char *path)
+-{
+-  char    *filespec;
+-  wchar_t *wfilespec;
+-  win32_dir_t *d;
+-
+-  d = calloc(1, sizeof(*d));
+-  if (!d)
+-    return NULL;
+-
+-  filespec = malloc(strlen(path) + 3);
+-  if (!filespec) {
+-    goto fail;
+-  }
+-  sprintf(filespec, "%s\\*", path);
+-
+-  wfilespec = _utf8_to_wchar(filespec);
+-  free(filespec);
+-  if (!wfilespec) {
+-    goto fail;
+-  }
+-
+-  d->handle = _wfindfirst(wfilespec, &d->went);
+-  free(wfilespec);
+-  if (d->handle != -1) {
+-    return d;
+-  }
+-
+- fail:
+-  free(d);
+-  return NULL;
+-}
+-
+-static struct dirent *win32_readdir(win32_dir_t *dir)
+-{
+-  if (dir->went.name[0]) {
+-    if (!WideCharToMultiByte(CP_UTF8, 0, dir->went.name, -1, dir->ent.d_name, sizeof(dir->ent.d_name), NULL, NULL))
+-      dir->ent.d_name[0] = 0; /* allow reading next */
+-    dir->went.name[0] = 0;
+-    _wfindnext(dir->handle, &dir->went);
+-    return &dir->ent;
+-  }
+-
+-  return NULL;
+-}
+-
+-static void win32_closedir(win32_dir_t *dir)
+-{
+-  _findclose(dir->handle);
+-  free(dir);
+-}
+-
+-#define DIR       win32_dir_t
+-#define opendir   win32_opendir
+-#define readdir   win32_readdir
+-#define closedir  win32_closedir
+-
+-#endif /* _WIN32 */
+-
+ #define DEFAULT_UDF_CACHE_LEVEL 1
+ 
+ struct dvd_reader_device_s {
+@@ -347,7 +230,7 @@ static dvd_reader_device_t *DVDOpenImageFile( dvd_reader_t *ctx,
+   dvd_reader_device_t *dvd;
+   dvd_input_t dev;
+ 
+-  dev = dvdinput_open( ctx->priv, &ctx->logcb, location, stream_cb );
++  dev = dvdinput_open( ctx->priv, &ctx->logcb, location, stream_cb, ctx->fs );
+   if( !dev ) {
+     Log0(ctx,"Can't open %s for reading", location );
+     return NULL;
+@@ -470,7 +353,8 @@ static dvd_reader_t *DVDOpenCommon( void *priv,
+                                     const dvd_logger_cb *logcb,
+                                     const char *ppath,
+                                     dvd_reader_stream_cb *stream_cb,
+-                                    dvd_type_t type )
++                                    dvd_type_t type,
++                                    dvd_reader_filesystem_h * fs )
+ {
+   dvdstat_t fileinfo;
+   int ret, have_css, cdir = -1;
+@@ -485,6 +369,32 @@ static dvd_reader_t *DVDOpenCommon( void *priv,
+   if(logcb)
+     ctx->logcb = *logcb;
+ 
++  // open files using the provided filesystem implementation
++  if (fs != NULL && ppath != NULL)
++  {
++    ctx->fs = fs;
++    dvdinput_setup_builtin(ctx->priv, &ctx->logcb);
++    ctx->rd = DVDOpenPath(ppath);
++    if (!ctx->rd)
++    {
++      free(ctx);
++      return NULL;
++    }
++    return ctx;
++  }
++
++  // create the internal filesystem
++  ctx->fs = InitInternalFilesystem();
++  if (!ctx->fs)
++  {
++    free(ctx);
++    return NULL;
++  }
++
++#if defined(_WIN32) || defined(__OS2__)
++      int len;
++#endif
++
+   /* Try to open DVD using stream_cb functions */
+   if( priv != NULL && stream_cb != NULL )
+   {
+@@ -520,7 +430,7 @@ static dvd_reader_t *DVDOpenCommon( void *priv,
+   }
+ #endif
+ 
+-  ret = dvdstat( path, &fileinfo );
++  ret = ctx->fs->stat(ctx->fs, path, &fileinfo);
+ 
+   if( ret < 0 ) {
+ 
+@@ -544,9 +454,9 @@ static dvd_reader_t *DVDOpenCommon( void *priv,
+   }
+ 
+   /* First check if this is a block/char device or a file*/
+-  if( S_ISBLK( fileinfo.st_mode ) ||
+-      S_ISCHR( fileinfo.st_mode ) ||
+-      S_ISREG( fileinfo.st_mode ) ) {
++  if( (fileinfo.st_mode & DVD_S_IFMT) == DVD_S_IFBLK ||
++      (fileinfo.st_mode & DVD_S_IFMT) == DVD_S_IFCHR ||
++      (fileinfo.st_mode & DVD_S_IFMT) == DVD_S_IFREG ) {
+ 
+     /**
+      * Block devices and regular files are assumed to be DVD-Video images.
+@@ -570,7 +480,7 @@ static dvd_reader_t *DVDOpenCommon( void *priv,
+     }
+     cpxm_init_condition( ctx, type, have_css );
+     return ctx;
+-  } else if( S_ISDIR( fileinfo.st_mode ) ) {
++  } else if ((fileinfo.st_mode & DVD_S_IFMT) == DVD_S_IFDIR ) {
+ #if defined(SYS_BSD)
+     struct fstab* fe;
+ #elif defined(__sun) || defined(__linux__)
+@@ -764,37 +674,43 @@ DVDOpen_error:
+ 
+ dvd_reader_t *DVDOpen( const char *ppath)
+ {
+-    return DVDOpenCommon( NULL, NULL, ppath, NULL , DVD_V);
++    return DVDOpenCommon( NULL, NULL, ppath, NULL , DVD_V, NULL );
+ }
+ 
+ dvd_reader_t *DVDOpenStream( void *stream,
+                              dvd_reader_stream_cb *stream_cb)
+ {
+-    return DVDOpenCommon( stream, NULL, NULL, stream_cb,  DVD_V );
++    return DVDOpenCommon( stream, NULL, NULL, stream_cb,  DVD_V, NULL );
+ }
+ 
+ dvd_reader_t *DVDOpen2( void *priv, const dvd_logger_cb *logcb,
+                         const char *ppath)
+ {
+-    return DVDOpenCommon( priv, logcb, ppath, NULL, DVD_V);
++    return DVDOpenCommon( priv, logcb, ppath, NULL, DVD_V, NULL );
+ }
+ 
+ dvd_reader_t *DVDOpenStream2( void *priv, const dvd_logger_cb *logcb,
+                               dvd_reader_stream_cb *stream_cb )
+ {
+-    return DVDOpenCommon( priv, logcb, NULL, stream_cb, DVD_V );
++    return DVDOpenCommon( priv, logcb, NULL, stream_cb, DVD_V, NULL );
++}
++
++dvd_reader_t *DVDOpenFiles( void *priv, const dvd_logger_cb *logcb,
++                              const char *ppath, dvd_reader_filesystem_h *fs)
++{
++    return DVDOpenCommon( priv, logcb, ppath, NULL, DVD_V, fs);
+ }
+ 
+ dvd_reader_t *DVDOpenAudio( void *priv, const dvd_logger_cb *logcb,
+                             const char *ppath )
+ {
+-    return DVDOpenCommon( priv, logcb, ppath, NULL, DVD_A );
++    return DVDOpenCommon( priv, logcb, ppath, NULL, DVD_A, NULL );
+ }
+ 
+ dvd_reader_t *DVDOpenStreamAudio( void *priv, const dvd_logger_cb *logcb,
+                                   dvd_reader_stream_cb *stream_cb )
+ {
+-    return DVDOpenCommon( priv, logcb, NULL, stream_cb, DVD_A );
++    return DVDOpenCommon( priv, logcb, NULL, stream_cb, DVD_A, NULL );
+ }
+ 
+ void DVDClose( dvd_reader_t *dvd )
+@@ -804,6 +720,9 @@ void DVDClose( dvd_reader_t *dvd )
+     if( dvd->rd->path_root ) free( dvd->rd->path_root );
+     if( dvd->rd->udfcache ) FreeUDFCache( dvd->rd->udfcache );
+     free( dvd->rd );
++    if (dvd->fs) {
++      dvd->fs->close(dvd->fs);
++    }
+     free( dvd );
+   }
+ }
+@@ -859,24 +778,33 @@ static dvd_file_t *DVDOpenFileUDF( dvd_reader_t *ctx, const char *filename,
+  *     or -1 on file not found.
+  *     or -2 on path not found.
+  */
+-static int findDirFile( const char *path, const char *file, char *filename )
++static int findDirFile(dvd_reader_t *ctx, const char *path, const char *file, char *filename )
+ {
+-  DIR *dir;
+-  struct dirent *ent;
+-
+-  dir = opendir( path );
+-  if( !dir ) return -2;
++  dvd_dirent_t entry;
++  dvd_dir_h *dir = ctx->fs->dir_open(ctx->fs, path);
++  if( !dir ) {
++    Log0(ctx, "findDirFile: Could not open dir %s ", path);
++    return -2;
++  }
+ 
+-  while( ( ent = readdir( dir ) ) != NULL ) {
+-    if( !strcasecmp( ent->d_name, file ) ) {
++  int result = 0;
++  do
++  {
++    result = dir->read(dir, &entry);
++    if (result < 0) {
++      Log0(ctx, "findDirFile: Error reading dir %s (errorno: %d)", path, result);
++      return -1;
++    }
++    if( !strcasecmp( entry.d_name, file ) ) {
+       sprintf( filename, "%s%s%s", path,
+                ( ( path[ strlen( path ) - 1 ] == '/' ) ? "" : "/" ),
+-               ent->d_name );
+-      closedir(dir);
++               entry.d_name );
++      dir->close(dir);
+       return 0;
+     }
+-  }
+-  closedir(dir);
++  } while (result == 0);
++
++  dir->close(dir);
+   return -1;
+ }
+ 
+@@ -892,17 +820,17 @@ static int findDVDFile( dvd_reader_t *dvd, const char *file, char *filename )
+     nodirfile = file;
+   }
+ 
+-  ret = findDirFile( dvd->rd->path_root, nodirfile, filename );
++  ret = findDirFile(dvd, dvd->rd->path_root, nodirfile, filename );
+   if( ret < 0 ) {
+     char video_path[ PATH_MAX + 1 ];
+ 
+     /* Try also with adding the path, just in case. */
+     sprintf( video_path, "%s/%s_TS/", dvd->rd->path_root, DVD_TYPE_STRING( dvd->dvd_type ) );
+-    ret = findDirFile( video_path, nodirfile, filename );
++    ret = findDirFile(dvd, video_path, nodirfile, filename );
+     if( ret < 0 ) {
+       /* Try with the path, but in lower case. */
+       sprintf( video_path, "%s/%s_ts/", dvd->rd->path_root, (dvd->dvd_type == DVD_V) ? "video" : "audio" );
+-      ret = findDirFile( video_path, nodirfile, filename );
++      ret = findDirFile(dvd, video_path, nodirfile, filename );
+       if( ret < 0 ) {
+         return 0;
+       }
+@@ -928,7 +856,7 @@ static dvd_file_t *DVDOpenFilePath( dvd_reader_t *ctx, const char *filename )
+     return NULL;
+   }
+ 
+-  dev = dvdinput_open( ctx->priv, &ctx->logcb, full_path, NULL );
++  dev = dvdinput_open( ctx->priv, &ctx->logcb, full_path, NULL, ctx->fs );
+   if( !dev ) {
+     Log0(ctx, "DVDOpenFilePath:dvdinput_open %s failed", full_path );
+     return NULL;
+@@ -942,13 +870,13 @@ static dvd_file_t *DVDOpenFilePath( dvd_reader_t *ctx, const char *filename )
+   }
+   dvd_file->ctx = ctx;
+ 
+-  if( dvdstat( full_path, &fileinfo ) < 0 ) {
++  if (ctx->fs->stat(ctx->fs, full_path, &fileinfo) < 0) {
+     Log0(ctx, "Can't stat() %s.", filename );
+     free( dvd_file );
+     dvdinput_close( dev );
+     return NULL;
+   }
+-  dvd_file->title_sizes[ 0 ] = fileinfo.st_size / DVD_VIDEO_LB_LEN;
++  dvd_file->title_sizes[ 0 ] = fileinfo.size / DVD_VIDEO_LB_LEN;
+   dvd_file->title_devs[ 0 ] = dev;
+   dvd_file->filesize = dvd_file->title_sizes[ 0 ];
+ 
+@@ -1087,23 +1015,22 @@ static dvd_file_t *DVDOpenVOBPath( dvd_reader_t *ctx, int title, int menu )
+       return NULL;
+     }
+ 
+-    dev = dvdinput_open( ctx->priv, &ctx->logcb, full_path, NULL );
++    dev = dvdinput_open( ctx->priv, &ctx->logcb, full_path, NULL, ctx->fs );
+     if( dev == NULL ) {
+       free( dvd_file );
+       return NULL;
+     }
+ 
+-    if( dvdstat( full_path, &fileinfo ) < 0 ) {
++    if (ctx->fs->stat(ctx->fs, full_path, &fileinfo) > 0) {
+       Log0(ctx, "Can't stat() %s.", filename );
+       dvdinput_close(dev);
+       free( dvd_file );
+       return NULL;
+     }
+-    dvd_file->title_sizes[ 0 ] = fileinfo.st_size / DVD_VIDEO_LB_LEN;
++    dvd_file->title_sizes[ 0 ] = fileinfo.size / DVD_VIDEO_LB_LEN;
+     dvd_file->title_devs[ 0 ] = dev;
+     dvdinput_title( dvd_file->title_devs[0], 0);
+     dvd_file->filesize = dvd_file->title_sizes[ 0 ];
+-
+   } else {
+     int i;
+ 
+@@ -1114,13 +1041,13 @@ static dvd_file_t *DVDOpenVOBPath( dvd_reader_t *ctx, int title, int menu )
+         break;
+       }
+ 
+-      if( dvdstat( full_path, &fileinfo ) < 0 ) {
++      if (ctx->fs->stat(ctx->fs, full_path, &fileinfo) < 0) {
+         Log0(ctx, "Can't stat() %s.", filename );
+         break;
+       }
+ 
+-      dvd_file->title_sizes[ i ] = fileinfo.st_size / DVD_VIDEO_LB_LEN;
+-      dvd_file->title_devs[ i ] = dvdinput_open( ctx->priv, &ctx->logcb, full_path, NULL );
++      dvd_file->title_sizes[ i ] = fileinfo.size / DVD_VIDEO_LB_LEN;
++      dvd_file->title_devs[ i ] = dvdinput_open( ctx->priv, &ctx->logcb, full_path, NULL, ctx->fs );
+       dvdinput_title( dvd_file->title_devs[ i ], 0 );
+       dvd_file->filesize += dvd_file->title_sizes[ i ];
+     }
+@@ -1228,8 +1155,8 @@ static int DVDFileStatVOBUDF( dvd_reader_t *dvd, int title,
+ {
+   char filename[ MAX_UDF_FILE_NAME_LEN ];
+   uint32_t size;
+-  off_t tot_size;
+-  off_t parts_size[ 9 ];
++  int64_t tot_size;
++  int64_t parts_size[ 9 ];
+   int nr_parts = 0;
+   int n;
+ 
+@@ -1277,8 +1204,8 @@ static int DVDFileStatVOBPath( dvd_reader_t *dvd, int title,
+   char filename[ MAX_UDF_FILE_NAME_LEN ];
+   char full_path[ PATH_MAX + 1 ];
+   dvdstat_t fileinfo;
+-  off_t tot_size;
+-  off_t parts_size[ 9 ];
++  int64_t tot_size;
++  int64_t parts_size[ 9 ];
+   int nr_parts = 0;
+   int n;
+ 
+@@ -1291,14 +1218,14 @@ static int DVDFileStatVOBPath( dvd_reader_t *dvd, int title,
+   if( !findDVDFile( dvd, filename, full_path ) )
+     return -1;
+ 
+-  if( dvdstat( full_path, &fileinfo ) < 0 ) {
+-    Log1( dvd, "Can't stat() %s.", filename );
++  if (dvd->fs->stat(dvd->fs, full_path, &fileinfo) < 0) {
++    Log1(dvd, "Can't stat() %s.", filename );
+     return -1;
+   }
+ 
+-  tot_size = fileinfo.st_size;
++  tot_size = fileinfo.size;
+   nr_parts = 1;
+-  parts_size[ 0 ] = fileinfo.st_size;
++  parts_size[ 0 ] = fileinfo.size;
+ 
+   if( !menu ) {
+     int cur;
+@@ -1308,12 +1235,12 @@ static int DVDFileStatVOBPath( dvd_reader_t *dvd, int title,
+       if( !findDVDFile( dvd, filename, full_path ) )
+         break;
+ 
+-      if( dvdstat( full_path, &fileinfo ) < 0 ) {
+-        Log1( dvd, "Can't stat() %s.", filename );
++      if (dvd->fs->stat(dvd->fs, full_path, &fileinfo) < 0) {
++        Log1(dvd, "Can't stat() %s.", filename );
+         break;
+       }
+ 
+-      parts_size[ nr_parts ] = fileinfo.st_size;
++      parts_size[ nr_parts ] = fileinfo.size;
+       tot_size += parts_size[ nr_parts ];
+       nr_parts++;
+     }
+@@ -1401,10 +1328,10 @@ int DVDFileStat( dvd_reader_t *reader, int titlenum,
+     char full_path[ PATH_MAX + 1 ];
+ 
+     if( findDVDFile( reader, filename, full_path ) ) {
+-      if( dvdstat( full_path, &fileinfo ) < 0 )
+-        Log1( reader, "Can't stat() %s.", filename );
++      if (reader->fs->stat(reader->fs, full_path, &fileinfo) < 0)
++        Log1(reader, "Can't stat() %s.", filename );
+       else {
+-        statbuf->size = fileinfo.st_size;
++        statbuf->size = fileinfo.size;
+         statbuf->nr_parts = 1;
+         statbuf->parts_size[ 0 ] = statbuf->size;
+         return 0;
+@@ -1456,8 +1383,8 @@ static int DVDReadBlocksUDF( const dvd_file_t *dvd_file, uint32_t offset,
+ 
+     /* Copy the cache at a specified offset into data. offset and block_count
+      * must be converted into bytes */
+-    memcpy( data, dvd_file->cache + (off_t)offset * (off_t)DVD_VIDEO_LB_LEN,
+-            (off_t)block_count * (off_t)DVD_VIDEO_LB_LEN );
++    memcpy( data, dvd_file->cache + (int64_t)offset * (int64_t)DVD_VIDEO_LB_LEN,
++            (int64_t)block_count * (int64_t)DVD_VIDEO_LB_LEN );
+ 
+     /* return the amount of blocks copied */
+     return block_count;
+diff --git a/src/dvdread/dvd_filesystem.h b/src/dvdread/dvd_filesystem.h
+new file mode 100644
+index 0000000..291f4d9
+--- /dev/null
++++ b/src/dvdread/dvd_filesystem.h
+@@ -0,0 +1,124 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef DVDREAD_FILESYSTEM_H_
++#define DVDREAD_FILESYSTEM_H_
++
++#include <stdint.h>
++#include <sys/types.h>
++
++/*
++ * directory access
++ */
++
++/**
++ * The dvd_dirent_t struct abstracts dirent usage from the respective platform implementation.
++ * For this reason, it only includes the parts the lib cares about (in this case d_name - the directory name)
++ */
++typedef struct
++{
++    char    d_name[256];
++} dvd_dirent_t;
++
++typedef struct dvd_filesystem_dir_s dvd_dir_h;
++/**
++ * Abstraction for directory access
++ * internal - opaque handler internal to the specific implementation used to store the data type of directory stream objects.
++ * This is tipically a dir handler (e.g. a DIR* in posix)
++ * close(dvd_dir_h *dir) - called to close the directory and cleanup any alloc'd dir structures
++ * read(dvd_dir_h *dir, dvd_dirent_t *entry) - provided the dvd_dirent_t, reads the respective directory and returns -1 if the
++ * directory could not be read, 0 if successfully read.
++ */
++struct dvd_filesystem_dir_s
++{
++    void *internal;
++    void (*close)(dvd_dir_h *dir);
++    int (*read)(dvd_dir_h *dir, dvd_dirent_t *entry);
++};
++
++/*
++ * Stat access
++ */
++
++#define DVD_S_IFMT            0170000     /* These bits determine file type.  */
++
++#define DVD_S_IFCHR        0020000     /* character special */
++#define DVD_S_IFDIR        0040000     /* directory */
++#define DVD_S_IFBLK        0060000     /* block special */
++#define DVD_S_IFREG        0100000     /* regular */
++
++/**
++ * Abstraction for stat buffer structure
++ * size - size of the stat'd file
++ * st_mode - file mode
++ */
++typedef struct
++{
++    off_t size;
++    unsigned int st_mode;
++} dvdstat_t;
++
++
++/*
++ * file access
++ */
++
++/**
++ * Abstraction for file access
++ * internal - opaque handler internal to the specific implementation used to store the data type of the file object.
++ * This is tipically a file reference (e.g. the file descriptor/fd)
++ * close(dvd_file_h *file) - called to close the file and cleanup any alloc'd file structs
++ * seek(dvd_file_h *file, int64_t offset, int32_t origin) - used to seek into the given file (provided the offset and the origin). Returns
++ * the position on the file after seek.
++ * read(dvd_file_h *file, char *buf, int64_t size) - used to read the file into the passed buffer, given the read size. Returns the read
++ * read from the file
++ */
++typedef struct dvd_filesystem_file_s dvd_file_h;
++struct dvd_filesystem_file_s
++{
++    void *internal;
++    int (*close) (dvd_file_h *file);
++    int64_t (*seek)  (dvd_file_h *file, int64_t offset, int32_t origin);
++    ssize_t (*read)  (dvd_file_h *file, char *buf, size_t size);
++};
++
++/*
++ * Filesystem implementation
++ */
++
++/**
++ * Groups all filesystem operations into a common struct. This is the struct external applications should override to
++ * provide custom filesystem implementations:
++ * internal - opaque data pointer to user data (used to convey custom data within the filesystem struct)
++ * close(dvd_reader_filesystem_h *fs) - called to destroy the filesystem implementation (free any alloc'd structs)
++ * stat(dvd_reader_filesystem_h *fs, const char *path, dvdstat_t* statbuf) - stat a file/dir provided the statbuf, initializes the dvdstat_t.
++ * dir_open(dvd_reader_filesystem_h *fs, const char* dirname) - open the provided dir, initializes dvd_dir_h
++ * file_open(dvd_reader_filesystem_h *fs, const char* filename, const char *mode) - open a file, initializes dvd_file_h
++ */
++typedef struct dvd_reader_filesystem_s dvd_reader_filesystem_h;
++struct dvd_reader_filesystem_s
++{
++    void *internal;
++    void (*close) (dvd_reader_filesystem_h *fs);
++    int (*stat) (dvd_reader_filesystem_h *fs, const char *path, dvdstat_t *statbuf);
++    dvd_dir_h* (*dir_open) (dvd_reader_filesystem_h *fs, const char *dirname);
++    dvd_file_h* (*file_open) (dvd_reader_filesystem_h *fs, const char *filename);
++};
++
++#endif /* DVDREAD_FILESYSTEM_H_ */
+diff --git a/src/dvdread/dvd_reader.h b/src/dvdread/dvd_reader.h
+index 9d082b2..e9e5501 100644
+--- a/src/dvdread/dvd_reader.h
++++ b/src/dvdread/dvd_reader.h
+@@ -23,13 +23,6 @@
+ #ifndef LIBDVDREAD_DVD_READER_H
+ #define LIBDVDREAD_DVD_READER_H
+ 
+-#ifdef _MSC_VER
+-#include <config.h>
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#endif
+-
+ #include <sys/types.h>
+ #include <inttypes.h>
+ #include <stdarg.h>
+@@ -52,6 +45,12 @@ typedef ptrdiff_t ssize_t;
+  */
+ #include <dvdread/version.h>
+ 
++/**
++ * Filesystem types
++ */
++#include "dvd_filesystem.h"
++
++
+ /**
+  * The length of one Logical Block of a DVD.
+  */
+@@ -165,6 +164,19 @@ DVDREAD_API dvd_reader_t *DVDOpenAudio( void *, const dvd_logger_cb *, const cha
+ DVDREAD_API dvd_reader_t *DVDOpenStreamAudio( void *, const dvd_logger_cb *, dvd_reader_stream_cb *);
+ 
+ 
++/**
++ * Open unencrypted DVD files providing the respective filesystem implementation
++ * Useful to open files located on virtual file systems
++ *
++ * @param path Specifies the file or directory to use
++ * @param priv is a private handle
++ * @param logcb is a custom logger callback struct, or NULL if none needed
++ * @param fs is a struct containing the filesystem implementation
++ * @return If successful a read handle is returned. Otherwise 0 is returned.
++ *
++ */
++dvd_reader_t *DVDOpenFiles( void *priv, const dvd_logger_cb *logcb, const char * path, dvd_reader_filesystem_h *fs);
++
+ /**
+  * Closes and cleans up the DVD reader object.
+  *
+diff --git a/src/dvdread/meson.build b/src/dvdread/meson.build
+index 2619bb5..0d3e82b 100644
+--- a/src/dvdread/meson.build
++++ b/src/dvdread/meson.build
+@@ -2,8 +2,10 @@
+ # SPDX-License-Identifier: MIT
+ 
+ dvdread_api_headers = files(
++    '../file/filesystem.h',
+     'attributes.h',
+     'bitreader.h',
++    'dvd_filesystem.h',
+     'dvd_reader.h',
+     'dvd_udf.h',
+     'ifo_print.h',
+diff --git a/src/dvdread_internal.h b/src/dvdread_internal.h
+index d19cd8d..3d6e275 100644
+--- a/src/dvdread_internal.h
++++ b/src/dvdread_internal.h
+@@ -49,6 +49,7 @@ struct dvd_reader_s
+     dvd_type_t dvd_type;
+     void *priv; /* User provided context */
+     dvd_logger_cb logcb;
++    dvd_reader_filesystem_h* fs;
+     /* Set 100 flags for BUP fallback, most signifiant left
+        [0] for upper remaining VTS, [1] for the first Main + 63 VTS */
+     uint64_t ifoBUPflags[2];
+diff --git a/src/file/dir_posix.c b/src/file/dir_posix.c
+new file mode 100644
+index 0000000..f55e62a
+--- /dev/null
++++ b/src/file/dir_posix.c
+@@ -0,0 +1,98 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++#include "config.h"
++
++#include <stdlib.h>
++#include <string.h>
++#if HAVE_DIRENT_H
++#include <dirent.h>
++#endif
++
++#if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
++#  if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 24)
++#    define USE_READDIR
++#    include <errno.h>
++#  endif
++#endif
++
++#include <dvdread/dvd_filesystem.h>
++#include "filesystem.h"
++
++void _dir_close_posix(dvd_dir_h *dir)
++{
++    if (dir) {
++        closedir((DIR *)dir->internal);
++        free(dir);
++        dir = NULL;
++    }
++}
++
++int _dir_read_posix(dvd_dir_h *dir, dvd_dirent_t *entry)
++{
++    struct dirent *p_e;
++
++#ifdef USE_READDIR
++    errno = 0;
++    p_e = readdir((DIR*)dir->internal);
++    if (!p_e && errno) {
++        return -errno;
++    }
++#else /* USE_READDIR */
++    int result;
++    struct dirent e;
++
++    result = readdir_r((DIR*)dir->internal, &e, &p_e);
++    if (result) {
++        return -result;
++    }
++#endif /* USE_READDIR */
++
++    if (p_e == NULL) {
++        return 1;
++    }
++    strncpy(entry->d_name, p_e->d_name, sizeof(entry->d_name));
++    entry->d_name[sizeof(entry->d_name) - 1] = 0;
++
++    return 0;
++}
++
++dvd_dir_h *dir_open_default(dvd_reader_filesystem_h *fs, const char* dirname)
++{
++    if (!fs)
++        return NULL;
++
++    dvd_dir_h *dir = calloc(1, sizeof(dvd_dir_h));
++
++    if (!dir) {
++        return NULL;
++    }
++
++    dir->close = _dir_close_posix;
++    dir->read = _dir_read_posix;
++
++    if ((dir->internal = opendir(dirname))) {
++        return dir;
++    }
++
++    free(dir);
++    dir = NULL;
++
++    return NULL;
++}
+diff --git a/src/file/dir_win32.c b/src/file/dir_win32.c
+new file mode 100644
+index 0000000..cb89728
+--- /dev/null
++++ b/src/file/dir_win32.c
+@@ -0,0 +1,108 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++#include <io.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdio.h>
++
++#include <windows.h>
++#include "../msvc/contrib/win32_cs.h"
++
++
++#include <dvdread/dvd_filesystem.h>
++#include "filesystem.h"
++
++
++typedef struct {
++  intptr_t handle;
++  struct _wfinddata_t went;
++} win32_dir_t;
++
++
++void _dir_close_win32(dvd_dir_h *dir)
++{
++    if (dir) {
++        _findclose(((win32_dir_t*)dir->internal)->handle);
++        free((win32_dir_t*)dir->internal);
++        free(dir);
++        dir = NULL;
++    }
++}
++
++int _dir_read_win32(dvd_dir_h *dir, dvd_dirent_t *entry)
++{
++    win32_dir_t *wdir = (win32_dir_t*)dir->internal;
++    if (wdir->went.name[0]) {
++        if (!WideCharToMultiByte(CP_UTF8, 0, wdir->went.name, -1, entry->d_name, sizeof(entry->d_name), NULL, NULL))
++            entry->d_name[0] = 0; /* allow reading next */
++        wdir->went.name[0] = 0;
++        _wfindnext(wdir->handle, &wdir->went);
++        return 0;
++    }
++    return -1;
++}
++
++dvd_dir_h *dir_open_default(dvd_reader_filesystem_h *fs, const char* dirname)
++{
++    if (!fs)
++        return NULL;
++
++    char    *filespec;
++    wchar_t *wfilespec;
++    win32_dir_t *d;
++    dvd_dir_h *dir = calloc(1, sizeof(dvd_dir_h));
++
++    if (!dir) {
++        return NULL;
++    }
++
++    d = calloc(1, sizeof(*d));
++    if (!d)
++    {
++        free(dir);
++        return NULL;
++    }
++
++    filespec = malloc(strlen(dirname) + 3);
++    if (!filespec) {
++        goto fail;
++    }
++    sprintf(filespec, "%s\\*", dirname);
++
++    wfilespec = _utf8_to_wchar(filespec);
++    free(filespec);
++    if (!wfilespec) {
++        goto fail;
++    }
++
++    d->handle = _wfindfirst(wfilespec, &d->went);
++    free(wfilespec);
++    if (d->handle != -1) {
++        dir->internal = (void*)d;
++        dir->close = _dir_close_win32;
++        dir->read = _dir_read_win32;
++        return dir;
++    }
++
++    fail:
++        free(d);
++        free(dir);
++        return NULL;
++}
+diff --git a/src/file/file_posix.c b/src/file/file_posix.c
+new file mode 100644
+index 0000000..cbdbd58
+--- /dev/null
++++ b/src/file/file_posix.c
+@@ -0,0 +1,113 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++
++#include <stdlib.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <errno.h>
++
++
++#include <sys/stat.h>
++#include <fcntl.h>
++
++#include <dvdread/dvd_filesystem.h>
++
++#include "filesystem.h"
++
++#ifdef __ANDROID__
++# undef  lseek
++# define lseek lseek64
++# undef  off_t
++# define off_t off64_t
++#endif
++
++
++int _file_close(dvd_file_h *file)
++{
++    if (file) {
++        int ret = close((int)(intptr_t)file->internal);
++        free(file);
++        return ret;
++    }
++    return 0;
++}
++
++int64_t _file_seek(dvd_file_h *file, int64_t offset, int32_t origin)
++{
++    off_t result = lseek((int)(intptr_t)file->internal, offset, origin);
++    if (result == (off_t)-1) {
++        return -1;
++    }
++    return (int64_t)result;
++}
++
++ssize_t _file_read(dvd_file_h *file, char *buf, size_t size)
++{
++    ssize_t result;
++
++    if (size <= 0) {
++        return 0;
++    }
++
++    result = read((int)(intptr_t)file->internal, buf, size);
++    return result;
++}
++
++
++dvd_file_h* file_open_default(dvd_reader_filesystem_h *fs, const char* filename)
++{
++    if (!fs)
++        return NULL;
++
++    dvd_file_h *file;
++    int fd    = -1;
++    int flags = 0;
++    int mode  = 0;
++
++    #if defined(__OS2__) // not posix but kept here for legacy compatibility reasons
++    flags = O_RDONLY | O_BINARY;
++    #else
++    flags = O_RDONLY;
++    #endif
++
++#ifdef O_CLOEXEC
++    flags |= O_CLOEXEC;
++#endif
++#ifdef O_BINARY
++    flags |= O_BINARY;
++#endif
++
++    if ((fd = open(filename, flags, mode)) < 0) {
++        return NULL;
++    }
++
++    file = calloc(1, sizeof(dvd_file_h));
++    if (!file) {
++        close(fd);
++        return NULL;
++    }
++
++    file->close = _file_close;
++    file->read = _file_read;
++    file->seek  = _file_seek;
++    file->internal = (void*)(intptr_t)fd;
++
++    return file;
++}
+diff --git a/src/file/file_win32.c b/src/file/file_win32.c
+new file mode 100644
+index 0000000..9787076
+--- /dev/null
++++ b/src/file/file_win32.c
+@@ -0,0 +1,98 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++#include <stdlib.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <errno.h>
++
++#include <sys/stat.h>
++#include <fcntl.h>
++
++#include <windows.h>
++#include "../msvc/contrib/win32_cs.h"
++
++#include <dvdread/dvd_filesystem.h>
++#include "filesystem.h"
++
++
++int _file_close_win32(dvd_file_h *file)
++{
++    if (file) {
++        int ret = close((int)(intptr_t)file->internal);
++        free(file);
++        return ret;
++    }
++    return 0;
++}
++
++int64_t _file_seek_win32(dvd_file_h *file, int64_t offset, int32_t origin)
++{
++    off64_t result = _lseeki64((int)(intptr_t)file->internal, offset, origin);
++    if (result == (off64_t)-1) {
++        return -1;
++    }
++    return (int64_t)result;
++}
++
++ssize_t _file_read_win32(dvd_file_h *file, char *buf, size_t size)
++{
++    ssize_t result;
++
++    if (size <= 0) {
++        return 0;
++    }
++
++    result = read((int)(intptr_t)file->internal, buf, size);
++    return result;
++}
++
++
++dvd_file_h* file_open_default(dvd_reader_filesystem_h *fs, const char* filename)
++{
++    if (!fs)
++        return NULL;
++
++    dvd_file_h *file;
++    int fd    = -1;
++    wchar_t *wpath;
++
++    wpath = _utf8_to_wchar(filename);
++    if (!wpath) {
++        return NULL;
++    }
++
++    if ((fd = _wopen(wpath, O_RDONLY | O_BINARY)) < 0) {
++        free(wpath);
++        return NULL;
++    }
++
++    file = calloc(1, sizeof(dvd_file_h));
++    if (!file) {
++        close(fd);
++        return NULL;
++    }
++
++    file->close = _file_close_win32;
++    file->read = _file_read_win32;
++    file->seek  = _file_seek_win32;
++    file->internal = (void*)(intptr_t)fd;
++
++    return file;
++}
+diff --git a/src/file/filesystem.c b/src/file/filesystem.c
+new file mode 100644
+index 0000000..b79edae
+--- /dev/null
++++ b/src/file/filesystem.c
+@@ -0,0 +1,37 @@
++/*
++ * This file is part of libdvdread.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation; either version 2.1 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
++ */
++
++#include "filesystem.h"
++
++#include <stdlib.h>
++
++static void default_filesystem_close(dvd_reader_filesystem_h *fs) {
++  free(fs);
++}
++
++dvd_reader_filesystem_h* InitInternalFilesystem() {
++  dvd_reader_filesystem_h* fs = calloc( 1, sizeof(dvd_reader_filesystem_h));
++  if (!fs) {
++    return NULL;
++  }
++  fs->dir_open = dir_open_default;
++  fs->stat = stat_default;
++  fs->file_open = file_open_default;
++  fs->close = default_filesystem_close;
++  return fs;
++}
+diff --git a/src/file/filesystem.h b/src/file/filesystem.h
+new file mode 100644
+index 0000000..1b8a014
+--- /dev/null
++++ b/src/file/filesystem.h
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of libdvdread.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation; either version 2.1 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
++ */
++
++#ifndef LIBDVDREAD_FILESYSTEM_H
++#define LIBDVDREAD_FILESYSTEM_H
++
++#include "dvdread/dvd_filesystem.h"
++
++/**
++ * Prototype definition for default file open function (implemented by each platform)
++ */
++dvd_file_h* file_open_default(dvd_reader_filesystem_h *fs, const char* filename);
++
++/**
++ * Prototype definition for default dir open function (implemented by each platform)
++ */
++dvd_dir_h* dir_open_default(dvd_reader_filesystem_h *fs, const char* dirname);
++
++/**
++ * Prototype definition for default stat function (implemented by each platform)
++ */
++int stat_default(dvd_reader_filesystem_h *fs, const char *path, dvdstat_t* statbuf);
++
++/**
++ * Inits the internal (platform specific) filesystem implementation
++ * bundled with libdvdread. This includes initializing the default internal
++ * implmentations of file_open, dir_open, stat, etc.
++ */
++dvd_reader_filesystem_h* InitInternalFilesystem();
++
++#endif
+diff --git a/src/file/stat_posix.c b/src/file/stat_posix.c
+new file mode 100644
+index 0000000..61670fc
+--- /dev/null
++++ b/src/file/stat_posix.c
+@@ -0,0 +1,36 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++#include <stdlib.h>
++#include <sys/stat.h>
++
++#include <dvdread/dvd_filesystem.h>
++#include "filesystem.h"
++
++int stat_default(dvd_reader_filesystem_h *fs, const char *path, dvdstat_t* statbuf)
++{
++    if (!fs)
++        return -1;
++
++    struct stat posixstatbuf;
++    int ret = stat(path, &posixstatbuf);
++    statbuf->size = posixstatbuf.st_size;
++    statbuf->st_mode = posixstatbuf.st_mode;
++    return ret;
++}
+diff --git a/src/file/stat_win32.c b/src/file/stat_win32.c
+new file mode 100644
+index 0000000..0b8245d
+--- /dev/null
++++ b/src/file/stat_win32.c
+@@ -0,0 +1,53 @@
++/*
++ * This file is part of libdvdread
++ * Copyright (C) 2022 VideoLAN
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see
++ * <http://www.gnu.org/licenses/>.
++ */
++
++#include <stdlib.h>
++#include <sys/stat.h>
++
++#include <windows.h>
++#include "../msvc/contrib/win32_cs.h"
++
++#include <dvdread/dvd_filesystem.h>
++#include "filesystem.h"
++
++
++int stat_default(dvd_reader_filesystem_h *fs, const char *path, dvdstat_t* statbuf)
++{
++    if (!fs)
++        return -1;
++
++    struct _stat64 win32statbuf;
++
++    wchar_t *wpath, *it;
++
++    wpath = _utf8_to_wchar(path);
++    if (!wpath) {
++        return -1;
++    }
++
++    /* need to strip possible trailing \\ */
++    for (it = wpath; *it; it++)
++        if ((*it == '\\' || *it == '/') && *(it+1) == 0)
++        *it = 0;
++
++    int ret = _wstat64(wpath, &win32statbuf);
++    statbuf->size = win32statbuf.st_size;
++    statbuf->st_mode = win32statbuf.st_mode;
++    return ret;
++}
+diff --git a/src/meson.build b/src/meson.build
+index a3b4d44..956556a 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -15,6 +15,21 @@ dvdread_src = files(
+     'nav_read.c',
+ )
+ 
++# Platform-specific source files
++if host_machine.system() == 'windows'
++    dvdread_src += files(
++        'file/dir_win32.c',
++        'file/file_win32.c',
++        'file/stat_win32.c',
++    )
++else
++    dvdread_src += files(
++        'file/dir_posix.c',
++        'file/file_posix.c',
++        'file/stat_posix.c',
++    )
++endif
++
+ #
+ # Library definitions
+ #

@@ -1,5 +1,6 @@
 include ../../Makefile.include LIBDVDREAD-VERSION ../../download-files.include
 DEPS = ../../Makefile.include LIBDVDREAD-VERSION Makefile ../../download-files.include \
+                                  00-enen-filevfs.patch \
                                   01-all-disableopendir.patch \
                                   02-all-disablesymlink.patch \
                                   03-win-add_defines.patch \
@@ -33,6 +34,8 @@ else
 endif
 export PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig
 
+TEST_ENEN = 0
+
 LIBDYLIB=$(PLATFORM)/build/src/$(BYPRODUCT)
 
 all: .installed-$(PLATFORM)
@@ -40,8 +43,13 @@ all: .installed-$(PLATFORM)
 .configured-$(PLATFORM): $(DEPS) | $(TARBALLS_LOCATION)/$(ARCHIVE).$(HASH_TYPE)
 	rm -rf $(PLATFORM); mkdir -p $(PLATFORM)
 	cd $(PLATFORM); $(ARCHIVE_TOOL) $(ARCHIVE_TOOL_FLAGS) $(TARBALLS_LOCATION)/$(ARCHIVE)
+ifeq ($(TEST_ENEN), 1)
+# Patch only created to apply to clean folder
+	cd $(PLATFORM); patch -p1 -i ../00-enen-filevfs.patch
+else
 	cd $(PLATFORM); patch -p1 -i ../01-all-disableopendir.patch
 	cd $(PLATFORM); patch -p1 -i ../02-all-disablesymlink.patch
+endif
 ifeq ($(TARGET_PLATFORM),windows)
 	cd $(PLATFORM); patch -p1 -i ../03-win-add_defines.patch
 	cd $(PLATFORM); patch -p1 -i ../04-win-uwp_compat.patch

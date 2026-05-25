@@ -21,8 +21,13 @@ if(NOT TARGET LIBRARY::${CMAKE_FIND_PACKAGE_NAME})
       set(DVDCSS -Dlibdvdcss=enabled)
     endif()
 
-    set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/01-all-disableopendir.patch"
-                "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/02-all-disablesymlink.patch")
+    if(ENABLE_DVD_VFS)
+      # Todo: dvdread patchset
+      set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/00-enen-filevfs.patch")
+    else()
+      set(patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/01-all-disableopendir.patch"
+                  "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/02-all-disablesymlink.patch")
+    endif()
 
     if(CORE_SYSTEM_NAME STREQUAL darwin_embedded)
       list(APPEND patches "${CORE_SOURCE_DIR}/tools/depends/target/${${CMAKE_FIND_PACKAGE_NAME}_MODULE_LC}/02-darwinembedded-enablebuild.patch")
