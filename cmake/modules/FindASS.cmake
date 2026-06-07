@@ -74,7 +74,7 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     BUILD_DEP_TARGET()
 
     # Link libraries for target interface
-    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES ${APP_NAME_LC}::FriBidi ${APP_NAME_LC}::Iconv ${APP_NAME_LC}::HarfBuzz ${APP_NAME_LC}::FreeType)
+    set(${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_LINK_LIBRARIES LIBRARY::FriBidi LIBRARY::Iconv ${APP_NAME_LC}::HarfBuzz LIBRARY::FreeType)
 
     if(WIN32 OR WINDOWS_STORE)
       # Directwrite dependency
@@ -91,10 +91,10 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
     endif()
 
     # Add dependencies to build target
-    add_dependencies(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} ${APP_NAME_LC}::FriBidi
-                                                                        ${APP_NAME_LC}::Iconv
+    add_dependencies(${${${CMAKE_FIND_PACKAGE_NAME}_MODULE}_BUILD_NAME} LIBRARY::FriBidi
+                                                                        LIBRARY::Iconv
                                                                         ${APP_NAME_LC}::HarfBuzz
-                                                                        ${APP_NAME_LC}::FreeType)
+                                                                        LIBRARY::FreeType)
   endmacro()
 
   # If there is a potential this library can be built internally
