@@ -41,6 +41,14 @@ bool CPlatformAndroid::InitStageOne()
   std::string binpath = getenv("KODI_BIN_HOME");
 
   setenv("LIBBLURAY_CP", (binpath + "/java/").c_str(), 1);
+  setenv("LIBBLURAY_CACHE_ROOT", CSpecialProtocol::TranslatePath("special://userdata/cache/bluray/cache/").c_str(), 1);
+  setenv("LIBBLURAY_PERSISTENT_ROOT", CSpecialProtocol::TranslatePath("special://userdata/cache/bluray/cache/").c_str(), 1);
+
+  std::string java_tmpdir = "-Djava.io.tmpdir=" + CSpecialProtocol::TranslatePath("special://xbmcbin/../../../cache/lib/j2re-image/");
+
+  setenv("_JAVA_OPTIONS", java_tmpdir.c_str(), 1);
+  setenv("JAVA_HOME", CSpecialProtocol::TranslatePath("special://xbmcbin/../../../cache/lib/j2re-image/").c_str(), 1);
+  setenv("JDK_HOME", CSpecialProtocol::TranslatePath("special://xbmcbin/../../../cache/lib/j2re-image/").c_str(), 1);
 
   CWinSystemAndroidGLESContext::Register();
 
