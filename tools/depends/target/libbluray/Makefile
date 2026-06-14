@@ -36,6 +36,10 @@ ifeq ($(OS), osx)
   # java and ant are dependencies for bdjs
   export ANT_HOME=$(PREFIX)/share/ant
   export PATH:=$(PREFIX)/share/ant/bin:$(PATH)
+else ifeq ($(OS), android)
+  # java and ant are dependencies for bdjs
+  export ANT_HOME=$(PREFIX)/share/ant
+  export PATH:=$(PREFIX)/share/ant/bin:$(PATH)
 endif
 
 LIBDYLIB=$(PLATFORM)/build/src/$(BYPRODUCT)

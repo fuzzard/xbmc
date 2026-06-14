@@ -61,7 +61,7 @@ endif
 
 ifeq ($(OS),android)
   EXCLUDED_DEPENDS = libusb gtest libcdio libcdio-gplv3
-  DEPENDS += dummy-libxbmc libdovi libuuid
+  DEPENDS += dummy-libxbmc libdovi libuuid libaacs libbdplus apache-ant
   PYMODULE_DEPS = dummy-libxbmc
   LIBUUID = libuuid
 endif
