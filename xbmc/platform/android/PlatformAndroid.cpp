@@ -81,4 +81,13 @@ void CPlatformAndroid::PlatformSyslog()
               CJNIPackageManager::PERMISSION_GRANTED
           ? "WRITE_EXTERNAL_STORAGE"
           : "");
+  std::string bluraycp = getenv("LIBBLURAY_CP");
+  std::string bluraypersistent = getenv("LIBBLURAY_PERSISTENT_ROOT");
+  std::string bluraycache = getenv("LIBBLURAY_CACHE_ROOT");
+  std::string javahome = getenv("JAVA_HOME");
+  std::string jdkhome = getenv("JDK_HOME");
+  std::string javaoptions = getenv("_JAVA_OPTIONS");
+
+  CLog::Log(LOGINFO, "Bluray class path: {}; PERSISTENT_ROOT: {}; CACHE_ROOT: {}", bluraycp, bluraypersistent, bluraycache);
+  CLog::Log(LOGINFO, "JAVA_HOME: {}; JDK_HOME: {}; Java Options: {}", javahome, jdkhome, javaoptions);
 }
