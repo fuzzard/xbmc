@@ -38,6 +38,10 @@ bool CPlatformAndroid::InitStageOne()
 
   setenv("OS", "Linux", true); // for python scripts that check the OS
 
+  std::string binpath = getenv("KODI_BIN_HOME");
+
+  setenv("LIBBLURAY_CP", (binpath + "/java/").c_str(), 1);
+
   CWinSystemAndroidGLESContext::Register();
 
   CAndroidPowerSyscall::Register();

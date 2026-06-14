@@ -233,6 +233,15 @@ if(TARGET ${APP_NAME_LC}::Shairplay)
   add_bundle_lib(${APP_NAME_LC}::Shairplay "${CMAKE_BINARY_DIR}/tools/android/packaging/xbmc/lib/${CPU}")
 endif()
 
+if(TARGET Extras::BlurayBDJ)
+  get_target_property(_interface_files Extras::BlurayBDJ INTERFACE_LINK_LIBRARIES)
+  foreach(file IN LISTS _interface_files)
+    cmake_path(GET file FILENAME out_file)
+    file(APPEND ${CMAKE_BINARY_DIR}/${CORE_BUILD_DIR}/BundleFiles.cmake
+                "configure_file(\"${file}\" \"${CMAKE_BINARY_DIR}/tools/android/packaging/xbmc/assets/java/${out_file}\" COPYONLY)\n")
+  endforeach()
+endif()
+
 find_program(MAKE_EXECUTABLE make REQUIRED)
 
 add_custom_target(apk

@@ -65,7 +65,14 @@ if(NOT TARGET ${APP_NAME_LC}::${CMAKE_FIND_PACKAGE_NAME})
 
             set(build_env_mod ${CMAKE_COMMAND} -E env ${additional_env_mod})
           endif()
-          set(temp_extras_arg -Djdk_home=${java_homepath} -Dbdj_jar=enabled)
+          set(temp_extras_arg -Dbdj_jar=enabled)
+
+          # libbluray uses jdk_home for an os folder check in java jni paths
+          # Android requires this to be unset to allow libbluray fallback to 'linux' os path
+          if(NOT "${CORE_SYSTEM_NAME}" STREQUAL "android")
+            list(APPEND temp_extras_arg -Djdk_home=${java_homepath})
+          endif()
+
           unset(temp_env_mod)
 
           set(build_jar ON)
